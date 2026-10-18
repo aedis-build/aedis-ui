@@ -5,8 +5,8 @@ name: CI
 on:
   push:
     branches: [ main ]
+  # Every PR, including stacked ones that target a feature branch.
   pull_request:
-    branches: [ main ]
 
 permissions: {}
 
