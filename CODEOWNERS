@@ -1,0 +1,5 @@
+# Owners by path. Security-sensitive components, CI and this file require review from platform security.
+*                               @aedis-build/maintainers
+/.github/                       @aedis-build/platform-security
+/CODEOWNERS                     @aedis-build/platform-security
+/SECURITY.md                    @aedis-build/platform-security
