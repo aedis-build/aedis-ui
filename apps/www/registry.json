@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "aedis",
+  "homepage": "https://aedis-build.github.io/aedis-ui",
+  "items": [
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "utils",
+      "description": "cn(): joins class names and resolves Tailwind conflicts. Shipped by Aedis so its dependencies are explicit.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [{ "path": "lib/utils.ts", "type": "registry:lib" }]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Button with variants and sizes; renders as its child with asChild.",
+      "dependencies": ["@radix-ui/react-slot", "class-variance-authority"],
+      "registryDependencies": ["@aedis/utils"],
+      "files": [{ "path": "registry/aedis/ui/button.tsx", "type": "registry:ui" }]
+    }
+  ]
+}
