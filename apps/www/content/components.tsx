@@ -22,6 +22,7 @@ import { Label } from "@/registry/aedis/ui/label";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
+import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { Separator } from "@/registry/aedis/ui/separator";
@@ -86,6 +87,42 @@ export const components: ComponentDoc[] = [
       { name: "menuLabel", type: "string", default: '"Menu"', description: "Accessible name of the menu toggle." },
     ],
     security: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."],
+  },
+  {
+    name: "approval-card",
+    title: "Approval Card",
+    description: "A request from an agent that waits for a human before anything leaves the company.",
+    example: <ApprovalCardExample />,
+    props: [
+      { name: "requester", type: "string", description: "Who asks, usually the agent's name." },
+      { name: "content", type: "string", description: "What is being approved, as untrusted markdown." },
+      { name: "requestedAt", type: "string", description: "Already formatted time." },
+      { name: "onApprove", type: "() => Promise<string | null>", description: "Resolve with an error message to show it, or null." },
+      { name: "onRequestChanges", type: "(reason) => Promise<string | null>", description: "Called with the required reason." },
+      { name: "labels", type: "Partial<ApprovalCardLabels>", description: "Every visible text, English by default." },
+    ],
+    security: [
+      "Approving always goes through an Alert Dialog that starts on Cancel; the app can relabel it, not skip it.",
+      "Requesting changes requires a non-empty reason.",
+      "Content renders through Markdown (no raw HTML, safe links).",
+    ],
+  },
+  {
+    name: "hand-raise",
+    title: "Hand Raise",
+    description: "A question an agent could not resolve with the knowledge base or its colleagues.",
+    example: <HandRaiseExample />,
+    props: [
+      { name: "agent", type: "string", description: "The agent asking." },
+      { name: "question", type: "string", description: "Plain text." },
+      { name: "tried", type: "string | null", description: "What the agent already tried." },
+      { name: "onAnswer", type: '(answer, scope: "once" | "always") => Promise<string | null>', description: "Resolve with an error message, or null." },
+      { name: "labels", type: "Partial<HandRaiseLabels>", description: "Every visible text, English by default." },
+    ],
+    security: [
+      "Scope starts at \"Just this case\"; \"Always\" explains that the answer becomes a lasting rule.",
+      "The question is rendered as plain text.",
+    ],
   },
   {
     name: "chat",

@@ -409,6 +409,44 @@
           "type": "registry:hook"
         }
       ]
+    },
+    {
+      "name": "approval-card",
+      "type": "registry:ui",
+      "title": "Approval Card",
+      "description": "Agent request waiting for a human: approve through a confirmation, or request changes with a reason.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/alert-dialog",
+        "@aedis/button",
+        "@aedis/markdown",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/approval-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "hand-raise",
+      "type": "registry:ui",
+      "title": "Hand Raise",
+      "description": "Question an agent could not resolve alone, answered for this case or as a lasting rule.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/button",
+        "@aedis/label",
+        "@aedis/radio-group",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/hand-raise.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
