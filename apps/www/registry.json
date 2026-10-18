@@ -329,6 +329,37 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Grouped navigation with pending counters, disabled areas with a reason, and header/footer slots.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sidebar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "app-shell",
+      "type": "registry:ui",
+      "title": "App Shell",
+      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/sidebar"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/app-shell.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

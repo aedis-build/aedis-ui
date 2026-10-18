@@ -21,7 +21,9 @@ import { Input } from "@/registry/aedis/ui/input";
 import { Label } from "@/registry/aedis/ui/label";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
+import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Separator } from "@/registry/aedis/ui/separator";
+import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
 import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
@@ -44,8 +46,61 @@ const radixProps = (primitive: string): Prop[] => [
   { name: "...props", type: `${primitive} props`, description: "Every prop of the underlying Radix primitive." },
 ];
 
+const exampleNav = (
+  <Sidebar
+    className="w-60 rounded-xl"
+    header={<span className="px-2 font-semibold">Acme Studio</span>}
+    groups={[
+      { label: "Areas", items: [
+        { href: "#pipeline", label: "Sales pipeline" },
+        { href: "#social", label: "Social media", disabled: true, disabledReason: "opens after hiring a social media agent" },
+      ] },
+      { label: "Work", items: [
+        { href: "#home", label: "Home", active: true },
+        { href: "#approvals", label: "Approvals", count: 3, countLabel: "3 waiting" },
+        { href: "#hands", label: "Raised hands", count: 1, countLabel: "1 waiting" },
+      ] },
+    ]}
+    footer={<span className="px-2">Jordan · CEO</span>}
+  />
+);
+
 /** One entry per registry item. The docs page and the sidebar are generated from this list. */
 export const components: ComponentDoc[] = [
+  {
+    name: "app-shell",
+    title: "App Shell",
+    description: "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar.",
+    example: (
+      <div className="h-80 overflow-hidden rounded-xl border border-border">
+        <AppShell className="min-h-0 h-full" title="Approvals" sidebar={exampleNav}>
+          <p className="text-sm text-muted-foreground">Page content.</p>
+        </AppShell>
+      </div>
+    ),
+    props: [
+      { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar." },
+      { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
+      { name: "menuLabel", type: "string", default: '"Menu"', description: "Accessible name of the menu toggle." },
+    ],
+    security: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."],
+  },
+  {
+    name: "sidebar",
+    title: "Sidebar",
+    description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
+    example: exampleNav,
+    props: [
+      { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason." },
+      { name: "header / footer", type: "ReactNode", description: "Organization switcher at the top, signed-in user at the bottom." },
+      { name: "linkComponent", type: "ComponentType", default: "<a>", description: "Your router link, e.g. Next.js Link." },
+      { name: "label", type: "string", default: '"Main navigation"', description: "Accessible name of the nav landmark." },
+    ],
+    security: [
+      "Disabled items stay visible with their reason instead of disappearing, so people know an area exists.",
+      "Counters have accessible text (countLabel), not just a number.",
+    ],
+  },
   {
     name: "button",
     title: "Button",
