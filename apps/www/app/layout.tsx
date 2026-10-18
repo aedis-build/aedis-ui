@@ -25,6 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </header>
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[200px_1fr]">
           <aside className="hidden md:block">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Getting started</p>
+            <ul className="mb-6 space-y-1 text-sm">
+              <li><Link href="/docs/theming" className="text-muted-foreground hover:text-foreground">Theming</Link></li>
+            </ul>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Components</p>
             <ul className="space-y-1 text-sm">
               {components.map((c) => (
