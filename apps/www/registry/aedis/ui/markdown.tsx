@@ -1,0 +1,70 @@
+import * as React from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+import { cn } from "@/lib/utils";
+
+const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];
+
+/** Keeps only http, https, mailto and relative URLs; anything else (javascript:, data:, vbscript:) becomes empty. */
+export function safeUrl(url: string): string {
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") || trimmed.startsWith("#")) return trimmed;
+  try {
+    return SAFE_PROTOCOLS.includes(new URL(trimmed).protocol) ? trimmed : "";
+  } catch {
+    return "";
+  }
+}
+
+export type MarkdownProps = {
+  /** Markdown written by an agent or a user. Treated as untrusted. */
+  children: string;
+  /** Render images. Off by default: an image URL can leak the reader's IP and read receipts to a third party. */
+  allowImages?: boolean;
+  className?: string;
+};
+
+const components: Components = {
+  a: ({ href, children, node: _node, ...props }) => {
+    const url = safeUrl(href ?? "");
+    if (!url) return <span>{children}</span>;
+    const external = /^https?:/i.test(url);
+    return (
+      <a href={url} {...props} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="underline underline-offset-2">
+        {children}
+      </a>
+    );
+  },
+  table: ({ node: _node, ...props }) => (
+    <div className="my-2 overflow-x-auto">
+      <table className="w-full border-collapse text-sm" {...props} />
+    </div>
+  ),
+  th: ({ node: _node, ...props }) => <th className="border-b border-border px-2 py-1 text-left font-medium" {...props} />,
+  td: ({ node: _node, ...props }) => <td className="border-b border-border px-2 py-1" {...props} />,
+  code: ({ node: _node, ...props }) => <code className="rounded bg-muted px-1 py-0.5 text-[0.85em]" {...props} />,
+};
+
+/**
+ * Renders untrusted markdown. Raw HTML is never rendered (react-markdown ignores it without rehype-raw),
+ * links are limited to safe protocols and external ones get rel="noopener noreferrer".
+ */
+function Markdown({ children, allowImages = false, className }: MarkdownProps) {
+  return (
+    <div data-slot="markdown" className={cn("space-y-2 break-words [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5", className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        skipHtml
+        urlTransform={safeUrl}
+        disallowedElements={allowImages ? [] : ["img"]}
+        unwrapDisallowed
+        components={components}
+      >
+        {children}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+export { Markdown };

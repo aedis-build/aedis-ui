@@ -360,6 +360,55 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "markdown",
+      "type": "registry:ui",
+      "title": "Markdown",
+      "description": "Renders untrusted markdown: no raw HTML, safe link protocols, images off by default.",
+      "dependencies": [
+        "react-markdown",
+        "remark-gfm"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/markdown.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chat",
+      "type": "registry:ui",
+      "title": "Chat",
+      "description": "Conversation with an agent: safe rendering, working indicator, composer with limits.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/button",
+        "@aedis/textarea",
+        "@aedis/markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/chat.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-event-stream",
+      "type": "registry:hook",
+      "title": "useEventStream",
+      "description": "Subscribes to a Server-Sent Events endpoint with reconnection and Last-Event-ID.",
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-event-stream.ts",
+          "type": "registry:hook"
+        }
+      ]
     }
   ]
 }

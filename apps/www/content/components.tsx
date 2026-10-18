@@ -21,7 +21,9 @@ import { Input } from "@/registry/aedis/ui/input";
 import { Label } from "@/registry/aedis/ui/label";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
+import { ChatExample } from "@/components/examples/chat-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
+import { Markdown } from "@/registry/aedis/ui/markdown";
 import { Separator } from "@/registry/aedis/ui/separator";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
@@ -84,6 +86,63 @@ export const components: ComponentDoc[] = [
       { name: "menuLabel", type: "string", default: '"Menu"', description: "Accessible name of the menu toggle." },
     ],
     security: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."],
+  },
+  {
+    name: "chat",
+    title: "Chat",
+    description: "Conversation with an agent. Agent messages render as safe markdown; people's messages as plain text.",
+    example: <ChatExample />,
+    props: [
+      { name: "messages", type: "{ id; author; role: \"person\" | \"agent\" | \"system\"; content }[]", description: "The conversation. Content is untrusted." },
+      { name: "onSend", type: "(text) => Promise<void>", description: "Send the text; throw to keep the draft and show the error." },
+      { name: "working", type: "string", description: "Indicator while the agent works." },
+      { name: "maxLength", type: "number", default: "8000", description: "Match your server limit." },
+      { name: "labels", type: "Partial<ChatLabels>", description: "placeholder, send, message, log, sendError." },
+    ],
+    security: [
+      "Agent output goes through Markdown: no raw HTML, only http, https and mailto links.",
+      "The log region has aria-live, so new messages are announced.",
+      "Enter sends and Shift+Enter adds a line; IME composition never sends.",
+    ],
+  },
+  {
+    name: "markdown",
+    title: "Markdown",
+    description: "Renders untrusted markdown from agents or users.",
+    example: (
+      <Markdown className="text-sm">{"**Proposal** for *Acme*:\n\n- 4 days a month\n- [terms](https://example.com) · [bad](javascript:alert(1))\n\n<img src=x onerror=alert(1)> <b>raw html is dropped</b>"}</Markdown>
+    ),
+    props: [
+      { name: "children", type: "string", description: "The markdown." },
+      { name: "allowImages", type: "boolean", default: "false", description: "Render images. Off by default: image URLs leak the reader's IP and read receipts." },
+    ],
+    security: [
+      "Raw HTML is never rendered (no rehype-raw).",
+      "Only http, https, mailto and relative URLs survive; javascript:, data: and others become plain text.",
+      "External links open in a new tab with rel=\"noopener noreferrer\".",
+    ],
+  },
+  {
+    name: "use-event-stream",
+    title: "useEventStream",
+    description: "Hook that subscribes to a Server-Sent Events endpoint, e.g. new messages of a conversation.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`const state = useEventStream<Message>("/api/conversations/42/events", {
+  onEvent: (message) => setMessages((m) => [...m, message]),
+});`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "url", type: "string | null", description: "Endpoint; null pauses." },
+      { name: "onEvent", type: "(data, event) => void", description: "Called with the parsed JSON of each event." },
+      { name: "event", type: "string", default: '"message"', description: "Named event to listen to." },
+      { name: "enabled", type: "boolean", default: "true", description: "Pause without changing the URL." },
+    ],
+    security: [
+      "Malformed JSON events are ignored, not thrown.",
+      "Authenticate with same-origin cookies or a server proxy; EventSource cannot send an Authorization header.",
+    ],
   },
   {
     name: "sidebar",
