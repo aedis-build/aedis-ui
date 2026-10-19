@@ -1,0 +1,13 @@
+{
+  "name": "aedis-ui",
+  "private": true,
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.34.6",
+  "scripts": {
+    "dev": "pnpm -C apps/www dev",
+    "build": "pnpm -C apps/www build",
+    "registry:build": "pnpm -C apps/www registry:build",
+    "test": "pnpm -C apps/www test",
+    "typecheck": "pnpm -C apps/www typecheck"
+  }
+}

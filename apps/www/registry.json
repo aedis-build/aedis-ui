@@ -1,0 +1,529 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "aedis",
+  "homepage": "https://aedis-build.github.io/aedis-ui",
+  "items": [
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "utils",
+      "description": "cn(): joins class names and resolves Tailwind conflicts. Shipped by Aedis so its dependencies are explicit.",
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "files": [
+        {
+          "path": "lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "locale",
+      "type": "registry:lib",
+      "title": "Locale",
+      "description": "Locale provider and English dictionary that every Aedis UI component reads its text from.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/locale.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Button with variants and sizes; renders as its child with asChild.",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "Accessible label for form controls.",
+      "dependencies": [
+        "@radix-ui/react-label"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "Text input.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "Multi-line text input.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Container with header, content and footer.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Small status label.",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "Visual or semantic divider.",
+      "dependencies": [
+        "@radix-ui/react-separator"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "Loading placeholder, hidden from assistive technology.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Responsive table parts.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Tabbed sections.",
+      "dependencies": [
+        "@radix-ui/react-tabs"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/tabs.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog.",
+      "dependencies": [
+        "@radix-ui/react-dialog"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "Confirmation for irreversible or outbound actions; focus starts on Cancel.",
+      "dependencies": [
+        "@radix-ui/react-alert-dialog"
+      ],
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "On/off toggle.",
+      "dependencies": [
+        "@radix-ui/react-switch"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/switch.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Checkbox.",
+      "dependencies": [
+        "@radix-ui/react-checkbox"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Single choice among options.",
+      "dependencies": [
+        "@radix-ui/react-radio-group"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "Progress bar.",
+      "dependencies": [
+        "@radix-ui/react-progress"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Image with fallback initials.",
+      "dependencies": [
+        "@radix-ui/react-avatar"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "Short hint on hover or focus.",
+      "dependencies": [
+        "@radix-ui/react-tooltip"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Grouped navigation with pending counters, disabled areas with a reason, and header/footer slots.",
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sidebar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "app-shell",
+      "type": "registry:ui",
+      "title": "App Shell",
+      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/sidebar",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/app-shell.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "markdown",
+      "type": "registry:ui",
+      "title": "Markdown",
+      "description": "Renders untrusted markdown: no raw HTML, safe link protocols, images off by default.",
+      "dependencies": [
+        "react-markdown",
+        "remark-gfm"
+      ],
+      "registryDependencies": [
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/markdown.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chat",
+      "type": "registry:ui",
+      "title": "Chat",
+      "description": "Conversation with an agent: safe rendering, working indicator, composer with limits.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/button",
+        "@aedis/textarea",
+        "@aedis/markdown",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/chat.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-event-stream",
+      "type": "registry:hook",
+      "title": "useEventStream",
+      "description": "Subscribes to a Server-Sent Events endpoint with reconnection and Last-Event-ID.",
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-event-stream.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "approval-card",
+      "type": "registry:ui",
+      "title": "Approval Card",
+      "description": "Agent request waiting for a human: approve through a confirmation, or request changes with a reason.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/alert-dialog",
+        "@aedis/button",
+        "@aedis/markdown",
+        "@aedis/textarea",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/approval-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "hand-raise",
+      "type": "registry:ui",
+      "title": "Hand Raise",
+      "description": "Question an agent could not resolve alone, answered for this case or as a lasting rule.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/button",
+        "@aedis/label",
+        "@aedis/radio-group",
+        "@aedis/textarea",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/hand-raise.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "locale-pt-br",
+      "type": "registry:lib",
+      "title": "Locale: Português (Brasil)",
+      "description": "Brazilian Portuguese dictionary for Aedis UI components.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/locales/pt-br.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "locale-es",
+      "type": "registry:lib",
+      "title": "Locale: Español",
+      "description": "Spanish dictionary for Aedis UI components.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/locales/es.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "use-format",
+      "type": "registry:hook",
+      "title": "useFormat",
+      "description": "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-format.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "locale-switcher",
+      "type": "registry:ui",
+      "title": "Locale Switcher",
+      "description": "Accessible language picker that reports the choice to the app.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/locale-switcher.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

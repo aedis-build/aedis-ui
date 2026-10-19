@@ -1,0 +1,123 @@
+import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import { useEventStream } from "@/registry/aedis/hooks/use-event-stream";
+import { Chat } from "@/registry/aedis/ui/chat";
+import { Markdown, safeUrl } from "@/registry/aedis/ui/markdown";
+
+describe("Markdown", () => {
+  it("drops raw HTML and unsafe links", () => {
+    const { container } = render(
+      <Markdown>{"<img src=x onerror=alert(1)><script>alert(1)</script> [bad](javascript:alert(1)) [ok](https://example.com)"}</Markdown>,
+    );
+    expect(container.querySelector("img, script")).toBeNull();
+    expect(screen.queryByRole("link", { name: "bad" })).toBeNull();
+    expect(screen.getByText("bad")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ok" })).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("blocks images unless allowed", () => {
+    const { container, rerender } = render(<Markdown>{"![chart](https://example.com/c.png)"}</Markdown>);
+    expect(container.querySelector("img")).toBeNull();
+    rerender(<Markdown allowImages>{"![chart](https://example.com/c.png)"}</Markdown>);
+    expect(container.querySelector("img")).not.toBeNull();
+  });
+
+  it.each([
+    ["https://a.com/x", "https://a.com/x"],
+    ["mailto:a@b.com", "mailto:a@b.com"],
+    ["/relative", "/relative"],
+    ["javascript:alert(1)", ""],
+    [" JAVASCRIPT:alert(1)", ""],
+    ["data:text/html,<b>", ""],
+  ])("safeUrl(%s)", (input, expected) => expect(safeUrl(input)).toBe(expected));
+});
+
+describe("Chat", () => {
+  it("sends with Enter, keeps the draft and announces when sending fails", async () => {
+    const user = userEvent.setup();
+    const onSend = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce(undefined);
+    render(<Chat messages={[]} onSend={onSend} />);
+    const box = screen.getByRole("textbox", { name: "Message" });
+
+    await user.type(box, "hello{Enter}");
+    expect(onSend).toHaveBeenCalledWith("hello");
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not be sent");
+    expect(box).toHaveValue("hello");
+
+    await user.type(box, "{Enter}");
+    expect(box).toHaveValue("");
+  });
+
+  it("renders agent messages as markdown and people's messages as plain text", () => {
+    render(
+      <Chat
+        onSend={vi.fn()}
+        messages={[
+          { id: 1, author: "Jordan", role: "person", content: "**not bold**" },
+          { id: 2, author: "Rafael", role: "agent", content: "**bold**" },
+        ]}
+      />,
+    );
+    expect(screen.getByText("**not bold**")).toBeInTheDocument();
+    expect(screen.getByText("bold").tagName).toBe("STRONG");
+  });
+});
+
+describe("useEventStream", () => {
+  class FakeEventSource {
+    static instances: FakeEventSource[] = [];
+    static CLOSED = 2;
+    readyState = 0;
+    listeners: Record<string, (e: MessageEvent<string>) => void> = {};
+    onopen: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    closed = false;
+    constructor(public url: string) {
+      FakeEventSource.instances.push(this);
+    }
+    addEventListener(name: string, fn: (e: MessageEvent<string>) => void) {
+      this.listeners[name] = fn;
+    }
+    removeEventListener(name: string) {
+      delete this.listeners[name];
+    }
+    close() {
+      this.closed = true;
+    }
+    emit(data: string) {
+      this.listeners.message?.(new MessageEvent("message", { data }));
+    }
+  }
+
+  beforeEach(() => {
+    FakeEventSource.instances = [];
+    vi.stubGlobal("EventSource", FakeEventSource);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  function Probe({ url, onEvent }: { url: string | null; onEvent: (d: unknown) => void }) {
+    const state = useEventStream(url, { onEvent });
+    return <span>{state}</span>;
+  }
+
+  it("parses events, ignores malformed JSON and closes on unmount", () => {
+    const onEvent = vi.fn();
+    const { unmount } = render(<Probe url="/events" onEvent={onEvent} />);
+    const source = FakeEventSource.instances[0];
+    act(() => {
+      source.onopen?.();
+      source.emit('{"id":1}');
+      source.emit("not json");
+    });
+    expect(screen.getByText("open")).toBeInTheDocument();
+    expect(onEvent).toHaveBeenCalledExactlyOnceWith({ id: 1 }, expect.anything());
+    unmount();
+    expect(source.closed).toBe(true);
+  });
+
+  it("does not connect without a URL", () => {
+    render(<Probe url={null} onEvent={vi.fn()} />);
+    expect(FakeEventSource.instances).toHaveLength(0);
+  });
+});
