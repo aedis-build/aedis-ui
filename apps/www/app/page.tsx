@@ -5,8 +5,8 @@ import { Button } from "@/registry/aedis/ui/button";
 export default function Home() {
   return (
     <section className="space-y-6">
-      <h1 className="text-4xl font-semibold tracking-tight">Components for AI platforms, secure by default.</h1>
-      <p className="max-w-2xl text-lg text-muted-foreground">
+      <h1 className="text-display">Components for AI platforms, secure by default.</h1>
+      <p className="max-w-2xl text-title-3 font-normal text-muted-foreground">
         Agent chat, approvals, hand raises, usage ceilings and workflow editors. Copy them into your app with the shadcn CLI and
         own the code. Agent output is always treated as data, and anything that leaves the company asks for confirmation.
       </p>

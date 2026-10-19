@@ -12,7 +12,7 @@ function Progress({ className, value, ...props }: WithClassName<ProgressPrimitiv
       <ProgressPrimitive.Track data-slot="progress-track" className="h-full">
         <ProgressPrimitive.Indicator
           data-slot="progress-indicator"
-          className="h-full w-full flex-1 bg-primary transition-transform motion-reduce:transition-none"
+          className="h-full w-full flex-1 bg-primary transition-transform duration-(--duration-spring) ease-spring-critical motion-reduce:transition-none"
           // Base UI sizes the indicator by width; a transform keeps the animation off layout.
           style={{ width: "100%", transform: `translateX(-${100 - (clamped ?? 0)}%)` }}
         />

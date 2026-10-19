@@ -50,13 +50,13 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
   }
 
   return (
-    <article data-slot="hand-raise" className={cn("flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-primary bg-background p-4", className)}>
-      <header className="text-sm">
+    <article data-slot="hand-raise" className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-primary bg-surface p-4 shadow-elevation-1", className)}>
+      <header className="text-callout">
         <strong>{agent}</strong> {l.raised}
       </header>
-      <p className="whitespace-pre-wrap break-words text-sm">{stripInvisible(question)}</p>
+      <p className="whitespace-pre-wrap break-words text-callout">{stripInvisible(question)}</p>
       {tried ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-callout text-muted-foreground">
           {l.tried} {stripInvisible(tried)}
         </p>
       ) : null}
@@ -72,7 +72,7 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
         </div>
       </RadioGroup>
       {scope === "always" ? (
-        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+        <p id={`${id}-hint`} className="text-footnote text-muted-foreground">
           {l.alwaysHint}
         </p>
       ) : null}
@@ -82,7 +82,7 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
         </Button>
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-callout text-destructive">
           {error}
         </p>
       ) : null}

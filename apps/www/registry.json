@@ -20,6 +20,19 @@
       ]
     },
     {
+      "name": "theme",
+      "type": "registry:file",
+      "title": "Theme",
+      "description": "The Aedis UI default theme: light, dark and the extra brand theme as CSS variables, Tailwind tokens, accessibility fallbacks and motion utilities. Import it once in your global CSS after tailwindcss.",
+      "files": [
+        {
+          "path": "registry/aedis/styles/theme.css",
+          "type": "registry:file",
+          "target": "styles/aedis-theme.css"
+        }
+      ]
+    },
+    {
       "name": "locale",
       "type": "registry:lib",
       "title": "Locale",
@@ -77,6 +90,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -92,6 +106,7 @@
       "title": "Label",
       "description": "Accessible label for form controls.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -107,6 +122,7 @@
       "title": "Input",
       "description": "Text input.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -122,6 +138,7 @@
       "title": "Textarea",
       "description": "Multi-line text input.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -137,6 +154,7 @@
       "title": "Card",
       "description": "Container with header, content and footer.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -155,6 +173,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -173,6 +192,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -188,6 +208,7 @@
       "title": "Skeleton",
       "description": "Loading placeholder, hidden from assistive technology.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -203,6 +224,7 @@
       "title": "Table",
       "description": "Responsive table parts.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -221,6 +243,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -239,6 +262,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -257,6 +281,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/button"
       ],
@@ -276,6 +301,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -294,6 +320,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -312,6 +339,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -330,6 +358,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -348,6 +377,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -366,6 +396,7 @@
         "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -381,6 +412,7 @@
       "title": "Sidebar",
       "description": "Grouped navigation with pending counters, disabled areas with a reason, and header/footer slots.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils"
       ],
       "files": [
@@ -396,6 +428,7 @@
       "title": "App Shell",
       "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/sidebar",
         "@aedis/locale"
@@ -417,6 +450,7 @@
         "remark-gfm"
       ],
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted"
       ],
@@ -433,6 +467,7 @@
       "title": "Chat",
       "description": "Conversation with an agent: safe rendering, working indicator, composer with limits.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted",
         "@aedis/button",
@@ -477,6 +512,7 @@
       "title": "Approval Card",
       "description": "Agent request waiting for a human: approve through a confirmation, or request changes with a reason.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted",
         "@aedis/alert-dialog",
@@ -498,6 +534,7 @@
       "title": "Hand Raise",
       "description": "Question an agent could not resolve alone, answered for this case or as a lasting rule.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted",
         "@aedis/button",
@@ -564,6 +601,7 @@
       "title": "Locale Switcher",
       "description": "Accessible language picker that reports the choice to the app.",
       "registryDependencies": [
+        "@aedis/theme",
         "@aedis/utils",
         "@aedis/locale"
       ],

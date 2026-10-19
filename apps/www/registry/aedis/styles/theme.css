@@ -1,0 +1,372 @@
+/* Generated from registry/aedis/lib/tokens.ts by `pnpm theme`. Do not edit by hand. */
+
+@theme static {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --text-display: 3rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 700;
+  --text-title-1: 2.125rem;
+  --text-title-1--line-height: 1.12;
+  --text-title-1--letter-spacing: -0.02em;
+  --text-title-1--font-weight: 700;
+  --text-title-2: 1.625rem;
+  --text-title-2--line-height: 1.18;
+  --text-title-2--letter-spacing: -0.015em;
+  --text-title-2--font-weight: 600;
+  --text-title-3: 1.25rem;
+  --text-title-3--line-height: 1.25;
+  --text-title-3--letter-spacing: -0.01em;
+  --text-title-3--font-weight: 600;
+  --text-headline: 1.0625rem;
+  --text-headline--line-height: 1.35;
+  --text-headline--letter-spacing: -0.005em;
+  --text-headline--font-weight: 600;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0em;
+  --text-body--font-weight: 400;
+  --text-callout: 0.9375rem;
+  --text-callout--line-height: 1.45;
+  --text-callout--letter-spacing: 0em;
+  --text-callout--font-weight: 400;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.4;
+  --text-footnote--letter-spacing: 0.005em;
+  --text-footnote--font-weight: 400;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.01em;
+  --text-caption--font-weight: 500;
+  --text-code: 0.875rem;
+  --text-code--line-height: 1.6;
+  --text-code--letter-spacing: 0em;
+  --text-code--font-weight: 400;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --blur-thin: 12px;
+  --blur-regular: 20px;
+  --blur-thick: 28px;
+  --blur-materialize: 6px;
+  --duration-press: 140ms;
+  --duration-release: 520ms;
+  --duration-fast: 200ms;
+  --duration-base: 380ms;
+  --duration-spring: 560ms;
+  --duration-sheet: 700ms;
+  --duration-stagger: 50ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-critical: linear(0, 0.191 10%, 0.475 20%, 0.692 30%, 0.829 40%, 0.908 50%, 0.952 60%, 0.976 70%, 0.988 80%, 0.994 90%, 1);
+  --ease-spring-bouncy: linear(0, 0.208 10%, 0.537 20%, 0.787 30%, 0.93 40%, 0.993 50%, 1.013 60%, 1.014 70%, 1.01 80%, 1.005 90%, 1);
+  --press-scale: 0.96;
+  --materialize-scale: 0.86;
+  --recede-scale: 0.95;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-muted: var(--muted);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-control: var(--border-control);
+  --color-hairline: var(--hairline);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-link: var(--link);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-destructive-solid: var(--destructive-solid);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-material-thin: var(--material-thin);
+  --color-material-regular: var(--material-regular);
+  --color-material-thick: var(--material-thick);
+  --color-material-edge: var(--material-edge);
+  --color-scrim: var(--scrim);
+  --shadow-elevation-1: var(--elevation-1);
+  --shadow-elevation-2: var(--elevation-2);
+  --shadow-elevation-3: var(--elevation-3);
+  --shadow-elevation-4: var(--elevation-4);
+}
+
+:root {
+  color-scheme: light;
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --muted: #eef0f4;
+  --foreground: #161b26;
+  --muted-foreground: #5c6475;
+  --border: #dce0e7;
+  --border-control: #8a92a3;
+  --hairline: rgba(22,27,38,0.08);
+  --primary: #2457d6;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #161b26;
+  --link: #2457d6;
+  --accent: #2457d6;
+  --accent-foreground: #ffffff;
+  --accent-soft: #e8eefc;
+  --ring: rgba(36,87,214,0.45);
+  --success: #18794e;
+  --warning: #a35200;
+  --destructive: #c9302c;
+  --destructive-solid: #c9302c;
+  --destructive-foreground: #ffffff;
+  --material-thin: rgba(255,255,255,0.55);
+  --material-regular: rgba(255,255,255,0.72);
+  --material-thick: rgba(255,255,255,0.86);
+  --material-edge: rgba(255,255,255,0.60);
+  --scrim: rgba(13,16,21,0.32);
+  --elevation-1: 0 1px 1px rgba(16,24,40,0.04), 0 1px 2px rgba(16,24,40,0.06);
+  --elevation-2: 0 2px 4px rgba(16,24,40,0.06), 0 4px 12px rgba(16,24,40,0.08);
+  --elevation-3: 0 4px 8px rgba(16,24,40,0.06), 0 12px 28px rgba(16,24,40,0.12);
+  --elevation-4: 0 8px 16px rgba(16,24,40,0.08), 0 24px 56px rgba(16,24,40,0.18);
+}
+
+/* Dark follows the system unless a theme is chosen with data-theme on <html>. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --background: #0d1015;
+    --surface: #161a21;
+    --surface-raised: #1d222b;
+    --muted: #232833;
+    --foreground: #eceff4;
+    --muted-foreground: #9ba4b4;
+    --border: #2c323d;
+    --border-control: #646d80;
+    --hairline: rgba(255,255,255,0.08);
+    --primary: #3565e8;
+    --primary-foreground: #ffffff;
+    --secondary: #161a21;
+    --secondary-foreground: #eceff4;
+    --link: #7aa2ff;
+    --accent: #7aa2ff;
+    --accent-foreground: #0d1015;
+    --accent-soft: #1b2742;
+    --ring: rgba(122,162,255,0.50);
+    --success: #3dd68c;
+    --warning: #f5a524;
+    --destructive: #ff6369;
+    --destructive-solid: #c93a3f;
+    --destructive-foreground: #ffffff;
+    --material-thin: rgba(22,26,33,0.55);
+    --material-regular: rgba(22,26,33,0.72);
+    --material-thick: rgba(22,26,33,0.86);
+    --material-edge: rgba(255,255,255,0.08);
+    --scrim: rgba(0,0,0,0.55);
+    --elevation-1: 0 1px 2px rgba(0,0,0,0.40);
+    --elevation-2: 0 2px 6px rgba(0,0,0,0.45), 0 6px 16px rgba(0,0,0,0.35);
+    --elevation-3: 0 4px 10px rgba(0,0,0,0.5), 0 14px 32px rgba(0,0,0,0.45);
+    --elevation-4: 0 8px 20px rgba(0,0,0,0.55), 0 28px 64px rgba(0,0,0,0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0d1015;
+  --surface: #161a21;
+  --surface-raised: #1d222b;
+  --muted: #232833;
+  --foreground: #eceff4;
+  --muted-foreground: #9ba4b4;
+  --border: #2c323d;
+  --border-control: #646d80;
+  --hairline: rgba(255,255,255,0.08);
+  --primary: #3565e8;
+  --primary-foreground: #ffffff;
+  --secondary: #161a21;
+  --secondary-foreground: #eceff4;
+  --link: #7aa2ff;
+  --accent: #7aa2ff;
+  --accent-foreground: #0d1015;
+  --accent-soft: #1b2742;
+  --ring: rgba(122,162,255,0.50);
+  --success: #3dd68c;
+  --warning: #f5a524;
+  --destructive: #ff6369;
+  --destructive-solid: #c93a3f;
+  --destructive-foreground: #ffffff;
+  --material-thin: rgba(22,26,33,0.55);
+  --material-regular: rgba(22,26,33,0.72);
+  --material-thick: rgba(22,26,33,0.86);
+  --material-edge: rgba(255,255,255,0.08);
+  --scrim: rgba(0,0,0,0.55);
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.40);
+  --elevation-2: 0 2px 6px rgba(0,0,0,0.45), 0 6px 16px rgba(0,0,0,0.35);
+  --elevation-3: 0 4px 10px rgba(0,0,0,0.5), 0 14px 32px rgba(0,0,0,0.45);
+  --elevation-4: 0 8px 20px rgba(0,0,0,0.55), 0 28px 64px rgba(0,0,0,0.55);
+}
+
+/* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */
+:root[data-theme="brand"] {
+  color-scheme: light;
+  --background: #f5f1e8;
+  --surface: #fbf8f1;
+  --surface-raised: #ffffff;
+  --muted: #ece5d5;
+  --foreground: #1a2740;
+  --muted-foreground: #5a6276;
+  --border: #ddd4c2;
+  --border-control: #8a8270;
+  --hairline: rgba(26,39,64,0.10);
+  --primary: #1a2740;
+  --primary-foreground: #ffffff;
+  --secondary: #fbf8f1;
+  --secondary-foreground: #1a2740;
+  --link: #1a2740;
+  --accent: #c8a24c;
+  --accent-foreground: #1a2740;
+  --accent-soft: #f3ebd6;
+  --ring: rgba(26,39,64,0.45);
+  --success: #18794e;
+  --warning: #a35200;
+  --destructive: #c9302c;
+  --destructive-solid: #c9302c;
+  --destructive-foreground: #ffffff;
+  --material-thin: rgba(251,248,241,0.55);
+  --material-regular: rgba(251,248,241,0.72);
+  --material-thick: rgba(251,248,241,0.86);
+  --material-edge: rgba(255,255,255,0.60);
+  --scrim: rgba(26,39,64,0.32);
+  --elevation-1: 0 1px 1px rgba(26,39,64,0.05), 0 1px 2px rgba(26,39,64,0.07);
+  --elevation-2: 0 2px 4px rgba(26,39,64,0.06), 0 4px 12px rgba(26,39,64,0.09);
+  --elevation-3: 0 4px 8px rgba(26,39,64,0.07), 0 12px 28px rgba(26,39,64,0.13);
+  --elevation-4: 0 8px 16px rgba(26,39,64,0.09), 0 24px 56px rgba(26,39,64,0.19);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root:root {
+    --material-thin: var(--surface);
+    --material-regular: var(--surface);
+    --material-thick: var(--surface);
+    --material-edge: transparent;
+    --blur-thin: 0px;
+    --blur-regular: 0px;
+    --blur-thick: 0px;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root:root {
+    --border: var(--border-control);
+    --hairline: var(--border-control);
+  }
+}
+
+/* Reduced motion: slides, scale, blur and bounce become a short cross-fade. */
+@media (prefers-reduced-motion: reduce) {
+  :root:root {
+    --press-scale: 1;
+    --materialize-scale: 1;
+    --recede-scale: 1;
+    --blur-materialize: 0px;
+    --duration-release: var(--duration-fast);
+    --duration-base: var(--duration-fast);
+    --duration-spring: var(--duration-fast);
+    --duration-sheet: var(--duration-fast);
+    --duration-stagger: 0ms;
+    --ease-spring-critical: ease;
+    --ease-spring-bouncy: ease;
+  }
+}
+
+/* Keyboard focus: inner ring in the surface color, outer ring in --ring. Composes with elevation shadows. */
+@utility focus-ring {
+  outline: none;
+  &:focus-visible {
+    @apply ring-2 ring-ring ring-offset-2 ring-offset-surface;
+  }
+}
+
+/* Sinks on pointer-down, comes back on a soft spring. */
+@utility press {
+  transition:
+    scale var(--duration-release) var(--ease-spring-bouncy),
+    color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  &:active:not(:disabled, [data-disabled], [aria-disabled="true"]) {
+    scale: var(--press-scale);
+    transition-duration: var(--duration-press);
+    transition-timing-function: var(--ease-cinematic);
+  }
+}
+
+/* Popovers, menus and dialogs grow out of their trigger (Base UI sets --transform-origin); exits are short. */
+@utility materialize {
+  transform-origin: var(--transform-origin, center);
+  transition:
+    scale var(--duration-spring) var(--ease-spring-critical),
+    opacity var(--duration-base) var(--ease-cinematic),
+    filter var(--duration-base) var(--ease-cinematic);
+  &[data-starting-style],
+  &[data-ending-style] {
+    scale: var(--materialize-scale);
+    opacity: 0;
+    filter: blur(var(--blur-materialize));
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-cinematic);
+  }
+}
+
+/* Scrims and plain cross-fades. */
+@utility fade {
+  transition: opacity var(--duration-base) var(--ease-cinematic);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+  }
+}
+
+/* Translucent materials with a light top edge. Solid under reduced transparency (see the tokens above). */
+@utility material-thin {
+  background: linear-gradient(var(--material-edge), var(--material-edge)) top / 100% 1px no-repeat, var(--material-thin);
+  backdrop-filter: saturate(180%) blur(var(--blur-thin));
+}
+@utility material-regular {
+  background: linear-gradient(var(--material-edge), var(--material-edge)) top / 100% 1px no-repeat, var(--material-regular);
+  backdrop-filter: saturate(180%) blur(var(--blur-regular));
+}
+@utility material-thick {
+  background: linear-gradient(var(--material-edge), var(--material-edge)) top / 100% 1px no-repeat, var(--material-thick);
+  backdrop-filter: saturate(180%) blur(var(--blur-thick));
+}
+
+/* Where scrolling content meets floating chrome: a fade instead of a divider line. */
+@utility scroll-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, black 1rem, black calc(100% - 1rem), transparent);
+}
+@utility scroll-edge {
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: 1rem;
+    pointer-events: none;
+    background: linear-gradient(var(--background), transparent);
+  }
+}

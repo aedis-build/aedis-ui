@@ -24,6 +24,13 @@ Then add components with the shadcn CLI:
 npx shadcn@latest add @aedis/button
 ```
 
+The first component brings the theme (`@aedis/theme`). Import it once in your global CSS, after Tailwind:
+
+```css
+@import "tailwindcss";
+@import "./styles/aedis-theme.css";
+```
+
 Aedis items depend only on other Aedis items (including its own `@aedis/utils`), so an install never pulls a package that Aedis did not choose.
 
 ## Security

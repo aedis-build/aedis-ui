@@ -21,7 +21,7 @@ function Formatted() {
   const f = useFormat();
   const twoMinutesAgo = React.useMemo(() => new Date(Date.now() - 2 * 60_000), []);
   return (
-    <ul className="text-sm text-muted-foreground">
+    <ul className="text-callout text-muted-foreground">
       <li>{f.relative(twoMinutesAgo)}</li>
       <li>{f.currency(449, "BRL")}</li>
       <li>{f.number(250000)}</li>

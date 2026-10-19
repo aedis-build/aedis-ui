@@ -38,11 +38,11 @@ function DefaultLink(props: LinkProps) {
 
 function Sidebar({ groups, header, footer, linkComponent: Link = DefaultLink, label = "Main navigation", className }: SidebarProps) {
   return (
-    <nav data-slot="sidebar" aria-label={label} className={cn("flex h-full flex-col gap-6 bg-primary px-3 py-4 text-primary-foreground", className)}>
+    <nav data-slot="sidebar" aria-label={label} className={cn("material-thick flex h-full flex-col gap-6 border-r border-hairline px-3 py-4 text-foreground", className)}>
       {header ? <div data-slot="sidebar-header">{header}</div> : null}
       {groups.map((group) => (
         <div key={group.label} data-slot="sidebar-group" className="flex flex-col gap-1">
-          <p className="px-2 text-xs font-medium uppercase tracking-wide opacity-70">{group.label}</p>
+          <p className="px-2 text-caption uppercase text-muted-foreground">{group.label}</p>
           <ul className="flex flex-col gap-0.5">
             {group.items.map((item) => (
               <li key={item.href}>
@@ -50,7 +50,7 @@ function Sidebar({ groups, header, footer, linkComponent: Link = DefaultLink, la
                   <span
                     aria-disabled="true"
                     title={item.disabledReason}
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm opacity-50"
+                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-callout text-muted-foreground opacity-60"
                   >
                     {item.icon}
                     <span className="flex-1">{item.label}</span>
@@ -60,12 +60,12 @@ function Sidebar({ groups, header, footer, linkComponent: Link = DefaultLink, la
                   <Link
                     href={item.href}
                     aria-current={item.active ? "page" : undefined}
-                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-primary-foreground/15 aria-[current=page]:font-medium"
+                    className="press focus-ring flex items-center gap-2 rounded-sm px-2 py-1.5 text-callout hover:bg-muted aria-[current=page]:bg-accent-soft aria-[current=page]:font-medium"
                   >
                     {item.icon}
                     <span className="flex-1">{item.label}</span>
                     {item.count ? (
-                      <span className="rounded-full bg-accent px-1.5 text-xs font-medium text-accent-foreground">
+                      <span className="rounded-full bg-accent px-1.5 text-caption text-accent-foreground">
                         <span aria-hidden="true">{item.count}</span>
                         <span className="sr-only">{item.countLabel ?? String(item.count)}</span>
                       </span>
@@ -77,7 +77,7 @@ function Sidebar({ groups, header, footer, linkComponent: Link = DefaultLink, la
           </ul>
         </div>
       ))}
-      {footer ? <div data-slot="sidebar-footer" className="mt-auto text-sm">{footer}</div> : null}
+      {footer ? <div data-slot="sidebar-footer" className="mt-auto text-callout">{footer}</div> : null}
     </nav>
   );
 }

@@ -26,14 +26,14 @@ function AlertDialogContent({ className, initialFocus, ...props }: WithClassName
     <AlertDialogPrimitive.Portal>
       <AlertDialogPrimitive.Backdrop
         data-slot="alert-dialog-overlay"
-        className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none"
+        className="fade fixed inset-0 z-50 bg-scrim"
       />
       <AlertDialogPrimitive.Popup
         ref={popup}
         data-slot="alert-dialog-content"
         initialFocus={initialFocus ?? focusCancel}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-border bg-background p-6 shadow-lg outline-none transition-[opacity,scale] duration-150 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 motion-reduce:transition-none sm:max-w-lg",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-hairline bg-surface-raised p-6 shadow-elevation-4 outline-none materialize sm:max-w-lg",
           className,
         )}
         {...props}
@@ -51,11 +51,11 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">)
 }
 
 function AlertDialogTitle({ className, ...props }: WithClassName<AlertDialogPrimitive.Title.Props>) {
-  return <AlertDialogPrimitive.Title data-slot="alert-dialog-title" className={cn("text-lg font-semibold", className)} {...props} />;
+  return <AlertDialogPrimitive.Title data-slot="alert-dialog-title" className={cn("text-title-3", className)} {...props} />;
 }
 
 function AlertDialogDescription({ className, ...props }: WithClassName<AlertDialogPrimitive.Description.Props>) {
-  return <AlertDialogPrimitive.Description data-slot="alert-dialog-description" className={cn("text-sm text-muted-foreground", className)} {...props} />;
+  return <AlertDialogPrimitive.Description data-slot="alert-dialog-description" className={cn("text-callout text-muted-foreground", className)} {...props} />;
 }
 
 /** Confirms and closes the dialog. */

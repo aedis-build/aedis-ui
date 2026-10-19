@@ -38,7 +38,7 @@ function LocaleSwitcher({ locales, value, onChange, label, className }: LocaleSw
         id={id}
         value={value ?? locale}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-md border border-input bg-background px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="focus-ring h-9 rounded-sm border border-border-control bg-surface px-2 text-callout"
       >
         {locales.map((option) => (
           <option key={option.code} value={option.code} lang={option.code}>

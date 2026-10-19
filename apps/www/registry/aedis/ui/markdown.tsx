@@ -32,19 +32,19 @@ const components: Components = {
     if (!url) return <span>{children}</span>;
     const external = /^https?:/i.test(url);
     return (
-      <a href={url} {...props} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="underline underline-offset-2">
+      <a href={url} {...props} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="text-link underline underline-offset-2">
         {children}
       </a>
     );
   },
   table: ({ node: _node, ...props }) => (
     <div className="my-2 overflow-x-auto">
-      <table className="w-full border-collapse text-sm" {...props} />
+      <table className="w-full border-collapse text-callout" {...props} />
     </div>
   ),
   th: ({ node: _node, ...props }) => <th className="border-b border-border px-2 py-1 text-left font-medium" {...props} />,
   td: ({ node: _node, ...props }) => <td className="border-b border-border px-2 py-1" {...props} />,
-  code: ({ node: _node, ...props }) => <code className="rounded bg-muted px-1 py-0.5 text-[0.85em]" {...props} />,
+  code: ({ node: _node, ...props }) => <code className="rounded-xs bg-muted px-1 py-0.5 font-mono text-[0.9em]" {...props} />,
 };
 
 /**

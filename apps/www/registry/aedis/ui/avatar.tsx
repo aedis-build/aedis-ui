@@ -14,7 +14,7 @@ function AvatarImage({ className, ...props }: WithClassName<AvatarPrimitive.Imag
 }
 
 function AvatarFallback({ className, ...props }: WithClassName<AvatarPrimitive.Fallback.Props>) {
-  return <AvatarPrimitive.Fallback data-slot="avatar-fallback" className={cn("flex size-full items-center justify-center rounded-full bg-muted text-xs font-medium", className)} {...props} />;
+  return <AvatarPrimitive.Fallback data-slot="avatar-fallback" className={cn("flex size-full items-center justify-center rounded-full bg-muted text-caption", className)} {...props} />;
 }
 
 export { Avatar, AvatarFallback, AvatarImage };

@@ -24,20 +24,20 @@ function AppShell({ sidebar, children, title, menuLabel, className }: AppShellPr
 
   return (
     <div data-slot="app-shell" className={cn("min-h-screen md:grid md:grid-cols-[15rem_1fr]", className)}>
-      <div className="flex h-12 items-center gap-3 border-b border-border px-4 md:hidden">
+      <div className="material-regular scroll-edge sticky top-0 z-40 flex h-12 items-center gap-3 px-4 md:hidden">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={sidebarId}
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex size-8 items-center justify-center rounded-md outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          className="press focus-ring inline-flex size-8 items-center justify-center rounded-sm hover:bg-muted"
         >
           <span className="sr-only">{t.menuLabel}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M2 4h12M2 8h12M2 12h12" />
           </svg>
         </button>
-        <div className="min-w-0 truncate font-medium">{title}</div>
+        <div className="min-w-0 truncate text-headline">{title}</div>
       </div>
       <div id={sidebarId} className={cn("md:sticky md:top-0 md:block md:h-screen", open ? "block" : "hidden")}>
         {sidebar}

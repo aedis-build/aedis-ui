@@ -6,21 +6,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "press focus-ring inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-sm text-callout font-medium disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-border bg-background hover:bg-muted",
+        default: "bg-primary text-primary-foreground shadow-elevation-1 hover:bg-primary/90",
+        secondary: "border border-hairline bg-secondary text-secondary-foreground shadow-elevation-1 hover:bg-muted",
+        outline: "border border-border-control bg-surface hover:bg-muted",
         ghost: "hover:bg-muted",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        link: "text-primary underline-offset-4 hover:underline",
+        destructive: "bg-destructive-solid text-destructive-foreground shadow-elevation-1 hover:bg-destructive-solid/90",
+        link: "text-link underline underline-offset-4",
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 px-3",
-        lg: "h-10 px-6",
+        sm: "h-8 px-3 text-footnote",
+        lg: "h-11 px-6 text-body",
         icon: "size-9",
       },
     },

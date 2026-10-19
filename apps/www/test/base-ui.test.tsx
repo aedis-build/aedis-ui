@@ -55,7 +55,7 @@ describe("Base UI primitives", () => {
     await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
   });
 
-  it("dialog returns focus to its trigger on close and animates only opacity and scale", async () => {
+  it("dialog returns focus to its trigger on close and materializes", async () => {
     const user = userEvent.setup();
     render(
       <Dialog>
@@ -69,8 +69,7 @@ describe("Base UI primitives", () => {
     const trigger = screen.getByRole("button", { name: "Invite" });
     await user.click(trigger);
     const dialog = screen.getByRole("dialog", { name: "Invite a person" });
-    expect(dialog.className).toContain("transition-[opacity,scale]");
-    expect(dialog.className).toContain("motion-reduce:transition-none");
+    expect(dialog.className).toContain("materialize");
     await user.click(screen.getByRole("button", { name: "Done" }));
     await waitFor(() => expect(trigger).toHaveFocus());
   });
