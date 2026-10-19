@@ -18,12 +18,13 @@ pnpm build          # registry + static site in apps/www/out
 
 1. Put the source in `apps/www/registry/aedis/ui/<name>.tsx`. It must be self-contained apart from npm dependencies and other registry items.
 2. Register it in `apps/www/registry.json`, listing `dependencies` (npm) and `registryDependencies` (other items).
-3. Add its docs entry in `apps/www/content/components.tsx`: description, example, props and security notes.
-4. Add a test in `apps/www/test/` covering behavior and accessibility (axe).
+3. If it shows text, add its strings to `Messages` and to the three dictionaries.
+4. Add its docs entry in `apps/www/content/components.tsx`: description, example, props and security notes.
+5. Add a test in `apps/www/test/` covering behavior and accessibility (axe).
 
 ## Rules for components
 
-- **English only.** Every user-facing string comes from props with an English default. No product copy inside a component.
+- **No fixed strings.** Every user-facing string lives in the Locale dictionary (`registry/aedis/lib/locale.tsx`) and the component reads it with `useMessages`, keeping a `labels` prop for overrides. A pull request that adds or changes a string updates `en`, `pt-BR` and `es` together; the locale test fails when keys differ. No product copy inside a component.
 - **Agent output is data.** Render it as text, or as markdown through the sanitizing renderer. Never use `dangerouslySetInnerHTML` on content an agent or a user produced.
 - **Actions that leave the company need confirmation.** Sending, approving and deleting go through an explicit confirm step that the app can label but not remove.
 - **External links** get `rel="noopener noreferrer"`.

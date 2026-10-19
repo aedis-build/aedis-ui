@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
 import { Label } from "@/registry/aedis/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
@@ -10,29 +11,7 @@ import { Textarea } from "@/registry/aedis/ui/textarea";
 
 export type HandRaiseScope = "once" | "always";
 
-export type HandRaiseLabels = {
-  raised: string;
-  tried: string;
-  answer: string;
-  answerPlaceholder: string;
-  scope: string;
-  once: string;
-  always: string;
-  alwaysHint: string;
-  submit: string;
-};
-
-const defaultLabels: HandRaiseLabels = {
-  raised: "raised a hand",
-  tried: "Already tried:",
-  answer: "Your answer",
-  answerPlaceholder: "Your answer",
-  scope: "Applies to",
-  once: "Just this case",
-  always: "Always",
-  alwaysHint: "Becomes a lasting rule the agent follows in every conversation.",
-  submit: "Answer",
-};
+export type HandRaiseLabels = Messages["handRaise"];
 
 export type HandRaiseProps = {
   /** The agent asking. */
@@ -49,7 +28,7 @@ export type HandRaiseProps = {
 
 /** A question an agent could not resolve alone, answered for this case or as a lasting rule. */
 function HandRaise({ agent, question, tried, onAnswer, labels, className }: HandRaiseProps) {
-  const l = { ...defaultLabels, ...labels };
+  const l = useMessages("handRaise", labels);
   const id = React.useId();
   const [answer, setAnswer] = React.useState("");
   const [scope, setScope] = React.useState<HandRaiseScope>("once");
@@ -62,7 +41,7 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
     try {
       setError(await onAnswer(answer.trim(), scope));
     } catch {
-      setError("Something went wrong. Try again.");
+      setError(l.error);
     } finally {
       setBusy(false);
     }

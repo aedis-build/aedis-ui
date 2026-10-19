@@ -23,6 +23,7 @@ import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
+import { LocaleExample } from "@/components/examples/locale-examples";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { Separator } from "@/registry/aedis/ui/separator";
@@ -84,7 +85,7 @@ export const components: ComponentDoc[] = [
     props: [
       { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar." },
       { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
-      { name: "menuLabel", type: "string", default: '"Menu"', description: "Accessible name of the menu toggle." },
+      { name: "menuLabel", type: "string", description: "Accessible name of the menu toggle. Defaults to the Locale provider." },
     ],
     security: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."],
   },
@@ -99,7 +100,7 @@ export const components: ComponentDoc[] = [
       { name: "requestedAt", type: "string", description: "Already formatted time." },
       { name: "onApprove", type: "() => Promise<string | null>", description: "Resolve with an error message to show it, or null." },
       { name: "onRequestChanges", type: "(reason) => Promise<string | null>", description: "Called with the required reason." },
-      { name: "labels", type: "Partial<ApprovalCardLabels>", description: "Every visible text, English by default." },
+      { name: "labels", type: "Partial<ApprovalCardLabels>", description: "Override single strings; the rest comes from the Locale provider (English by default)." },
     ],
     security: [
       "Approving always goes through an Alert Dialog that starts on Cancel; the app can relabel it, not skip it.",
@@ -117,7 +118,7 @@ export const components: ComponentDoc[] = [
       { name: "question", type: "string", description: "Plain text." },
       { name: "tried", type: "string | null", description: "What the agent already tried." },
       { name: "onAnswer", type: '(answer, scope: "once" | "always") => Promise<string | null>', description: "Resolve with an error message, or null." },
-      { name: "labels", type: "Partial<HandRaiseLabels>", description: "Every visible text, English by default." },
+      { name: "labels", type: "Partial<HandRaiseLabels>", description: "Override single strings; the rest comes from the Locale provider (English by default)." },
     ],
     security: [
       "Scope starts at \"Just this case\"; \"Always\" explains that the answer becomes a lasting rule.",
@@ -141,6 +142,57 @@ export const components: ComponentDoc[] = [
       "The log region has aria-live, so new messages are announced.",
       "Enter sends and Shift+Enter adds a line; IME composition never sends.",
     ],
+  },
+  {
+    name: "locale",
+    title: "Locale",
+    description: "Locale provider and dictionaries: every Aedis UI component reads its text from here, in English, Portuguese or Spanish.",
+    example: <LocaleExample />,
+    props: [
+      { name: "locale", type: "string", description: 'BCP 47 tag the app already resolved, e.g. "pt-BR". Drives formatting too.' },
+      { name: "messages", type: "Messages", default: "en", description: "Dictionary: en (built in), ptBR (locale-pt-br) or es (locale-es)." },
+      { name: "useMessages(key, labels)", type: "hook", description: "For component authors: a component's strings with the labels prop overriding single entries." },
+    ],
+    security: [
+      "Without a provider every component stays in English, so adding it never breaks a page.",
+      "The labels prop still wins over the dictionary for a single string.",
+      "App copy stays in the app (e.g. next-intl); pass its resolved locale here so there is one source of truth.",
+      "Sidebar is a Server Component and does not read the provider: pass label={messages.sidebar.label}.",
+    ],
+  },
+  {
+    name: "locale-switcher",
+    title: "Locale Switcher",
+    description: "Language picker. The app stores the choice and re-renders the provider.",
+    example: <LocaleExample />,
+    props: [
+      { name: "locales", type: "{ code; label }[]", description: "Options, each label in its own language." },
+      { name: "value", type: "string", description: "Selected locale. Defaults to the provider locale." },
+      { name: "onChange", type: "(code) => void", description: "Called with the chosen BCP 47 tag." },
+      { name: "label", type: "string", description: "Accessible name. Defaults to the dictionary." },
+    ],
+    security: ["A native select: keyboard and screen readers work everywhere; each option carries its own lang."],
+  },
+  {
+    name: "use-format",
+    title: "useFormat",
+    description: "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`const f = useFormat();
+f.relative(message.createdAt); // "há 4 minutos"
+f.currency(449, "BRL");        // "R$ 449,00"
+f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "date(value, options?)", type: "string", description: 'Intl.DateTimeFormat; default { dateStyle: "medium" }.' },
+      { name: "dateTime(value)", type: "string", description: "Medium date and short time." },
+      { name: "number(value, options?)", type: "string", description: "Intl.NumberFormat." },
+      { name: "currency(value, code)", type: "string", description: "ISO 4217 code, e.g. BRL or USD." },
+      { name: "relative(value, now?)", type: "string", description: '"2 minutes ago", "yesterday", "in 3 days".' },
+    ],
+    security: ["No dependency: uses the Intl APIs of the runtime.", "Pass the time zone in options when the server and the viewer differ."],
   },
   {
     name: "markdown",

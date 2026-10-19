@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,33 +19,7 @@ import { Button } from "@/registry/aedis/ui/button";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { Textarea } from "@/registry/aedis/ui/textarea";
 
-export type ApprovalCardLabels = {
-  requests: string;
-  approve: string;
-  requestChanges: string;
-  confirmTitle: string;
-  confirmDescription: string;
-  confirm: string;
-  cancel: string;
-  reason: string;
-  reasonPlaceholder: string;
-  sendRequest: string;
-  back: string;
-};
-
-const defaultLabels: ApprovalCardLabels = {
-  requests: "requests approval",
-  approve: "Approve",
-  requestChanges: "Request changes",
-  confirmTitle: "Approve and send?",
-  confirmDescription: "The agent will carry on and send it right away.",
-  confirm: "Approve",
-  cancel: "Cancel",
-  reason: "What should change",
-  reasonPlaceholder: "What should change?",
-  sendRequest: "Request changes",
-  back: "Back",
-};
+export type ApprovalCardLabels = Messages["approvalCard"];
 
 export type ApprovalCardProps = {
   /** Who asks, e.g. the agent's name. */
@@ -63,7 +38,7 @@ export type ApprovalCardProps = {
 
 /** A request from an agent that waits for a human. Approving always goes through a confirmation. */
 function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestChanges, labels, className }: ApprovalCardProps) {
-  const l = { ...defaultLabels, ...labels };
+  const l = useMessages("approvalCard", labels);
   const [mode, setMode] = React.useState<"idle" | "changes">("idle");
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -75,7 +50,7 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
     try {
       setError(await action());
     } catch {
-      setError("Something went wrong. Try again.");
+      setError(l.error);
     } finally {
       setBusy(false);
     }

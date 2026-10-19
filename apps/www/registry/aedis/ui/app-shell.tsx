@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useMessages } from "@/registry/aedis/lib/locale";
 
 export type AppShellProps = {
   /** The navigation, usually a Sidebar. */
@@ -10,13 +11,14 @@ export type AppShellProps = {
   children: React.ReactNode;
   /** Shown in the top bar on small screens, next to the menu toggle. */
   title?: React.ReactNode;
-  /** Accessible name of the menu toggle on small screens. */
+  /** Accessible name of the menu toggle on small screens. Defaults to the dictionary. */
   menuLabel?: string;
   className?: string;
 };
 
 /** Sidebar + main layout. Below md the sidebar hides behind a toggle in a top bar. */
-function AppShell({ sidebar, children, title, menuLabel = "Menu", className }: AppShellProps) {
+function AppShell({ sidebar, children, title, menuLabel, className }: AppShellProps) {
+  const t = useMessages("appShell", menuLabel ? { menuLabel } : undefined);
   const [open, setOpen] = React.useState(false);
   const sidebarId = React.useId();
 
@@ -30,7 +32,7 @@ function AppShell({ sidebar, children, title, menuLabel = "Menu", className }: A
           onClick={() => setOpen((v) => !v)}
           className="inline-flex size-8 items-center justify-center rounded-md outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span className="sr-only">{menuLabel}</span>
+          <span className="sr-only">{t.menuLabel}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M2 4h12M2 8h12M2 12h12" />
           </svg>

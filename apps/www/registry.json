@@ -20,6 +20,18 @@
       ]
     },
     {
+      "name": "locale",
+      "type": "registry:lib",
+      "title": "Locale",
+      "description": "Locale provider and English dictionary that every Aedis UI component reads its text from.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/locale.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
@@ -352,7 +364,8 @@
       "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
       "registryDependencies": [
         "@aedis/utils",
-        "@aedis/sidebar"
+        "@aedis/sidebar",
+        "@aedis/locale"
       ],
       "files": [
         {
@@ -389,7 +402,8 @@
         "@aedis/utils",
         "@aedis/button",
         "@aedis/textarea",
-        "@aedis/markdown"
+        "@aedis/markdown",
+        "@aedis/locale"
       ],
       "files": [
         {
@@ -420,7 +434,8 @@
         "@aedis/alert-dialog",
         "@aedis/button",
         "@aedis/markdown",
-        "@aedis/textarea"
+        "@aedis/textarea",
+        "@aedis/locale"
       ],
       "files": [
         {
@@ -439,11 +454,73 @@
         "@aedis/button",
         "@aedis/label",
         "@aedis/radio-group",
-        "@aedis/textarea"
+        "@aedis/textarea",
+        "@aedis/locale"
       ],
       "files": [
         {
           "path": "registry/aedis/ui/hand-raise.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "locale-pt-br",
+      "type": "registry:lib",
+      "title": "Locale: Português (Brasil)",
+      "description": "Brazilian Portuguese dictionary for Aedis UI components.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/locales/pt-br.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "locale-es",
+      "type": "registry:lib",
+      "title": "Locale: Español",
+      "description": "Spanish dictionary for Aedis UI components.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/locales/es.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "use-format",
+      "type": "registry:hook",
+      "title": "useFormat",
+      "description": "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
+      "registryDependencies": [
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-format.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "locale-switcher",
+      "type": "registry:ui",
+      "title": "Locale Switcher",
+      "description": "Accessible language picker that reports the choice to the app.",
+      "registryDependencies": [
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/locale-switcher.tsx",
           "type": "registry:ui"
         }
       ]

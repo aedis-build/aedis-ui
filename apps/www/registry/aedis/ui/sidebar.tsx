@@ -27,7 +27,7 @@ export type SidebarProps = {
   footer?: React.ReactNode;
   /** Router link component (e.g. Next.js Link). Defaults to a plain anchor. */
   linkComponent?: React.ComponentType<LinkProps>;
-  /** Accessible name of the navigation landmark. */
+  /** Accessible name of the navigation landmark. Server Component: pass `messages.sidebar.label` for other languages. */
   label?: string;
   className?: string;
 };

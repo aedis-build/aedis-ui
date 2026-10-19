@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { Textarea } from "@/registry/aedis/ui/textarea";
@@ -16,21 +17,7 @@ export type ChatMessage = {
   content: string;
 };
 
-export type ChatLabels = {
-  placeholder: string;
-  send: string;
-  message: string;
-  log: string;
-  sendError: string;
-};
-
-const defaultLabels: ChatLabels = {
-  placeholder: "Write a message",
-  send: "Send",
-  message: "Message",
-  log: "Conversation",
-  sendError: "The message could not be sent. Try again.",
-};
+export type ChatLabels = Messages["chat"];
 
 export type ChatProps = {
   messages: ChatMessage[];
@@ -44,7 +31,7 @@ export type ChatProps = {
 };
 
 function Chat({ messages, onSend, working, maxLength = 8000, labels, className }: ChatProps) {
-  const l = { ...defaultLabels, ...labels };
+  const l = useMessages("chat", labels);
   const [draft, setDraft] = React.useState("");
   const [sending, setSending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
