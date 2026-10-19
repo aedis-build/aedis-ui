@@ -1,0 +1,20 @@
+# Merge gate policy (aedis-build/aedis-platform merge-gate.yml). Always read from the default branch; anything not
+# listed here needs a human.
+schema: aedis.platform/merge-policy/v1
+trustedAuthors: [jeffersonnlucas]
+humanRequiredPaths:
+  - ".github/**"
+  - CODEOWNERS
+  - SECURITY.md
+  - LICENSE
+  - "LICENSES/**"
+  - REUSE.toml
+  - "docs/**"
+  # The rendering and transport boundaries: where a change can turn agent text into script or leak a session.
+  - "apps/www/lib/**"
+  - apps/www/registry/aedis/ui/markdown.tsx
+requiredSummaries: [coverage-summary, sast-summary]
+coverageNoRegression: true
+maxChangedLines: 2000
+allowBreaking: false
+mergeMethod: squash

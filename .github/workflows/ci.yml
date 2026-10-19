@@ -1,4 +1,6 @@
-# Typecheck, tests (behavior + accessibility), registry build and static site build on every PR.
+# Every PR: Conventional Commits, tests with the Aedis Platform coverage gate (95 % lines, 85 % branches, no
+# regression), typecheck, registry and static site build, and a DAST baseline against the built site. The gates,
+# rules and summaries come from aedis-platform; this repository carries no glue of its own.
 # Actions pinned by SHA; minimal permissions; no long-lived credentials.
 name: CI
 
@@ -17,8 +19,21 @@ jobs:
     permissions:
       contents: read
 
+  coverage:
+    uses: aedis-build/aedis-platform/.github/workflows/coverage-js.yml@e83f3b489f26c7bd8276e035f4213f89f254ed08
+    permissions:
+      contents: read
+      actions: read
+    with:
+      script: test:coverage
+      reports: apps/www/coverage/cobertura-coverage.xml
+      min-line: 95
+      min-branch: 85
+      no-regression: true
+      platform-ref: e83f3b489f26c7bd8276e035f4213f89f254ed08
+
   build:
-    name: Typecheck, test and build
+    name: Typecheck and build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,5 +48,20 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
-      - run: pnpm test
       - run: pnpm build
+      # DAST baseline (OWASP ZAP) against the exposed surface: the docs site and the registry JSON.
+      - run: python3 -m http.server 8080 -d apps/www/out &
+      - uses: aedis-build/aedis-platform/.github/actions/dast@e83f3b489f26c7bd8276e035f4213f89f254ed08
+        with:
+          target-url: http://localhost:8080/
+
+  reuse:
+    name: REUSE (license and copyright on every file)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pipx run reuse==5.0.2 lint

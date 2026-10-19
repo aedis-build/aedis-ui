@@ -12,7 +12,9 @@ import {
   AlertDialogTrigger,
 } from "@/registry/aedis/ui/alert-dialog";
 import { Button } from "@/registry/aedis/ui/button";
+import { Input } from "@/registry/aedis/ui/input";
 import { Progress } from "@/registry/aedis/ui/progress";
+import { Textarea } from "@/registry/aedis/ui/textarea";
 import { violations } from "./a11y";
 
 describe("primitives", () => {
@@ -42,6 +44,25 @@ describe("primitives", () => {
     expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
     await user.keyboard("{Enter}");
     expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it("text fields are bounded by default and the limit can be changed, not removed", () => {
+    render(
+      <>
+        <Input aria-label="name" />
+        <Input aria-label="email" type="email" />
+        <Input aria-label="age" type="number" />
+        <Input aria-label="code" maxLength={6} />
+        <Textarea aria-label="notes" />
+        <Textarea aria-label="essay" maxLength={20000} />
+      </>,
+    );
+    expect(screen.getByLabelText("name")).toHaveAttribute("maxlength", "256");
+    expect(screen.getByLabelText("email")).toHaveAttribute("maxlength", "256");
+    expect(screen.getByLabelText("age")).not.toHaveAttribute("maxlength");
+    expect(screen.getByLabelText("code")).toHaveAttribute("maxlength", "6");
+    expect(screen.getByLabelText("notes")).toHaveAttribute("maxlength", "4000");
+    expect(screen.getByLabelText("essay")).toHaveAttribute("maxlength", "20000");
   });
 
   it("progress clamps values outside 0-100", () => {

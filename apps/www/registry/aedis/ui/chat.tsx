@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { stripInvisible } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
@@ -44,7 +45,8 @@ function Chat({ messages, onSend, working, maxLength = 8000, labels, className }
 
   async function send(event?: React.FormEvent) {
     event?.preventDefault();
-    const text = draft.trim();
+    // Hidden code points pasted into the draft would reach the agent unseen by the person who sent them.
+    const text = stripInvisible(draft).trim();
     if (!text || sending) return;
     setSending(true);
     setError(null);
@@ -73,7 +75,7 @@ function Chat({ messages, onSend, working, maxLength = 8000, labels, className }
             )}
           >
             <p className="mb-1 text-xs font-medium text-muted-foreground">{m.author}</p>
-            {m.role === "agent" ? <Markdown>{m.content}</Markdown> : <p className="whitespace-pre-wrap break-words">{m.content}</p>}
+            {m.role === "agent" ? <Markdown>{m.content}</Markdown> : <p className="whitespace-pre-wrap break-words">{stripInvisible(m.content)}</p>}
           </div>
         ))}
         {working ? <p className="text-sm italic text-muted-foreground">{working}</p> : null}

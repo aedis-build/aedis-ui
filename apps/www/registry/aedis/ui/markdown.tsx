@@ -2,6 +2,7 @@ import * as React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import { stripInvisible } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 
 const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];
@@ -48,7 +49,8 @@ const components: Components = {
 
 /**
  * Renders untrusted markdown. Raw HTML is never rendered (react-markdown ignores it without rehype-raw),
- * links are limited to safe protocols and external ones get rel="noopener noreferrer".
+ * links are limited to safe protocols, external ones get rel="noopener noreferrer", and hidden code points
+ * (zero-width, bidi overrides, Unicode tags) are removed so nothing is shown differently from what it says.
  */
 function Markdown({ children, allowImages = false, className }: MarkdownProps) {
   return (
@@ -61,7 +63,7 @@ function Markdown({ children, allowImages = false, className }: MarkdownProps) {
         unwrapDisallowed
         components={components}
       >
-        {children}
+        {stripInvisible(children)}
       </ReactMarkdown>
     </div>
   );

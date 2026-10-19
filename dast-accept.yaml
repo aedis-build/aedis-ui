@@ -1,0 +1,2 @@
+# Accepted DAST (ZAP) alerts, read by the Aedis Platform DAST action. Each item has pluginId, until and reason.
+accept: []
