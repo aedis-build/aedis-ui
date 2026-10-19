@@ -33,6 +33,29 @@
       ]
     },
     {
+      "name": "custom-theme",
+      "type": "registry:lib",
+      "title": "Custom theme",
+      "description": "Typed, validated custom themes: schema, contrast AA gate, applyTheme through the CSSOM and themeToCss for a nonce style. A theme is data, never CSS.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/custom-theme.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/aedis/lib/contrast.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/aedis/lib/tokens.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "locale",
       "type": "registry:lib",
       "title": "Locale",

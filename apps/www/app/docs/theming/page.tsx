@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { ThemeEditor } from "@/components/site/theme-editor";
 import { contrast } from "@/registry/aedis/lib/contrast";
+import { MAX_THEME_BYTES } from "@/registry/aedis/lib/custom-theme";
 import { blurs, colors, colorUsage, contrastPairs, durations, easings, radii, scales, shadows, themeNames, typeScale } from "@/registry/aedis/lib/tokens";
 
 export const metadata: Metadata = { title: "Theming", description: "The Aedis UI default theme: color, type, depth, material and motion tokens." };
@@ -186,6 +188,29 @@ export default function Theming() {
             </tbody>
           </table>
         </div>
+      </Section>
+      <Section title="Custom themes">
+        <p className="text-callout text-muted-foreground">
+          A theme is typed data, never CSS. <code className="font-mono">@aedis/custom-theme</code> validates it and applies it variable by variable
+          through the CSSOM, so an imported or shared theme cannot inject rules, import a stylesheet, reach a <code className="font-mono">url()</code> or hide a safety cue.
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-callout">
+          <li>Colors only as hex or <code className="font-mono">oklch()</code>, parsed and written back in canonical form; radius, blur and shadow strength only as numbers within a range.</li>
+          <li>Fonts from a closed list of system fonts: nothing is downloaded, so a font cannot be used to track who opened the page.</li>
+          <li>Every text and control pair must pass contrast AA in light and dark, and the destructive action can never look like the primary one; otherwise the theme is refused.</li>
+          <li>Themes change color and shape, never <code className="font-mono">display</code>, <code className="font-mono">visibility</code> or <code className="font-mono">opacity</code>.</li>
+          <li>Stored and shared themes are untrusted: size-limited ({MAX_THEME_BYTES / 1024} KB), validated again on load, hidden characters removed from the name.</li>
+        </ul>
+        <pre className={code}>
+          <code>{`import { applyTheme, parseThemeJson, themeToCss } from "@/lib/custom-theme";
+
+const result = parseThemeJson(saved);          // untrusted: validated again
+if (result.ok) applyTheme(result.theme, { mode: "dark" });
+
+// Server rendering: only validated values reach the page.
+<style nonce={nonce}>{themeToCss(theme)}</style>`}</code>
+        </pre>
+        <ThemeEditor />
       </Section>
     </article>
   );
