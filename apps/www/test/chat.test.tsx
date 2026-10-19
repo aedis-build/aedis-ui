@@ -49,6 +49,15 @@ describe("Chat", () => {
     expect(box).toHaveValue("");
   });
 
+  it("strips hidden code points from what is sent and from what is shown", async () => {
+    const user = userEvent.setup();
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    render(<Chat messages={[{ id: 1, author: "Jordan", role: "person", content: "see\u200B\u{E0041}n" }]} onSend={onSend} />);
+    expect(screen.getByText("seen")).toBeInTheDocument();
+    await user.type(screen.getByRole("textbox", { name: "Message" }), "hi\u202E there{Enter}");
+    expect(onSend).toHaveBeenCalledWith("hi there");
+  });
+
   it("renders agent messages as markdown and people's messages as plain text", () => {
     render(
       <Chat

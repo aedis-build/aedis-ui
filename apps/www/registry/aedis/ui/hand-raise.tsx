@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { stripInvisible } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
@@ -39,7 +40,8 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
     setBusy(true);
     setError(null);
     try {
-      setError(await onAnswer(answer.trim(), scope));
+      // The answer may become a lasting rule for the agent; nothing hidden travels with it.
+      setError(await onAnswer(stripInvisible(answer).trim(), scope));
     } catch {
       setError(l.error);
     } finally {
@@ -52,10 +54,10 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
       <header className="text-sm">
         <strong>{agent}</strong> {l.raised}
       </header>
-      <p className="whitespace-pre-wrap break-words text-sm">{question}</p>
+      <p className="whitespace-pre-wrap break-words text-sm">{stripInvisible(question)}</p>
       {tried ? (
         <p className="text-sm text-muted-foreground">
-          {l.tried} {tried}
+          {l.tried} {stripInvisible(tried)}
         </p>
       ) : null}
       <Textarea aria-label={l.answer} placeholder={l.answerPlaceholder} maxLength={4000} value={answer} onChange={(e) => setAnswer(e.target.value)} />

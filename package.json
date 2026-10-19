@@ -8,6 +8,7 @@
     "build": "pnpm -C apps/www build",
     "registry:build": "pnpm -C apps/www registry:build",
     "test": "pnpm -C apps/www test",
-    "typecheck": "pnpm -C apps/www typecheck"
+    "typecheck": "pnpm -C apps/www typecheck",
+    "test:coverage": "pnpm -C apps/www test:coverage"
   }
 }

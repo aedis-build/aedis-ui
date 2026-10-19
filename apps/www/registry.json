@@ -32,6 +32,42 @@
       ]
     },
     {
+      "name": "untrusted",
+      "type": "registry:lib",
+      "title": "untrusted",
+      "description": "stripInvisible(): removes zero-width, bidi-override and Unicode-tag code points that hide text from people but not from agents.",
+      "files": [
+        {
+          "path": "lib/untrusted.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "api",
+      "type": "registry:lib",
+      "title": "api",
+      "description": "api(): same-origin JSON client with CSRF header, refused redirects, timeout and typed errors for 401/403.",
+      "files": [
+        {
+          "path": "lib/api.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "security-headers",
+      "type": "registry:lib",
+      "title": "securityHeaders",
+      "description": "securityHeaders(): strict CSP with nonce, HSTS, no sniffing, no framing, no referrer leak; apply from middleware.",
+      "files": [
+        {
+          "path": "lib/security-headers.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
@@ -384,7 +420,8 @@
         "remark-gfm"
       ],
       "registryDependencies": [
-        "@aedis/utils"
+        "@aedis/utils",
+        "@aedis/untrusted"
       ],
       "files": [
         {
@@ -400,6 +437,7 @@
       "description": "Conversation with an agent: safe rendering, working indicator, composer with limits.",
       "registryDependencies": [
         "@aedis/utils",
+        "@aedis/untrusted",
         "@aedis/button",
         "@aedis/textarea",
         "@aedis/markdown",
@@ -425,12 +463,25 @@
       ]
     },
     {
+      "name": "use-idle-timeout",
+      "type": "registry:hook",
+      "title": "useIdleTimeout",
+      "description": "Calls back after a period without pointer or keyboard activity, so the app can end the session.",
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-idle-timeout.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
       "name": "approval-card",
       "type": "registry:ui",
       "title": "Approval Card",
       "description": "Agent request waiting for a human: approve through a confirmation, or request changes with a reason.",
       "registryDependencies": [
         "@aedis/utils",
+        "@aedis/untrusted",
         "@aedis/alert-dialog",
         "@aedis/button",
         "@aedis/markdown",
@@ -451,6 +502,7 @@
       "description": "Question an agent could not resolve alone, answered for this case or as a lasting rule.",
       "registryDependencies": [
         "@aedis/utils",
+        "@aedis/untrusted",
         "@aedis/button",
         "@aedis/label",
         "@aedis/radio-group",

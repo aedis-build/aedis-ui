@@ -234,6 +234,89 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     ],
   },
   {
+    name: "use-idle-timeout",
+    title: "useIdleTimeout",
+    description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`useIdleTimeout(15 * 60_000, () => signOut("idle"));`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "ms", type: "number", description: "Idle period in milliseconds." },
+      { name: "onIdle", type: "() => void", description: "Called once per idle period; sign out and clear state here." },
+      { name: "enabled", type: "boolean", default: "true", description: "Off while signed out." },
+    ],
+    security: [
+      "A tab that comes back into view past the limit fires at once, so a laptop that slept does not keep a live session.",
+      "Ending the session is the app's job: revoke it on the server, not only in the browser.",
+    ],
+  },
+  {
+    name: "api",
+    title: "api",
+    description: "Same-origin JSON client for the app's own backend.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`const approvals = await api<Approval[]>("/api/approvals");
+await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "path", type: "string", description: "Relative path on this origin; absolute URLs are refused." },
+      { name: "body", type: "unknown", description: "JSON body; defaults the method to POST." },
+      { name: "timeoutMs", type: "number", default: "30000", description: "Abort after this long." },
+      { name: "csrfCookie", type: "string", description: "Cookie whose value is echoed in X-CSRF-Token." },
+    ],
+    security: [
+      "Only relative paths: the session cookie never travels to another host, and redirects are refused.",
+      "Sends X-Requested-With, which a cross-site form cannot; require it on the server with SameSite cookies.",
+      "Responses that are not application/json are refused; 401 and 403 surface as ApiError with the status.",
+      "Keep the session in an HttpOnly cookie. Never store a token in localStorage or sessionStorage.",
+    ],
+  },
+  {
+    name: "security-headers",
+    title: "securityHeaders",
+    description: "Response headers for an app built with these components: strict CSP, HSTS, no framing, no sniffing.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`// proxy.ts (Next.js) or any edge/middleware
+const nonce = crypto.randomUUID();
+for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response.headers.set(name, value);`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "nonce", type: "string", description: "Per-request nonce; the framework must put it on its scripts." },
+      { name: "connectSrc", type: "string[]", default: "[]", description: "Extra origins for fetch and SSE." },
+      { name: "imgSrc", type: "string[]", default: "[]", description: "Extra origins for images." },
+      { name: "frameAncestors", type: "string[]", default: "[]", description: "Who may frame the page; nobody by default." },
+    ],
+    security: [
+      "script-src is nonce + strict-dynamic: no inline script, no eval, no script from a CDN.",
+      "frame-ancestors 'none' and X-Frame-Options DENY stop clickjacking; form-action 'self' stops form hijacking.",
+      "Cache-Control: no-store keeps pages with personal data out of shared caches.",
+    ],
+  },
+  {
+    name: "untrusted",
+    title: "untrusted",
+    description: "Helpers for text written by agents or people: removes code points that hide text from the reader.",
+    example: (
+      <pre className="overflow-x-auto text-sm">
+        <code>{`stripInvisible("Pay\\u{E0049}\\u{E0047}\\u{E004E}\\u{E004F}\\u{E0052}\\u{E0045} the invoice") // "Pay the invoice"`}</code>
+      </pre>
+    ),
+    props: [
+      { name: "stripInvisible", type: "(text: string) => string", description: "Removes zero-width, bidi-override and Unicode-tag code points." },
+      { name: "hasInvisible", type: "(text: string) => boolean", description: "Whether the text carries any of them." },
+    ],
+    security: [
+      "Markdown, Chat, Approval Card and Hand Raise already apply it to what they show and send.",
+      "Zero-width joiner/non-joiner and LRM/RLM are kept: emoji and right-to-left scripts need them.",
+    ],
+  },
+  {
     name: "sidebar",
     title: "Sidebar",
     description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
@@ -386,8 +469,14 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
         <Input id="email" type="email" placeholder="name@company.com" />
       </div>
     ),
-    props: [{ name: "...props", type: "input props", description: "Every prop of <input>. Set aria-invalid to show the error state." }],
-    security: ["Validate on the server too; client-side constraints are only a convenience."],
+    props: [
+      { name: "maxLength", type: "number", default: "256 for text-like types", description: "Length limit; match it to the server's." },
+      { name: "...props", type: "input props", description: "Every prop of the native input. Set aria-invalid to show the error state." },
+    ],
+    security: [
+      "Text, search, email, url, tel and password inputs are limited to 256 characters unless maxLength says otherwise.",
+      "Validate on the server too; client-side constraints are only a convenience.",
+    ],
   },
   {
     name: "label",
@@ -511,8 +600,11 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Textarea",
     description: "Multi-line text input.",
     example: <Textarea aria-label="Your answer" placeholder="Your answer" className="max-w-sm" />,
-    props: [{ name: "...props", type: "textarea props", description: "Every prop of <textarea>. Set maxLength to match the server limit." }],
-    security: ["Set maxLength to the server's limit so users see it before submitting."],
+    props: [
+      { name: "maxLength", type: "number", default: "4000", description: "Length limit; match it to the server's." },
+      { name: "...props", type: "textarea props", description: "Every prop of the native textarea." },
+    ],
+    security: ["Limited to 4000 characters by default; set maxLength to the server's limit so people see it before submitting."],
   },
   {
     name: "tooltip",

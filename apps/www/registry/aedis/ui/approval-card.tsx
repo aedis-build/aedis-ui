@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { stripInvisible } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import {
@@ -88,7 +89,7 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
         <div className="flex flex-col gap-2">
           <Textarea aria-label={l.reason} placeholder={l.reasonPlaceholder} maxLength={4000} value={reason} onChange={(e) => setReason(e.target.value)} />
           <div className="flex flex-wrap gap-2">
-            <Button disabled={busy || !reason.trim()} onClick={() => run(() => onRequestChanges(reason.trim()))}>
+            <Button disabled={busy || !reason.trim()} onClick={() => run(() => onRequestChanges(stripInvisible(reason).trim()))}>
               {l.sendRequest}
             </Button>
             <Button variant="outline" disabled={busy} onClick={() => setMode("idle")}>
