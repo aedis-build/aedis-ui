@@ -5,3 +5,6 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/** Base UI also takes a className function of state; Aedis components take a plain string so `cn` can merge it. */
+export type WithClassName<P> = Omit<P, "className"> & { className?: string };

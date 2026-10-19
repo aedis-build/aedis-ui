@@ -28,9 +28,7 @@ describe("primitives", () => {
     const onConfirm = vi.fn();
     render(
       <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button>Delete</Button>
-        </AlertDialogTrigger>
+        <AlertDialogTrigger render={<Button />}>Delete</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogTitle>Delete the automation?</AlertDialogTitle>
           <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
@@ -67,6 +65,8 @@ describe("primitives", () => {
 
   it("progress clamps values outside 0-100", () => {
     render(<Progress value={180} aria-label="Ceiling used" />);
-    expect(screen.getByRole("progressbar", { name: "Ceiling used" }).firstElementChild).toHaveStyle({ transform: "translateX(-0%)" });
+    const bar = screen.getByRole("progressbar", { name: "Ceiling used" });
+    expect(bar).toHaveAttribute("aria-valuenow", "100");
+    expect(bar.querySelector("[data-slot=progress-indicator]")).toHaveStyle({ transform: "translateX(-0%)" });
   });
 });

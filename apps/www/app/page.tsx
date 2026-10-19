@@ -11,11 +11,11 @@ export default function Home() {
         own the code. Agent output is always treated as data, and anything that leaves the company asks for confirmation.
       </p>
       <div className="flex gap-3">
-        <Button asChild>
-          <Link href="/docs/button">Browse components</Link>
+        <Button render={<Link href="/docs/button" />}>
+          Browse components
         </Button>
-        <Button variant="outline" asChild>
-          <a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer">GitHub</a>
+        <Button variant="outline" render={<a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer" />}>
+          GitHub
         </Button>
       </div>
     </section>

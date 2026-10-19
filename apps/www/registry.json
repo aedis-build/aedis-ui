@@ -71,9 +71,9 @@
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
-      "description": "Button with variants and sizes; renders as its child with asChild.",
+      "description": "Button with variants and sizes; renders another element with the render prop.",
       "dependencies": [
-        "@radix-ui/react-slot",
+        "@base-ui/react@1.9.0",
         "class-variance-authority"
       ],
       "registryDependencies": [
@@ -91,9 +91,6 @@
       "type": "registry:ui",
       "title": "Label",
       "description": "Accessible label for form controls.",
-      "dependencies": [
-        "@radix-ui/react-label"
-      ],
       "registryDependencies": [
         "@aedis/utils"
       ],
@@ -173,7 +170,7 @@
       "title": "Separator",
       "description": "Visual or semantic divider.",
       "dependencies": [
-        "@radix-ui/react-separator"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -221,7 +218,7 @@
       "title": "Tabs",
       "description": "Tabbed sections.",
       "dependencies": [
-        "@radix-ui/react-tabs"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -239,7 +236,7 @@
       "title": "Dialog",
       "description": "Modal dialog.",
       "dependencies": [
-        "@radix-ui/react-dialog"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -257,7 +254,7 @@
       "title": "Alert Dialog",
       "description": "Confirmation for irreversible or outbound actions; focus starts on Cancel.",
       "dependencies": [
-        "@radix-ui/react-alert-dialog"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils",
@@ -276,7 +273,7 @@
       "title": "Switch",
       "description": "On/off toggle.",
       "dependencies": [
-        "@radix-ui/react-switch"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -294,7 +291,7 @@
       "title": "Checkbox",
       "description": "Checkbox.",
       "dependencies": [
-        "@radix-ui/react-checkbox"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -312,7 +309,7 @@
       "title": "Radio Group",
       "description": "Single choice among options.",
       "dependencies": [
-        "@radix-ui/react-radio-group"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -330,7 +327,7 @@
       "title": "Progress",
       "description": "Progress bar.",
       "dependencies": [
-        "@radix-ui/react-progress"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -348,7 +345,7 @@
       "title": "Avatar",
       "description": "Image with fallback initials.",
       "dependencies": [
-        "@radix-ui/react-avatar"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"
@@ -366,7 +363,7 @@
       "title": "Tooltip",
       "description": "Short hint on hover or focus.",
       "dependencies": [
-        "@radix-ui/react-tooltip"
+        "@base-ui/react@1.9.0"
       ],
       "registryDependencies": [
         "@aedis/utils"

@@ -1,11 +1,12 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -29,21 +30,20 @@ const buttonVariants = cva(
 
 export type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    /** Render the child element (e.g. a link) with the button styles instead of a `<button>`. */
-    asChild?: boolean;
+    /** Another element to render with the button styles, e.g. `<a href="/docs" />`. */
+    render?: useRender.RenderProp;
   };
 
-function Button({ className, variant, size, asChild = false, type, ...props }: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
-  return (
-    <Comp
-      data-slot="button"
-      // A bare <button> inside a form submits it; default to "button" so submitting is always explicit.
-      type={asChild ? type : (type ?? "button")}
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    />
-  );
+/**
+ * Pass `render` to give another element the button styles, e.g. `render={<a href="/docs" />}`.
+ * It keeps its own role: a link stays a link.
+ */
+function Button({ className, variant, size, type, render, ...props }: ButtonProps) {
+  return useRender({
+    // A bare <button> inside a form submits it; default to "button" so submitting is always explicit.
+    render: render ?? <ButtonPrimitive type={type ?? "button"} />,
+    props: { "data-slot": "button", className: cn(buttonVariants({ variant, size }), className), ...(render ? { type } : {}), ...props },
+  });
 }
 
 export { Button, buttonVariants };

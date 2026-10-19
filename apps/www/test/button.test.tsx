@@ -20,8 +20,8 @@ describe("Button", () => {
     expect(onSubmit).toHaveBeenCalledOnce();
   });
 
-  it("renders its child with asChild", () => {
-    render(<Button asChild><a href="/docs">Docs</a></Button>);
+  it("renders another element with render", () => {
+    render(<Button render={<a href="/docs" />}>Docs</Button>);
     expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("data-slot", "button");
   });
 

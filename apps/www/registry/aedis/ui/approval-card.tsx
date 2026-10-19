@@ -67,8 +67,8 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
       {mode === "idle" ? (
         <div className="flex flex-wrap gap-2">
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button disabled={busy}>{l.approve}</Button>
+            <AlertDialogTrigger render={<Button />} disabled={busy}>
+              {l.approve}
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

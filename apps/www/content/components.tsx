@@ -46,8 +46,8 @@ export type ComponentDoc = {
   security: string[];
 };
 
-const radixProps = (primitive: string): Prop[] => [
-  { name: "...props", type: `${primitive} props`, description: "Every prop of the underlying Radix primitive." },
+const baseProps = (part: string): Prop[] => [
+  { name: "...props", type: `${part} props`, description: "Every prop of the underlying Base UI part, including render for composition." },
 ];
 
 const exampleNav = (
@@ -348,7 +348,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     props: [
       { name: "variant", type: '"default" | "secondary" | "outline" | "ghost" | "destructive" | "link"', default: '"default"', description: "Visual style." },
       { name: "size", type: '"default" | "sm" | "lg" | "icon"', default: '"default"', description: "Height and padding." },
-      { name: "asChild", type: "boolean", default: "false", description: "Render the child element with the button styles." },
+      { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Render another element (e.g. a link) with the button styles. It keeps its own role, so a link stays a link." },
     ],
     security: ["Defaults to type=\"button\": submitting a form must be explicit (type=\"submit\")."],
   },
@@ -358,9 +358,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     description: "Confirmation for actions that cannot be undone or that leave the company: send, approve, delete.",
     example: (
       <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button>Approve and send</Button>
-        </AlertDialogTrigger>
+        <AlertDialogTrigger render={<Button />}>Approve and send</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Send this proposal to the client?</AlertDialogTitle>
@@ -373,7 +371,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         </AlertDialogContent>
       </AlertDialog>
     ),
-    props: radixProps("@radix-ui/react-alert-dialog"),
+    props: baseProps("@base-ui/react AlertDialog"),
     security: [
       "Focus starts on Cancel, so pressing Enter right after opening never confirms.",
       "Escape and clicking outside do not confirm; only the action button does.",
@@ -388,7 +386,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         <AvatarFallback>RA</AvatarFallback>
       </Avatar>
     ),
-    props: radixProps("@radix-ui/react-avatar"),
+    props: baseProps("@base-ui/react Avatar"),
     security: ["Load avatar images from origins your CSP allows; the fallback renders when the image fails."],
   },
   {
@@ -435,7 +433,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         <Label htmlFor="can-approve">Can approve what their team sends out</Label>
       </div>
     ),
-    props: radixProps("@radix-ui/react-checkbox"),
+    props: baseProps("@base-ui/react Checkbox"),
     security: ["Consent checkboxes must start unchecked; do not pass defaultChecked for consent."],
   },
   {
@@ -444,9 +442,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     description: "Modal dialog for forms and details. Use Alert Dialog for confirmations.",
     example: (
       <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline">Invite a person</Button>
-        </DialogTrigger>
+        <DialogTrigger render={<Button variant="outline" />}>Invite a person</DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Invite a person</DialogTitle>
@@ -456,7 +452,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         </DialogContent>
       </Dialog>
     ),
-    props: radixProps("@radix-ui/react-dialog"),
+    props: baseProps("@base-ui/react Dialog"),
     security: ["Focus is trapped while open and returns to the trigger on close."],
   },
   {
@@ -483,7 +479,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Label",
     description: "Accessible label for form controls.",
     example: <Label>Daily ceiling</Label>,
-    props: radixProps("@radix-ui/react-label"),
+    props: [{ name: "...props", type: "label props", description: "Every prop of the native label." }],
     security: ["Every control needs a label or an aria-label; tests check this with axe."],
   },
   {
@@ -491,7 +487,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Progress",
     description: "Progress bar; the base of the usage meter.",
     example: <Progress value={62} aria-label="Ceiling used" className="max-w-sm" />,
-    props: [{ name: "value", type: "number", description: "0 to 100; values outside are clamped." }, ...radixProps("@radix-ui/react-progress")],
+    props: [{ name: "value", type: "number", description: "0 to 100; values outside are clamped." }, ...baseProps("@base-ui/react Progress")],
     security: ["Give it an aria-label; the value is announced to assistive technology."],
   },
   {
@@ -510,7 +506,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         </div>
       </RadioGroup>
     ),
-    props: radixProps("@radix-ui/react-radio-group"),
+    props: baseProps("@base-ui/react RadioGroup and Radio"),
     security: ["Arrow keys move between options; the group needs an accessible name."],
   },
   {
@@ -524,7 +520,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         <p>This week</p>
       </div>
     ),
-    props: radixProps("@radix-ui/react-separator"),
+    props: baseProps("@base-ui/react Separator"),
     security: ["Decorative by default (hidden from assistive technology)."],
   },
   {
@@ -550,7 +546,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         <Label htmlFor="whatsapp">WhatsApp</Label>
       </div>
     ),
-    props: radixProps("@radix-ui/react-switch"),
+    props: baseProps("@base-ui/react Switch"),
     security: ["Use disabled (not hidden) for settings that cannot be turned off, so the reason stays visible."],
   },
   {
@@ -592,7 +588,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
         <TabsContent value="agents" className="text-sm">Automations agents proposed.</TabsContent>
       </Tabs>
     ),
-    props: radixProps("@radix-ui/react-tabs"),
+    props: baseProps("@base-ui/react Tabs"),
     security: ["Arrow keys move between tabs."],
   },
   {
@@ -612,13 +608,11 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     description: "Short hint on hover or focus.",
     example: (
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="outline">Ceiling</Button>
-        </TooltipTrigger>
+        <TooltipTrigger render={<Button variant="outline" />}>Ceiling</TooltipTrigger>
         <TooltipContent>The most this agent can cost per day.</TooltipContent>
       </Tooltip>
     ),
-    props: radixProps("@radix-ui/react-tooltip"),
+    props: baseProps("@base-ui/react Tooltip"),
     security: ["Never put essential information only in a tooltip; it is not available on touch devices."],
   },
 ];
