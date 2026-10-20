@@ -274,6 +274,17 @@
   }
 }
 
+/* The same, forced by data-reduced-transparency on <html>: browsers and test runners that cannot emulate the query. */
+:root[data-reduced-transparency] {
+  --material-thin: var(--surface);
+  --material-regular: var(--surface);
+  --material-thick: var(--surface);
+  --material-edge: transparent;
+  --blur-thin: 0px;
+  --blur-regular: 0px;
+  --blur-thick: 0px;
+}
+
 @media (prefers-contrast: more) {
   :root:root {
     --border: var(--border-control);
