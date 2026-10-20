@@ -37,6 +37,7 @@ import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
+import { FeedbackExample } from "@/components/examples/feedback-example";
 import { PromptInputExample } from "@/components/examples/prompt-input-example";
 import { StreamingExample } from "@/components/examples/streaming-example";
 import { ToastExample } from "@/components/examples/toast-example";
@@ -271,6 +272,23 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "File names are shown without bidi controls or control characters (RLO spoofing, T1036.002); files are never previewed, so an SVG is never inlined.",
       "Stop aborts the request through AbortController; cancel the work on the server through that same signal.",
       "The browser guesses a file's type from its name: the server must check the content again.",
+    ],
+  },
+  {
+    name: "feedback",
+    title: "Feedback",
+    description: "Thumbs up or down on an agent answer, with an optional comment, for evaluating agents.",
+    example: <FeedbackExample />,
+    props: [
+      { name: "messageId", type: "string", description: "The answer being rated, from the app; never typed by the person." },
+      { name: "endpoint", type: "string", description: "Same-origin path; receives { messageId, rating, comment? } through api()." },
+      { name: "maxLength", type: "number", default: "1000", description: "Longest comment." },
+      { name: "labels", type: "Partial<FeedbackLabels>", description: "Every string, in the dictionary." },
+    ],
+    security: [
+      "Sent through api(): same-origin, X-Requested-With, redirects refused.",
+      "The comment is bounded and has hidden characters removed.",
+      "The message id comes from the app, so nobody can rate an answer they did not see by typing its id.",
     ],
   },
   {

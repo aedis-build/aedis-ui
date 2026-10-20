@@ -116,4 +116,15 @@ export const ptBR: Messages = {
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
     model: "Modelo",
   },
+  feedback: {
+    label: "Avalie esta resposta",
+    positive: "Resposta boa",
+    negative: "Resposta ruim",
+    comment: "O que deu errado? (opcional)",
+    placeholder: "Ignorou o orçamento do cliente.",
+    send: "Enviar",
+    skip: "Pular",
+    thanks: "Obrigado pelo retorno.",
+    error: "Não deu para enviar o retorno. Tente de novo.",
+  },
 };

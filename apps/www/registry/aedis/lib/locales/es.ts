@@ -116,4 +116,15 @@ export const es: Messages = {
     sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     model: "Modelo",
   },
+  feedback: {
+    label: "Valora esta respuesta",
+    positive: "Buena respuesta",
+    negative: "Mala respuesta",
+    comment: "¿Qué salió mal? (opcional)",
+    placeholder: "No tuvo en cuenta el presupuesto del cliente.",
+    send: "Enviar",
+    skip: "Omitir",
+    thanks: "Gracias por tu opinión.",
+    error: "No se pudo enviar la opinión. Inténtalo de nuevo.",
+  },
 };

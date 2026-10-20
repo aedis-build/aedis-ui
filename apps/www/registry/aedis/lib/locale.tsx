@@ -119,6 +119,17 @@ export type Messages = {
     sendError: string;
     model: string;
   };
+  feedback: {
+    label: string;
+    positive: string;
+    negative: string;
+    comment: string;
+    placeholder: string;
+    send: string;
+    skip: string;
+    thanks: string;
+    error: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -236,6 +247,17 @@ export const en: Messages = {
     uploadFailed: "{name} could not be uploaded. Try again.",
     sendError: "The message could not be sent. Try again.",
     model: "Model",
+  },
+  feedback: {
+    label: "Rate this answer",
+    positive: "Good answer",
+    negative: "Bad answer",
+    comment: "What went wrong? (optional)",
+    placeholder: "It missed the client's budget.",
+    send: "Send",
+    skip: "Skip",
+    thanks: "Thanks for the feedback.",
+    error: "Feedback could not be sent. Try again.",
   },
 };
 

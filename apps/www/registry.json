@@ -1174,6 +1174,27 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "feedback",
+      "type": "registry:ui",
+      "title": "Feedback",
+      "description": "Thumbs up or down on an agent answer with an optional bounded comment, sent through api() with the app's message id.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/api",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/feedback.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
