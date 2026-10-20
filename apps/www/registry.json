@@ -872,6 +872,45 @@
       ]
     },
     {
+      "name": "site-header",
+      "type": "registry:ui",
+      "title": "Site Header",
+      "description": "Sticky top bar of a site: brand linked home, NavigationMenu from md up, the same items and actions in a Sheet below md; safe hrefs.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/link",
+        "@aedis/navigation-menu",
+        "@aedis/sheet"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/site-header.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "site-footer",
+      "type": "registry:ui",
+      "title": "Site Footer",
+      "description": "Bottom of a site: a labelled list of safe links with external markers, and notes such as the license.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/site-footer.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "breadcrumb",
       "type": "registry:ui",
       "title": "Breadcrumb",

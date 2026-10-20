@@ -65,6 +65,13 @@ export type Messages = {
   spinner: {
     label: string;
   };
+  siteHeader: {
+    home: string;
+    menu: string;
+  };
+  siteFooter: {
+    label: string;
+  };
   breadcrumb: {
     label: string;
     more: string;
@@ -193,6 +200,13 @@ export const en: Messages = {
   },
   spinner: {
     label: "Loading",
+  },
+  siteHeader: {
+    home: "Home",
+    menu: "Menu",
+  },
+  siteFooter: {
+    label: "Footer",
   },
   breadcrumb: {
     label: "Breadcrumb",
