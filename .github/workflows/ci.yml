@@ -20,7 +20,7 @@ jobs:
       contents: read
 
   coverage:
-    uses: aedis-build/aedis-platform/.github/workflows/coverage-js.yml@e83f3b489f26c7bd8276e035f4213f89f254ed08
+    uses: aedis-build/aedis-platform/.github/workflows/coverage-js.yml@820bfc78a548c3fcc98a5b9e303c93fa3a368243
     permissions:
       contents: read
       actions: read
@@ -30,7 +30,7 @@ jobs:
       min-line: 95
       min-branch: 85
       no-regression: true
-      platform-ref: e83f3b489f26c7bd8276e035f4213f89f254ed08
+      platform-ref: 820bfc78a548c3fcc98a5b9e303c93fa3a368243
 
   build:
     name: Typecheck and build
@@ -51,7 +51,7 @@ jobs:
       - run: pnpm build
       # DAST baseline (OWASP ZAP) against the exposed surface: the docs site and the registry JSON.
       - run: python3 -m http.server 8080 -d apps/www/out &
-      - uses: aedis-build/aedis-platform/.github/actions/dast@e83f3b489f26c7bd8276e035f4213f89f254ed08
+      - uses: aedis-build/aedis-platform/.github/actions/dast@820bfc78a548c3fcc98a5b9e303c93fa3a368243
         with:
           target-url: http://localhost:8080/
 
