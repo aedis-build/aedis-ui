@@ -659,24 +659,54 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "use-event-stream",
     title: "useEventStream",
-    description: "Hook that subscribes to a Server-Sent Events endpoint, e.g. new messages of a conversation.",
+    description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
     example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`const state = useEventStream<Message>("/api/conversations/42/events", {
-  onEvent: (message) => setMessages((m) => [...m, message]),
-});`}</code>
-      </pre>
+      <CodeBlock
+        lang="tsx"
+        code={`const state = useEventStream<Message>("/api/conversations/42/events", {
+  events: ["message", "done"],
+  onEvent: (message, { type }) => setMessages((m) => [...m, message]),
+});`}
+      />
     ),
     props: [
-      { name: "url", type: "string | null", description: "Endpoint; null pauses." },
-      { name: "onEvent", type: "(data, event) => void", description: "Called with the parsed JSON of each event." },
-      { name: "event", type: "string", default: '"message"', description: "Named event to listen to." },
-      { name: "enabled", type: "boolean", default: "true", description: "Pause without changing the URL." },
+      { name: "path", type: "string | null", description: "Same-origin path; null pauses. A token in the query string is refused." },
+      { name: "onEvent", type: "(data, { type, id }) => void", description: "Called with the parsed JSON of each allowed event; malformed JSON is ignored." },
+      { name: "events", type: "string[]", default: '["message"]', description: "Allow-list of event types." },
+      { name: "enabled", type: "boolean", default: "true", description: "Pause without changing the path." },
+      { name: "lastEventId", type: "string", description: "Resume after this id (Last-Event-ID, 256 printable characters at most)." },
+      { name: "maxEventBytes / maxConnectionBytes", type: "number", default: "64 KiB / 16 MiB", description: "Bigger events are dropped; past the connection limit it reconnects from the last id." },
+      { name: "heartbeatMs / maxRetries / retryMs / maxRetryMs", type: "number", default: "15000 / 8 / 1000 / 30000", description: "Silence for 2x heartbeat reconnects; backoff with jitter honours the server's retry:." },
+      { name: "returns", type: '"connecting" | "open" | "retrying" | "closed" | "error"', description: "Connection state." },
     ],
     security: [
-      "Malformed JSON events are ignored, not thrown.",
-      "Authenticate with same-origin cookies or a server proxy; EventSource cannot send an Authorization header.",
+      "fetch with a streamed body, not EventSource: same-origin path, cookies same-origin only, redirects refused, X-Requested-With, no-store.",
+      "Never a token in the query string: such paths throw. The session cookie (or a BFF, see bff-stream) authenticates the stream.",
+      "Parser with limits per event and per connection; event types from an allow-list; malformed JSON ignored.",
+      "Text is decoded in stream mode and stripInvisible runs on each assembled event, so a chunk boundary inside a surrogate pair cannot smuggle Unicode tags.",
+      "204 stops for good, other 4xx stop with an error state, 5xx and network errors retry with capped backoff; it aborts on unmount.",
     ],
+  },
+  {
+    name: "event-stream",
+    title: "event-stream",
+    description: "The library under useEventStream: an incremental SSE parser and a fetch-based connection with resume and backoff, for code outside React.",
+    example: (
+      <CodeBlock
+        lang="ts"
+        code={`const { close } = connectEventStream<Progress>("/api/tasks/7/events", {
+  events: ["progress"],
+  onEvent: (p) => render(p),
+  onState: (s) => setStatus(s),
+});`}
+      />
+    ),
+    props: [
+      { name: "connectEventStream(path, options)", type: "{ close }", description: "Same options as useEventStream plus signal and onState." },
+      { name: "createSseParser({ onEvent, onRetry?, maxEventBytes? })", type: "{ push(text), end() }", description: "Feed decoded text; chunking never changes the events." },
+      { name: "assertStreamPath(path)", type: "void", description: "Throws for another origin or a token in the query string." },
+    ],
+    security: ["Same rules as useEventStream."],
   },
   {
     name: "use-idle-timeout",

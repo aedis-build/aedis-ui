@@ -509,7 +509,10 @@
       "name": "use-event-stream",
       "type": "registry:hook",
       "title": "useEventStream",
-      "description": "Subscribes to a Server-Sent Events endpoint with reconnection and Last-Event-ID.",
+      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, aborts on unmount.",
+      "registryDependencies": [
+        "@aedis/event-stream"
+      ],
       "files": [
         {
           "path": "registry/aedis/hooks/use-event-stream.ts",
@@ -990,6 +993,21 @@
         {
           "path": "registry/aedis/ui/toast.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "event-stream",
+      "type": "registry:lib",
+      "title": "event-stream",
+      "description": "Secure SSE over fetch: same-origin, no token in the query, bounded parser with an event allow-list, Last-Event-ID resume, retry and backoff, stripInvisible on assembled events.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/event-stream.ts",
+          "type": "registry:lib"
         }
       ]
     }

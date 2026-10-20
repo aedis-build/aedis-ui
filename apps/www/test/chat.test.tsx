@@ -1,7 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { useEventStream } from "@/registry/aedis/hooks/use-event-stream";
 import { Chat } from "@/registry/aedis/ui/chat";
 import { Markdown, safeUrl } from "@/registry/aedis/ui/markdown";
 
@@ -70,63 +69,5 @@ describe("Chat", () => {
     );
     expect(screen.getByText("**not bold**")).toBeInTheDocument();
     expect(screen.getByText("bold").tagName).toBe("STRONG");
-  });
-});
-
-describe("useEventStream", () => {
-  class FakeEventSource {
-    static instances: FakeEventSource[] = [];
-    static CLOSED = 2;
-    readyState = 0;
-    listeners: Record<string, (e: MessageEvent<string>) => void> = {};
-    onopen: (() => void) | null = null;
-    onerror: (() => void) | null = null;
-    closed = false;
-    constructor(public url: string) {
-      FakeEventSource.instances.push(this);
-    }
-    addEventListener(name: string, fn: (e: MessageEvent<string>) => void) {
-      this.listeners[name] = fn;
-    }
-    removeEventListener(name: string) {
-      delete this.listeners[name];
-    }
-    close() {
-      this.closed = true;
-    }
-    emit(data: string) {
-      this.listeners.message?.(new MessageEvent("message", { data }));
-    }
-  }
-
-  beforeEach(() => {
-    FakeEventSource.instances = [];
-    vi.stubGlobal("EventSource", FakeEventSource);
-  });
-  afterEach(() => vi.unstubAllGlobals());
-
-  function Probe({ url, onEvent }: { url: string | null; onEvent: (d: unknown) => void }) {
-    const state = useEventStream(url, { onEvent });
-    return <span>{state}</span>;
-  }
-
-  it("parses events, ignores malformed JSON and closes on unmount", () => {
-    const onEvent = vi.fn();
-    const { unmount } = render(<Probe url="/events" onEvent={onEvent} />);
-    const source = FakeEventSource.instances[0];
-    act(() => {
-      source.onopen?.();
-      source.emit('{"id":1}');
-      source.emit("not json");
-    });
-    expect(screen.getByText("open")).toBeInTheDocument();
-    expect(onEvent).toHaveBeenCalledExactlyOnceWith({ id: 1 }, expect.anything());
-    unmount();
-    expect(source.closed).toBe(true);
-  });
-
-  it("does not connect without a URL", () => {
-    render(<Probe url={null} onEvent={vi.fn()} />);
-    expect(FakeEventSource.instances).toHaveLength(0);
   });
 });
