@@ -71,7 +71,7 @@
       "name": "untrusted",
       "type": "registry:lib",
       "title": "untrusted",
-      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal().",
+      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal(); allowedOrigins() keeps exact origins from configuration.",
       "files": [
         {
           "path": "lib/untrusted.ts",
@@ -95,7 +95,10 @@
       "name": "security-headers",
       "type": "registry:lib",
       "title": "securityHeaders",
-      "description": "securityHeaders(): strict CSP with nonce, HSTS, no sniffing, no framing, no referrer leak; apply from middleware.",
+      "description": "securityHeaders(): strict CSP with nonce, HSTS, nosniff, referrer and permissions policy, COOP/CORP, no-store; framing origins from configuration, never a wildcard.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
       "files": [
         {
           "path": "lib/security-headers.ts",
@@ -1208,6 +1211,40 @@
         {
           "path": "registry/aedis/lib/mf-bridge.ts",
           "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-embed-headers",
+      "type": "registry:lib",
+      "title": "mf-embed-headers",
+      "description": "embeddedAppHeaders (frame-ancestors from the host allow-list) and hostAppHeaders (frame-src from the app allow-list), never a wildcard.",
+      "registryDependencies": [
+        "@aedis/security-headers",
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "lib/mf-embed-headers.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-frame",
+      "type": "registry:ui",
+      "title": "mf-frame",
+      "description": "Sandboxed iframe for an embedded app: minimal sandbox, no allow-same-origin for same-origin frames, empty permissions policy, bounded height over mf-bridge; useReportHeight for the embedded side.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/mf-bridge",
+        "@aedis/skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/mf-frame.tsx",
+          "type": "registry:ui"
         }
       ]
     }

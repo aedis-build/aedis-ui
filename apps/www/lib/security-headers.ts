@@ -1,3 +1,5 @@
+import { allowedOrigins } from "@/lib/untrusted";
+
 export type SecurityHeadersOptions = {
   /** Per-request nonce for the scripts the framework emits; what makes a CSP without 'unsafe-inline' possible. */
   nonce: string;
@@ -7,7 +9,12 @@ export type SecurityHeadersOptions = {
   imgSrc?: string[];
   /** Origins allowed to frame this page. Empty by default: nobody may frame it (clickjacking). */
   frameAncestors?: string[];
+  /** Origins this page may frame. Unset, frames fall back to default-src ('self'). */
+  frameSrc?: string[];
 };
+
+/** Exact origins (and 'self'); wildcards and malformed entries are dropped, never widened. */
+const sources = (list: string[]) => [...(list.includes("'self'") ? ["'self'"] : []), ...allowedOrigins(list)];
 
 /**
  * HTTP response headers for an app built with Aedis UI: a strict CSP (no inline script, no eval, no plugins, no
@@ -15,7 +22,8 @@ export type SecurityHeadersOptions = {
  * no caching of pages that may hold personal data. Apply them from the framework's middleware or the edge; the
  * docs site is static and cannot send them.
  */
-export function securityHeaders({ nonce, connectSrc = [], imgSrc = [], frameAncestors = [] }: SecurityHeadersOptions): Record<string, string> {
+export function securityHeaders({ nonce, connectSrc = [], imgSrc = [], frameAncestors: ancestors = [], frameSrc }: SecurityHeadersOptions): Record<string, string> {
+  const frameAncestors = sources(ancestors);
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
@@ -28,6 +36,7 @@ export function securityHeaders({ nonce, connectSrc = [], imgSrc = [], frameAnce
     "base-uri 'none'",
     "form-action 'self'",
     frameAncestors.length ? `frame-ancestors ${frameAncestors.join(" ")}` : "frame-ancestors 'none'",
+    ...(frameSrc ? [sources(frameSrc).length ? `frame-src ${sources(frameSrc).join(" ")}` : "frame-src 'none'"] : []),
     "upgrade-insecure-requests",
   ].join("; ");
   return {

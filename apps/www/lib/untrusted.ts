@@ -47,3 +47,22 @@ export function isExternal(url: string): boolean {
     return false;
   }
 }
+
+/**
+ * Exact origins from configuration ("https://app.example.com"). Anything that is not a plain http(s) origin
+ * ("*", "null", a path, a wildcard host, garbage) is dropped: a malformed entry never widens the list.
+ */
+export function allowedOrigins(list: readonly string[]): string[] {
+  const out = new Set<string>();
+  for (const entry of list) {
+    const value = typeof entry === "string" ? entry.trim().replace(/\/$/, "") : "";
+    if (!/^https?:\/\/[^*\s/]+$/i.test(value)) continue;
+    try {
+      const url = new URL(value);
+      if (url.origin === value.toLowerCase() || url.origin === value) out.add(url.origin);
+    } catch {
+      // ignored
+    }
+  }
+  return [...out];
+}

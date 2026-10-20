@@ -933,6 +933,40 @@ parent.send("resize", { height: document.body.scrollHeight });`}
     ],
   },
   {
+    name: "mf-frame",
+    title: "mf-frame",
+    description: "The host side of an embed: a sandboxed iframe that the embedded app sizes over mf-bridge, and the headers for both apps.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`// Host page
+<MfFrame src="https://agent.example.com/panel" title="Agent panel" maxHeight={900} />
+
+// Embedded app (any component that renders inside the frame)
+useReportHeight(["https://backoffice.example.com"]);
+
+// middleware.ts of each app
+headers: hostAppHeaders({ nonce, frameOrigins: [process.env.AGENT_ORIGIN!] })          // host
+headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN!] })  // embedded app`}
+      />
+    ),
+    props: [
+      { name: "src / title", type: "string / string", description: "Absolute http(s) URL; title is required." },
+      { name: "sandbox", type: "SandboxToken[]", default: '["allow-scripts", "allow-forms"]', description: "Known tokens only; allow-same-origin is refused when the frame has the host's origin." },
+      { name: "allow / referrerPolicy", type: "string", default: '"" / "strict-origin-when-cross-origin"', description: "Permissions policy (empty: no camera, mic, geolocation…) and referrer." },
+      { name: "minHeight / maxHeight", type: "number", default: "120 / 4000", description: "Bounds for the height the embedded app reports." },
+      { name: "onBridge / messages", type: "(bridge) => void / specs", description: "The mf-bridge to the embedded app, for its own messages." },
+      { name: "useReportHeight(hostOrigins)", type: "hook", description: "In the embedded app: reports the document height to the host." },
+      { name: "embeddedAppHeaders / hostAppHeaders", type: "lib", description: "securityHeaders with frame-ancestors (embedded) or frame-src (host) from configuration." },
+    ],
+    security: [
+      "Minimal sandbox; allow-same-origin is refused for a frame on the host's origin, because with allow-scripts it could remove its own sandbox.",
+      "Empty permissions policy, a referrer policy and a required title by default.",
+      "The height comes over mf-bridge from the frame's origin only, and is bounded.",
+      "frame-ancestors on the embedded app and frame-src on the host come from configuration; wildcards and malformed entries are dropped, so neither can become '*'.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",

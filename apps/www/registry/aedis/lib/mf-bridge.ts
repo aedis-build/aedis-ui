@@ -1,26 +1,12 @@
+import { allowedOrigins } from "@/lib/untrusted";
+
 import { hasSecretKey } from "./redact";
+
+// Lives in untrusted (securityHeaders uses it too); re-exported for callers of the bridge.
+export { allowedOrigins };
 
 export const PROTOCOL = "aedis-mf";
 export const VERSION = 1;
-
-/**
- * Exact origins from configuration ("https://app.example.com"). Anything that is not a plain http(s) origin
- * ("*", "null", a path, a wildcard host, garbage) is dropped: a malformed entry never widens the list.
- */
-export function allowedOrigins(list: readonly string[]): string[] {
-  const out = new Set<string>();
-  for (const entry of list) {
-    const value = typeof entry === "string" ? entry.trim().replace(/\/$/, "") : "";
-    if (!/^https?:\/\/[^*\s/]+$/i.test(value)) continue;
-    try {
-      const url = new URL(value);
-      if (url.origin === value.toLowerCase() || url.origin === value) out.add(url.origin);
-    } catch {
-      // ignored
-    }
-  }
-  return [...out];
-}
 
 /** How one message type is checked on arrival. */
 export type MessageSpec<P = unknown> = {
@@ -59,7 +45,8 @@ export type Bridge<M extends Specs> = {
   ready: Promise<void>;
   /** The other side's origin once the handshake is done. */
   peerOrigin: () => string | null;
-  send: <T extends keyof M & string>(type: T, payload: PayloadOf<M, T>) => void;
+  /** Sends an event of a type the other side accepts. */
+  send: (type: string, payload?: unknown) => void;
   on: <T extends keyof M & string>(type: T, handler: (payload: PayloadOf<M, T>) => void) => () => void;
   /** Request/response with a correlation id; rejects after the timeout or when the other side fails. */
   request: <R = unknown>(type: string, payload?: unknown) => Promise<R>;
