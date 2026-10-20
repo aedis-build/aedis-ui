@@ -32,6 +32,7 @@ import { Label } from "@/registry/aedis/ui/label";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/registry/aedis/ui/pagination";
 import { paginationRange } from "@/registry/aedis/lib/pagination";
 import { Progress } from "@/registry/aedis/ui/progress";
+import { Reasoning } from "@/registry/aedis/ui/reasoning";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
@@ -52,6 +53,7 @@ import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
 import { Textarea } from "@/registry/aedis/ui/textarea";
+import { ToolCall } from "@/registry/aedis/ui/tool-call";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/aedis/ui/tooltip";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
@@ -246,6 +248,32 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Same rules as Markdown: no raw HTML, safe link protocols, images off by default, hidden characters removed.",
       "A link becomes clickable only once it closes, and a bare URL only once it is followed by a space: a half-written URL is never clickable.",
       "Rendered at most once per animation frame, with a length cap, so a fast or runaway stream cannot freeze the page.",
+    ],
+  },
+  {
+    name: "tool-call",
+    title: "Tool Call",
+    description: "Which tool an agent ran, with what and what came back; tools that act outside wait for approval.",
+    example: (
+      <div className="grid gap-3">
+        <ToolCall name="crm.lookup" status="done" args={{ email: "ana@acme.com", apiKey: "sk_live_123" }} result={{ name: "Ana", plan: "Pro" }} />
+        <ToolCall name="calendar.search" status="running" args={{ week: "2026-W43" }} />
+        <Reasoning durationMs={3800}>{"The client asked for four days. Check the calendar first, then draft the proposal with token=abc123 redacted."}</Reasoning>
+      </div>
+    ),
+    props: [
+      { name: "name / status", type: 'string / "running" | "done" | "error" | "awaiting-approval"', description: "What ran and where it is." },
+      { name: "args / result", type: "unknown", description: "Shown as JSON text after redaction." },
+      { name: "external + approval", type: "boolean + { requester; onApprove; onRequestChanges }", description: "A tool that acts outside waits in an ApprovalCard while awaiting approval." },
+      { name: "redactKeys", type: "string[]", description: "Replaces the default keys: password, secret, token, authorization, api key, cookie, session, credential…" },
+      { name: "Reasoning", type: "component", description: "children (markdown), streaming, durationMs; starts collapsed, same redaction." },
+      { name: "redact(value) / redactText(text)", type: "lib", description: "The same redaction for your own views and logs." },
+    ],
+    security: [
+      "Arguments and results are rendered as data (escaped JSON in a code block), never as markup.",
+      "Values under secret-looking keys, bearer tokens, JWTs and key=value secrets are redacted before anything is shown; long values, arrays and depth are bounded.",
+      "An external tool waiting for approval goes through ApprovalCard, which confirms through an AlertDialog that starts on Cancel.",
+      "Reasoning starts collapsed and uses the same redaction.",
     ],
   },
   {

@@ -1057,6 +1057,66 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "redact",
+      "type": "registry:lib",
+      "title": "redact",
+      "description": "redact(value) and redactText(text): hide values under secret keys, bearer tokens, JWTs and key=value secrets; bound size, depth and cycles.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/redact.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "tool-call",
+      "type": "registry:ui",
+      "title": "Tool Call",
+      "description": "Tool name, status, redacted arguments and result as data; external tools wait in an ApprovalCard.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/approval-card",
+        "@aedis/code-block",
+        "@aedis/collapsible",
+        "@aedis/spinner"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/tool-call.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "reasoning",
+      "type": "registry:ui",
+      "title": "Reasoning",
+      "description": "The agent's reasoning, collapsed by default and redacted; the thinking label is static under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/collapsible",
+        "@aedis/streaming-markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/reasoning.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

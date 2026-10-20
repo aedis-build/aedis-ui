@@ -82,6 +82,22 @@ export type Messages = {
     close: string;
     failed: string;
   };
+  toolCall: {
+    running: string;
+    done: string;
+    error: string;
+    awaiting: string;
+    arguments: string;
+    result: string;
+    external: string;
+    wantsToRun: string;
+    waiting: string;
+  };
+  reasoning: {
+    thinking: string;
+    thought: string;
+    thoughtFor: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -162,6 +178,22 @@ export const en: Messages = {
     region: "Notifications",
     close: "Close notification",
     failed: "Something went wrong. Try again.",
+  },
+  toolCall: {
+    running: "Running",
+    done: "Done",
+    error: "Failed",
+    awaiting: "Waiting for approval",
+    arguments: "Arguments",
+    result: "Result",
+    external: "acts outside",
+    wantsToRun: "wants to run with these arguments.",
+    waiting: "Waiting for a person to approve.",
+  },
+  reasoning: {
+    thinking: "Thinking…",
+    thought: "Reasoning",
+    thoughtFor: "Thought for {seconds} s",
   },
 };
 

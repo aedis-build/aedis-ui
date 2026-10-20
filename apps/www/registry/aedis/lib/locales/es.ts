@@ -79,4 +79,20 @@ export const es: Messages = {
     close: "Cerrar notificación",
     failed: "Algo salió mal. Inténtalo de nuevo.",
   },
+  toolCall: {
+    running: "Ejecutando",
+    done: "Listo",
+    error: "Falló",
+    awaiting: "Esperando aprobación",
+    arguments: "Argumentos",
+    result: "Resultado",
+    external: "actúa fuera",
+    wantsToRun: "quiere ejecutarse con estos argumentos.",
+    waiting: "Esperando que una persona apruebe.",
+  },
+  reasoning: {
+    thinking: "Pensando…",
+    thought: "Razonamiento",
+    thoughtFor: "Pensó durante {seconds} s",
+  },
 };

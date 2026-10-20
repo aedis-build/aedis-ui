@@ -79,4 +79,20 @@ export const ptBR: Messages = {
     close: "Fechar notificação",
     failed: "Algo deu errado. Tente de novo.",
   },
+  toolCall: {
+    running: "Executando",
+    done: "Concluído",
+    error: "Falhou",
+    awaiting: "Aguardando aprovação",
+    arguments: "Argumentos",
+    result: "Resultado",
+    external: "age fora",
+    wantsToRun: "quer rodar com estes argumentos.",
+    waiting: "Aguardando uma pessoa aprovar.",
+  },
+  reasoning: {
+    thinking: "Pensando…",
+    thought: "Raciocínio",
+    thoughtFor: "Pensou por {seconds} s",
+  },
 };
