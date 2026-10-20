@@ -47,6 +47,12 @@ export type Messages = {
     copyFailed: string;
     hidden: string;
   };
+  link: {
+    external: string;
+  };
+  navigationMenu: {
+    label: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -92,6 +98,12 @@ export const en: Messages = {
     copied: "Copied",
     copyFailed: "Could not copy. Select the code and copy it.",
     hidden: "Hidden character",
+  },
+  link: {
+    external: "(external site)",
+  },
+  navigationMenu: {
+    label: "Site navigation",
   },
 };
 

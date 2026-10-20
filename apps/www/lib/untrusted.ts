@@ -16,3 +16,26 @@ export function hasInvisible(text: string): boolean {
   INVISIBLE.lastIndex = 0;
   return INVISIBLE.test(text);
 }
+
+const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];
+
+/** Keeps only http, https, mailto and relative URLs; anything else (javascript:, data:, vbscript:) becomes empty. */
+export function safeUrl(url: string): string {
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") || trimmed.startsWith("#")) return trimmed;
+  try {
+    return SAFE_PROTOCOLS.includes(new URL(trimmed).protocol) ? trimmed : "";
+  } catch {
+    return "";
+  }
+}
+
+/** True for an absolute http(s) URL on another origin. On the server every absolute URL counts as external. */
+export function isExternal(url: string): boolean {
+  if (!/^https?:\/\//i.test(url.trim())) return false;
+  try {
+    return typeof window === "undefined" || new URL(url).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}

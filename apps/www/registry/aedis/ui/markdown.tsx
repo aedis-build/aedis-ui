@@ -2,21 +2,11 @@ import * as React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { stripInvisible } from "@/lib/untrusted";
+import { safeUrl, stripInvisible } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 
-const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];
-
-/** Keeps only http, https, mailto and relative URLs; anything else (javascript:, data:, vbscript:) becomes empty. */
-export function safeUrl(url: string): string {
-  const trimmed = url.trim();
-  if (trimmed.startsWith("/") || trimmed.startsWith("#")) return trimmed;
-  try {
-    return SAFE_PROTOCOLS.includes(new URL(trimmed).protocol) ? trimmed : "";
-  } catch {
-    return "";
-  }
-}
+// Moved to untrusted; re-exported so existing imports keep working.
+export { safeUrl };
 
 export type MarkdownProps = {
   /** Markdown written by an agent or a user. Treated as untrusted. */

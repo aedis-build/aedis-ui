@@ -71,7 +71,7 @@
       "name": "untrusted",
       "type": "registry:lib",
       "title": "untrusted",
-      "description": "stripInvisible(): removes zero-width, bidi-override and Unicode-tag code points that hide text from people but not from agents.",
+      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal().",
       "files": [
         {
           "path": "lib/untrusted.ts",
@@ -671,6 +671,45 @@
         {
           "path": "registry/aedis/lib/highlight.ts",
           "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "Anchor for untrusted or configured URLs: safe protocols only, noopener noreferrer and a visible marker on external links.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/link.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "navigation-menu",
+      "type": "registry:ui",
+      "title": "Navigation Menu",
+      "description": "Site navigation with panels of grouped links, safe hrefs, external markers and an indicator that follows the open or current item.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/navigation-menu.tsx",
+          "type": "registry:ui"
         }
       ]
     }

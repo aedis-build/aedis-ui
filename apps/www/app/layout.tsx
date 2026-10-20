@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { components } from "@/content/components";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/registry/aedis/ui/navigation-menu";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,10 +18,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="material-regular scroll-edge sticky top-0 z-40">
           <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
             <Link href="/" className="focus-ring rounded-xs text-headline">Aedis UI</Link>
-            <nav className="flex gap-4 text-callout text-muted-foreground">
-              <Link href="/docs/button" className="focus-ring rounded-xs hover:text-foreground">Components</Link>
-              <a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer" className="focus-ring rounded-xs hover:text-foreground">GitHub</a>
-            </nav>
+            <NavigationMenu align="end">
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="/docs/button" render={<Link href="/docs/button" />}>Components</NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="https://github.com/aedis-build/aedis-ui">GitHub</NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
         </header>
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[200px_1fr]">

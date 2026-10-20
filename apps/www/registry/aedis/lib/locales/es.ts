@@ -44,4 +44,10 @@ export const es: Messages = {
     copyFailed: "No se pudo copiar. Selecciona el código y cópialo.",
     hidden: "Carácter oculto",
   },
+  link: {
+    external: "(sitio externo)",
+  },
+  navigationMenu: {
+    label: "Navegación del sitio",
+  },
 };

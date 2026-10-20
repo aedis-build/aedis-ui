@@ -44,4 +44,10 @@ export const ptBR: Messages = {
     copyFailed: "Não deu para copiar. Selecione o código e copie.",
     hidden: "Caractere oculto",
   },
+  link: {
+    external: "(site externo)",
+  },
+  navigationMenu: {
+    label: "Navegação do site",
+  },
 };

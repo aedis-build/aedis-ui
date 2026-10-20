@@ -26,7 +26,9 @@ import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
+import { Link } from "@/registry/aedis/ui/link";
 import { Markdown } from "@/registry/aedis/ui/markdown";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/registry/aedis/ui/navigation-menu";
 import { Separator } from "@/registry/aedis/ui/separator";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
@@ -236,6 +238,63 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Copy happens only on a click, as plain text, and copies the original code without the markers.",
       "Uses shiki's JavaScript regex engine: no WebAssembly, so a CSP without 'wasm-unsafe-eval' keeps working.",
     ],
+  },
+  {
+    name: "navigation-menu",
+    title: "Navigation Menu",
+    description: "Top navigation for a public site, with panels of grouped links.",
+    example: (
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuContent className="grid w-72 gap-1">
+              <NavigationMenuLink href="/docs/approval-card">
+                <span className="block font-medium">Approval Card</span>
+                <span className="block text-footnote text-muted-foreground">Agent requests that wait for a person.</span>
+              </NavigationMenuLink>
+              <NavigationMenuLink href="/docs/chat">
+                <span className="block font-medium">Chat</span>
+                <span className="block text-footnote text-muted-foreground">Conversation with an agent, output as data.</span>
+              </NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem active>
+            <NavigationMenuLink href="/docs/navigation-menu" active>Docs</NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="https://github.com/aedis-build/aedis-ui">GitHub</NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    ),
+    props: [
+      { name: "NavigationMenuLink href", type: "string", description: "Goes through safeUrl; a refused URL renders as text. External links get rel=\"noopener noreferrer\" and a marker." },
+      { name: "NavigationMenuItem active", type: "boolean", description: "The current section; the indicator rests under it when no panel is open." },
+      { name: "align", type: '"start" | "center" | "end"', default: '"start"', description: "Panel alignment under the trigger." },
+      { name: "labels", type: "Partial<NavigationMenuLabels>", description: "label: accessible name of the landmark." },
+      ...baseProps("@base-ui/react NavigationMenu"),
+    ],
+    security: [
+      "Every href goes through safeUrl: javascript:, data: and vbscript: never become links.",
+      "External links get rel=\"noopener noreferrer\" and a visible arrow with screen-reader text, so people know they leave the site.",
+    ],
+  },
+  {
+    name: "link",
+    title: "Link",
+    description: "An anchor for URLs that come from content or configuration.",
+    example: (
+      <p className="text-callout">
+        Read the <Link href="/docs/theming">theming guide</Link>, the <Link href="https://github.com/aedis-build/aedis-ui">source</Link> or a <Link href="javascript:alert(1)">refused link</Link>.
+      </p>
+    ),
+    props: [
+      { name: "href", type: "string", description: "Any URL; only http, https, mailto and relative ones become links." },
+      { name: "linkProps(href)", type: "{ href | null; external; rel }", description: "The same rules for components that render their own anchor." },
+      { name: "labels", type: "Partial<LinkLabels>", description: "external: the screen-reader text after external links." },
+    ],
+    security: ["Refused URLs render their text without a link.", "External links never get window.opener or the Referer of this page."],
   },
   {
     name: "use-reduced-motion",
