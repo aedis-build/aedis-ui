@@ -755,6 +755,44 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "Expanding sections on Base UI Accordion: height from the measured panel variable on the spring, findable with in-page search.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/accordion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "collapsible",
+      "type": "registry:ui",
+      "title": "Collapsible",
+      "description": "Show and hide one area on Base UI Collapsible, findable with in-page search.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/collapsible.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

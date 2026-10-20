@@ -11,12 +11,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/registry/aedis/ui/alert-dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/registry/aedis/ui/accordion";
 import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/aedis/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/registry/aedis/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/registry/aedis/ui/dropdown-menu";
 import { Input } from "@/registry/aedis/ui/input";
@@ -348,6 +350,51 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "A destructive item never runs on its own click: it asks through an AlertDialog whose focus starts on Cancel, the same rule as outbound agent actions.",
       "Link items go through safeUrl; external links never get window.opener and are marked.",
     ],
+  },
+  {
+    name: "accordion",
+    title: "Accordion",
+    description: "FAQ and docs sections that expand.",
+    example: (
+      <Accordion className="max-w-lg">
+        <AccordionItem value="who">
+          <AccordionTrigger>Who approves what the agent sends?</AccordionTrigger>
+          <AccordionContent>A person on the team. Anything that leaves the company waits in an Approval Card.</AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="data">
+          <AccordionTrigger>Can the agent read my passwords?</AccordionTrigger>
+          <AccordionContent>No. The session lives in an HttpOnly cookie that no script can read.</AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    ),
+    props: [
+      { name: "multiple", type: "boolean", default: "false", description: "Allow several items open at once." },
+      { name: "hiddenUntilFound", type: "boolean", default: "true", description: "Collapsed content stays in the DOM and opens when the browser's in-page search finds it." },
+      ...baseProps("@base-ui/react Accordion"),
+    ],
+    security: ["Content is rendered as data; collapsed content stays in the DOM, so nothing is fetched or injected on open."],
+  },
+  {
+    name: "collapsible",
+    title: "Collapsible",
+    description: "Shows and hides one area.",
+    example: (
+      <Collapsible className="max-w-lg space-y-2">
+        <CollapsibleTrigger render={<Button variant="outline" />}>Show the three steps</CollapsibleTrigger>
+        <CollapsibleContent>
+          <ol className="list-decimal space-y-1 pl-5 text-callout">
+            <li>Add the registry.</li>
+            <li>Import the theme.</li>
+            <li>Add a component.</li>
+          </ol>
+        </CollapsibleContent>
+      </Collapsible>
+    ),
+    props: [
+      { name: "CollapsibleContent hiddenUntilFound", type: "boolean", default: "true", description: "Findable with in-page search while collapsed." },
+      ...baseProps("@base-ui/react Collapsible"),
+    ],
+    security: ["Content is rendered as data."],
   },
   {
     name: "link",
