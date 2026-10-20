@@ -1010,6 +1010,21 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "bff-stream",
+      "type": "registry:lib",
+      "title": "bffStream",
+      "description": "Next.js route handler that relays an SSE stream with the server session's bearer: nothing from the browser goes upstream but a validated Last-Event-ID, generic errors, abort on disconnect.",
+      "dependencies": [
+        "server-only@0.0.1"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/bff-stream.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

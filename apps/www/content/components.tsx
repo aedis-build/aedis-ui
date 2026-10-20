@@ -709,6 +709,39 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     security: ["Same rules as useEventStream."],
   },
   {
+    name: "bff-stream",
+    title: "bffStream",
+    description: "A Next.js route handler that relays the API's event stream with the session's bearer, so the token never reaches the browser.",
+    example: (
+      <CodeBlock
+        lang="ts"
+        title="app/api/conversations/[id]/events/route.ts"
+        code={`import { bffStream } from "@/lib/bff-stream";
+
+export const dynamic = "force-dynamic";
+
+export const GET = bffStream({
+  upstream: (req) => \`\${process.env.API_URL}/conversations/\${conversationId(req)}/events\`,
+  getAccessToken: async () => (await auth())?.accessToken ?? null,
+});`}
+      />
+    ),
+    props: [
+      { name: "upstream", type: "string | URL | (request) => string | URL", description: "The API stream, from configuration; http(s) only. Never read a URL from the request." },
+      { name: "getAccessToken", type: "(request) => string | null", description: "The bearer of the server-side session; null answers 401 without calling the API." },
+      { name: "headers", type: "Record<string, string>", description: "Extra headers for the API; credentials, cookies and hop-by-hop headers throw." },
+      { name: "log", type: "(message, details) => void", default: "console.error", description: "Where failure details go." },
+      { name: "connectTimeoutMs", type: "number", default: "15000", description: "Wait for the API to start the stream." },
+    ],
+    security: [
+      "The bearer comes from the server session only; the browser never sees it.",
+      "Nothing from the browser goes upstream except a Last-Event-ID of at most 256 printable characters: no cookies, no Authorization, no query.",
+      "No-store, no-transform and X-Accel-Buffering: no; upstream headers (Set-Cookie, internal ones) are not copied.",
+      "The API request is aborted when the browser disconnects, and after connectTimeoutMs without a response.",
+      "The browser gets a bare status (401, 403, 204 or 502); details go to the server log. server-only keeps it out of client bundles.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
