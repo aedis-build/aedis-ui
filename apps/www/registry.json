@@ -1136,6 +1136,44 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "attachment",
+      "type": "registry:lib",
+      "title": "attachment",
+      "description": "checkAttachment (type allow-list, size), safeFileName (no bidi or control characters) and uploadAttachment (same-origin, progress, no redirects).",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/attachment.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "prompt-input",
+      "type": "registry:ui",
+      "title": "Prompt Input",
+      "description": "Agent chat composer: bounded text without hidden characters, checked attachments with progress, model picker, send that turns into stop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/use-format",
+        "@aedis/attachment",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/progress",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/prompt-input.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

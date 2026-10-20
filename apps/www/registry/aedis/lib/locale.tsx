@@ -102,6 +102,23 @@ export type Messages = {
     title: string;
     source: string;
   };
+  promptInput: {
+    placeholder: string;
+    message: string;
+    send: string;
+    stop: string;
+    attach: string;
+    attachments: string;
+    remove: string;
+    uploading: string;
+    typeNotAllowed: string;
+    tooLarge: string;
+    empty: string;
+    tooMany: string;
+    uploadFailed: string;
+    sendError: string;
+    model: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -202,6 +219,23 @@ export const en: Messages = {
   sources: {
     title: "Sources",
     source: "Source",
+  },
+  promptInput: {
+    placeholder: "Ask the agent",
+    message: "Message",
+    send: "Send",
+    stop: "Stop",
+    attach: "Attach files",
+    attachments: "Attachments",
+    remove: "Remove {name}",
+    uploading: "Uploading {name}",
+    typeNotAllowed: "{name}: this type of file is not allowed.",
+    tooLarge: "{name} is larger than {size}.",
+    empty: "{name} is empty.",
+    tooMany: "Attach at most {count} files.",
+    uploadFailed: "{name} could not be uploaded. Try again.",
+    sendError: "The message could not be sent. Try again.",
+    model: "Model",
   },
 };
 

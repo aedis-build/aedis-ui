@@ -37,6 +37,7 @@ import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
+import { PromptInputExample } from "@/components/examples/prompt-input-example";
 import { StreamingExample } from "@/components/examples/streaming-example";
 import { ToastExample } from "@/components/examples/toast-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
@@ -249,6 +250,27 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Same rules as Markdown: no raw HTML, safe link protocols, images off by default, hidden characters removed.",
       "A link becomes clickable only once it closes, and a bare URL only once it is followed by a space: a half-written URL is never clickable.",
       "Rendered at most once per animation frame, with a length cap, so a fast or runaway stream cannot freeze the page.",
+    ],
+  },
+  {
+    name: "prompt-input",
+    title: "Prompt Input",
+    description: "The composer for an agent chat: bounded text, attachments, a model picker and a send button that turns into stop.",
+    example: <PromptInputExample />,
+    props: [
+      { name: "onSend", type: "(message, { signal }) => Promise<void>", description: "Resolve when the answer is complete; Stop aborts signal. Throw to keep the draft." },
+      { name: "maxLength", type: "number", default: "8000", description: "Match your server limit." },
+      { name: "attachments", type: "{ accept; maxBytes; uploadPath; maxFiles? }", description: "Turns attachments on: MIME or extension allow-list, size limit, same-origin upload path (default 10 files)." },
+      { name: "models / model / onModelChange", type: "{ value; label }[] / string / (value) => void", description: "Optional agent or model picker." },
+      { name: "labels", type: "Partial<PromptInputLabels>", description: "Every string, in the dictionary." },
+      { name: "checkAttachment / safeFileName / uploadAttachment", type: "lib", description: "The same rules for your own upload UI." },
+    ],
+    security: [
+      "Text is bounded and has hidden characters removed before it is sent.",
+      "Attachments: type allow-list (an image/* wildcard never admits SVG), size and count limits, uploaded same-origin with X-Requested-With, redirects refused.",
+      "File names are shown without bidi controls or control characters (RLO spoofing, T1036.002); files are never previewed, so an SVG is never inlined.",
+      "Stop aborts the request through AbortController; cancel the work on the server through that same signal.",
+      "The browser guesses a file's type from its name: the server must check the content again.",
     ],
   },
   {
