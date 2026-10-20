@@ -712,6 +712,27 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "Panel from an edge of the screen on Base UI Drawer: modal, swipe to dismiss with velocity, parallax content and an optional receding page.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

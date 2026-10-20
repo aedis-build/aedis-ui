@@ -50,4 +50,7 @@ export const es: Messages = {
   navigationMenu: {
     label: "Navegación del sitio",
   },
+  sheet: {
+    close: "Cerrar",
+  },
 };

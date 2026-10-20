@@ -53,6 +53,9 @@ export type Messages = {
   navigationMenu: {
     label: string;
   };
+  sheet: {
+    close: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -104,6 +107,9 @@ export const en: Messages = {
   },
   navigationMenu: {
     label: "Site navigation",
+  },
+  sheet: {
+    close: "Close",
   },
 };
 

@@ -366,6 +366,90 @@
   backdrop-filter: saturate(180%) blur(var(--blur-thick));
 }
 
+/*
+ * Sheets (Base UI Drawer): slide in from their side on the sheet spring and follow the finger while swiped; the
+ * release takes the swipe velocity (--drawer-swipe-strength). Content arrives in parallax, the scrim dims and the
+ * page behind recedes in proportion to how open the sheet is. Reduced motion: a short cross-fade.
+ */
+@utility sheet {
+  transition: transform var(--duration-sheet) var(--ease-spring-critical), opacity var(--duration-fast) var(--ease-cinematic);
+  &[data-swipe-direction="left"],
+  &[data-swipe-direction="right"] {
+    transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  }
+  &[data-swipe-direction="up"],
+  &[data-swipe-direction="down"] {
+    transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  }
+  &[data-swipe-direction="right"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(100%);
+  }
+  &[data-swipe-direction="left"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(-100%);
+  }
+  &[data-swipe-direction="down"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(100%);
+  }
+  &[data-swipe-direction="up"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(-100%);
+  }
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength, 1) * var(--duration-sheet) * 0.5);
+    transition-timing-function: var(--ease-cinematic);
+  }
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:is([data-starting-style], [data-ending-style])[data-swipe-direction] {
+      transform: none;
+      opacity: 0;
+    }
+  }
+}
+@utility sheet-content {
+  transition: translate var(--duration-sheet) var(--ease-spring-critical), opacity var(--duration-base) var(--ease-cinematic);
+  [data-starting-style] & {
+    opacity: 0;
+  }
+  [data-starting-style][data-swipe-direction="right"] & {
+    translate: 2rem 0;
+  }
+  [data-starting-style][data-swipe-direction="left"] & {
+    translate: -2rem 0;
+  }
+  [data-starting-style][data-swipe-direction="down"] & {
+    translate: 0 2rem;
+  }
+  [data-starting-style][data-swipe-direction="up"] & {
+    translate: 0 -2rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    translate: none !important;
+  }
+}
+@utility sheet-backdrop {
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity var(--duration-sheet) var(--ease-cinematic);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+  }
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+}
+@utility sheet-indent {
+  transform-origin: 50% 0;
+  transition: scale var(--duration-sheet) var(--ease-spring-critical);
+  &[data-active] {
+    scale: calc(var(--recede-scale) + (1 - var(--recede-scale)) * var(--drawer-swipe-progress, 0));
+  }
+}
+
 /* Line-by-line reveal (code-block animated): the text is in the DOM from the start, only its paint is clipped. */
 @utility reveal-line {
   clip-path: inset(0 100% 0 0);

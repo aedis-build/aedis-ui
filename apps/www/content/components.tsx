@@ -30,6 +30,7 @@ import { Link } from "@/registry/aedis/ui/link";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/registry/aedis/ui/navigation-menu";
 import { Separator } from "@/registry/aedis/ui/separator";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
 import { Switch } from "@/registry/aedis/ui/switch";
@@ -278,6 +279,41 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     security: [
       "Every href goes through safeUrl: javascript:, data: and vbscript: never become links.",
       "External links get rel=\"noopener noreferrer\" and a visible arrow with screen-reader text, so people know they leave the site.",
+    ],
+  },
+  {
+    name: "sheet",
+    title: "Sheet",
+    description: "A panel from the edge of the screen for navigation on phones, details and filters. Swipe it away.",
+    example: (
+      <div className="flex flex-wrap gap-2">
+        {(["right", "left", "bottom"] as const).map((side) => (
+          <Sheet key={side} side={side}>
+            <SheetTrigger render={<Button variant="outline" />}>Open {side}</SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Approval pending</SheetTitle>
+                <SheetDescription>The agent wants to send the report outside the company.</SheetDescription>
+              </SheetHeader>
+              <Input aria-label="Note" placeholder="Add a note" />
+              <SheetFooter>
+                <SheetClose render={<Button />}>Done</SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        ))}
+      </div>
+    ),
+    props: [
+      { name: "Sheet side", type: '"right" | "left" | "bottom" | "top"', default: '"right"', description: "Edge it comes from; also the direction that swipes it away." },
+      { name: "SheetContent showCloseButton", type: "boolean", default: "true", description: "The labelled close button in the corner." },
+      { name: "SheetContent labels", type: "Partial<SheetLabels>", description: "close: the close button's accessible name." },
+      { name: "SheetProvider / SheetIndent / SheetIndentBackground", type: "components", description: "Optional: wrap the app so the page recedes behind any open sheet." },
+      ...baseProps("@base-ui/react Drawer"),
+    ],
+    security: [
+      "Modal: focus is trapped while open and returns to the trigger on close; the page behind is inert; Escape closes.",
+      "Title and description are wired to aria-labelledby and aria-describedby.",
     ],
   },
   {

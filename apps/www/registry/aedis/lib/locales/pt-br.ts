@@ -50,4 +50,7 @@ export const ptBR: Messages = {
   navigationMenu: {
     label: "Navegação do site",
   },
+  sheet: {
+    close: "Fechar",
+  },
 };
