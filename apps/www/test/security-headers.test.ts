@@ -33,7 +33,8 @@ describe("securityHeaders", () => {
 
   it("takes build-time script hashes for a static site", () => {
     const h = securityHeaders({ hashes: ["sha256-AbC+/12=", "sha384-xyz"] });
-    expect(h["Content-Security-Policy"]).toContain("script-src 'self' 'sha256-AbC+/12=' 'sha384-xyz' 'strict-dynamic'");
+    // No 'strict-dynamic': it would make browsers ignore 'self' and block the site's own <script src>.
+    expect(h["Content-Security-Policy"]).toContain("script-src 'self' 'sha256-AbC+/12=' 'sha384-xyz';");
   });
 
   it("refuses a policy it cannot make strict", () => {

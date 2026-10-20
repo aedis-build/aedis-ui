@@ -5,7 +5,9 @@ export type SecurityHeadersOptions = {
   nonce?: string;
   /**
    * For a static site, where no server can mint a nonce: the hashes of its inline scripts, as `sha256-<base64>`
-   * (or sha384/sha512), computed at build time. Give either `nonce` or `hashes`, never both.
+   * (or sha384/sha512), computed at build time. Give either `nonce` or `hashes`, never both. The policy is then
+   * `'self'` plus the hashes, without `'strict-dynamic'`: under it browsers ignore `'self'`, and the page's own
+   * `<script src>` tags, which carry no nonce, would be blocked.
    */
   hashes?: string[];
   /** Extra origins the page may fetch or stream from, e.g. an API on another host. Same-origin is always allowed. */
@@ -26,7 +28,7 @@ function scriptSources(nonce: string | undefined, hashes: string[] | undefined) 
   if ((nonce === undefined) === (hashes === undefined)) throw new Error("securityHeaders: give either nonce or hashes");
   if (nonce !== undefined) {
     if (!NONCE.test(nonce)) throw new Error("securityHeaders: the nonce must be base64");
-    return [`'nonce-${nonce}'`];
+    return [`'nonce-${nonce}'`, "'strict-dynamic'"];
   }
   const bad = hashes!.find((h) => !HASH.test(h));
   if (bad !== undefined) throw new Error(`securityHeaders: not a script hash: ${bad}`);
@@ -46,7 +48,7 @@ export function securityHeaders({ nonce, hashes, connectSrc = [], imgSrc = [], f
   const frameAncestors = sources(ancestors);
   const csp = [
     "default-src 'self'",
-    ["script-src 'self'", ...scriptSources(nonce, hashes), "'strict-dynamic'"].join(" "),
+    ["script-src 'self'", ...scriptSources(nonce, hashes)].join(" "),
     // Inline style attributes come from the components; scripts never do.
     "style-src 'self' 'unsafe-inline'",
     ["img-src 'self' data:", ...imgSrc].join(" "),
