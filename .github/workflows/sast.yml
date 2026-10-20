@@ -11,10 +11,10 @@ permissions: {}
 
 jobs:
   sast:
-    uses: aedis-build/aedis-platform/.github/workflows/sast.yml@e83f3b489f26c7bd8276e035f4213f89f254ed08
+    uses: aedis-build/aedis-platform/.github/workflows/sast.yml@820bfc78a548c3fcc98a5b9e303c93fa3a368243
     permissions:
       contents: read
       security-events: write
     with:
-      platform-ref: e83f3b489f26c7bd8276e035f4213f89f254ed08
+      platform-ref: 820bfc78a548c3fcc98a5b9e303c93fa3a368243
       extra-configs: p/javascript p/typescript p/react p/nextjs
