@@ -1025,6 +1025,21 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "secure-action",
+      "type": "registry:lib",
+      "title": "secureAction",
+      "description": "Server Actions wrapper: required authorization, rate limit, size limit and Standard Schema validation inside the action; typed result with a code, never the error message; taintSecret.",
+      "dependencies": [
+        "server-only@0.0.1"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/secure-action.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

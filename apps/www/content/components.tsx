@@ -742,6 +742,37 @@ export const GET = bffStream({
     ],
   },
   {
+    name: "secure-action",
+    title: "secureAction",
+    description: "A wrapper for Server Actions: required authorization, rate limit, size limit and schema inside the action, and a typed result without error messages.",
+    example: (
+      <CodeBlock
+        lang="ts"
+        code={`export const renameAgent = secureAction({
+  authorize: currentUser,
+  schema: z.object({ id: z.string().uuid(), name: z.string().max(80) }),
+  handler: ({ id, name }, user) => db.agents.rename(user.tenantId, id, name),
+});
+
+const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: false, code }`}
+      />
+    ),
+    props: [
+      { name: "authorize", type: "() => Ctx | null", description: "Required; runs on every call. null answers \"unauthorized\"; throw ActionError(\"forbidden\") for a caller without the right." },
+      { name: "schema", type: "StandardSchemaV1", description: "Any Standard Schema validator; the handler only sees its output. Invalid input returns the failing field paths." },
+      { name: "maxInputBytes", type: "number", default: "65536", description: "Serialized size limit, files included, checked before validation." },
+      { name: "rateLimit", type: "(ctx) => boolean", description: "Return false to answer \"rate-limited\"." },
+      { name: "handler", type: "(input, ctx) => T", description: "Throw ActionError(\"not-found\" | \"conflict\" | …) for an expected failure." },
+      { name: "taintSecret(message, lifetime, value)", type: "boolean", description: "React taint for a token (needs experimental.taint); false when unavailable." },
+    ],
+    security: [
+      "Every Server Action is a public POST endpoint: authorization is a required argument and runs inside the action.",
+      "Order: authorize, rate limit, size limit, schema, handler. An anonymous call is never parsed.",
+      "The client gets a code, never an error message; details go to the server log.",
+      "server-only import; see the Server Actions guide for allowedOrigins, bodySizeLimit, the Origin check and secrets in closures.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",

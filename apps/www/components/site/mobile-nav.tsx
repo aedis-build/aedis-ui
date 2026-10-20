@@ -21,7 +21,7 @@ export function MobileNav({ items }: { items: { name: string; title: string }[] 
         <SheetTitle>Aedis UI</SheetTitle>
         <nav aria-label="Docs">
           <ul className="space-y-1">
-            {[{ name: "theming", title: "Theming" }, ...items].map((c) => (
+            {[{ name: "theming", title: "Theming" }, { name: "server-actions", title: "Server Actions" }, ...items].map((c) => (
               <li key={c.name}>
                 <Link href={`/docs/${c.name}`} onClick={() => setOpen(false)} className="focus-ring block rounded-sm px-2 py-1.5 hover:bg-muted">
                   {c.title}
