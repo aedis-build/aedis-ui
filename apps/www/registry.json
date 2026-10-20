@@ -1117,6 +1117,25 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "sources",
+      "type": "registry:ui",
+      "title": "Sources",
+      "description": "Citations list and inline markers: safe links, punycode domain shown, external links marked, no third-party favicons.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sources.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

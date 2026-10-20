@@ -95,4 +95,8 @@ export const es: Messages = {
     thought: "Razonamiento",
     thoughtFor: "Pensó durante {seconds} s",
   },
+  sources: {
+    title: "Fuentes",
+    source: "Fuente",
+  },
 };

@@ -95,4 +95,8 @@ export const ptBR: Messages = {
     thought: "Raciocínio",
     thoughtFor: "Pensou por {seconds} s",
   },
+  sources: {
+    title: "Fontes",
+    source: "Fonte",
+  },
 };

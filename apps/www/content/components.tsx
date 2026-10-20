@@ -48,6 +48,7 @@ import { Separator } from "@/registry/aedis/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
+import { Citation, Sources } from "@/registry/aedis/ui/sources";
 import { Spinner } from "@/registry/aedis/ui/spinner";
 import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
@@ -248,6 +249,39 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Same rules as Markdown: no raw HTML, safe link protocols, images off by default, hidden characters removed.",
       "A link becomes clickable only once it closes, and a bare URL only once it is followed by a space: a half-written URL is never clickable.",
       "Rendered at most once per animation frame, with a length cap, so a fast or runaway stream cannot freeze the page.",
+    ],
+  },
+  {
+    name: "sources",
+    title: "Sources",
+    description: "Citations for answers grounded in documents: a numbered list and inline markers.",
+    example: (
+      <div className="space-y-3 text-callout">
+        <p>
+          Shoot days are billed monthly<Citation n={1} idPrefix="example-sources" title="Pricing policy 2026" /> and delivered in 48 hours
+          <Citation n={2} idPrefix="example-sources" title="Service levels" />.
+        </p>
+        <Sources
+          idPrefix="example-sources"
+          sources={[
+            { title: "Pricing policy 2026", url: "https://www.example.com/docs/pricing", snippet: "Shoot days are billed monthly, in advance." },
+            { title: "Service levels", url: "/docs/approval-card" },
+          ]}
+        />
+      </div>
+    ),
+    props: [
+      { name: "Sources sources", type: "{ title; url; snippet? }[]", description: "Titles and snippets are text; URLs go through safeUrl." },
+      { name: "Sources idPrefix", type: "string", description: "Anchor prefix shared with the inline Citation markers." },
+      { name: "Citation n / idPrefix / title?", type: "number / string / string", description: "Inline marker linking to entry n, named \"Source n: title\"." },
+      { name: "sourceDomain(url)", type: "string | null", description: "The host a person lands on, punycode for international names." },
+      { name: "labels", type: "Partial<SourcesLabels>", description: "title, source." },
+    ],
+    security: [
+      "Every link goes through safeUrl; external ones open with noopener noreferrer and are marked.",
+      "The domain is shown next to the title, in punycode for international names, so a lookalike domain cannot pass for the real one.",
+      "No favicon is fetched from third parties: nothing leaks who reads the answer, and img-src stays strict.",
+      "Titles and snippets are text, hidden characters removed.",
     ],
   },
   {

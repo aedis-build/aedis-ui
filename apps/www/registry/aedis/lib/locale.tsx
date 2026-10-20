@@ -98,6 +98,10 @@ export type Messages = {
     thought: string;
     thoughtFor: string;
   };
+  sources: {
+    title: string;
+    source: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -194,6 +198,10 @@ export const en: Messages = {
     thinking: "Thinking…",
     thought: "Reasoning",
     thoughtFor: "Thought for {seconds} s",
+  },
+  sources: {
+    title: "Sources",
+    source: "Source",
   },
 };
 
