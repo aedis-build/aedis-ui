@@ -40,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ul className="mb-6 space-y-1 text-callout">
               <li><Link href="/docs/theming" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Theming</Link></li>
               <li><Link href="/docs/server-actions" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Server Actions</Link></li>
+              <li><Link href="/docs/micro-frontends" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Micro-frontends</Link></li>
             </ul>
             <p className="mb-2 text-caption uppercase text-muted-foreground">Components</p>
             <ul className="space-y-1 text-callout">
