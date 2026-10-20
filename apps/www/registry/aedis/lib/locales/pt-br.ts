@@ -59,4 +59,7 @@ export const ptBR: Messages = {
     confirm: "Continuar",
     cancel: "Cancelar",
   },
+  spinner: {
+    label: "Carregando",
+  },
 };

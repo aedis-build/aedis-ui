@@ -59,4 +59,7 @@ export const es: Messages = {
     confirm: "Continuar",
     cancel: "Cancelar",
   },
+  spinner: {
+    label: "Cargando",
+  },
 };

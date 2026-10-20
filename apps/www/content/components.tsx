@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/registry/aedis/ui/alert-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/registry/aedis/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "@/registry/aedis/ui/alert";
 import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
@@ -21,7 +22,9 @@ import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/aedis/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/registry/aedis/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/registry/aedis/ui/dropdown-menu";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/registry/aedis/ui/empty";
 import { Input } from "@/registry/aedis/ui/input";
+import { Kbd, KbdGroup } from "@/registry/aedis/ui/kbd";
 import { Label } from "@/registry/aedis/ui/label";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
@@ -36,6 +39,7 @@ import { Separator } from "@/registry/aedis/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
+import { Spinner } from "@/registry/aedis/ui/spinner";
 import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
@@ -395,6 +399,86 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       ...baseProps("@base-ui/react Collapsible"),
     ],
     security: ["Content is rendered as data."],
+  },
+  {
+    name: "alert",
+    title: "Alert",
+    description: "A callout for status, success, warnings and errors.",
+    example: (
+      <div className="grid gap-3">
+        <Alert>
+          <AlertTitle>Approvals moved</AlertTitle>
+          <AlertDescription>Pending approvals now live in the sidebar.</AlertDescription>
+        </Alert>
+        <Alert variant="destructive">
+          <AlertTitle>Could not send the proposal</AlertTitle>
+          <AlertDescription>Nothing was sent. Try again in a minute.</AlertDescription>
+        </Alert>
+      </div>
+    ),
+    props: [
+      { name: "variant", type: '"default" | "success" | "warning" | "destructive"', default: '"default"', description: "Only destructive uses role=\"alert\"; the rest are role=\"status\"." },
+      { name: "role", type: "string", description: "Override when the default announcement is wrong for the context." },
+    ],
+    security: [
+      "Text only: no prop takes markup.",
+      "Write the message yourself; never show the server's error text as is (it can disclose internals).",
+    ],
+  },
+  {
+    name: "empty",
+    title: "Empty",
+    description: "The state of a page or list with nothing in it yet, and what to do next.",
+    example: (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="6" r="2.5" /><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0" /></svg>
+          </EmptyMedia>
+          <EmptyTitle>No agents yet</EmptyTitle>
+          <EmptyDescription>Hire your first agent to start handing off work.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button>Hire an agent</Button>
+        </EmptyContent>
+      </Empty>
+    ),
+    props: [{ name: "EmptyMedia variant", type: '"default" | "icon"', default: '"default"', description: "Decorative, hidden from assistive technology." }],
+    security: ["Text only."],
+  },
+  {
+    name: "spinner",
+    title: "Spinner",
+    description: "Loading indicator.",
+    example: (
+      <div className="flex items-center gap-6">
+        <Spinner />
+        <Button disabled>
+          <Spinner className="text-current" labels={{ label: "Sending" }} />
+        </Button>
+      </div>
+    ),
+    props: [
+      { name: "labels", type: "Partial<SpinnerLabels>", description: "label: what is loading, announced politely." },
+      { name: "...props", type: "span props", description: "Every prop of the wrapping span (role=\"status\")." },
+    ],
+    security: ["With reduced motion it stops rotating and shows its label as text."],
+  },
+  {
+    name: "kbd",
+    title: "Kbd",
+    description: "A key or a key combination.",
+    example: (
+      <p className="text-callout">
+        Search with{" "}
+        <KbdGroup>
+          <Kbd>⌘</Kbd>
+          <Kbd>K</Kbd>
+        </KbdGroup>
+      </p>
+    ),
+    props: [{ name: "KbdGroup", type: "kbd", description: "A combination: nested kbd elements, as HTML specifies." }],
+    security: ["Text only."],
   },
   {
     name: "link",

@@ -62,6 +62,9 @@ export type Messages = {
     confirm: string;
     cancel: string;
   };
+  spinner: {
+    label: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -122,6 +125,9 @@ export const en: Messages = {
     confirmDescription: "This cannot be undone.",
     confirm: "Continue",
     cancel: "Cancel",
+  },
+  spinner: {
+    label: "Loading",
   },
 };
 
