@@ -74,4 +74,9 @@ export const ptBR: Messages = {
     goNext: "Ir para a próxima página",
     more: "Mais páginas",
   },
+  toast: {
+    region: "Notificações",
+    close: "Fechar notificação",
+    failed: "Algo deu errado. Tente de novo.",
+  },
 };

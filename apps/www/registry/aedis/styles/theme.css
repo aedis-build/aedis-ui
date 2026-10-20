@@ -476,6 +476,71 @@
   }
 }
 
+/*
+ * Toasts (Base UI Toast): a stack that enters from below on the spring, fans out while hovered or focused
+ * (data-expanded), follows the finger while swiped and leaves fast. Reduced motion: appear and disappear in place.
+ */
+@utility toast {
+  --gap: 0.75rem;
+  --peek: 0.75rem;
+  --scale: max(0, 1 - var(--toast-index) * 0.06);
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
+  --offset-y: calc(var(--toast-offset-y) * -1 + var(--toast-index) * var(--gap) * -1 + var(--toast-swipe-movement-y));
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: calc(1000 - var(--toast-index));
+  transform-origin: bottom center;
+  height: var(--height);
+  transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - var(--toast-index) * var(--peek) - var(--shrink) * var(--height))) scale(var(--scale));
+  transition: transform var(--duration-spring) var(--ease-spring-critical), opacity var(--duration-base) var(--ease-cinematic);
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: calc(var(--gap) + 1px);
+  }
+  &[data-expanded] {
+    height: var(--toast-height);
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+  }
+  &[data-limited] {
+    opacity: 0;
+  }
+  &[data-starting-style] {
+    transform: translateY(150%);
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-cinematic);
+  }
+  &[data-ending-style]:not([data-limited]):not([data-swipe-direction]) {
+    transform: translateY(150%);
+  }
+  &[data-ending-style][data-swipe-direction="down"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
+  &[data-ending-style][data-swipe-direction="right"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+  }
+  &[data-ending-style][data-swipe-direction="left"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+  }
+  &[data-ending-style][data-swipe-direction="up"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:is([data-starting-style], [data-ending-style]) {
+      transform: none;
+      opacity: 0;
+    }
+  }
+}
+
 /* Line-by-line reveal (code-block animated): the text is in the DOM from the start, only its paint is clipped. */
 @utility reveal-line {
   clip-path: inset(0 100% 0 0);

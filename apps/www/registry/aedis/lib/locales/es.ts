@@ -74,4 +74,9 @@ export const es: Messages = {
     goNext: "Ir a la página siguiente",
     more: "Más páginas",
   },
+  toast: {
+    region: "Notificaciones",
+    close: "Cerrar notificación",
+    failed: "Algo salió mal. Inténtalo de nuevo.",
+  },
 };

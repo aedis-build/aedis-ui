@@ -970,6 +970,28 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Feedback toasts on Base UI Toast: text only, errors announced urgently, generic failure message, pause on hover and focus, swipe to dismiss.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/toast.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

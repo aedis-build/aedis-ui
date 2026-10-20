@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
+import { ToastExample } from "@/components/examples/toast-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Link } from "@/registry/aedis/ui/link";
 import { Markdown } from "@/registry/aedis/ui/markdown";
@@ -612,6 +613,24 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       { name: "ButtonGroupText / ButtonGroupSeparator", type: "components", description: "A text cell (e.g. a URL prefix) and a divider." },
     ],
     security: ["role=\"group\" with a name; each button keeps its own semantics and tab stop."],
+  },
+  {
+    name: "toast",
+    title: "Toast",
+    description: "Feedback after an action: Copied, Saved, Request failed.",
+    example: <ToastExample />,
+    props: [
+      { name: "<Toaster />", type: "component", description: "Once near the root; renders the stack in the bottom corner. labels: region, close, failed." },
+      { name: "toast.show / success / info / warning / error(title, options?)", type: "string id", description: "Text only. Errors are announced urgently (role=\"alert\"); the rest politely." },
+      { name: "useToast().failed(options?)", type: "string id", description: "The generic failure message in the reader's language, for catch blocks." },
+      { name: "options", type: "{ description?; timeout?; action?: { label; onClick } }", description: "Timeout in ms (0 keeps it); paused while hovered or focused." },
+      { name: "toast.dismiss(id)", type: "void", description: "Close one toast." },
+    ],
+    security: [
+      "Text only: title and description are strings, hidden characters removed.",
+      "Show a message you wrote or the generic one; never the server's error text.",
+      "Timers pause while the stack is hovered or focused, so nobody has to race a message.",
+    ],
   },
   {
     name: "link",

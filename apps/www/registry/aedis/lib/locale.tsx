@@ -77,6 +77,11 @@ export type Messages = {
     goNext: string;
     more: string;
   };
+  toast: {
+    region: string;
+    close: string;
+    failed: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -152,6 +157,11 @@ export const en: Messages = {
     goPrevious: "Go to previous page",
     goNext: "Go to next page",
     more: "More pages",
+  },
+  toast: {
+    region: "Notifications",
+    close: "Close notification",
+    failed: "Something went wrong. Try again.",
   },
 };
 
