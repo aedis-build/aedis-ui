@@ -62,4 +62,16 @@ export const ptBR: Messages = {
   spinner: {
     label: "Carregando",
   },
+  breadcrumb: {
+    label: "Trilha de navegação",
+    more: "Mais",
+  },
+  pagination: {
+    label: "Paginação",
+    previous: "Anterior",
+    next: "Próxima",
+    goPrevious: "Ir para a página anterior",
+    goNext: "Ir para a próxima página",
+    more: "Mais páginas",
+  },
 };

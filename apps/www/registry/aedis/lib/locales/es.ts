@@ -62,4 +62,16 @@ export const es: Messages = {
   spinner: {
     label: "Cargando",
   },
+  breadcrumb: {
+    label: "Ruta de navegación",
+    more: "Más",
+  },
+  pagination: {
+    label: "Paginación",
+    previous: "Anterior",
+    next: "Siguiente",
+    goPrevious: "Ir a la página anterior",
+    goNext: "Ir a la página siguiente",
+    more: "Más páginas",
+  },
 };

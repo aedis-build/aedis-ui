@@ -65,6 +65,18 @@ export type Messages = {
   spinner: {
     label: string;
   };
+  breadcrumb: {
+    label: string;
+    more: string;
+  };
+  pagination: {
+    label: string;
+    previous: string;
+    next: string;
+    goPrevious: string;
+    goNext: string;
+    more: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -128,6 +140,18 @@ export const en: Messages = {
   },
   spinner: {
     label: "Loading",
+  },
+  breadcrumb: {
+    label: "Breadcrumb",
+    more: "More",
+  },
+  pagination: {
+    label: "Pagination",
+    previous: "Previous",
+    next: "Next",
+    goPrevious: "Go to previous page",
+    goNext: "Go to next page",
+    more: "More pages",
   },
 };
 

@@ -38,6 +38,8 @@ describe("link", () => {
     expect(linkProps("/docs")).toEqual({ href: "/docs", external: false, rel: undefined });
     expect(linkProps("https://example.com/x")).toEqual({ href: "https://example.com/x", external: true, rel: "noopener noreferrer" });
     expect(linkProps(`${window.location.origin}/same`)).toMatchObject({ external: false });
+    expect(linkProps("//cdn.example.com/a")).toMatchObject({ external: true, rel: "noopener noreferrer" });
+    expect(linkProps("?page=2")).toMatchObject({ href: "?page=2", external: false });
     expect(linkProps("javascript:alert(1)").href).toBeNull();
     expect(linkProps("data:text/html,x").href).toBeNull();
   });
@@ -46,7 +48,7 @@ describe("link", () => {
     fc.assert(
       fc.property(fc.string(), (href) => {
         const { href: out } = linkProps(href);
-        if (out !== null) expect(out.startsWith("/") || out.startsWith("#") || /^(https?|mailto):/i.test(out)).toBe(true);
+        if (out !== null) expect(["http:", "https:", "mailto:"]).toContain(new URL(out, "https://base.invalid").protocol);
       }),
     );
   });

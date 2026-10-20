@@ -15,6 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Alert, AlertDescription, AlertTitle } from "@/registry/aedis/ui/alert";
 import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Badge } from "@/registry/aedis/ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/registry/aedis/ui/breadcrumb";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
@@ -24,8 +25,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/registry/aedis/ui/dropdown-menu";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/registry/aedis/ui/empty";
 import { Input } from "@/registry/aedis/ui/input";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/registry/aedis/ui/item";
 import { Kbd, KbdGroup } from "@/registry/aedis/ui/kbd";
 import { Label } from "@/registry/aedis/ui/label";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/registry/aedis/ui/pagination";
+import { paginationRange } from "@/registry/aedis/lib/pagination";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
@@ -479,6 +483,95 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     ),
     props: [{ name: "KbdGroup", type: "kbd", description: "A combination: nested kbd elements, as HTML specifies." }],
     security: ["Text only."],
+  },
+  {
+    name: "breadcrumb",
+    title: "Breadcrumb",
+    description: "Where a page sits in the site.",
+    example: (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/docs/button">Components</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    ),
+    props: [
+      { name: "BreadcrumbLink href", type: "string", description: "Goes through safeUrl; pass render={<Link />} for a router link." },
+      { name: "BreadcrumbPage", type: "span", description: "The current page, with aria-current=\"page\"." },
+      { name: "labels", type: "Partial<BreadcrumbLabels>", description: "label (landmark), more (ellipsis)." },
+    ],
+    security: ["Every href goes through safeUrl; external links get noopener noreferrer and a marker."],
+  },
+  {
+    name: "pagination",
+    title: "Pagination",
+    description: "Previous, next and page links for paginated lists.",
+    example: (
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="?page=4" />
+          </PaginationItem>
+          {paginationRange(5, 12).map((p, i) => (
+            <PaginationItem key={i}>{p === "ellipsis" ? <PaginationEllipsis /> : <PaginationLink href={`?page=${p}`} isActive={p === 5}>{p}</PaginationLink>}</PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext href="?page=6" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    ),
+    props: [
+      { name: "parsePage(value, total)", type: "number", description: "A page from the URL or a form, as an integer from 1 to total; anything else becomes 1." },
+      { name: "paginationRange(page, total, siblings?)", type: '(number | "ellipsis")[]', description: "Pages to render around the current one." },
+      { name: "PaginationLink isActive", type: "boolean", description: "The current page (aria-current=\"page\")." },
+      { name: "labels", type: "Partial<PaginationLabels>", description: "label, previous, next, goPrevious, goNext, more." },
+    ],
+    security: [
+      "Page numbers from the URL are untrusted: parsePage keeps integers within bounds and caps the total.",
+      "Every href goes through safeUrl; a refused one renders a disabled page.",
+    ],
+  },
+  {
+    name: "item",
+    title: "Item",
+    description: "A row in a list: media, content and actions.",
+    example: (
+      <ItemGroup aria-label="Agents" className="max-w-md">
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>Avalo</ItemTitle>
+            <ItemDescription>Answers leads on WhatsApp.</ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <Button size="sm" variant="secondary">Pause</Button>
+          </ItemActions>
+        </Item>
+        <Item variant="outline" href="/docs/approval-card">
+          <ItemContent>
+            <ItemTitle>Talbot</ItemTitle>
+            <ItemDescription>3 approvals waiting.</ItemDescription>
+          </ItemContent>
+        </Item>
+      </ItemGroup>
+    ),
+    props: [
+      { name: "href", type: "string", description: "Makes the row a link, through safeUrl. Inside an ItemGroup it is wrapped in a listitem and keeps its link role." },
+      { name: "variant", type: '"default" | "outline" | "muted"', default: '"default"', description: "Surface." },
+      { name: "size", type: '"default" | "sm"', default: '"default"', description: "Padding." },
+      { name: "render", type: "ReactElement", description: "Another element to render, e.g. a router link." },
+    ],
+    security: ["Links go through safeUrl; external ones get noopener noreferrer and a marker."],
   },
   {
     name: "link",
