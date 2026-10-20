@@ -1259,6 +1259,23 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "mf-context",
+      "type": "registry:lib",
+      "title": "mf-context",
+      "description": "Theme, locale and session across host and embedded app over mf-bridge: validated theme and locale, session:end on logout, shared idle time.",
+      "registryDependencies": [
+        "@aedis/mf-bridge",
+        "@aedis/custom-theme",
+        "@aedis/use-idle-timeout"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-context.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

@@ -2,7 +2,10 @@
 
 import * as React from "react";
 
-const ACTIVITY = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
+/** Dispatch on window to count activity the page cannot see, e.g. inside an embedded app (mf-context does). */
+export const ACTIVITY_EVENT = "aedis:activity";
+
+const ACTIVITY = ["pointerdown", "keydown", "wheel", "touchstart", ACTIVITY_EVENT] as const;
 
 /**
  * Calls onIdle once the person has not touched the page for the given time, so the app can end the session.

@@ -999,6 +999,36 @@ panel.addEventListener("approve", (e) => approve(e.detail));`}
     ],
   },
   {
+    name: "mf-context",
+    title: "mf-context",
+    description: "Keeps an embedded app in step with its host: theme, locale and session, over mf-bridge.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`// Host
+const [bridge, setBridge] = useState<Bridge<typeof hostMessages> | null>(null);
+const endSession = useMfContextHost(bridge, { mode, theme, locale });
+<MfFrame src={AGENT_URL} title="Agent panel" messages={hostMessages} onBridge={setBridge} />
+// on logout: endSession(); then sign out
+
+// Embedded app
+const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["en", "pt-BR", "es"], onSessionEnd: signOut });`}
+      />
+    ),
+    props: [
+      { name: "useMfContextHost(bridge, { mode, theme?, locale })", type: "() => void", description: "Sends theme and locale on change; returns endSession for logout; relays the child's activity to useIdleTimeout." },
+      { name: "useMfContext({ hostOrigins, locales, onSessionEnd, activityEveryMs? })", type: "{ locale; mode }", description: "Applies the host's theme, follows its locale, ends the session with it and reports activity (every 30 s at most)." },
+      { name: "hostMessages / childMessages(locales)", type: "message specs", description: "What each side accepts." },
+      { name: "ACTIVITY_EVENT", type: "string", description: "Dispatch on window to make useIdleTimeout count activity it cannot see." },
+    ],
+    security: [
+      "Logout in the host ends the embedded app's session (session:end), so a session never outlives the host's.",
+      "Idle time is shared: activity in the embedded app keeps the host's useIdleTimeout alive, and the host's timeout ends both.",
+      "Theme and locale travel as data: the theme passes validateTheme again and is applied through the CSSOM; unknown locales are ignored.",
+      "Built on mf-bridge: exact origins, source checks and no tokens in messages.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
