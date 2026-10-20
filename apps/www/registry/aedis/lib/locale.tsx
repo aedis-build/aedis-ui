@@ -41,6 +41,12 @@ export type Messages = {
   /** Sidebar stays a Server Component, so it does not read the provider: pass `label={messages.sidebar.label}`. */
   sidebar: { label: string };
   localeSwitcher: { label: string };
+  codeBlock: {
+    copy: string;
+    copied: string;
+    copyFailed: string;
+    hidden: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -81,6 +87,12 @@ export const en: Messages = {
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Main navigation" },
   localeSwitcher: { label: "Language" },
+  codeBlock: {
+    copy: "Copy code",
+    copied: "Copied",
+    copyFailed: "Could not copy. Select the code and copy it.",
+    hidden: "Hidden character",
+  },
 };
 
 type LocaleContextValue = { locale: string; messages: Messages };

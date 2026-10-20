@@ -38,4 +38,10 @@ export const es: Messages = {
   appShell: { menuLabel: "Menú" },
   sidebar: { label: "Navegación principal" },
   localeSwitcher: { label: "Idioma" },
+  codeBlock: {
+    copy: "Copiar código",
+    copied: "Copiado",
+    copyFailed: "No se pudo copiar. Selecciona el código y cópialo.",
+    hidden: "Carácter oculto",
+  },
 };

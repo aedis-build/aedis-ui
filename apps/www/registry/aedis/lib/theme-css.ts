@@ -25,6 +25,21 @@ const shared = [
   ...Object.entries(scales).map(([name, v]) => `--${name}-scale: ${v};`),
 ];
 
+// Code highlighting (shiki's css-variables theme) reuses text roles, so it follows every theme and its contrast checks.
+export const syntax: Record<string, string> = {
+  foreground: "foreground",
+  background: "surface",
+  "token-keyword": "link",
+  "token-function": "foreground",
+  "token-parameter": "foreground",
+  "token-constant": "warning",
+  "token-string": "success",
+  "token-string-expression": "success",
+  "token-comment": "muted-foreground",
+  "token-punctuation": "muted-foreground",
+  "token-link": "link",
+};
+
 const mapped = [
   ...Object.keys(colors).map((name) => `--color-${name}: var(--${name});`),
   ...Object.keys(shadows).map((name) => `--shadow-${name}: var(--${name});`),
@@ -100,6 +115,35 @@ const utilities = String.raw`
   backdrop-filter: saturate(180%) blur(var(--blur-thick));
 }
 
+/* Line-by-line reveal (code-block animated): the text is in the DOM from the start, only its paint is clipped. */
+@utility reveal-line {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  transition:
+    clip-path var(--duration-base) var(--ease-cinematic),
+    opacity var(--duration-base) var(--ease-cinematic);
+  &[data-shown] {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Blinking text cursor; never under reduced motion. */
+@utility caret {
+  animation: caret 1s steps(1) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
 /* Where scrolling content meets floating chrome: a fade instead of a divider line. */
 @utility scroll-fade-y {
   mask-image: linear-gradient(to bottom, transparent, black 1rem, black calc(100% - 1rem), transparent);
@@ -125,7 +169,7 @@ export function themeCss() {
     "",
     block("@theme inline", mapped),
     "",
-    block(":root", themeVars("light")),
+    block(":root", [...themeVars("light"), ...Object.entries(syntax).map(([k, v]) => `--syntax-${k}: var(--${v});`)]),
     "",
     "/* Dark follows the system unless a theme is chosen with data-theme on <html>. */",
     `@media (prefers-color-scheme: dark) {\n${block(":root:not([data-theme])", themeVars("dark"), "  ")}\n}`,

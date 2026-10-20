@@ -634,6 +634,45 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "use-reduced-motion",
+      "type": "registry:hook",
+      "title": "useReducedMotion",
+      "description": "True when the person asked for less motion, for motion driven by JavaScript.",
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-reduced-motion.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "code-block",
+      "type": "registry:ui",
+      "title": "Code Block",
+      "description": "Code with token highlighting, copy and an animated line reveal. Hidden bidi and zero-width characters are shown, never run unseen.",
+      "dependencies": [
+        "shiki@4.5.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/code-block.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/aedis/lib/highlight.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

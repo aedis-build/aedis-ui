@@ -16,6 +16,7 @@ import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
+import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/registry/aedis/ui/dialog";
 import { Input } from "@/registry/aedis/ui/input";
 import { Label } from "@/registry/aedis/ui/label";
@@ -210,6 +211,39 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Only http, https, mailto and relative URLs survive; javascript:, data: and others become plain text.",
       "External links open in a new tab with rel=\"noopener noreferrer\".",
     ],
+  },
+  {
+    name: "code-block",
+    title: "Code Block",
+    description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
+    example: (
+      <div className="space-y-4">
+        <CodeBlock title="app/page.tsx" lang="tsx" code={'import { Button } from "@/components/ui/button";\n\nexport default function Page() {\n  return <Button>Approve</Button>;\n}'} />
+        <CodeBlock animated lang="bash" code={"pnpm dlx shadcn@latest add @aedis/approval-card\npnpm dev"} />
+      </div>
+    ),
+    props: [
+      { name: "code", type: "string", description: "The code, rendered as text. Copy copies exactly this." },
+      { name: "lang", type: "string", default: '"text"', description: "Any language shiki bundles; unknown ones are plain text." },
+      { name: "title", type: "string", description: "Shown above the code, e.g. a file name." },
+      { name: "animated", type: "boolean", default: "false", description: "Reveal lines one by one when scrolled into view, once. Off under reduced motion." },
+      { name: "lineDelay", type: "number", default: "120", description: "Milliseconds between lines when animated." },
+      { name: "labels", type: "Partial<CodeBlockLabels>", description: "copy, copied, copyFailed, hidden." },
+    ],
+    security: [
+      "Highlighting comes from shiki tokens rendered as React text, never codeToHtml; token colors are limited to the theme's --syntax-* variables.",
+      "Bidi controls and zero-width characters are shown as visible U+XXXX markers instead of being removed (Trojan Source, CVE-2021-42574).",
+      "Copy happens only on a click, as plain text, and copies the original code without the markers.",
+      "Uses shiki's JavaScript regex engine: no WebAssembly, so a CSP without 'wasm-unsafe-eval' keeps working.",
+    ],
+  },
+  {
+    name: "use-reduced-motion",
+    title: "useReducedMotion",
+    description: "True when the person asked for less motion. For motion driven by JavaScript; CSS motion already reads the theme tokens.",
+    example: <p className="text-callout text-muted-foreground">const reduced = useReducedMotion();</p>,
+    props: [{ name: "returns", type: "boolean", description: "Follows prefers-reduced-motion live; false on the server." }],
+    security: ["No side effects; reads a media query."],
   },
   {
     name: "use-event-stream",

@@ -137,6 +137,17 @@
   --elevation-2: 0 2px 4px rgba(16,24,40,0.06), 0 4px 12px rgba(16,24,40,0.08);
   --elevation-3: 0 4px 8px rgba(16,24,40,0.06), 0 12px 28px rgba(16,24,40,0.12);
   --elevation-4: 0 8px 16px rgba(16,24,40,0.08), 0 24px 56px rgba(16,24,40,0.18);
+  --syntax-foreground: var(--foreground);
+  --syntax-background: var(--surface);
+  --syntax-token-keyword: var(--link);
+  --syntax-token-function: var(--foreground);
+  --syntax-token-parameter: var(--foreground);
+  --syntax-token-constant: var(--warning);
+  --syntax-token-string: var(--success);
+  --syntax-token-string-expression: var(--success);
+  --syntax-token-comment: var(--muted-foreground);
+  --syntax-token-punctuation: var(--muted-foreground);
+  --syntax-token-link: var(--link);
 }
 
 /* Dark follows the system unless a theme is chosen with data-theme on <html>. */
@@ -353,6 +364,35 @@
 @utility material-thick {
   background: linear-gradient(var(--material-edge), var(--material-edge)) top / 100% 1px no-repeat, var(--material-thick);
   backdrop-filter: saturate(180%) blur(var(--blur-thick));
+}
+
+/* Line-by-line reveal (code-block animated): the text is in the DOM from the start, only its paint is clipped. */
+@utility reveal-line {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  transition:
+    clip-path var(--duration-base) var(--ease-cinematic),
+    opacity var(--duration-base) var(--ease-cinematic);
+  &[data-shown] {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Blinking text cursor; never under reduced motion. */
+@utility caret {
+  animation: caret 1s steps(1) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Where scrolling content meets floating chrome: a fade instead of a divider line. */

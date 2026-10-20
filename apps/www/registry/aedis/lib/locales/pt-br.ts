@@ -38,4 +38,10 @@ export const ptBR: Messages = {
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Navegação principal" },
   localeSwitcher: { label: "Idioma" },
+  codeBlock: {
+    copy: "Copiar código",
+    copied: "Copiado",
+    copyFailed: "Não deu para copiar. Selecione o código e copie.",
+    hidden: "Caractere oculto",
+  },
 };

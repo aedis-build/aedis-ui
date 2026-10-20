@@ -58,7 +58,7 @@ describe("motion", () => {
 
   it("utilities animate only compositor-friendly properties and colors", () => {
     const animated = [...css.matchAll(/^\s+(\w[\w-]*) var\(--duration/gm)].map((m) => m[1]);
-    expect(new Set(animated)).toEqual(new Set(["scale", "color", "background-color", "border-color", "box-shadow", "opacity", "filter"]));
+    expect(new Set(animated)).toEqual(new Set(["scale", "color", "background-color", "border-color", "box-shadow", "opacity", "filter", "clip-path"]));
   });
 
   it("reduced transparency makes every material solid", () => {
