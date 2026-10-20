@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@/*": ["../../apps/www/*"]
+    }
+  },
+  "include": ["src", "test"]
+}

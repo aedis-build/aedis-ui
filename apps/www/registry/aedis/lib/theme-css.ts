@@ -89,6 +89,32 @@ const utilities = String.raw`
   }
 }
 
+/* Menu items arrive in a cascade after their popup materializes; exits have no cascade. */
+@utility cascade {
+  & > * {
+    transition:
+      opacity var(--duration-base) var(--ease-cinematic),
+      translate var(--duration-spring) var(--ease-spring-critical);
+  }
+  &[data-starting-style] > * {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+  &:not([data-ending-style]) {
+    & > :nth-child(2) { transition-delay: var(--duration-stagger); }
+    & > :nth-child(3) { transition-delay: calc(2 * var(--duration-stagger)); }
+    & > :nth-child(4) { transition-delay: calc(3 * var(--duration-stagger)); }
+    & > :nth-child(5) { transition-delay: calc(4 * var(--duration-stagger)); }
+    & > :nth-child(6) { transition-delay: calc(5 * var(--duration-stagger)); }
+    & > :nth-child(n + 7) { transition-delay: calc(6 * var(--duration-stagger)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-starting-style] > * {
+      translate: none;
+    }
+  }
+}
+
 /* Scrims and plain cross-fades. */
 @utility fade {
   transition: opacity var(--duration-base) var(--ease-cinematic);
@@ -115,6 +141,155 @@ const utilities = String.raw`
   backdrop-filter: saturate(180%) blur(var(--blur-thick));
 }
 
+/*
+ * Sheets (Base UI Drawer): slide in from their side on the sheet spring and follow the finger while swiped; the
+ * release takes the swipe velocity (--drawer-swipe-strength). Content arrives in parallax, the scrim dims and the
+ * page behind recedes in proportion to how open the sheet is. Reduced motion: a short cross-fade.
+ */
+@utility sheet {
+  transition: transform var(--duration-sheet) var(--ease-spring-critical), opacity var(--duration-fast) var(--ease-cinematic);
+  &[data-swipe-direction="left"],
+  &[data-swipe-direction="right"] {
+    transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  }
+  &[data-swipe-direction="up"],
+  &[data-swipe-direction="down"] {
+    transform: translateY(var(--drawer-swipe-movement-y, 0px));
+  }
+  &[data-swipe-direction="right"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(100%);
+  }
+  &[data-swipe-direction="left"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(-100%);
+  }
+  &[data-swipe-direction="down"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(100%);
+  }
+  &[data-swipe-direction="up"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateY(-100%);
+  }
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength, 1) * var(--duration-sheet) * 0.5);
+    transition-timing-function: var(--ease-cinematic);
+  }
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:is([data-starting-style], [data-ending-style])[data-swipe-direction] {
+      transform: none;
+      opacity: 0;
+    }
+  }
+}
+@utility sheet-content {
+  transition: translate var(--duration-sheet) var(--ease-spring-critical), opacity var(--duration-base) var(--ease-cinematic);
+  [data-starting-style] & {
+    opacity: 0;
+  }
+  [data-starting-style][data-swipe-direction="right"] & {
+    translate: 2rem 0;
+  }
+  [data-starting-style][data-swipe-direction="left"] & {
+    translate: -2rem 0;
+  }
+  [data-starting-style][data-swipe-direction="down"] & {
+    translate: 0 2rem;
+  }
+  [data-starting-style][data-swipe-direction="up"] & {
+    translate: 0 -2rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    translate: none !important;
+  }
+}
+@utility sheet-backdrop {
+  opacity: calc(1 - var(--drawer-swipe-progress, 0));
+  transition: opacity var(--duration-sheet) var(--ease-cinematic);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+  }
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+}
+@utility sheet-indent {
+  transform-origin: 50% 0;
+  transition: scale var(--duration-sheet) var(--ease-spring-critical);
+  &[data-active] {
+    scale: calc(var(--recede-scale) + (1 - var(--recede-scale)) * var(--drawer-swipe-progress, 0));
+  }
+}
+
+/*
+ * Toasts (Base UI Toast): a stack that enters from below on the spring, fans out while hovered or focused
+ * (data-expanded), follows the finger while swiped and leaves fast. Reduced motion: appear and disappear in place.
+ */
+@utility toast {
+  --gap: 0.75rem;
+  --peek: 0.75rem;
+  --scale: max(0, 1 - var(--toast-index) * 0.06);
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
+  --offset-y: calc(var(--toast-offset-y) * -1 + var(--toast-index) * var(--gap) * -1 + var(--toast-swipe-movement-y));
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: calc(1000 - var(--toast-index));
+  transform-origin: bottom center;
+  height: var(--height);
+  transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--toast-swipe-movement-y) - var(--toast-index) * var(--peek) - var(--shrink) * var(--height))) scale(var(--scale));
+  transition: transform var(--duration-spring) var(--ease-spring-critical), opacity var(--duration-base) var(--ease-cinematic);
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: calc(var(--gap) + 1px);
+  }
+  &[data-expanded] {
+    height: var(--toast-height);
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+  }
+  &[data-limited] {
+    opacity: 0;
+  }
+  &[data-starting-style] {
+    transform: translateY(150%);
+  }
+  &[data-ending-style] {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-cinematic);
+  }
+  &[data-ending-style]:not([data-limited]):not([data-swipe-direction]) {
+    transform: translateY(150%);
+  }
+  &[data-ending-style][data-swipe-direction="down"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
+  &[data-ending-style][data-swipe-direction="right"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+  }
+  &[data-ending-style][data-swipe-direction="left"] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+  }
+  &[data-ending-style][data-swipe-direction="up"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:is([data-starting-style], [data-ending-style]) {
+      transform: none;
+      opacity: 0;
+    }
+  }
+}
+
 /* Line-by-line reveal (code-block animated): the text is in the DOM from the start, only its paint is clipped. */
 @utility reveal-line {
   clip-path: inset(0 100% 0 0);
@@ -136,6 +311,24 @@ const utilities = String.raw`
   animation: caret 1s steps(1) infinite;
   @media (prefers-reduced-motion: reduce) {
     display: none;
+  }
+}
+/* Caret after the last block of streaming text; never under reduced motion. */
+@utility stream-caret {
+  & [data-slot="markdown"] > :last-child::after {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 1.1em;
+    margin-inline-start: 0.15em;
+    vertical-align: -0.15em;
+    background: currentColor;
+    animation: caret 1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    & [data-slot="markdown"] > :last-child::after {
+      content: none;
+    }
   }
 }
 @keyframes caret {
@@ -160,6 +353,16 @@ const utilities = String.raw`
   }
 }`;
 
+const solidMaterials = [
+  "--material-thin: var(--surface);",
+  "--material-regular: var(--surface);",
+  "--material-thick: var(--surface);",
+  "--material-edge: transparent;",
+  "--blur-thin: 0px;",
+  "--blur-regular: 0px;",
+  "--blur-thick: 0px;",
+];
+
 /** The theme stylesheet: tokens for the three themes, the Tailwind mapping, accessibility fallbacks and utilities. */
 export function themeCss() {
   return [
@@ -179,15 +382,10 @@ export function themeCss() {
     "/* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */",
     block(':root[data-theme="brand"]', themeVars("brand")),
     "",
-    `@media (prefers-reduced-transparency: reduce) {\n${block(":root:root", [
-      "--material-thin: var(--surface);",
-      "--material-regular: var(--surface);",
-      "--material-thick: var(--surface);",
-      "--material-edge: transparent;",
-      "--blur-thin: 0px;",
-      "--blur-regular: 0px;",
-      "--blur-thick: 0px;",
-    ], "  ")}\n}`,
+    `@media (prefers-reduced-transparency: reduce) {\n${block(":root:root", solidMaterials, "  ")}\n}`,
+    "",
+    "/* The same, forced by data-reduced-transparency on <html>: browsers and test runners that cannot emulate the query. */",
+    block(":root[data-reduced-transparency]", solidMaterials),
     "",
     `@media (prefers-contrast: more) {\n${block(":root:root", ["--border: var(--border-control);", "--hairline: var(--border-control);"], "  ")}\n}`,
     "",

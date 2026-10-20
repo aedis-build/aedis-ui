@@ -71,7 +71,7 @@
       "name": "untrusted",
       "type": "registry:lib",
       "title": "untrusted",
-      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal().",
+      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal(); allowedOrigins() keeps exact origins from configuration.",
       "files": [
         {
           "path": "lib/untrusted.ts",
@@ -95,7 +95,10 @@
       "name": "security-headers",
       "type": "registry:lib",
       "title": "securityHeaders",
-      "description": "securityHeaders(): strict CSP with nonce, HSTS, no sniffing, no framing, no referrer leak; apply from middleware.",
+      "description": "securityHeaders(): strict CSP with nonce, HSTS, nosniff, referrer and permissions policy, COOP/CORP, no-store; framing origins from configuration, never a wildcard.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
       "files": [
         {
           "path": "lib/security-headers.ts",
@@ -509,7 +512,10 @@
       "name": "use-event-stream",
       "type": "registry:hook",
       "title": "useEventStream",
-      "description": "Subscribes to a Server-Sent Events endpoint with reconnection and Last-Event-ID.",
+      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, aborts on unmount.",
+      "registryDependencies": [
+        "@aedis/event-stream"
+      ],
       "files": [
         {
           "path": "registry/aedis/hooks/use-event-stream.ts",
@@ -710,6 +716,564 @@
         {
           "path": "registry/aedis/ui/navigation-menu.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "Panel from an edge of the screen on Base UI Drawer: modal, swipe to dismiss with velocity, parallax content and an optional receding page.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Menu of actions on Base UI Menu: destructive items confirm through an AlertDialog that starts on Cancel, link items use safe URLs, items arrive in a cascade.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/alert-dialog",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "Expanding sections on Base UI Accordion: height from the measured panel variable on the spring, findable with in-page search.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/accordion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "collapsible",
+      "type": "registry:ui",
+      "title": "Collapsible",
+      "description": "Show and hide one area on Base UI Collapsible, findable with in-page search.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/collapsible.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "Callout for status, success, warnings and errors; role=\"alert\" only for errors.",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/alert.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "title": "Empty",
+      "description": "Empty state with a title, a description and what to do next.",
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/empty.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "Spinner",
+      "description": "Loading indicator announced politely; static with a visible label under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd",
+      "description": "A key or a key combination.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/kbd.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "title": "Breadcrumb",
+      "description": "Labelled breadcrumb trail with safe links and the current page marked.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/breadcrumb.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "Previous, next and page links with safe hrefs; parsePage and paginationRange read untrusted page numbers as bounded integers.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/pagination.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/aedis/lib/pagination.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "type": "registry:ui",
+      "title": "Item",
+      "description": "List row with media, content and actions; optional safe link that keeps its role inside a list.",
+      "dependencies": [
+        "@base-ui/react@1.9.0",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/link",
+        "@aedis/separator"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/item.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "Scrollable region on Base UI ScrollArea: native scrolling and keyboard focus, scrollbars that fade in (still under reduced motion).",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button Group",
+      "description": "Named group of buttons for toolbars and segmented actions; each button keeps its own semantics.",
+      "dependencies": [
+        "@base-ui/react@1.9.0",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/separator"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/button-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Feedback toasts on Base UI Toast: text only, errors announced urgently, generic failure message, pause on hover and focus, swipe to dismiss.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/toast.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "event-stream",
+      "type": "registry:lib",
+      "title": "event-stream",
+      "description": "Secure SSE over fetch: same-origin, no token in the query, bounded parser with an event allow-list, Last-Event-ID resume, retry and backoff, stripInvisible on assembled events.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/event-stream.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "bff-stream",
+      "type": "registry:lib",
+      "title": "bffStream",
+      "description": "Next.js route handler that relays an SSE stream with the server session's bearer: nothing from the browser goes upstream but a validated Last-Event-ID, generic errors, abort on disconnect.",
+      "dependencies": [
+        "server-only@0.0.1"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/bff-stream.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "secure-action",
+      "type": "registry:lib",
+      "title": "secureAction",
+      "description": "Server Actions wrapper: required authorization, rate limit, size limit and Standard Schema validation inside the action; typed result with a code, never the error message; taintSecret.",
+      "dependencies": [
+        "server-only@0.0.1"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/secure-action.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "streaming-markdown",
+      "type": "registry:ui",
+      "title": "Streaming Markdown",
+      "description": "Markdown for answers that stream: renders per animation frame, holds back incomplete links and URLs, length cap, caret off under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/streaming-markdown.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "redact",
+      "type": "registry:lib",
+      "title": "redact",
+      "description": "redact(value) and redactText(text): hide values under secret keys, bearer tokens, JWTs and key=value secrets; bound size, depth and cycles.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/redact.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "tool-call",
+      "type": "registry:ui",
+      "title": "Tool Call",
+      "description": "Tool name, status, redacted arguments and result as data; external tools wait in an ApprovalCard.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/approval-card",
+        "@aedis/code-block",
+        "@aedis/collapsible",
+        "@aedis/spinner"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/tool-call.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "reasoning",
+      "type": "registry:ui",
+      "title": "Reasoning",
+      "description": "The agent's reasoning, collapsed by default and redacted; the thinking label is static under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/collapsible",
+        "@aedis/streaming-markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/reasoning.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sources",
+      "type": "registry:ui",
+      "title": "Sources",
+      "description": "Citations list and inline markers: safe links, punycode domain shown, external links marked, no third-party favicons.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sources.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "attachment",
+      "type": "registry:lib",
+      "title": "attachment",
+      "description": "checkAttachment (type allow-list, size), safeFileName (no bidi or control characters) and uploadAttachment (same-origin, progress, no redirects).",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/attachment.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "prompt-input",
+      "type": "registry:ui",
+      "title": "Prompt Input",
+      "description": "Agent chat composer: bounded text without hidden characters, checked attachments with progress, model picker, send that turns into stop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/use-format",
+        "@aedis/attachment",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/progress",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/prompt-input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "feedback",
+      "type": "registry:ui",
+      "title": "Feedback",
+      "description": "Thumbs up or down on an agent answer with an optional bounded comment, sent through api() with the app's message id.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/api",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/feedback.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "mf-bridge",
+      "type": "registry:lib",
+      "title": "mf-bridge",
+      "description": "Typed, versioned postMessage between windows: explicit targetOrigin, source and origin checks, allow-list with validators and size limits, handshake, request/response, no tokens.",
+      "registryDependencies": [
+        "@aedis/redact"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-bridge.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-embed-headers",
+      "type": "registry:lib",
+      "title": "mf-embed-headers",
+      "description": "embeddedAppHeaders (frame-ancestors from the host allow-list) and hostAppHeaders (frame-src from the app allow-list), never a wildcard.",
+      "registryDependencies": [
+        "@aedis/security-headers",
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "lib/mf-embed-headers.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-frame",
+      "type": "registry:ui",
+      "title": "mf-frame",
+      "description": "Sandboxed iframe for an embedded app: minimal sandbox, no allow-same-origin for same-origin frames, empty permissions policy, bounded height over mf-bridge; useReportHeight for the embedded side.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/mf-bridge",
+        "@aedis/skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/mf-frame.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "mf-element",
+      "type": "registry:lib",
+      "title": "mf-element",
+      "description": "defineMfElement: a React component as a Web Component in a shadow root, typed attributes and properties, declared CustomEvents only.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-element.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-context",
+      "type": "registry:lib",
+      "title": "mf-context",
+      "description": "Theme, locale and session across host and embedded app over mf-bridge: validated theme and locale, session:end on logout, shared idle time.",
+      "registryDependencies": [
+        "@aedis/mf-bridge",
+        "@aedis/custom-theme",
+        "@aedis/use-idle-timeout"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-context.ts",
+          "type": "registry:lib"
         }
       ]
     }

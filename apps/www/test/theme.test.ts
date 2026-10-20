@@ -57,8 +57,8 @@ describe("motion", () => {
   });
 
   it("utilities animate only compositor-friendly properties and colors", () => {
-    const animated = [...css.matchAll(/^\s+(\w[\w-]*) var\(--duration/gm)].map((m) => m[1]);
-    expect(new Set(animated)).toEqual(new Set(["scale", "color", "background-color", "border-color", "box-shadow", "opacity", "filter", "clip-path"]));
+    const animated = [...css.matchAll(/([a-z-]+) var\(--duration/g)].map((m) => m[1]);
+    expect(new Set(animated)).toEqual(new Set(["scale", "translate", "transform", "color", "background-color", "border-color", "box-shadow", "opacity", "filter", "clip-path"]));
   });
 
   it("reduced transparency makes every material solid", () => {
@@ -67,6 +67,16 @@ describe("motion", () => {
       expect(block).toContain(`--material-${m}: var(--surface);`);
       expect(block).toContain(`--blur-${m}: 0px;`);
     }
+  });
+
+  it("data-reduced-transparency forces exactly the same as the media query", () => {
+    const vars = (from: string) => {
+      const start = css.indexOf(from);
+      return css.slice(start, css.indexOf("}", start)).split(/\r?\n/).map((l) => l.trim()).filter((l) => l.startsWith("--"));
+    };
+    const media = vars("@media (prefers-reduced-transparency: reduce)");
+    expect(media).toHaveLength(7);
+    expect(vars(":root[data-reduced-transparency]")).toEqual(media);
   });
 });
 

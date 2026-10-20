@@ -18,24 +18,51 @@ export function hasInvisible(text: string): boolean {
 }
 
 const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];
+const CONTROL = /[\u0000-\u001F\u007F]/;
+// Only used to resolve relative references; never requested.
+const BASE = "https://relative.invalid";
 
-/** Keeps only http, https, mailto and relative URLs; anything else (javascript:, data:, vbscript:) becomes empty. */
+/**
+ * Keeps http, https, mailto and relative URLs (`/a`, `#b`, `?page=2`, `docs/x`); anything else (javascript:, data:,
+ * vbscript:) becomes empty. Control and invisible characters are refused outright: browsers drop some of them while
+ * parsing, which is how `java\nscript:` sneaks past naive checks.
+ */
 export function safeUrl(url: string): string {
   const trimmed = url.trim();
-  if (trimmed.startsWith("/") || trimmed.startsWith("#")) return trimmed;
+  if (!trimmed || CONTROL.test(trimmed) || hasInvisible(trimmed)) return "";
   try {
-    return SAFE_PROTOCOLS.includes(new URL(trimmed).protocol) ? trimmed : "";
+    return SAFE_PROTOCOLS.includes(new URL(trimmed, BASE).protocol) ? trimmed : "";
   } catch {
     return "";
   }
 }
 
-/** True for an absolute http(s) URL on another origin. On the server every absolute URL counts as external. */
+/** True for a URL on another origin, including protocol-relative `//host`. On the server every absolute URL counts. */
 export function isExternal(url: string): boolean {
-  if (!/^https?:\/\//i.test(url.trim())) return false;
+  const t = url.trim();
+  if (!/^(https?:)?\/\//i.test(t)) return false;
   try {
-    return typeof window === "undefined" || new URL(url).origin !== window.location.origin;
+    return typeof window === "undefined" || new URL(t, window.location.href).origin !== window.location.origin;
   } catch {
     return false;
   }
+}
+
+/**
+ * Exact origins from configuration ("https://app.example.com"). Anything that is not a plain http(s) origin
+ * ("*", "null", a path, a wildcard host, garbage) is dropped: a malformed entry never widens the list.
+ */
+export function allowedOrigins(list: readonly string[]): string[] {
+  const out = new Set<string>();
+  for (const entry of list) {
+    const value = typeof entry === "string" ? entry.trim().replace(/\/$/, "") : "";
+    if (!/^https?:\/\/[^*\s/]+$/i.test(value)) continue;
+    try {
+      const url = new URL(value);
+      if (url.origin === value.toLowerCase() || url.origin === value) out.add(url.origin);
+    } catch {
+      // ignored
+    }
+  }
+  return [...out];
 }

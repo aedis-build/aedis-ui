@@ -32,10 +32,12 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
 
       <section className="space-y-2">
         <h2 className="text-title-2">Installation</h2>
-        <p className="text-callout text-muted-foreground">Once per app, add the Aedis registry to <code>components.json</code>:</p>
+        <p className="text-callout text-muted-foreground">
+          Once per app, set up Aedis UI. The CLI verifies the signed release before writing anything and pins every dependency:
+        </p>
         <RegistrySetup />
         <p className="text-callout text-muted-foreground">
-          The theme comes with the first component. Import it once in your global CSS, after Tailwind:
+          Import the theme once in your global CSS, after Tailwind:
         </p>
         <ThemeImport />
         <p className="text-callout text-muted-foreground">Then add the component:</p>
