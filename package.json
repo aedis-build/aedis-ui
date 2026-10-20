@@ -5,10 +5,10 @@
   "packageManager": "pnpm@10.34.6",
   "scripts": {
     "dev": "pnpm -C apps/www dev",
-    "build": "pnpm -C apps/www build",
+    "build": "pnpm -C apps/www build && pnpm -C packages/cli build",
     "registry:build": "pnpm -C apps/www registry:build",
-    "test": "pnpm -C apps/www test",
-    "typecheck": "pnpm -C apps/www typecheck",
-    "test:coverage": "pnpm -C apps/www test:coverage"
+    "test": "pnpm -C apps/www test && pnpm -C packages/cli test",
+    "typecheck": "pnpm -C apps/www typecheck && pnpm -C packages/cli typecheck",
+    "test:coverage": "pnpm -C apps/www test:coverage && pnpm -C packages/cli test:coverage"
   }
 }

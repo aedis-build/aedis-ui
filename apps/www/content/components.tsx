@@ -357,7 +357,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     example: (
       <div className="space-y-4">
         <CodeBlock title="app/page.tsx" lang="tsx" code={'import { Button } from "@/components/ui/button";\n\nexport default function Page() {\n  return <Button>Approve</Button>;\n}'} />
-        <CodeBlock animated lang="bash" code={"pnpm dlx shadcn@latest add @aedis/approval-card\npnpm dev"} />
+        <CodeBlock animated lang="bash" code={"npx @aedis/cli@0.1.0 add approval-card\npnpm dev"} />
       </div>
     ),
     props: [

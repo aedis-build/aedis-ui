@@ -1,0 +1,60 @@
+import { createHash } from "node:crypto";
+
+import { REPOSITORY } from "./config";
+
+export const ISSUER = "https://token.actions.githubusercontent.com";
+export const WORKFLOW = ".github/workflows/release.yml";
+
+/** sigstore's verify(): checks the signature, the certificate chain, the transparency log and the signer identity. */
+export type SignatureCheck = (bundle: unknown, options: { certificateIdentityURI: string; certificateIssuer: string }) => Promise<unknown>;
+
+type Statement = {
+  _type?: string;
+  subject?: { name?: string; digest?: { sha256?: string } }[];
+  predicateType?: string;
+  predicate?: { buildDefinition?: { externalParameters?: { workflow?: { ref?: string; repository?: string; path?: string } } } };
+};
+
+export class ProvenanceError extends Error {
+  constructor(message: string) {
+    super(`provenance: ${message}`);
+    this.name = "ProvenanceError";
+  }
+}
+
+/**
+ * Verifies a registry release before anything from it is written: the Sigstore bundle must be signed by this
+ * repository's release workflow for exactly this tag, and its SLSA provenance must name this archive (by sha256),
+ * this repository, this workflow and this tag. Any mismatch throws.
+ */
+export async function verifyRelease({ archive, bundle, release, assetName, check }: { archive: Uint8Array; bundle: unknown; release: string; assetName: string; check: SignatureCheck }) {
+  if (!bundle || typeof bundle !== "object") throw new ProvenanceError("missing attestation bundle");
+  const identity = `https://github.com/${REPOSITORY}/${WORKFLOW}@refs/tags/${release}`;
+  try {
+    await check(bundle, { certificateIdentityURI: identity, certificateIssuer: ISSUER });
+  } catch (error) {
+    throw new ProvenanceError(`signature does not verify for ${identity}: ${(error as Error).message}`);
+  }
+
+  const envelope = (bundle as { dsseEnvelope?: { payload?: string; payloadType?: string } }).dsseEnvelope;
+  if (!envelope?.payload || envelope.payloadType !== "application/vnd.in-toto+json") throw new ProvenanceError("bundle carries no in-toto statement");
+  let statement: Statement;
+  try {
+    statement = JSON.parse(Buffer.from(envelope.payload, "base64").toString("utf8")) as Statement;
+  } catch {
+    throw new ProvenanceError("statement is not JSON");
+  }
+  if (statement._type !== "https://in-toto.io/Statement/v1") throw new ProvenanceError("unexpected statement type");
+  if (statement.predicateType !== "https://slsa.dev/provenance/v1") throw new ProvenanceError("not SLSA provenance");
+
+  const digest = createHash("sha256").update(archive).digest("hex");
+  const subject = statement.subject?.find((s) => s.name === assetName);
+  if (!subject) throw new ProvenanceError(`statement does not name ${assetName}`);
+  if (subject.digest?.sha256 !== digest) throw new ProvenanceError(`${assetName} does not match its attestation (tampered or replaced)`);
+
+  const workflow = statement.predicate?.buildDefinition?.externalParameters?.workflow;
+  if (workflow?.repository !== `https://github.com/${REPOSITORY}`) throw new ProvenanceError(`built from ${workflow?.repository ?? "an unknown repository"}`);
+  if (workflow.path !== WORKFLOW) throw new ProvenanceError(`built by ${workflow.path ?? "an unknown workflow"}, not ${WORKFLOW}`);
+  if (workflow.ref !== `refs/tags/${release}`) throw new ProvenanceError(`built from ${workflow.ref ?? "an unknown ref"}, not ${release}`);
+  return { digest };
+}
