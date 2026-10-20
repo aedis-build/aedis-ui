@@ -1247,6 +1247,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "mf-element",
+      "type": "registry:lib",
+      "title": "mf-element",
+      "description": "defineMfElement: a React component as a Web Component in a shadow root, typed attributes and properties, declared CustomEvents only.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-element.tsx",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

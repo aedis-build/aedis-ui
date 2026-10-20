@@ -967,6 +967,38 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
     ],
   },
   {
+    name: "mf-element",
+    title: "mf-element",
+    description: "Turns a React component into a Web Component, for embeds that need tighter integration with the host page than an iframe gives.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`defineMfElement<{ agentName?: string; config?: Config }>("agent-panel", AgentPanel, {
+  attributes: { "agent-name": "string", config: "json" },
+  events: ["approve"],
+  css: builtTailwindCss,
+});
+
+// Host page
+<agent-panel agent-name="Avalo"></agent-panel>
+panel.addEventListener("approve", (e) => approve(e.detail));`}
+      />
+    ),
+    props: [
+      { name: "attributes", type: 'Record<name, "string" | "number" | "boolean" | "json">', description: "Typed attributes, mapped to camelCase props and properties; bad values become undefined." },
+      { name: "events", type: "string[]", description: "Events the component may emit through emit(); composed, bubbling CustomEvents. Others throw." },
+      { name: "css", type: "string", description: "Stylesheet for the shadow root." },
+      { name: "maxJsonBytes", type: "number", default: "16384", description: "Largest JSON attribute accepted." },
+      { name: "el.props = { … }", type: "property", description: "For values that are not attributes, like objects and callbacks." },
+    ],
+    security: [
+      "Trade-off: the element's code runs in the host page's origin. Every script on that page can reach what it holds, so never hand it a token unless the host accepts that risk; prefer an iframe (mf-frame) when the two apps should not trust each other.",
+      "The host's CSP must allow the element's origin in script-src (and connect-src for its API).",
+      "Shadow DOM isolates CSS both ways; it is not a security boundary.",
+      "Attributes are parsed by type with a size limit for JSON, and only declared events leave the element.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
