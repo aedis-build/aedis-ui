@@ -25,7 +25,7 @@ const errors = (input: unknown) => {
 
 describe("validateTheme", () => {
   it("accepts a typed theme and normalizes it", () => {
-    const r = validateTheme({ ...acme, name: " Acme​ " });
+    const r = validateTheme({ ...acme, name: " Acme\u200B " });
     expect(r).toMatchObject({ ok: true, theme: { name: "Acme", colors: { light: { primary: "#0b6e4f" }, dark: { primary: "oklch(0.55 0.12 160)" } }, shadow: 0.5 } });
   });
 

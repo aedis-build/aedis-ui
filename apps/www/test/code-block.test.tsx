@@ -38,7 +38,7 @@ describe("CodeBlock", () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
-    const code = 'if (isAdmin) {‮ } ⁦// admin only⁩\nrun();';
+    const code = 'if (isAdmin) {\u202E } \u2066// admin only\u2069\nrun();';
     render(<CodeBlock code={code} lang="ts" />);
     await user.click(screen.getByRole("button", { name: "Copy code" }));
     expect(writeText).toHaveBeenCalledWith(code);
@@ -65,7 +65,7 @@ describe("CodeBlock", () => {
   });
 
   it("shows bidi controls and zero-width characters as visible markers (Trojan Source)", () => {
-    const { container } = render(<CodeBlock code={"access = ‮user‬;​"} />);
+    const { container } = render(<CodeBlock code={"access = \u202Euser\u202C;\u200B"} />);
     const marks = [...container.querySelectorAll("[data-slot=code-block-hidden]")].map((m) => m.textContent);
     expect(marks).toEqual(["U+202E", "U+202C", "U+200B"]);
     expect(container.querySelector("mark")).toHaveAttribute("title", "Hidden character U+202E");
@@ -76,8 +76,8 @@ describe("CodeBlock", () => {
       fc.property(fc.string({ unit: "grapheme-composite", maxLength: 40 }), (code) => {
         const { container, unmount } = render(<CodeBlock code={code} />);
         const text = container.querySelector("code")!.textContent ?? "";
-        expect(/[​⁠-⁤﻿‪-‮⁦-⁩\u{E0000}-\u{E007F}]/u.test(text)).toBe(false);
-        const visible = code.replace(/\n$/, "").replace(/[​⁠-⁤﻿‪-‮⁦-⁩\u{E0000}-\u{E007F}]/gu, "").replace(/\n/g, "");
+        expect(/[\u200B\u2060-\u2064\uFEFF\u202A-\u202E\u2066-\u2069\u{E0000}-\u{E007F}]/u.test(text)).toBe(false);
+        const visible = code.replace(/\n$/, "").replace(/[\u200B\u2060-\u2064\uFEFF\u202A-\u202E\u2066-\u2069\u{E0000}-\u{E007F}]/gu, "").replace(/\n/g, "");
         expect(text.replace(/U\+[0-9A-F]{4,5}/g, "")).toBe(visible);
         unmount();
       }),

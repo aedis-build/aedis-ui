@@ -55,7 +55,7 @@ describe("safeUrl", () => {
 
   it("keeps relative references and refuses characters browsers drop while parsing", () => {
     for (const ok of ["?page=2", "docs/x", "./a", "../b", "#top", "//cdn.example.com/a"]) expect(safeUrl(ok)).toBe(ok);
-    for (const bad of ["java\nscript:alert(1)", "java\tscript:alert(1)", "\u0001javascript:alert(1)", "ja​vascript:alert(1)", "foo:bar"]) expect(safeUrl(bad)).toBe("");
+    for (const bad of ["java\nscript:alert(1)", "java\tscript:alert(1)", "\u0001javascript:alert(1)", "ja\u200Bvascript:alert(1)", "foo:bar"]) expect(safeUrl(bad)).toBe("");
   });
 
   it("never lets a scheme through by case or whitespace tricks (property)", () => {

@@ -71,7 +71,7 @@ describe("createSseParser", () => {
 
   it("strips hidden code points from the assembled event even when a byte chunk splits a surrogate pair (property)", () => {
     const tag = fc.integer({ min: 0xe0000, max: 0xe007f }).map((c) => String.fromCodePoint(c));
-    const zw = fc.constantFrom("​", "‮", "⁦", "﻿");
+    const zw = fc.constantFrom("\u200B", "\u202E", "\u2066", "\uFEFF");
     const piece = fc.oneof(fc.string({ unit: "grapheme", maxLength: 3 }), tag, zw);
     fc.assert(
       fc.property(fc.array(piece, { maxLength: 20 }), fc.array(fc.nat(), { maxLength: 10 }), (pieces, cuts) => {
