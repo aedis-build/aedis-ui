@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/registry/aedis/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/registry/aedis/ui/dropdown-menu";
 import { Input } from "@/registry/aedis/ui/input";
 import { Label } from "@/registry/aedis/ui/label";
 import { Progress } from "@/registry/aedis/ui/progress";
@@ -314,6 +315,38 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     security: [
       "Modal: focus is trapped while open and returns to the trigger on close; the page behind is inert; Escape closes.",
       "Title and description are wired to aria-labelledby and aria-describedby.",
+    ],
+  },
+  {
+    name: "dropdown-menu",
+    title: "Dropdown Menu",
+    description: "A menu of actions: account menu, row actions, a more button.",
+    example: (
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>Session actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Session</DropdownMenuLabel>
+          <DropdownMenuItem>Renew token</DropdownMenuItem>
+          <DropdownMenuLinkItem href="/docs/approval-card">See devices</DropdownMenuLinkItem>
+          <DropdownMenuLinkItem href="https://github.com/aedis-build/aedis-ui">Source</DropdownMenuLinkItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" confirm={{ title: "Revoke every session?", description: "Every device signs out right away." }}>
+            Revoke all sessions…
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+    props: [
+      { name: "DropdownMenuItem variant", type: '"default" | "destructive"', default: '"default"', description: "Destructive items open an AlertDialog that starts on Cancel; onClick runs only after confirming." },
+      { name: "DropdownMenuItem confirm", type: "{ title?; description?; action? }", description: "Text of that confirmation; the dictionary fills the rest, the action defaults to the item text." },
+      { name: "DropdownMenuLinkItem href", type: "string", description: "Goes through safeUrl; a refused URL leaves the item disabled. External links get noopener noreferrer and a marker." },
+      { name: "DropdownMenuContent side / align", type: "Base UI Positioner props", default: '"bottom" / "start"', description: "Where the menu opens." },
+      { name: "labels", type: "Partial<DropdownMenuLabels>", description: "confirmTitle, confirmDescription, confirm, cancel." },
+      ...baseProps("@base-ui/react Menu"),
+    ],
+    security: [
+      "A destructive item never runs on its own click: it asks through an AlertDialog whose focus starts on Cancel, the same rule as outbound agent actions.",
+      "Link items go through safeUrl; external links never get window.opener and are marked.",
     ],
   },
   {

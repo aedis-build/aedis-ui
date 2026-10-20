@@ -733,6 +733,28 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Menu of actions on Base UI Menu: destructive items confirm through an AlertDialog that starts on Cancel, link items use safe URLs, items arrive in a cascade.",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/alert-dialog",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

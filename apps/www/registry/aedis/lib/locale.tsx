@@ -56,6 +56,12 @@ export type Messages = {
   sheet: {
     close: string;
   };
+  dropdownMenu: {
+    confirmTitle: string;
+    confirmDescription: string;
+    confirm: string;
+    cancel: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -110,6 +116,12 @@ export const en: Messages = {
   },
   sheet: {
     close: "Close",
+  },
+  dropdownMenu: {
+    confirmTitle: "Are you sure?",
+    confirmDescription: "This cannot be undone.",
+    confirm: "Continue",
+    cancel: "Cancel",
   },
 };
 

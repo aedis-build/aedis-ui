@@ -340,6 +340,32 @@
   }
 }
 
+/* Menu items arrive in a cascade after their popup materializes; exits have no cascade. */
+@utility cascade {
+  & > * {
+    transition:
+      opacity var(--duration-base) var(--ease-cinematic),
+      translate var(--duration-spring) var(--ease-spring-critical);
+  }
+  &[data-starting-style] > * {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+  &:not([data-ending-style]) {
+    & > :nth-child(2) { transition-delay: var(--duration-stagger); }
+    & > :nth-child(3) { transition-delay: calc(2 * var(--duration-stagger)); }
+    & > :nth-child(4) { transition-delay: calc(3 * var(--duration-stagger)); }
+    & > :nth-child(5) { transition-delay: calc(4 * var(--duration-stagger)); }
+    & > :nth-child(6) { transition-delay: calc(5 * var(--duration-stagger)); }
+    & > :nth-child(n + 7) { transition-delay: calc(6 * var(--duration-stagger)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-starting-style] > * {
+      translate: none;
+    }
+  }
+}
+
 /* Scrims and plain cross-fades. */
 @utility fade {
   transition: opacity var(--duration-base) var(--ease-cinematic);

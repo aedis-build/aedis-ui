@@ -53,4 +53,10 @@ export const es: Messages = {
   sheet: {
     close: "Cerrar",
   },
+  dropdownMenu: {
+    confirmTitle: "¿Seguro?",
+    confirmDescription: "No se puede deshacer.",
+    confirm: "Continuar",
+    cancel: "Cancelar",
+  },
 };

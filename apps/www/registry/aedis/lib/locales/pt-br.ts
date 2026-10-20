@@ -53,4 +53,10 @@ export const ptBR: Messages = {
   sheet: {
     close: "Fechar",
   },
+  dropdownMenu: {
+    confirmTitle: "Tem certeza?",
+    confirmDescription: "Não dá para desfazer.",
+    confirm: "Continuar",
+    cancel: "Cancelar",
+  },
 };
