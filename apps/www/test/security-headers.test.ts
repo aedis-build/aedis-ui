@@ -30,4 +30,16 @@ describe("securityHeaders", () => {
     expect(h["Content-Security-Policy"]).toContain("frame-ancestors https://portal.example.com");
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
   });
+
+  it("takes build-time script hashes for a static site", () => {
+    const h = securityHeaders({ hashes: ["sha256-AbC+/12=", "sha384-xyz"] });
+    expect(h["Content-Security-Policy"]).toContain("script-src 'self' 'sha256-AbC+/12=' 'sha384-xyz' 'strict-dynamic'");
+  });
+
+  it("refuses a policy it cannot make strict", () => {
+    expect(() => securityHeaders({})).toThrow("either nonce or hashes");
+    expect(() => securityHeaders({ nonce: "n", hashes: [] })).toThrow("either nonce or hashes");
+    expect(() => securityHeaders({ nonce: "n' 'unsafe-inline" })).toThrow("base64");
+    expect(() => securityHeaders({ hashes: ["sha256-ok=", "unsafe-inline"] })).toThrow("not a script hash: unsafe-inline");
+  });
 });

@@ -1083,12 +1083,14 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     ),
     props: [
       { name: "nonce", type: "string", description: "Per-request nonce; the framework must put it on its scripts." },
+      { name: "hashes", type: "string[]", description: "Static sites: sha256-/sha384-/sha512- hashes of the inline scripts, computed at build time. Use instead of nonce." },
       { name: "connectSrc", type: "string[]", default: "[]", description: "Extra origins for fetch and SSE." },
       { name: "imgSrc", type: "string[]", default: "[]", description: "Extra origins for images." },
       { name: "frameAncestors", type: "string[]", default: "[]", description: "Who may frame the page; nobody by default." },
     ],
     security: [
-      "script-src is nonce + strict-dynamic: no inline script, no eval, no script from a CDN.",
+      "script-src is nonce (or build-time hashes) + strict-dynamic: no inline script, no eval, no script from a CDN.",
+      "A missing, doubled or malformed nonce or hash throws instead of producing a weaker policy.",
       "frame-ancestors 'none' and X-Frame-Options DENY stop clickjacking; form-action 'self' stops form hijacking.",
       "Cache-Control: no-store keeps pages with personal data out of shared caches.",
     ],
