@@ -78,7 +78,7 @@ export default function Theming() {
               <tr>
                 <th className={th}>Token</th>
                 {themeNames.map((t) => <th key={t} className={th}>{t}</th>)}
-                <th className={th}>Used for</th>
+                <th className={`${th} min-w-56`}>Used for</th>
               </tr>
             </thead>
             <tbody>
@@ -86,7 +86,7 @@ export default function Theming() {
                 <tr key={name} className="border-t border-border">
                   <td className={`${td} whitespace-nowrap font-mono text-footnote`}>--{name}</td>
                   {themeNames.map((t) => <td key={t} className={td}><Swatch value={value[t]} /></td>)}
-                  <td className={td}>{colorUsage[name as keyof typeof colors]}</td>
+                  <td className={`${td} min-w-56`}>{colorUsage[name as keyof typeof colors]}</td>
                 </tr>
               ))}
             </tbody>
