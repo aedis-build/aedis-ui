@@ -1040,6 +1040,23 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "streaming-markdown",
+      "type": "registry:ui",
+      "title": "Streaming Markdown",
+      "description": "Markdown for answers that stream: renders per animation frame, holds back incomplete links and URLs, length cap, caret off under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/streaming-markdown.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

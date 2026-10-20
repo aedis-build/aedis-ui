@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
+import { StreamingExample } from "@/components/examples/streaming-example";
 import { ToastExample } from "@/components/examples/toast-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Link } from "@/registry/aedis/ui/link";
@@ -227,6 +228,24 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Raw HTML is never rendered (no rehype-raw).",
       "Only http, https, mailto and relative URLs survive; javascript:, data: and others become plain text.",
       "External links open in a new tab with rel=\"noopener noreferrer\".",
+    ],
+  },
+  {
+    name: "streaming-markdown",
+    title: "Streaming Markdown",
+    description: "Markdown for an agent answer that arrives token by token.",
+    example: <StreamingExample />,
+    props: [
+      { name: "children", type: "string", description: "The answer so far, as untrusted markdown." },
+      { name: "streaming", type: "boolean", default: "false", description: "Tokens still arriving: caret on, incomplete links held back, aria-busy." },
+      { name: "maxLength", type: "number", default: "100000", description: "Longer answers are cut." },
+      { name: "allowImages", type: "boolean", default: "false", description: "As in Markdown." },
+      { name: "settledMarkdown(text)", type: "string", description: "The text rendered while streaming, for custom renderers." },
+    ],
+    security: [
+      "Same rules as Markdown: no raw HTML, safe link protocols, images off by default, hidden characters removed.",
+      "A link becomes clickable only once it closes, and a bare URL only once it is followed by a space: a half-written URL is never clickable.",
+      "Rendered at most once per animation frame, with a length cap, so a fast or runaway stream cannot freeze the page.",
     ],
   },
   {

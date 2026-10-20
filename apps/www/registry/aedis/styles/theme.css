@@ -564,6 +564,24 @@
     display: none;
   }
 }
+/* Caret after the last block of streaming text; never under reduced motion. */
+@utility stream-caret {
+  & [data-slot="markdown"] > :last-child::after {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 1.1em;
+    margin-inline-start: 0.15em;
+    vertical-align: -0.15em;
+    background: currentColor;
+    animation: caret 1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    & [data-slot="markdown"] > :last-child::after {
+      content: none;
+    }
+  }
+}
 @keyframes caret {
   50% {
     opacity: 0;
