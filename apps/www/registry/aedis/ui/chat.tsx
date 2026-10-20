@@ -62,23 +62,23 @@ function Chat({ messages, onSend, working, maxLength = 8000, labels, className }
 
   return (
     <div data-slot="chat" className={cn("flex min-h-0 flex-1 flex-col gap-3", className)}>
-      <div role="log" aria-live="polite" aria-label={l.log} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+      <div role="log" aria-live="polite" aria-label={l.log} className="scroll-fade-y flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-4">
         {messages.map((m) => (
           <div
             key={m.id}
             data-role={m.role}
             className={cn(
-              "max-w-[85%] rounded-xl border border-border px-3 py-2 text-sm",
-              m.role === "person" && "self-end bg-secondary",
-              m.role === "agent" && "self-start bg-background",
-              m.role === "system" && "self-center border-dashed text-muted-foreground",
+              "max-w-[85%] rounded-md border border-hairline px-3 py-2 text-callout",
+              m.role === "person" && "self-end bg-accent-soft",
+              m.role === "agent" && "self-start bg-surface shadow-elevation-1",
+              m.role === "system" && "self-center border-dashed border-border text-muted-foreground",
             )}
           >
-            <p className="mb-1 text-xs font-medium text-muted-foreground">{m.author}</p>
+            <p className="mb-1 text-caption text-muted-foreground">{m.author}</p>
             {m.role === "agent" ? <Markdown>{m.content}</Markdown> : <p className="whitespace-pre-wrap break-words">{stripInvisible(m.content)}</p>}
           </div>
         ))}
-        {working ? <p className="text-sm italic text-muted-foreground">{working}</p> : null}
+        {working ? <p className="text-footnote italic text-muted-foreground">{working}</p> : null}
         <div ref={end} />
       </div>
       <form onSubmit={send} className="flex items-end gap-2">
@@ -100,7 +100,7 @@ function Chat({ messages, onSend, working, maxLength = 8000, labels, className }
         </Button>
       </form>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-callout text-destructive">
           {error}
         </p>
       ) : null}

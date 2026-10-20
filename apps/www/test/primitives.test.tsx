@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { components } from "@/content/components";
@@ -28,9 +28,7 @@ describe("primitives", () => {
     const onConfirm = vi.fn();
     render(
       <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button>Delete</Button>
-        </AlertDialogTrigger>
+        <AlertDialogTrigger render={<Button />}>Delete</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogTitle>Delete the automation?</AlertDialogTitle>
           <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
@@ -41,7 +39,8 @@ describe("primitives", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Delete" }));
-    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    // Base UI moves focus a tick after opening; until then it is on the trigger, never on the action.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus());
     await user.keyboard("{Enter}");
     expect(onConfirm).not.toHaveBeenCalled();
   });
@@ -67,6 +66,8 @@ describe("primitives", () => {
 
   it("progress clamps values outside 0-100", () => {
     render(<Progress value={180} aria-label="Ceiling used" />);
-    expect(screen.getByRole("progressbar", { name: "Ceiling used" }).firstElementChild).toHaveStyle({ transform: "translateX(-0%)" });
+    const bar = screen.getByRole("progressbar", { name: "Ceiling used" });
+    expect(bar).toHaveAttribute("aria-valuenow", "100");
+    expect(bar.querySelector("[data-slot=progress-indicator]")).toHaveStyle({ transform: "translateX(-0%)" });
   });
 });

@@ -1,58 +1,13 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-
-/* Semantic tokens. Apps theme Aedis UI by overriding these variables, never by editing components. */
-:root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.2 0.01 260);
-  --muted: oklch(0.96 0.005 260);
-  --muted-foreground: oklch(0.5 0.01 260);
-  --border: oklch(0.9 0.005 260);
-  --ring: oklch(0.55 0.15 255);
-  --primary: oklch(0.3 0.03 260);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.01 260);
-  --secondary-foreground: oklch(0.25 0.02 260);
-  --accent: oklch(0.7 0.17 45);
-  --accent-foreground: oklch(0.2 0.02 45);
-  --destructive: oklch(0.55 0.2 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --radius: 0.625rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --background: oklch(0.17 0.01 260);
-    --foreground: oklch(0.96 0 0);
-    --muted: oklch(0.24 0.01 260);
-    --muted-foreground: oklch(0.7 0.01 260);
-    --border: oklch(0.3 0.01 260);
-    --primary: oklch(0.94 0.01 260);
-    --primary-foreground: oklch(0.2 0.01 260);
-    --secondary: oklch(0.27 0.01 260);
-    --secondary-foreground: oklch(0.94 0 0);
-  }
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-ring: var(--ring);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --radius-md: var(--radius);
-}
+/* The Aedis UI theme (published as the `@aedis/theme` registry item). Theme by data, never by editing components. */
+@import "../registry/aedis/styles/theme.css";
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
 }

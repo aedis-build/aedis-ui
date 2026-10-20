@@ -1,15 +1,15 @@
 "use client";
 
 import * as React from "react";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 
-import { cn } from "@/lib/utils";
+import { cn, type WithClassName } from "@/lib/utils";
 
-function TooltipProvider({ delayDuration = 300, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
-  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...props} />;
+function TooltipProvider({ delay = 300, ...props }: TooltipPrimitive.Provider.Props) {
+  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
-function Tooltip(props: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+function Tooltip(props: TooltipPrimitive.Root.Props) {
   return (
     <TooltipProvider>
       <TooltipPrimitive.Root data-slot="tooltip" {...props} />
@@ -17,19 +17,26 @@ function Tooltip(props: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   );
 }
 
-function TooltipTrigger(props: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+function TooltipTrigger(props: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-function TooltipContent({ className, sideOffset = 4, ...props }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+type TooltipContentProps = WithClassName<TooltipPrimitive.Popup.Props> &
+  Pick<TooltipPrimitive.Positioner.Props, "side" | "sideOffset" | "align" | "alignOffset">;
+
+function TooltipContent({ className, side, sideOffset = 4, align, alignOffset, ...props }: TooltipContentProps) {
   return (
     <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
-        data-slot="tooltip-content"
-        sideOffset={sideOffset}
-        className={cn("z-50 rounded-md bg-foreground px-3 py-1.5 text-xs text-background", className)}
-        {...props}
-      />
+      <TooltipPrimitive.Positioner side={side} sideOffset={sideOffset} align={align} alignOffset={alignOffset} className="z-50">
+        <TooltipPrimitive.Popup
+          data-slot="tooltip-content"
+          className={cn(
+            "materialize z-50 max-w-xs rounded-sm bg-foreground px-3 py-1.5 text-footnote text-background shadow-elevation-2",
+            className,
+          )}
+          {...props}
+        />
+      </TooltipPrimitive.Positioner>
     </TooltipPrimitive.Portal>
   );
 }

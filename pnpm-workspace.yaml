@@ -1,5 +1,6 @@
 packages:
   - apps/*
+  - packages/*
 
 # Supply chain: no git, tarball or URL transitive dependencies; a new version must be a week old before it can be
 # installed (the same cooldown as Dependabot); an update can never resolve to a lower version than the lockfile has.

@@ -1,0 +1,42 @@
+{
+  "name": "@aedis/cli",
+  "version": "0.1.0",
+  "description": "Add Aedis UI components to your app with verified provenance: signed releases, exact and aged dependencies, no install scripts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "aedis": "dist/aedis.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.22.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aedis-build/aedis-ui.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "rolldown -c rolldown.config.mjs",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "sigstore": "5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "25.9.9",
+    "@vitest/coverage-v8": "5.0.3",
+    "fast-check": "4.5.3",
+    "rolldown": "1.2.13",
+    "typescript": "5.9.3",
+    "vitest": "5.0.3"
+  }
+}

@@ -41,6 +41,95 @@ export type Messages = {
   /** Sidebar stays a Server Component, so it does not read the provider: pass `label={messages.sidebar.label}`. */
   sidebar: { label: string };
   localeSwitcher: { label: string };
+  codeBlock: {
+    copy: string;
+    copied: string;
+    copyFailed: string;
+    hidden: string;
+  };
+  link: {
+    external: string;
+  };
+  navigationMenu: {
+    label: string;
+  };
+  sheet: {
+    close: string;
+  };
+  dropdownMenu: {
+    confirmTitle: string;
+    confirmDescription: string;
+    confirm: string;
+    cancel: string;
+  };
+  spinner: {
+    label: string;
+  };
+  breadcrumb: {
+    label: string;
+    more: string;
+  };
+  pagination: {
+    label: string;
+    previous: string;
+    next: string;
+    goPrevious: string;
+    goNext: string;
+    more: string;
+  };
+  toast: {
+    region: string;
+    close: string;
+    failed: string;
+  };
+  toolCall: {
+    running: string;
+    done: string;
+    error: string;
+    awaiting: string;
+    arguments: string;
+    result: string;
+    external: string;
+    wantsToRun: string;
+    waiting: string;
+  };
+  reasoning: {
+    thinking: string;
+    thought: string;
+    thoughtFor: string;
+  };
+  sources: {
+    title: string;
+    source: string;
+  };
+  promptInput: {
+    placeholder: string;
+    message: string;
+    send: string;
+    stop: string;
+    attach: string;
+    attachments: string;
+    remove: string;
+    uploading: string;
+    typeNotAllowed: string;
+    tooLarge: string;
+    empty: string;
+    tooMany: string;
+    uploadFailed: string;
+    sendError: string;
+    model: string;
+  };
+  feedback: {
+    label: string;
+    positive: string;
+    negative: string;
+    comment: string;
+    placeholder: string;
+    send: string;
+    skip: string;
+    thanks: string;
+    error: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -81,6 +170,95 @@ export const en: Messages = {
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Main navigation" },
   localeSwitcher: { label: "Language" },
+  codeBlock: {
+    copy: "Copy code",
+    copied: "Copied",
+    copyFailed: "Could not copy. Select the code and copy it.",
+    hidden: "Hidden character",
+  },
+  link: {
+    external: "(external site)",
+  },
+  navigationMenu: {
+    label: "Site navigation",
+  },
+  sheet: {
+    close: "Close",
+  },
+  dropdownMenu: {
+    confirmTitle: "Are you sure?",
+    confirmDescription: "This cannot be undone.",
+    confirm: "Continue",
+    cancel: "Cancel",
+  },
+  spinner: {
+    label: "Loading",
+  },
+  breadcrumb: {
+    label: "Breadcrumb",
+    more: "More",
+  },
+  pagination: {
+    label: "Pagination",
+    previous: "Previous",
+    next: "Next",
+    goPrevious: "Go to previous page",
+    goNext: "Go to next page",
+    more: "More pages",
+  },
+  toast: {
+    region: "Notifications",
+    close: "Close notification",
+    failed: "Something went wrong. Try again.",
+  },
+  toolCall: {
+    running: "Running",
+    done: "Done",
+    error: "Failed",
+    awaiting: "Waiting for approval",
+    arguments: "Arguments",
+    result: "Result",
+    external: "acts outside",
+    wantsToRun: "wants to run with these arguments.",
+    waiting: "Waiting for a person to approve.",
+  },
+  reasoning: {
+    thinking: "Thinking…",
+    thought: "Reasoning",
+    thoughtFor: "Thought for {seconds} s",
+  },
+  sources: {
+    title: "Sources",
+    source: "Source",
+  },
+  promptInput: {
+    placeholder: "Ask the agent",
+    message: "Message",
+    send: "Send",
+    stop: "Stop",
+    attach: "Attach files",
+    attachments: "Attachments",
+    remove: "Remove {name}",
+    uploading: "Uploading {name}",
+    typeNotAllowed: "{name}: this type of file is not allowed.",
+    tooLarge: "{name} is larger than {size}.",
+    empty: "{name} is empty.",
+    tooMany: "Attach at most {count} files.",
+    uploadFailed: "{name} could not be uploaded. Try again.",
+    sendError: "The message could not be sent. Try again.",
+    model: "Model",
+  },
+  feedback: {
+    label: "Rate this answer",
+    positive: "Good answer",
+    negative: "Bad answer",
+    comment: "What went wrong? (optional)",
+    placeholder: "It missed the client's budget.",
+    send: "Send",
+    skip: "Skip",
+    thanks: "Thanks for the feedback.",
+    error: "Feedback could not be sent. Try again.",
+  },
 };
 
 type LocaleContextValue = { locale: string; messages: Messages };

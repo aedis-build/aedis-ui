@@ -58,17 +58,17 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
   }
 
   return (
-    <article data-slot="approval-card" className={cn("flex flex-col gap-3 rounded-xl border border-border border-l-4 border-l-accent bg-background p-4", className)}>
-      <header className="text-sm">
+    <article data-slot="approval-card" className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-accent bg-surface p-4 shadow-elevation-1", className)}>
+      <header className="text-callout">
         <strong>{requester}</strong> {l.requests}
         {requestedAt ? <span className="ml-2 text-muted-foreground">{requestedAt}</span> : null}
       </header>
-      <Markdown className="text-sm">{content}</Markdown>
+      <Markdown className="text-callout">{content}</Markdown>
       {mode === "idle" ? (
         <div className="flex flex-wrap gap-2">
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button disabled={busy}>{l.approve}</Button>
+            <AlertDialogTrigger render={<Button />} disabled={busy}>
+              {l.approve}
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -99,7 +99,7 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
         </div>
       )}
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-callout text-destructive">
           {error}
         </p>
       ) : null}

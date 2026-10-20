@@ -1,30 +1,41 @@
 "use client";
 
 import * as React from "react";
-import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/registry/aedis/ui/button";
+import { cn, type WithClassName } from "@/lib/utils";
+import { Button } from "@/registry/aedis/ui/button";
 
 /**
  * Confirmation for actions that cannot be undone or that leave the company (send, approve, delete).
  * Focus starts on Cancel, so pressing Enter right after opening never confirms.
  */
-function AlertDialog(props: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+function AlertDialog(props: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
-function AlertDialogTrigger(props: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
+function AlertDialogTrigger(props: AlertDialogPrimitive.Trigger.Props) {
   return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
-function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+function AlertDialogContent({ className, initialFocus, ...props }: WithClassName<AlertDialogPrimitive.Popup.Props>) {
+  const popup = React.useRef<HTMLDivElement>(null);
+  // Cancel wins wherever it sits in the footer; without one, Base UI's default (first tabbable) applies.
+  const focusCancel = () => popup.current?.querySelector<HTMLElement>("[data-slot=alert-dialog-cancel]") ?? true;
   return (
     <AlertDialogPrimitive.Portal>
-      <AlertDialogPrimitive.Overlay data-slot="alert-dialog-overlay" className="fixed inset-0 z-50 bg-black/50" />
-      <AlertDialogPrimitive.Content
+      <AlertDialogPrimitive.Backdrop
+        data-slot="alert-dialog-overlay"
+        className="fade fixed inset-0 z-50 bg-scrim"
+      />
+      <AlertDialogPrimitive.Popup
+        ref={popup}
         data-slot="alert-dialog-content"
-        className={cn("fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-border bg-background p-6 shadow-lg sm:max-w-lg", className)}
+        initialFocus={initialFocus ?? focusCancel}
+        className={cn(
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-hairline bg-surface-raised p-6 shadow-elevation-4 outline-none materialize sm:max-w-lg",
+          className,
+        )}
         {...props}
       />
     </AlertDialogPrimitive.Portal>
@@ -39,20 +50,21 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">)
   return <div data-slot="alert-dialog-footer" className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props} />;
 }
 
-function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
-  return <AlertDialogPrimitive.Title data-slot="alert-dialog-title" className={cn("text-lg font-semibold", className)} {...props} />;
+function AlertDialogTitle({ className, ...props }: WithClassName<AlertDialogPrimitive.Title.Props>) {
+  return <AlertDialogPrimitive.Title data-slot="alert-dialog-title" className={cn("text-title-3", className)} {...props} />;
 }
 
-function AlertDialogDescription({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {
-  return <AlertDialogPrimitive.Description data-slot="alert-dialog-description" className={cn("text-sm text-muted-foreground", className)} {...props} />;
+function AlertDialogDescription({ className, ...props }: WithClassName<AlertDialogPrimitive.Description.Props>) {
+  return <AlertDialogPrimitive.Description data-slot="alert-dialog-description" className={cn("text-callout text-muted-foreground", className)} {...props} />;
 }
 
-function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
-  return <AlertDialogPrimitive.Action data-slot="alert-dialog-action" className={cn(buttonVariants(), className)} {...props} />;
+/** Confirms and closes the dialog. */
+function AlertDialogAction({ className, ...props }: WithClassName<AlertDialogPrimitive.Close.Props>) {
+  return <AlertDialogPrimitive.Close data-slot="alert-dialog-action" render={<Button className={className} />} {...props} />;
 }
 
-function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
-  return <AlertDialogPrimitive.Cancel data-slot="alert-dialog-cancel" className={cn(buttonVariants({ variant: "outline" }), className)} {...props} />;
+function AlertDialogCancel({ className, ...props }: WithClassName<AlertDialogPrimitive.Close.Props>) {
+  return <AlertDialogPrimitive.Close data-slot="alert-dialog-cancel" render={<Button variant="outline" className={className} />} {...props} />;
 }
 
 export {
