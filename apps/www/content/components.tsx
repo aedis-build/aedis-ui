@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/registry/aedis/ui/breadcrumb";
 import { Button } from "@/registry/aedis/ui/button";
+import { ButtonGroup, ButtonGroupSeparator } from "@/registry/aedis/ui/button-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -39,6 +40,7 @@ import { AppShell } from "@/registry/aedis/ui/app-shell";
 import { Link } from "@/registry/aedis/ui/link";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/registry/aedis/ui/navigation-menu";
+import { ScrollArea } from "@/registry/aedis/ui/scroll-area";
 import { Separator } from "@/registry/aedis/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
@@ -572,6 +574,44 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       { name: "render", type: "ReactElement", description: "Another element to render, e.g. a router link." },
     ],
     security: ["Links go through safeUrl; external ones get noopener noreferrer and a marker."],
+  },
+  {
+    name: "scroll-area",
+    title: "Scroll Area",
+    description: "A scrollable region with consistent scrollbars, for code, side panels and long lists.",
+    example: (
+      <ScrollArea aria-label="Release notes" className="h-40 w-full max-w-md rounded-md border border-hairline bg-surface">
+        <ul className="space-y-2 p-4 text-callout">
+          {Array.from({ length: 20 }, (_, i) => (
+            <li key={i}>Release 0.{20 - i}: security fixes and new components.</li>
+          ))}
+        </ul>
+      </ScrollArea>
+    ),
+    props: [
+      { name: "aria-label", type: "string", description: "Names the region; the viewport is focusable when it overflows so the keyboard can scroll it." },
+      ...baseProps("@base-ui/react ScrollArea"),
+    ],
+    security: ["Scrolling stays native: wheel, touch, keyboard and in-page search work as usual."],
+  },
+  {
+    name: "button-group",
+    title: "Button Group",
+    description: "Buttons that belong together: toolbars and segmented actions.",
+    example: (
+      <ButtonGroup aria-label="Message actions">
+        <Button variant="outline">Reply</Button>
+        <Button variant="outline">Forward</Button>
+        <ButtonGroupSeparator />
+        <Button variant="outline">Archive</Button>
+      </ButtonGroup>
+    ),
+    props: [
+      { name: "aria-label | aria-labelledby", type: "string", description: "Required: the group's name." },
+      { name: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Direction; joined edges lose their inner radius." },
+      { name: "ButtonGroupText / ButtonGroupSeparator", type: "components", description: "A text cell (e.g. a URL prefix) and a divider." },
+    ],
+    security: ["role=\"group\" with a name; each button keeps its own semantics and tab stop."],
   },
   {
     name: "link",

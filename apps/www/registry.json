@@ -930,6 +930,46 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "Scrollable region on Base UI ScrollArea: native scrolling and keyboard focus, scrollbars that fade in (still under reduced motion).",
+      "dependencies": [
+        "@base-ui/react@1.9.0"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button Group",
+      "description": "Named group of buttons for toolbars and segmented actions; each button keeps its own semantics.",
+      "dependencies": [
+        "@base-ui/react@1.9.0",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/separator"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/button-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
