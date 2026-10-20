@@ -1195,6 +1195,21 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "mf-bridge",
+      "type": "registry:lib",
+      "title": "mf-bridge",
+      "description": "Typed, versioned postMessage between windows: explicit targetOrigin, source and origin checks, allow-list with validators and size limits, handshake, request/response, no tokens.",
+      "registryDependencies": [
+        "@aedis/redact"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-bridge.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

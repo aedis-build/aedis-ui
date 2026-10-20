@@ -5,6 +5,18 @@ export const SECRET_KEYS = ["password", "passwd", "secret", "token", "authorizat
 
 export const REDACTED = "[redacted]";
 
+/** True when a key looks like it holds a secret (same rule as redact). */
+export function isSecretKey(key: string, keys: string[] = SECRET_KEYS) {
+  const k = key.toLowerCase().replace(/[-_\s]/g, "");
+  return keys.some((s) => k.includes(s.toLowerCase().replace(/[-_\s]/g, "")));
+}
+
+/** True when any key, at any depth, looks like it holds a secret. */
+export function hasSecretKey(value: unknown, keys: string[] = SECRET_KEYS, depth = 0): boolean {
+  if (value === null || typeof value !== "object" || depth > 16) return false;
+  return Object.entries(value).some(([k, v]) => isSecretKey(k, keys) || hasSecretKey(v, keys, depth + 1));
+}
+
 export type RedactOptions = {
   /** Replaces the default list. */
   keys?: string[];

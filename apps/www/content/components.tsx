@@ -894,6 +894,45 @@ const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: fa
     ],
   },
   {
+    name: "mf-bridge",
+    title: "mf-bridge",
+    description: "A typed, origin-checked postMessage channel between a host page and an embedded app.",
+    example: (
+      <CodeBlock
+        lang="ts"
+        code={`// Both sides declare what they accept.
+const isHeight = (p: unknown): p is { height: number } => typeof (p as { height?: unknown })?.height === "number";
+
+// Host
+const bridge = createBridge({
+  target: () => frame.current?.contentWindow ?? null,
+  origins: [process.env.NEXT_PUBLIC_AGENT_ORIGIN!],
+  messages: { resize: { validate: isHeight } },
+});
+bridge.on("resize", ({ height }) => setHeight(height));
+
+// Embedded app
+const parent = createBridge({ target: window.parent, origins: ["https://backoffice.example.com"], messages: {} });
+await parent.ready;
+parent.send("resize", { height: document.body.scrollHeight });`}
+      />
+    ),
+    props: [
+      { name: "target", type: "Window | () => Window | null", description: "The other window: the iframe's contentWindow, or window.parent." },
+      { name: "origins", type: "string[]", description: "Exact origins from configuration; malformed entries and wildcards are dropped." },
+      { name: "messages", type: "Record<type, { validate; maxBytes?; allowSecrets? }>", description: "Allow-list of accepted types, each with its validator." },
+      { name: "maxBytes / timeoutMs", type: "number", default: "65536 / 5000", description: "Size limit per message; timeout for requests." },
+      { name: "returns", type: "{ ready; send; on; request; handle; peerOrigin; close }", description: "Handshake promise, events and request/response with correlation ids." },
+    ],
+    security: [
+      "targetOrigin is always explicit: the peer's origin after the ready/ack handshake, each allowed origin before it. Never \"*\".",
+      "Every message is checked for event.source (the target window) and event.origin (the allow-list); a peer cannot change origin after the handshake.",
+      "Per type: allow-list, validator and size limit; unknown types and kinds are dropped without an answer.",
+      "No tokens between windows: payloads with secret-looking keys are refused in both directions unless the type opts in with allowSecrets. Use a same-site cookie or a BFF instead.",
+      "A failing handler answers with a bare error; its message never crosses to the other window.",
+    ],
+  },
+  {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
