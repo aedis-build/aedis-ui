@@ -57,9 +57,10 @@ describe("Sheet", () => {
     // Tabbing cycles inside the sheet (through Base UI's focus guards); it never reaches the page behind.
     for (let i = 0; i < 6; i++) {
       await user.tab();
+      // Base UI's focus guard moves focus back inside asynchronously; under load that can take a moment.
+      await waitFor(() => expect(document.activeElement).not.toBe(document.body));
       expect(document.activeElement).not.toBe(trigger);
       expect(document.activeElement?.textContent).not.toBe("Outside");
-      expect(document.activeElement).not.toBe(document.body);
     }
     await user.click(screen.getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());

@@ -68,6 +68,16 @@ describe("motion", () => {
       expect(block).toContain(`--blur-${m}: 0px;`);
     }
   });
+
+  it("data-reduced-transparency forces exactly the same as the media query", () => {
+    const vars = (from: string) => {
+      const start = css.indexOf(from);
+      return css.slice(start, css.indexOf("}", start)).split(/\r?\n/).map((l) => l.trim()).filter((l) => l.startsWith("--"));
+    };
+    const media = vars("@media (prefers-reduced-transparency: reduce)");
+    expect(media).toHaveLength(7);
+    expect(vars(":root[data-reduced-transparency]")).toEqual(media);
+  });
 });
 
 describe("contrast", () => {

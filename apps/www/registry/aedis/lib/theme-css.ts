@@ -353,6 +353,16 @@ const utilities = String.raw`
   }
 }`;
 
+const solidMaterials = [
+  "--material-thin: var(--surface);",
+  "--material-regular: var(--surface);",
+  "--material-thick: var(--surface);",
+  "--material-edge: transparent;",
+  "--blur-thin: 0px;",
+  "--blur-regular: 0px;",
+  "--blur-thick: 0px;",
+];
+
 /** The theme stylesheet: tokens for the three themes, the Tailwind mapping, accessibility fallbacks and utilities. */
 export function themeCss() {
   return [
@@ -372,15 +382,10 @@ export function themeCss() {
     "/* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */",
     block(':root[data-theme="brand"]', themeVars("brand")),
     "",
-    `@media (prefers-reduced-transparency: reduce) {\n${block(":root:root", [
-      "--material-thin: var(--surface);",
-      "--material-regular: var(--surface);",
-      "--material-thick: var(--surface);",
-      "--material-edge: transparent;",
-      "--blur-thin: 0px;",
-      "--blur-regular: 0px;",
-      "--blur-thick: 0px;",
-    ], "  ")}\n}`,
+    `@media (prefers-reduced-transparency: reduce) {\n${block(":root:root", solidMaterials, "  ")}\n}`,
+    "",
+    "/* The same, forced by data-reduced-transparency on <html>: browsers and test runners that cannot emulate the query. */",
+    block(":root[data-reduced-transparency]", solidMaterials),
     "",
     `@media (prefers-contrast: more) {\n${block(":root:root", ["--border: var(--border-control);", "--hairline: var(--border-control);"], "  ")}\n}`,
     "",

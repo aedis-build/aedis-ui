@@ -32,10 +32,13 @@ import { Label } from "@/registry/aedis/ui/label";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/registry/aedis/ui/pagination";
 import { paginationRange } from "@/registry/aedis/lib/pagination";
 import { Progress } from "@/registry/aedis/ui/progress";
+import { Reasoning } from "@/registry/aedis/ui/reasoning";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
+import { FeedbackExample } from "@/components/examples/feedback-example";
+import { PromptInputExample } from "@/components/examples/prompt-input-example";
 import { StreamingExample } from "@/components/examples/streaming-example";
 import { ToastExample } from "@/components/examples/toast-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
@@ -47,11 +50,13 @@ import { Separator } from "@/registry/aedis/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
+import { Citation, Sources } from "@/registry/aedis/ui/sources";
 import { Spinner } from "@/registry/aedis/ui/spinner";
 import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
 import { Textarea } from "@/registry/aedis/ui/textarea";
+import { ToolCall } from "@/registry/aedis/ui/tool-call";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/aedis/ui/tooltip";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
@@ -249,13 +254,110 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     ],
   },
   {
+    name: "prompt-input",
+    title: "Prompt Input",
+    description: "The composer for an agent chat: bounded text, attachments, a model picker and a send button that turns into stop.",
+    example: <PromptInputExample />,
+    props: [
+      { name: "onSend", type: "(message, { signal }) => Promise<void>", description: "Resolve when the answer is complete; Stop aborts signal. Throw to keep the draft." },
+      { name: "maxLength", type: "number", default: "8000", description: "Match your server limit." },
+      { name: "attachments", type: "{ accept; maxBytes; uploadPath; maxFiles? }", description: "Turns attachments on: MIME or extension allow-list, size limit, same-origin upload path (default 10 files)." },
+      { name: "models / model / onModelChange", type: "{ value; label }[] / string / (value) => void", description: "Optional agent or model picker." },
+      { name: "labels", type: "Partial<PromptInputLabels>", description: "Every string, in the dictionary." },
+      { name: "checkAttachment / safeFileName / uploadAttachment", type: "lib", description: "The same rules for your own upload UI." },
+    ],
+    security: [
+      "Text is bounded and has hidden characters removed before it is sent.",
+      "Attachments: type allow-list (an image/* wildcard never admits SVG), size and count limits, uploaded same-origin with X-Requested-With, redirects refused.",
+      "File names are shown without bidi controls or control characters (RLO spoofing, T1036.002); files are never previewed, so an SVG is never inlined.",
+      "Stop aborts the request through AbortController; cancel the work on the server through that same signal.",
+      "The browser guesses a file's type from its name: the server must check the content again.",
+    ],
+  },
+  {
+    name: "feedback",
+    title: "Feedback",
+    description: "Thumbs up or down on an agent answer, with an optional comment, for evaluating agents.",
+    example: <FeedbackExample />,
+    props: [
+      { name: "messageId", type: "string", description: "The answer being rated, from the app; never typed by the person." },
+      { name: "endpoint", type: "string", description: "Same-origin path; receives { messageId, rating, comment? } through api()." },
+      { name: "maxLength", type: "number", default: "1000", description: "Longest comment." },
+      { name: "labels", type: "Partial<FeedbackLabels>", description: "Every string, in the dictionary." },
+    ],
+    security: [
+      "Sent through api(): same-origin, X-Requested-With, redirects refused.",
+      "The comment is bounded and has hidden characters removed.",
+      "The message id comes from the app, so nobody can rate an answer they did not see by typing its id.",
+    ],
+  },
+  {
+    name: "sources",
+    title: "Sources",
+    description: "Citations for answers grounded in documents: a numbered list and inline markers.",
+    example: (
+      <div className="space-y-3 text-callout">
+        <p>
+          Shoot days are billed monthly<Citation n={1} idPrefix="example-sources" title="Pricing policy 2026" /> and delivered in 48 hours
+          <Citation n={2} idPrefix="example-sources" title="Service levels" />.
+        </p>
+        <Sources
+          idPrefix="example-sources"
+          sources={[
+            { title: "Pricing policy 2026", url: "https://www.example.com/docs/pricing", snippet: "Shoot days are billed monthly, in advance." },
+            { title: "Service levels", url: "/docs/approval-card" },
+          ]}
+        />
+      </div>
+    ),
+    props: [
+      { name: "Sources sources", type: "{ title; url; snippet? }[]", description: "Titles and snippets are text; URLs go through safeUrl." },
+      { name: "Sources idPrefix", type: "string", description: "Anchor prefix shared with the inline Citation markers." },
+      { name: "Citation n / idPrefix / title?", type: "number / string / string", description: "Inline marker linking to entry n, named \"Source n: title\"." },
+      { name: "sourceDomain(url)", type: "string | null", description: "The host a person lands on, punycode for international names." },
+      { name: "labels", type: "Partial<SourcesLabels>", description: "title, source." },
+    ],
+    security: [
+      "Every link goes through safeUrl; external ones open with noopener noreferrer and are marked.",
+      "The domain is shown next to the title, in punycode for international names, so a lookalike domain cannot pass for the real one.",
+      "No favicon is fetched from third parties: nothing leaks who reads the answer, and img-src stays strict.",
+      "Titles and snippets are text, hidden characters removed.",
+    ],
+  },
+  {
+    name: "tool-call",
+    title: "Tool Call",
+    description: "Which tool an agent ran, with what and what came back; tools that act outside wait for approval.",
+    example: (
+      <div className="grid gap-3">
+        <ToolCall name="crm.lookup" status="done" args={{ email: "ana@acme.com", apiKey: "sk_live_123" }} result={{ name: "Ana", plan: "Pro" }} />
+        <ToolCall name="calendar.search" status="running" args={{ week: "2026-W43" }} />
+        <Reasoning durationMs={3800}>{"The client asked for four days. Check the calendar first, then draft the proposal with token=abc123 redacted."}</Reasoning>
+      </div>
+    ),
+    props: [
+      { name: "name / status", type: 'string / "running" | "done" | "error" | "awaiting-approval"', description: "What ran and where it is." },
+      { name: "args / result", type: "unknown", description: "Shown as JSON text after redaction." },
+      { name: "external + approval", type: "boolean + { requester; onApprove; onRequestChanges }", description: "A tool that acts outside waits in an ApprovalCard while awaiting approval." },
+      { name: "redactKeys", type: "string[]", description: "Replaces the default keys: password, secret, token, authorization, api key, cookie, session, credential…" },
+      { name: "Reasoning", type: "component", description: "children (markdown), streaming, durationMs; starts collapsed, same redaction." },
+      { name: "redact(value) / redactText(text)", type: "lib", description: "The same redaction for your own views and logs." },
+    ],
+    security: [
+      "Arguments and results are rendered as data (escaped JSON in a code block), never as markup.",
+      "Values under secret-looking keys, bearer tokens, JWTs and key=value secrets are redacted before anything is shown; long values, arrays and depth are bounded.",
+      "An external tool waiting for approval goes through ApprovalCard, which confirms through an AlertDialog that starts on Cancel.",
+      "Reasoning starts collapsed and uses the same redaction.",
+    ],
+  },
+  {
     name: "code-block",
     title: "Code Block",
     description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
     example: (
       <div className="space-y-4">
         <CodeBlock title="app/page.tsx" lang="tsx" code={'import { Button } from "@/components/ui/button";\n\nexport default function Page() {\n  return <Button>Approve</Button>;\n}'} />
-        <CodeBlock animated lang="bash" code={"pnpm dlx shadcn@latest add @aedis/approval-card\npnpm dev"} />
+        <CodeBlock animated lang="bash" code={"npx @aedis/cli@0.1.0 add approval-card\npnpm dev"} />
       </div>
     ),
     props: [
@@ -789,6 +891,141 @@ const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: fa
       "Order: authorize, rate limit, size limit, schema, handler. An anonymous call is never parsed.",
       "The client gets a code, never an error message; details go to the server log.",
       "server-only import; see the Server Actions guide for allowedOrigins, bodySizeLimit, the Origin check and secrets in closures.",
+    ],
+  },
+  {
+    name: "mf-bridge",
+    title: "mf-bridge",
+    description: "A typed, origin-checked postMessage channel between a host page and an embedded app.",
+    example: (
+      <CodeBlock
+        lang="ts"
+        code={`// Both sides declare what they accept.
+const isHeight = (p: unknown): p is { height: number } => typeof (p as { height?: unknown })?.height === "number";
+
+// Host
+const bridge = createBridge({
+  target: () => frame.current?.contentWindow ?? null,
+  origins: [process.env.NEXT_PUBLIC_AGENT_ORIGIN!],
+  messages: { resize: { validate: isHeight } },
+});
+bridge.on("resize", ({ height }) => setHeight(height));
+
+// Embedded app
+const parent = createBridge({ target: window.parent, origins: ["https://backoffice.example.com"], messages: {} });
+await parent.ready;
+parent.send("resize", { height: document.body.scrollHeight });`}
+      />
+    ),
+    props: [
+      { name: "target", type: "Window | () => Window | null", description: "The other window: the iframe's contentWindow, or window.parent." },
+      { name: "origins", type: "string[]", description: "Exact origins from configuration; malformed entries and wildcards are dropped." },
+      { name: "messages", type: "Record<type, { validate; maxBytes?; allowSecrets? }>", description: "Allow-list of accepted types, each with its validator." },
+      { name: "maxBytes / timeoutMs", type: "number", default: "65536 / 5000", description: "Size limit per message; timeout for requests." },
+      { name: "returns", type: "{ ready; send; on; request; handle; peerOrigin; close }", description: "Handshake promise, events and request/response with correlation ids." },
+    ],
+    security: [
+      "targetOrigin is always explicit: the peer's origin after the ready/ack handshake, each allowed origin before it. Never \"*\".",
+      "Every message is checked for event.source (the target window) and event.origin (the allow-list); a peer cannot change origin after the handshake.",
+      "Per type: allow-list, validator and size limit; unknown types and kinds are dropped without an answer.",
+      "No tokens between windows: payloads with secret-looking keys are refused in both directions unless the type opts in with allowSecrets. Use a same-site cookie or a BFF instead.",
+      "A failing handler answers with a bare error; its message never crosses to the other window.",
+    ],
+  },
+  {
+    name: "mf-frame",
+    title: "mf-frame",
+    description: "The host side of an embed: a sandboxed iframe that the embedded app sizes over mf-bridge, and the headers for both apps.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`// Host page
+<MfFrame src="https://agent.example.com/panel" title="Agent panel" maxHeight={900} />
+
+// Embedded app (any component that renders inside the frame)
+useReportHeight(["https://backoffice.example.com"]);
+
+// middleware.ts of each app
+headers: hostAppHeaders({ nonce, frameOrigins: [process.env.AGENT_ORIGIN!] })          // host
+headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN!] })  // embedded app`}
+      />
+    ),
+    props: [
+      { name: "src / title", type: "string / string", description: "Absolute http(s) URL; title is required." },
+      { name: "sandbox", type: "SandboxToken[]", default: '["allow-scripts", "allow-forms"]', description: "Known tokens only; allow-same-origin is refused when the frame has the host's origin." },
+      { name: "allow / referrerPolicy", type: "string", default: '"" / "strict-origin-when-cross-origin"', description: "Permissions policy (empty: no camera, mic, geolocation…) and referrer." },
+      { name: "minHeight / maxHeight", type: "number", default: "120 / 4000", description: "Bounds for the height the embedded app reports." },
+      { name: "onBridge / messages", type: "(bridge) => void / specs", description: "The mf-bridge to the embedded app, for its own messages." },
+      { name: "useReportHeight(hostOrigins)", type: "hook", description: "In the embedded app: reports the document height to the host." },
+      { name: "embeddedAppHeaders / hostAppHeaders", type: "lib", description: "securityHeaders with frame-ancestors (embedded) or frame-src (host) from configuration." },
+    ],
+    security: [
+      "Minimal sandbox; allow-same-origin is refused for a frame on the host's origin, because with allow-scripts it could remove its own sandbox.",
+      "Empty permissions policy, a referrer policy and a required title by default.",
+      "The height comes over mf-bridge from the frame's origin only, and is bounded.",
+      "frame-ancestors on the embedded app and frame-src on the host come from configuration; wildcards and malformed entries are dropped, so neither can become '*'.",
+    ],
+  },
+  {
+    name: "mf-element",
+    title: "mf-element",
+    description: "Turns a React component into a Web Component, for embeds that need tighter integration with the host page than an iframe gives.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`defineMfElement<{ agentName?: string; config?: Config }>("agent-panel", AgentPanel, {
+  attributes: { "agent-name": "string", config: "json" },
+  events: ["approve"],
+  css: builtTailwindCss,
+});
+
+// Host page
+<agent-panel agent-name="Avalo"></agent-panel>
+panel.addEventListener("approve", (e) => approve(e.detail));`}
+      />
+    ),
+    props: [
+      { name: "attributes", type: 'Record<name, "string" | "number" | "boolean" | "json">', description: "Typed attributes, mapped to camelCase props and properties; bad values become undefined." },
+      { name: "events", type: "string[]", description: "Events the component may emit through emit(); composed, bubbling CustomEvents. Others throw." },
+      { name: "css", type: "string", description: "Stylesheet for the shadow root." },
+      { name: "maxJsonBytes", type: "number", default: "16384", description: "Largest JSON attribute accepted." },
+      { name: "el.props = { … }", type: "property", description: "For values that are not attributes, like objects and callbacks." },
+    ],
+    security: [
+      "Trade-off: the element's code runs in the host page's origin. Every script on that page can reach what it holds, so never hand it a token unless the host accepts that risk; prefer an iframe (mf-frame) when the two apps should not trust each other.",
+      "The host's CSP must allow the element's origin in script-src (and connect-src for its API).",
+      "Shadow DOM isolates CSS both ways; it is not a security boundary.",
+      "Attributes are parsed by type with a size limit for JSON, and only declared events leave the element.",
+    ],
+  },
+  {
+    name: "mf-context",
+    title: "mf-context",
+    description: "Keeps an embedded app in step with its host: theme, locale and session, over mf-bridge.",
+    example: (
+      <CodeBlock
+        lang="tsx"
+        code={`// Host
+const [bridge, setBridge] = useState<Bridge<typeof hostMessages> | null>(null);
+const endSession = useMfContextHost(bridge, { mode, theme, locale });
+<MfFrame src={AGENT_URL} title="Agent panel" messages={hostMessages} onBridge={setBridge} />
+// on logout: endSession(); then sign out
+
+// Embedded app
+const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["en", "pt-BR", "es"], onSessionEnd: signOut });`}
+      />
+    ),
+    props: [
+      { name: "useMfContextHost(bridge, { mode, theme?, locale })", type: "() => void", description: "Sends theme and locale on change; returns endSession for logout; relays the child's activity to useIdleTimeout." },
+      { name: "useMfContext({ hostOrigins, locales, onSessionEnd, activityEveryMs? })", type: "{ locale; mode }", description: "Applies the host's theme, follows its locale, ends the session with it and reports activity (every 30 s at most)." },
+      { name: "hostMessages / childMessages(locales)", type: "message specs", description: "What each side accepts." },
+      { name: "ACTIVITY_EVENT", type: "string", description: "Dispatch on window to make useIdleTimeout count activity it cannot see." },
+    ],
+    security: [
+      "Logout in the host ends the embedded app's session (session:end), so a session never outlives the host's.",
+      "Idle time is shared: activity in the embedded app keeps the host's useIdleTimeout alive, and the host's timeout ends both.",
+      "Theme and locale travel as data: the theme passes validateTheme again and is applied through the CSSOM; unknown locales are ignored.",
+      "Built on mf-bridge: exact origins, source checks and no tokens in messages.",
     ],
   },
   {

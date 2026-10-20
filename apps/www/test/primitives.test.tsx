@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { components } from "@/content/components";
@@ -39,7 +39,8 @@ describe("primitives", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Delete" }));
-    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    // Base UI moves focus a tick after opening; until then it is on the trigger, never on the action.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus());
     await user.keyboard("{Enter}");
     expect(onConfirm).not.toHaveBeenCalled();
   });

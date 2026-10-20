@@ -82,6 +82,54 @@ export type Messages = {
     close: string;
     failed: string;
   };
+  toolCall: {
+    running: string;
+    done: string;
+    error: string;
+    awaiting: string;
+    arguments: string;
+    result: string;
+    external: string;
+    wantsToRun: string;
+    waiting: string;
+  };
+  reasoning: {
+    thinking: string;
+    thought: string;
+    thoughtFor: string;
+  };
+  sources: {
+    title: string;
+    source: string;
+  };
+  promptInput: {
+    placeholder: string;
+    message: string;
+    send: string;
+    stop: string;
+    attach: string;
+    attachments: string;
+    remove: string;
+    uploading: string;
+    typeNotAllowed: string;
+    tooLarge: string;
+    empty: string;
+    tooMany: string;
+    uploadFailed: string;
+    sendError: string;
+    model: string;
+  };
+  feedback: {
+    label: string;
+    positive: string;
+    negative: string;
+    comment: string;
+    placeholder: string;
+    send: string;
+    skip: string;
+    thanks: string;
+    error: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -162,6 +210,54 @@ export const en: Messages = {
     region: "Notifications",
     close: "Close notification",
     failed: "Something went wrong. Try again.",
+  },
+  toolCall: {
+    running: "Running",
+    done: "Done",
+    error: "Failed",
+    awaiting: "Waiting for approval",
+    arguments: "Arguments",
+    result: "Result",
+    external: "acts outside",
+    wantsToRun: "wants to run with these arguments.",
+    waiting: "Waiting for a person to approve.",
+  },
+  reasoning: {
+    thinking: "Thinking…",
+    thought: "Reasoning",
+    thoughtFor: "Thought for {seconds} s",
+  },
+  sources: {
+    title: "Sources",
+    source: "Source",
+  },
+  promptInput: {
+    placeholder: "Ask the agent",
+    message: "Message",
+    send: "Send",
+    stop: "Stop",
+    attach: "Attach files",
+    attachments: "Attachments",
+    remove: "Remove {name}",
+    uploading: "Uploading {name}",
+    typeNotAllowed: "{name}: this type of file is not allowed.",
+    tooLarge: "{name} is larger than {size}.",
+    empty: "{name} is empty.",
+    tooMany: "Attach at most {count} files.",
+    uploadFailed: "{name} could not be uploaded. Try again.",
+    sendError: "The message could not be sent. Try again.",
+    model: "Model",
+  },
+  feedback: {
+    label: "Rate this answer",
+    positive: "Good answer",
+    negative: "Bad answer",
+    comment: "What went wrong? (optional)",
+    placeholder: "It missed the client's budget.",
+    send: "Send",
+    skip: "Skip",
+    thanks: "Thanks for the feedback.",
+    error: "Feedback could not be sent. Try again.",
   },
 };
 

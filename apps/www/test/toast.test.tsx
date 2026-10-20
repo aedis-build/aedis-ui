@@ -21,7 +21,7 @@ function Failing() {
 describe("Toast", () => {
   it("shows text, never markup, and strips hidden characters", async () => {
     render(<Toaster />);
-    act(() => void toast.success("Saved​", { description: "<img src=x onerror=alert(1)>" }));
+    act(() => void toast.success("Saved\u200B", { description: "<img src=x onerror=alert(1)>" }));
     const viewport = await screen.findByRole("region", { name: "Notifications" });
     expect(await screen.findByText("Saved")).toBeInTheDocument();
     expect(screen.getByText("<img src=x onerror=alert(1)>")).toBeInTheDocument();

@@ -8,28 +8,33 @@ Aedis UI follows the [shadcn/ui](https://ui.shadcn.com) model: components are no
 
 ## Usage
 
-Add the Aedis registry to your app's `components.json` once:
-
-```json
-{
-  "registries": {
-    "@aedis": "https://aedis-build.github.io/aedis-ui/r/{name}.json"
-  }
-}
-```
-
-Then add components with the shadcn CLI:
+Install with the Aedis CLI, pinned to a version. It verifies the signed registry release (Sigstore, built by this
+repository's release workflow) before writing any file, installs npm dependencies at exact versions that are at
+least 7 days old, and runs no install scripts:
 
 ```bash
-npx shadcn@latest add @aedis/button
+npx @aedis/cli@0.1.0 init
+npx @aedis/cli@0.1.0 add button approval-card
 ```
 
-The first component brings the theme (`@aedis/theme`). Import it once in your global CSS, after Tailwind:
+The same with other package managers: `pnpm dlx @aedis/cli@0.1.0 add button`, `yarn dlx @aedis/cli@0.1.0 add button`
+(Yarn 2+; on Yarn 1 use `npx`), `bunx @aedis/cli@0.1.0 add button`.
+
+> Never run `npx aedis`: the unscoped `aedis` package on npm belongs to someone else. The CLI is `@aedis/cli`.
+
+`init` writes `aedis.json` (the pinned release and where files go), the theme, `cn` and the security primitives
+(`untrusted`, `api`, `security-headers`). Import the theme once in your global CSS, after Tailwind:
 
 ```css
 @import "tailwindcss";
 @import "./styles/aedis-theme.css";
 ```
+
+`npx @aedis/cli@0.1.0 diff` shows where your copies differ from the registry, and `theme import <file.json>` turns a
+theme made in the theming page's editor into CSS after validating it.
+
+The registry stays compatible with the shadcn CLI (`"@aedis": "https://aedis-build.github.io/aedis-ui/r/{name}.json"`
+in `components.json`), but that path verifies nothing: prefer `@aedis/cli`.
 
 Aedis items depend only on other Aedis items (including its own `@aedis/utils`), so an install never pulls a package that Aedis did not choose.
 

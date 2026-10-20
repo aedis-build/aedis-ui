@@ -71,7 +71,7 @@
       "name": "untrusted",
       "type": "registry:lib",
       "title": "untrusted",
-      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal().",
+      "description": "stripInvisible() removes code points that hide text from people but not from agents; safeUrl() keeps only http, https, mailto and relative URLs; isExternal(); allowedOrigins() keeps exact origins from configuration.",
       "files": [
         {
           "path": "lib/untrusted.ts",
@@ -95,7 +95,10 @@
       "name": "security-headers",
       "type": "registry:lib",
       "title": "securityHeaders",
-      "description": "securityHeaders(): strict CSP with nonce, HSTS, no sniffing, no framing, no referrer leak; apply from middleware.",
+      "description": "securityHeaders(): strict CSP with nonce, HSTS, nosniff, referrer and permissions policy, COOP/CORP, no-store; framing origins from configuration, never a wildcard.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
       "files": [
         {
           "path": "lib/security-headers.ts",
@@ -1055,6 +1058,222 @@
         {
           "path": "registry/aedis/ui/streaming-markdown.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "redact",
+      "type": "registry:lib",
+      "title": "redact",
+      "description": "redact(value) and redactText(text): hide values under secret keys, bearer tokens, JWTs and key=value secrets; bound size, depth and cycles.",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/redact.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "tool-call",
+      "type": "registry:ui",
+      "title": "Tool Call",
+      "description": "Tool name, status, redacted arguments and result as data; external tools wait in an ApprovalCard.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/approval-card",
+        "@aedis/code-block",
+        "@aedis/collapsible",
+        "@aedis/spinner"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/tool-call.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "reasoning",
+      "type": "registry:ui",
+      "title": "Reasoning",
+      "description": "The agent's reasoning, collapsed by default and redacted; the thinking label is static under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/redact",
+        "@aedis/accordion",
+        "@aedis/collapsible",
+        "@aedis/streaming-markdown"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/reasoning.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sources",
+      "type": "registry:ui",
+      "title": "Sources",
+      "description": "Citations list and inline markers: safe links, punycode domain shown, external links marked, no third-party favicons.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/sources.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "attachment",
+      "type": "registry:lib",
+      "title": "attachment",
+      "description": "checkAttachment (type allow-list, size), safeFileName (no bidi or control characters) and uploadAttachment (same-origin, progress, no redirects).",
+      "registryDependencies": [
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/attachment.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "prompt-input",
+      "type": "registry:ui",
+      "title": "Prompt Input",
+      "description": "Agent chat composer: bounded text without hidden characters, checked attachments with progress, model picker, send that turns into stop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/use-format",
+        "@aedis/attachment",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/progress",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/prompt-input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "feedback",
+      "type": "registry:ui",
+      "title": "Feedback",
+      "description": "Thumbs up or down on an agent answer with an optional bounded comment, sent through api() with the app's message id.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/api",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button",
+        "@aedis/textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/feedback.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "mf-bridge",
+      "type": "registry:lib",
+      "title": "mf-bridge",
+      "description": "Typed, versioned postMessage between windows: explicit targetOrigin, source and origin checks, allow-list with validators and size limits, handshake, request/response, no tokens.",
+      "registryDependencies": [
+        "@aedis/redact"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-bridge.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-embed-headers",
+      "type": "registry:lib",
+      "title": "mf-embed-headers",
+      "description": "embeddedAppHeaders (frame-ancestors from the host allow-list) and hostAppHeaders (frame-src from the app allow-list), never a wildcard.",
+      "registryDependencies": [
+        "@aedis/security-headers",
+        "@aedis/untrusted"
+      ],
+      "files": [
+        {
+          "path": "lib/mf-embed-headers.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-frame",
+      "type": "registry:ui",
+      "title": "mf-frame",
+      "description": "Sandboxed iframe for an embedded app: minimal sandbox, no allow-same-origin for same-origin frames, empty permissions policy, bounded height over mf-bridge; useReportHeight for the embedded side.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/mf-bridge",
+        "@aedis/skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/mf-frame.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "mf-element",
+      "type": "registry:lib",
+      "title": "mf-element",
+      "description": "defineMfElement: a React component as a Web Component in a shadow root, typed attributes and properties, declared CustomEvents only.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-element.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "mf-context",
+      "type": "registry:lib",
+      "title": "mf-context",
+      "description": "Theme, locale and session across host and embedded app over mf-bridge: validated theme and locale, session:end on logout, shared idle time.",
+      "registryDependencies": [
+        "@aedis/mf-bridge",
+        "@aedis/custom-theme",
+        "@aedis/use-idle-timeout"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/mf-context.ts",
+          "type": "registry:lib"
         }
       ]
     }
