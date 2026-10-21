@@ -62,6 +62,13 @@ export const ptBR: Messages = {
   spinner: {
     label: "Carregando",
   },
+  siteHeader: {
+    home: "Início",
+    menu: "Menu",
+  },
+  siteFooter: {
+    label: "Rodapé",
+  },
   breadcrumb: {
     label: "Trilha de navegação",
     more: "Mais",

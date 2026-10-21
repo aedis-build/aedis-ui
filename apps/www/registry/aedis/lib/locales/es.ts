@@ -62,6 +62,13 @@ export const es: Messages = {
   spinner: {
     label: "Cargando",
   },
+  siteHeader: {
+    home: "Inicio",
+    menu: "Menú",
+  },
+  siteFooter: {
+    label: "Pie de página",
+  },
   breadcrumb: {
     label: "Ruta de navegación",
     more: "Más",

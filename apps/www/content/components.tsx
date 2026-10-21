@@ -49,6 +49,8 @@ import { ScrollArea } from "@/registry/aedis/ui/scroll-area";
 import { Separator } from "@/registry/aedis/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
+import { SiteFooter } from "@/registry/aedis/ui/site-footer";
+import { SiteHeader } from "@/registry/aedis/ui/site-header";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
 import { Citation, Sources } from "@/registry/aedis/ui/sources";
 import { Spinner } from "@/registry/aedis/ui/spinner";
@@ -607,6 +609,60 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     ),
     props: [{ name: "KbdGroup", type: "kbd", description: "A combination: nested kbd elements, as HTML specifies." }],
     security: ["Text only."],
+  },
+  {
+    name: "site-header",
+    title: "Site Header",
+    description: "The sticky top bar of a site: brand, navigation and actions. Below md the items and actions move into a sheet.",
+    example: (
+      <SiteHeader
+        className="static"
+        brand="Aedis"
+        items={[
+          { label: "Docs", href: "/docs/site-header", active: true },
+          { label: "Components", href: "/docs/button" },
+        ]}
+        actions={
+          <Button size="sm" render={<a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer" />}>
+            GitHub
+          </Button>
+        }
+      />
+    ),
+    props: [
+      { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref named by labels.home." },
+      { name: "homeHref", type: "string", default: '"/"', description: "Where the brand links; goes through safeUrl." },
+      { name: "items", type: "{ label: string; href: string; active?: boolean }[]", description: "The navigation. active marks the current section (indicator and aria-current)." },
+      { name: "actions", type: "ReactNode", description: "Right side from md up (e.g. a GitHub link and a primary Button); inside the sheet below md." },
+      { name: "labels", type: "Partial<SiteHeaderLabels>", description: "home: name of the brand link; menu: the menu button and sheet title." },
+      { name: "className", type: "string", description: "Classes for the header element." },
+    ],
+    security: [
+      "Every href goes through safeUrl: javascript:, data: and vbscript: never become links.",
+      "External items get rel=\"noopener noreferrer\" and a visible marker.",
+    ],
+  },
+  {
+    name: "site-footer",
+    title: "Site Footer",
+    description: "The bottom of a site: links and notes such as the license.",
+    example: (
+      <SiteFooter
+        links={[
+          { label: "Docs", href: "/docs/site-footer" },
+          { label: "GitHub", href: "https://github.com/aedis-build/aedis-ui" },
+        ]}
+      >
+        MIT licensed.
+      </SiteFooter>
+    ),
+    props: [
+      { name: "links", type: "{ label: string; href: string }[]", description: "Rendered with Link: safe protocols only, external marker and noopener." },
+      { name: "children", type: "ReactNode", description: "Notes, e.g. the license line." },
+      { name: "labels", type: "Partial<SiteFooterLabels>", description: "label: accessible name of the footer navigation." },
+      { name: "className", type: "string", description: "Classes for the footer element." },
+    ],
+    security: ["Refused URLs render their text without a link.", "External links never get window.opener or the Referer of this page."],
   },
   {
     name: "breadcrumb",
