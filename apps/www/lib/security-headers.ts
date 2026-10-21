@@ -2,7 +2,14 @@ import { allowedOrigins } from "@/lib/untrusted";
 
 export type SecurityHeadersOptions = {
   /** Per-request nonce for the scripts the framework emits; what makes a CSP without 'unsafe-inline' possible. */
-  nonce: string;
+  nonce?: string;
+  /**
+   * For a static site, where no server can mint a nonce: the hashes of its inline scripts, as `sha256-<base64>`
+   * (or sha384/sha512), computed at build time. Give either `nonce` or `hashes`, never both. The policy is then
+   * `'self'` plus the hashes, without `'strict-dynamic'`: under it browsers ignore `'self'`, and the page's own
+   * `<script src>` tags, which carry no nonce, would be blocked.
+   */
+  hashes?: string[];
   /** Extra origins the page may fetch or stream from, e.g. an API on another host. Same-origin is always allowed. */
   connectSrc?: string[];
   /** Extra origins for images, e.g. an avatar CDN. Same-origin and data: are always allowed. */
@@ -13,6 +20,21 @@ export type SecurityHeadersOptions = {
   frameSrc?: string[];
 };
 
+const HASH = /^sha(256|384|512)-[A-Za-z0-9+/]+={0,2}$/;
+const NONCE = /^[A-Za-z0-9+/_-]+={0,2}$/;
+
+/** The script sources that replace 'unsafe-inline'. A malformed value would break or widen the policy, so it throws. */
+function scriptSources(nonce: string | undefined, hashes: string[] | undefined) {
+  if ((nonce === undefined) === (hashes === undefined)) throw new Error("securityHeaders: give either nonce or hashes");
+  if (nonce !== undefined) {
+    if (!NONCE.test(nonce)) throw new Error("securityHeaders: the nonce must be base64");
+    return [`'nonce-${nonce}'`, "'strict-dynamic'"];
+  }
+  const bad = hashes!.find((h) => !HASH.test(h));
+  if (bad !== undefined) throw new Error(`securityHeaders: not a script hash: ${bad}`);
+  return hashes!.map((h) => `'${h}'`);
+}
+
 /** Exact origins (and 'self'); wildcards and malformed entries are dropped, never widened. */
 const sources = (list: string[]) => [...(list.includes("'self'") ? ["'self'"] : []), ...allowedOrigins(list)];
 
@@ -22,11 +44,11 @@ const sources = (list: string[]) => [...(list.includes("'self'") ? ["'self'"] : 
  * no caching of pages that may hold personal data. Apply them from the framework's middleware or the edge; the
  * docs site is static and cannot send them.
  */
-export function securityHeaders({ nonce, connectSrc = [], imgSrc = [], frameAncestors: ancestors = [], frameSrc }: SecurityHeadersOptions): Record<string, string> {
+export function securityHeaders({ nonce, hashes, connectSrc = [], imgSrc = [], frameAncestors: ancestors = [], frameSrc }: SecurityHeadersOptions): Record<string, string> {
   const frameAncestors = sources(ancestors);
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    ["script-src 'self'", ...scriptSources(nonce, hashes)].join(" "),
     // Inline style attributes come from the components; scripts never do.
     "style-src 'self' 'unsafe-inline'",
     ["img-src 'self' data:", ...imgSrc].join(" "),

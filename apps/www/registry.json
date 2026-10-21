@@ -95,7 +95,7 @@
       "name": "security-headers",
       "type": "registry:lib",
       "title": "securityHeaders",
-      "description": "securityHeaders(): strict CSP with nonce, HSTS, nosniff, referrer and permissions policy, COOP/CORP, no-store; framing origins from configuration, never a wildcard.",
+      "description": "securityHeaders(): strict CSP with a nonce or build-time script hashes, HSTS, nosniff, referrer and permissions policy, COOP/CORP, no-store; framing origins from configuration, never a wildcard.",
       "registryDependencies": [
         "@aedis/untrusted"
       ],
