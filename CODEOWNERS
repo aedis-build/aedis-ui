@@ -1,5 +1,6 @@
-# Owners by path. Security-sensitive components, CI and this file require review from platform security.
+# Owners by path: the maintainers team (it needs write access to the repository to count). Security-sensitive
+# paths stay listed apart so that, once a security team exists, only their owner changes.
 *                               @aedis-build/maintainers
-/.github/                       @aedis-build/platform-security
-/CODEOWNERS                     @aedis-build/platform-security
-/SECURITY.md                    @aedis-build/platform-security
+/.github/                       @aedis-build/maintainers
+/CODEOWNERS                     @aedis-build/maintainers
+/SECURITY.md                    @aedis-build/maintainers
