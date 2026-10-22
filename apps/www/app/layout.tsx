@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 const header: { href: string; label: string }[] = [
   { href: "/docs", label: "Docs" },
   { href: "/#components", label: "Components" },
+  { href: "/blocks", label: "Blocks" },
   { href: "/security", label: "Security" },
   { href: "/themes", label: "Themes" },
 ];

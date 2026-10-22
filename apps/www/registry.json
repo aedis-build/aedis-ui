@@ -1334,6 +1334,88 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "agent-console",
+      "type": "registry:block",
+      "title": "Agent Console",
+      "description": "A conversation with an agent: streaming answers as safe markdown, tool calls with redaction, sources with their real domain, and a prompt input with Stop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/prompt-input",
+        "@aedis/sources",
+        "@aedis/streaming-markdown",
+        "@aedis/tool-call"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/agent-console.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "approval-inbox",
+      "type": "registry:block",
+      "title": "Approval Inbox",
+      "description": "Pending approvals and raised hands in one list, with the ApprovalCard or HandRaise of the one selected.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/approval-card",
+        "@aedis/badge",
+        "@aedis/empty",
+        "@aedis/hand-raise",
+        "@aedis/tabs"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/approval-inbox.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "usage-limits",
+      "type": "registry:block",
+      "title": "Usage and Limits",
+      "description": "Spend per agent against its ceiling, with a warning near the limit and an error once an agent is paused.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-format",
+        "@aedis/alert",
+        "@aedis/badge",
+        "@aedis/card",
+        "@aedis/progress"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/usage-limits.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "secure-shell",
+      "type": "registry:block",
+      "title": "Secure Shell",
+      "description": "The signed-in frame of an app: AppShell while the session is active, sign-out after idle time, and a clear state when the session ends.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-idle-timeout",
+        "@aedis/app-shell",
+        "@aedis/button",
+        "@aedis/empty"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/secure-shell.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

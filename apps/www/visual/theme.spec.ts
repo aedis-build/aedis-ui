@@ -6,6 +6,7 @@ const pages = [
   "/docs/theming",
   "/themes",
   "/security",
+  "/blocks/usage-limits",
   "/docs/button",
   "/docs/card",
   "/docs/checkbox",
