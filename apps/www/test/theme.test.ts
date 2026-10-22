@@ -50,6 +50,23 @@ describe("motion", () => {
   const css = themeCss();
   const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
 
+  it("the page entrance and the card lift keep still under reduced motion", () => {
+    expect(reduced).toContain("--duration-enter-stagger: 0ms;");
+    for (const name of ["enter", "lift"]) {
+      const utility = css.slice(css.indexOf(`@utility ${name} {`));
+      expect(utility.slice(0, utility.indexOf("\n}"))).toContain("@media (prefers-reduced-motion: reduce)");
+    }
+  });
+
+  it("terminal paints code with the dark theme's checked colors in any theme", () => {
+    const utility = css.slice(css.indexOf("@utility terminal {"));
+    const body = utility.slice(0, utility.indexOf("\n}"));
+    for (const role of ["surface", "foreground", "muted-foreground", "link", "success"] as const) {
+      expect(body).toContain(`--${role}: ${colors[role].dark};`);
+    }
+    expect(body).toContain(`--syntax-background: ${colors.surface.dark};`);
+  });
+
   it("reduced motion turns scale, blur and springs into a short cross-fade", () => {
     for (const rule of ["--press-scale: 1;", "--materialize-scale: 1;", "--blur-materialize: 0px;", "--ease-spring-bouncy: ease;", "--duration-spring: var(--duration-fast);"]) {
       expect(reduced).toContain(rule);
@@ -57,8 +74,10 @@ describe("motion", () => {
   });
 
   it("utilities animate only compositor-friendly properties and colors", () => {
-    const animated = [...css.matchAll(/([a-z-]+) var\(--duration/g)].map((m) => m[1]);
-    expect(new Set(animated)).toEqual(new Set(["scale", "translate", "transform", "color", "background-color", "border-color", "box-shadow", "opacity", "filter", "clip-path"]));
+    const keyframes = new Map([...css.matchAll(/@keyframes ([a-z-]+) \{([\s\S]*?)\n\}/g)].map((m) => [m[1], m[2]]));
+    const fromKeyframes = [...keyframes.values()].flatMap((body) => [...body.matchAll(/^\s+([a-z-]+):/gm)].map((m) => m[1]));
+    const animated = [...css.matchAll(/([a-z-]+) var\(--duration/g)].map((m) => m[1]).filter((name) => !keyframes.has(name));
+    expect(new Set([...animated, ...fromKeyframes])).toEqual(new Set(["scale", "translate", "transform", "color", "background-color", "border-color", "box-shadow", "opacity", "filter", "clip-path"]));
   });
 
   it("reduced transparency makes every material solid", () => {

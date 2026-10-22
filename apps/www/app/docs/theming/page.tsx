@@ -168,7 +168,10 @@ export default function Theming() {
         <p className="text-callout text-muted-foreground">
           Cinematic, never stiff: long soft entrances, short exits, every transition interruptible. Springs are sampled with <code className="font-mono">linear()</code>, so there is no dependency.
           <code className="font-mono"> press</code> sinks to {scales.press} on pointer-down; <code className="font-mono">materialize</code> grows popovers and dialogs out of their trigger from {scales.materialize} with a {blurs.materialize} blur clearing.
+          On a page, <code className="font-mono">enter</code> brings its children in one after another ({durations["enter-stagger"]} apart) as the page loads, and
+          <code className="font-mono"> lift</code> raises an interactive card 4 px on the spring with a deeper shadow.
           Under <code className="font-mono">prefers-reduced-motion</code> scale, blur and bounce turn into a short cross-fade.
+          For code on a dark surface in any theme, such as a terminal on a light page, put <code className="font-mono">terminal</code> on the CodeBlock: it uses the dark theme&apos;s own colors.
         </p>
         <div className="grid gap-6 md:grid-cols-2">
           <table className="w-full text-left text-callout">

@@ -59,6 +59,8 @@
   --duration-spring: 560ms;
   --duration-sheet: 700ms;
   --duration-stagger: 50ms;
+  --duration-enter: 900ms;
+  --duration-enter-stagger: 90ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring-critical: linear(0, 0.191 10%, 0.475 20%, 0.692 30%, 0.829 40%, 0.908 50%, 0.952 60%, 0.976 70%, 0.988 80%, 0.994 90%, 1);
@@ -292,6 +294,30 @@
   }
 }
 
+/* Code on a dark surface in any theme, e.g. a terminal on a light page: `terminal` on the CodeBlock. */
+@utility terminal {
+  --surface: #161a21;
+  --muted: #232833;
+  --hairline: rgba(255,255,255,0.08);
+  --foreground: #eceff4;
+  --link: #7aa2ff;
+  --warning: #f5a524;
+  --success: #3dd68c;
+  --muted-foreground: #9ba4b4;
+  --syntax-foreground: #eceff4;
+  --syntax-background: #161a21;
+  --syntax-token-keyword: #7aa2ff;
+  --syntax-token-function: #eceff4;
+  --syntax-token-parameter: #eceff4;
+  --syntax-token-constant: #f5a524;
+  --syntax-token-string: #3dd68c;
+  --syntax-token-string-expression: #3dd68c;
+  --syntax-token-comment: #9ba4b4;
+  --syntax-token-punctuation: #9ba4b4;
+  --syntax-token-link: #7aa2ff;
+  color-scheme: dark;
+}
+
 /* Reduced motion: slides, scale, blur and bounce become a short cross-fade. */
 @media (prefers-reduced-motion: reduce) {
   :root:root {
@@ -304,6 +330,8 @@
     --duration-spring: var(--duration-fast);
     --duration-sheet: var(--duration-fast);
     --duration-stagger: 0ms;
+    --duration-enter: var(--duration-fast);
+    --duration-enter-stagger: 0ms;
     --ease-spring-critical: ease;
     --ease-spring-bouncy: ease;
   }
@@ -565,6 +593,51 @@
   }
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+  }
+}
+
+/* Page-load entrance: each child rises into place, one after another. Under reduced motion only a short fade. */
+@keyframes aedis-enter {
+  from {
+    opacity: 0;
+    translate: 0 0.875rem;
+  }
+}
+@utility enter {
+  & > * {
+    animation: aedis-enter var(--duration-enter) var(--ease-cinematic) both;
+  }
+  & > :nth-child(2) { animation-delay: var(--duration-enter-stagger); }
+  & > :nth-child(3) { animation-delay: calc(2 * var(--duration-enter-stagger)); }
+  & > :nth-child(4) { animation-delay: calc(3 * var(--duration-enter-stagger)); }
+  & > :nth-child(n + 5) { animation-delay: calc(4 * var(--duration-enter-stagger)); }
+  @media (prefers-reduced-motion: reduce) {
+    & > * {
+      animation-name: aedis-fade-in;
+    }
+  }
+}
+@keyframes aedis-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* An interactive card rises a little on hover, on the spring, with a deeper shadow. */
+@utility lift {
+  transition:
+    translate var(--duration-spring) var(--ease-spring-critical),
+    box-shadow var(--duration-base) var(--ease-cinematic);
+  &:hover,
+  &:focus-within {
+    translate: 0 -4px;
+    box-shadow: var(--elevation-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover,
+    &:focus-within {
+      translate: none;
+    }
   }
 }
 
