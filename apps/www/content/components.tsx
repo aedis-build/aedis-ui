@@ -121,6 +121,7 @@ export const guides: { href: string; title: string; description: string; categor
   { href: "/docs", title: "Introduction", description: "What Aedis UI is and how to install it.", category: "Getting started" },
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
+  { href: "/security", title: "Security by construction", description: "How each attack is treated, the four sinks, the checklist for apps and what the UI cannot do.", category: "Security" },
   { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
   { href: "/docs/micro-frontends", title: "Micro-frontends", description: "Compose apps from isolated frames and elements.", category: "Micro-frontends" },
 ];

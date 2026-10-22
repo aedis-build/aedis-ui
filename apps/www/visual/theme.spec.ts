@@ -5,6 +5,7 @@ const pages = [
   "/",
   "/docs/theming",
   "/themes",
+  "/security",
   "/docs/button",
   "/docs/card",
   "/docs/checkbox",
