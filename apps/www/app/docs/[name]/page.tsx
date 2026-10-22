@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { ComponentPreview } from "@/components/site/component-preview";
 import { InstallCommand } from "@/components/site/install-command";
+import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
 import { components, type ApiPart, type Prop } from "@/content/components";
 import registry from "@/registry.json";
@@ -138,9 +139,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
         </Section>
 
         <Section id="security" title="Security">
-          <ul className="list-disc space-y-1 pl-5 text-callout">
-            {doc.security.map((s) => <li key={s}>{s}</li>)}
-          </ul>
+          <SecurityPanel name={doc.name} security={doc.security} />
         </Section>
 
         {a11y ? (
