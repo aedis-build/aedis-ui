@@ -1,0 +1,14 @@
+// Cloudflare Workers with static assets only: no Worker code runs, so requests cost nothing and have no CPU limit.
+// apps/www/out/_headers (apps/www/scripts/headers.ts) carries the security headers.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aedis-ui-www",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./apps/www/out",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "ui.aedis.build", "custom_domain": true }]
+}

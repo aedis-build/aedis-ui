@@ -9,3 +9,5 @@ apps/www/public/r/
 packages/cli/dist/
 apps/www/playwright-report/
 apps/www/test-results/
+# wrangler dev state
+.wrangler/

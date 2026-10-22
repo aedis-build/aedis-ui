@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "aedis",
-  "homepage": "https://aedis-build.github.io/aedis-ui",
+  "homepage": "https://ui.aedis.build",
   "items": [
     {
       "name": "utils",
