@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { ComponentPreview } from "@/components/site/component-preview";
 import { InstallCommand } from "@/components/site/install-command";
 import { Toc } from "@/components/site/toc";
-import { components, type Prop } from "@/content/components";
+import { components, type ApiPart, type Prop } from "@/content/components";
 import registry from "@/registry.json";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -67,7 +67,14 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   const adds = (item?.registryDependencies ?? []).map((d) => d.replace("@aedis/", "")).filter((d) => !INIT.has(d));
   const [main, ...more] = doc.examples ?? [];
   const a11y = doc.accessibility;
-  const parts = [{ name: doc.title.replace(/\s/g, ""), props: doc.props }, ...(doc.parts ?? [])];
+  // A row named "SheetContent labels" belongs to SheetContent: one table per part.
+  const byPart = new Map<string, Prop[]>([[doc.title.replace(/\s/g, ""), []]]);
+  for (const p of doc.props) {
+    const [, part, prop] = /^([A-Z]\w+) ([a-z].*)$/.exec(p.name) ?? [];
+    const key = part ?? [...byPart.keys()][0];
+    byPart.set(key, [...(byPart.get(key) ?? []), part ? { ...p, name: prop } : p]);
+  }
+  const parts: ApiPart[] = [...[...byPart].filter(([, props]) => props.length).map(([name, props]) => ({ name, props })), ...(doc.parts ?? [])];
   const badges = [
     npm.some((d) => d.startsWith("@base-ui/react@")) && "Base UI",
     a11y?.keyboard?.length && "Keyboard",
@@ -75,7 +82,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   ].filter((b): b is string => Boolean(b));
   const toc = [
     { id: "installation", title: "Installation" },
-    doc.usage && { id: "usage", title: "Usage" },
+    { id: "usage", title: "Usage" },
     more.length > 0 && { id: "examples", title: "Examples" },
     { id: "api", title: "API reference" },
     { id: "security", title: "Security" },
@@ -92,11 +99,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           {badges.length > 0 ? <div className="flex flex-wrap gap-1.5">{badges.map((b) => <Badge key={b} variant="secondary">{b}</Badge>)}</div> : null}
         </header>
 
-        {main ? (
-          <ComponentPreview file={main.file} component={main.component} label={`${doc.title} example`} />
-        ) : (
-          <section aria-label="Example" className="rounded-xl border border-hairline bg-surface p-8 shadow-elevation-1">{doc.example}</section>
-        )}
+        {main ? <ComponentPreview file={main.file} component={main.component} label={`${doc.title} example`} /> : null}
 
         <Section id="installation" title="Installation">
           <InstallCommand name={doc.name} />
@@ -108,11 +111,9 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           </p>
         </Section>
 
-        {doc.usage ? (
-          <Section id="usage" title="Usage">
-            <CodeBlock lang="tsx" code={doc.usage} />
-          </Section>
-        ) : null}
+        <Section id="usage" title="Usage">
+          <CodeBlock lang="tsx" code={doc.usage} />
+        </Section>
 
         {more.length > 0 ? (
           <Section id="examples" title="Examples">
@@ -130,7 +131,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           {parts.map((p) => (
             <div key={p.name} className="space-y-2 pt-2">
               {parts.length > 1 ? <h3 className="font-mono text-headline">{p.name}</h3> : null}
-              {"description" in p && p.description ? <p className="text-callout text-muted-foreground">{p.description}</p> : null}
+              {p.description ? <p className="text-callout text-muted-foreground">{p.description}</p> : null}
               <PropsTable props={p.props} />
             </div>
           ))}

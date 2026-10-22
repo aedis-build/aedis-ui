@@ -9,7 +9,7 @@ const ANSWER =
   "Here is the **proposal** for Acme Bistro:\n\n- 4 shoot days a month\n- Delivery in 48 hours\n\nTerms are in [the contract](https://example.com/contract). Approve it in the card below.";
 
 /** Replays an answer a few characters at a time, like an agent streaming tokens. */
-export function StreamingExample() {
+export default function StreamingMarkdownDemo() {
   const [text, setText] = React.useState("");
   const [streaming, setStreaming] = React.useState(false);
 

@@ -1,62 +1,61 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType } from "react";
 
-import { CodeBlock } from "@/registry/aedis/ui/code-block";
-import { Reasoning } from "@/registry/aedis/ui/reasoning";
-import { ChatExample } from "@/components/examples/chat-example";
-import SidebarDemo from "@/examples/sidebar/demo";
-import AppShellDemo from "@/examples/app-shell/demo";
-import SiteHeaderDemo from "@/examples/site-header/demo";
-import SiteFooterDemo from "@/examples/site-footer/demo";
-import NavigationMenuDemo from "@/examples/navigation-menu/demo";
-import BreadcrumbDemo from "@/examples/breadcrumb/demo";
-import PaginationDemo from "@/examples/pagination/demo";
-import TabsDemo from "@/examples/tabs/demo";
+import AccordionDemo from "@/examples/accordion/demo";
+import AlertDialogDemo from "@/examples/alert-dialog/demo";
 import AlertDemo from "@/examples/alert/demo";
-import ToastDemo from "@/examples/toast/demo";
-import ProgressDemo from "@/examples/progress/demo";
-import SpinnerDemo from "@/examples/spinner/demo";
-import SkeletonDemo from "@/examples/skeleton/demo";
-import EmptyDemo from "@/examples/empty/demo";
-import CardDemo from "@/examples/card/demo";
-import TableDemo from "@/examples/table/demo";
+import AppShellDemo from "@/examples/app-shell/demo";
+import ApprovalCardDemo from "@/examples/approval-card/demo";
 import AvatarDemo from "@/examples/avatar/demo";
 import BadgeDemo from "@/examples/badge/demo";
-import SeparatorDemo from "@/examples/separator/demo";
-import KbdDemo from "@/examples/kbd/demo";
-import ItemDemo from "@/examples/item/demo";
-import ScrollAreaDemo from "@/examples/scroll-area/demo";
-import CodeBlockDemo from "@/examples/code-block/demo";
-import AccordionDemo from "@/examples/accordion/demo";
-import CollapsibleDemo from "@/examples/collapsible/demo";
-import MarkdownDemo from "@/examples/markdown/demo";
-import ButtonSizes from "@/examples/button/sizes";
-import ButtonAsLink from "@/examples/button/as-link";
-import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
-import InputStates from "@/examples/input/states";
-import ButtonDemo from "@/examples/button/demo";
+import BreadcrumbDemo from "@/examples/breadcrumb/demo";
 import ButtonGroupDemo from "@/examples/button-group/demo";
-import LinkDemo from "@/examples/link/demo";
-import InputDemo from "@/examples/input/demo";
-import TextareaDemo from "@/examples/textarea/demo";
-import LabelDemo from "@/examples/label/demo";
+import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
+import ButtonAsLink from "@/examples/button/as-link";
+import ButtonDemo from "@/examples/button/demo";
+import ButtonSizes from "@/examples/button/sizes";
+import CardDemo from "@/examples/card/demo";
+import ChatDemo from "@/examples/chat/demo";
 import CheckboxDemo from "@/examples/checkbox/demo";
-import RadioGroupDemo from "@/examples/radio-group/demo";
-import SwitchDemo from "@/examples/switch/demo";
-import DialogDemo from "@/examples/dialog/demo";
-import AlertDialogDemo from "@/examples/alert-dialog/demo";
-import SheetDemo from "@/examples/sheet/demo";
-import TooltipDemo from "@/examples/tooltip/demo";
-import DropdownMenuDemo from "@/examples/dropdown-menu/demo";
-import DropdownMenuCheckboxRadio from "@/examples/dropdown-menu/checkbox-radio";
-import DropdownMenuSubmenu from "@/examples/dropdown-menu/submenu-disabled";
+import CodeBlockDemo from "@/examples/code-block/demo";
+import CollapsibleDemo from "@/examples/collapsible/demo";
 import CommandDemo from "@/examples/command/demo";
-import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
-import { LocaleExample } from "@/components/examples/locale-examples";
-import { FeedbackExample } from "@/components/examples/feedback-example";
-import { PromptInputExample } from "@/components/examples/prompt-input-example";
-import { StreamingExample } from "@/components/examples/streaming-example";
-import { Citation, Sources } from "@/registry/aedis/ui/sources";
-import { ToolCall } from "@/registry/aedis/ui/tool-call";
+import DialogDemo from "@/examples/dialog/demo";
+import DropdownMenuCheckboxRadio from "@/examples/dropdown-menu/checkbox-radio";
+import DropdownMenuDemo from "@/examples/dropdown-menu/demo";
+import DropdownMenuSubmenu from "@/examples/dropdown-menu/submenu-disabled";
+import EmptyDemo from "@/examples/empty/demo";
+import FeedbackDemo from "@/examples/feedback/demo";
+import HandRaiseDemo from "@/examples/hand-raise/demo";
+import InputDemo from "@/examples/input/demo";
+import InputStates from "@/examples/input/states";
+import ItemDemo from "@/examples/item/demo";
+import KbdDemo from "@/examples/kbd/demo";
+import LabelDemo from "@/examples/label/demo";
+import LinkDemo from "@/examples/link/demo";
+import LocaleSwitcherDemo from "@/examples/locale-switcher/demo";
+import MarkdownDemo from "@/examples/markdown/demo";
+import NavigationMenuDemo from "@/examples/navigation-menu/demo";
+import PaginationDemo from "@/examples/pagination/demo";
+import ProgressDemo from "@/examples/progress/demo";
+import PromptInputDemo from "@/examples/prompt-input/demo";
+import RadioGroupDemo from "@/examples/radio-group/demo";
+import ScrollAreaDemo from "@/examples/scroll-area/demo";
+import SeparatorDemo from "@/examples/separator/demo";
+import SheetDemo from "@/examples/sheet/demo";
+import SidebarDemo from "@/examples/sidebar/demo";
+import SiteFooterDemo from "@/examples/site-footer/demo";
+import SiteHeaderDemo from "@/examples/site-header/demo";
+import SkeletonDemo from "@/examples/skeleton/demo";
+import SourcesDemo from "@/examples/sources/demo";
+import SpinnerDemo from "@/examples/spinner/demo";
+import StreamingMarkdownDemo from "@/examples/streaming-markdown/demo";
+import SwitchDemo from "@/examples/switch/demo";
+import TableDemo from "@/examples/table/demo";
+import TabsDemo from "@/examples/tabs/demo";
+import TextareaDemo from "@/examples/textarea/demo";
+import ToastDemo from "@/examples/toast/demo";
+import ToolCallDemo from "@/examples/tool-call/demo";
+import TooltipDemo from "@/examples/tooltip/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -84,15 +83,14 @@ export type ComponentDoc = {
   title: string;
   category: Category;
   description: string;
-  /** The first is the main preview; the rest are listed under Examples. */
+  /** The first is the main preview; the rest are listed under Examples. Every UI item has one (test/examples.test.ts). */
   examples?: Example[];
-  /** Until an entry moves to examples/: a preview without a Code tab. */
-  example?: ReactNode;
   /** The smallest correct use, imports included. */
-  usage?: string;
+  usage: string;
   props: Prop[];
   /** Subcomponents after the main one, each with its own props. */
   parts?: ApiPart[];
+  /** Required for UI items (test/examples.test.ts); hooks and libraries document it when they affect it. */
   accessibility?: Accessibility;
   security: string[];
 };
@@ -140,7 +138,16 @@ import { Sidebar } from "@/components/ui/sidebar";
     title: "Approval Card",
     category: "AI and agents",
     description: "A request from an agent that waits for a human before anything leaves the company.",
-    example: <ApprovalCardExample />,
+    examples: [{ title: "Approval Card", file: "approval-card/demo", component: ApprovalCardDemo }],
+    usage: `import { ApprovalCard } from "@/components/ui/approval-card";
+
+<ApprovalCard
+  requester={request.agent}
+  requestedAt={f.relative(request.createdAt)}
+  content={request.markdown}
+  onApprove={() => approve(request.id)}
+  onRequestChanges={(reason) => requestChanges(request.id, reason)}
+/>`,
     props: [
       { name: "requester", type: "string", description: "Who asks, usually the agent's name." },
       { name: "content", type: "string", description: "What is being approved, as untrusted markdown." },
@@ -154,13 +161,26 @@ import { Sidebar } from "@/components/ui/sidebar";
       "Requesting changes requires a non-empty reason.",
       "Content renders through Markdown (no raw HTML, safe links).",
     ],
+    accessibility: {
+      keyboard: [["Enter", "In the confirmation, activates Cancel first: approving takes a deliberate Tab."], ["Esc", "Closes the confirmation without approving."]],
+      notes: ["Approve opens an AlertDialog that starts on Cancel; a failure is shown as role=\"alert\".", "Requesting changes needs a non-empty reason in a labelled field."],
+      motion: "The confirmation materializes and closes in 200 ms. With reduced motion it only fades.",
+    },
   },
   {
     name: "hand-raise",
     title: "Hand Raise",
     category: "AI and agents",
     description: "A question an agent could not resolve with the knowledge base or its colleagues.",
-    example: <HandRaiseExample />,
+    examples: [{ title: "Hand Raise", file: "hand-raise/demo", component: HandRaiseDemo }],
+    usage: `import { HandRaise } from "@/components/ui/hand-raise";
+
+<HandRaise
+  agent="Otto"
+  question={question.text}
+  tried={question.tried}
+  onAnswer={(answer, scope) => answerQuestion(question.id, answer, scope)}
+/>`,
     props: [
       { name: "agent", type: "string", description: "The agent asking." },
       { name: "question", type: "string", description: "Plain text." },
@@ -172,13 +192,20 @@ import { Sidebar } from "@/components/ui/sidebar";
       "Scope starts at \"Just this case\"; \"Always\" explains that the answer becomes a lasting rule.",
       "The question is rendered as plain text.",
     ],
+    accessibility: {
+      keyboard: [["↑ ↓", "Moves between \"Just this case\" and \"Always\"."]],
+      notes: ["The answer field and the scope radio group are labelled; \"Always\" says it becomes a lasting rule before it is sent.", "A failure is shown as role=\"alert\"."],
+    },
   },
   {
     name: "chat",
     title: "Chat",
     category: "AI and agents",
     description: "Conversation with an agent. Agent messages render as safe markdown; people's messages as plain text.",
-    example: <ChatExample />,
+    examples: [{ title: "Chat", file: "chat/demo", component: ChatDemo }],
+    usage: `import { Chat } from "@/components/ui/chat";
+
+<Chat messages={messages} onSend={(text) => send(conversationId, text)} working={agentTyping ? "Avalo is writing…" : undefined} />`,
     props: [
       { name: "messages", type: "{ id; author; role: \"person\" | \"agent\" | \"system\"; content }[]", description: "The conversation. Content is untrusted." },
       { name: "onSend", type: "(text) => Promise<void>", description: "Send the text; throw to keep the draft and show the error." },
@@ -191,13 +218,22 @@ import { Sidebar } from "@/components/ui/sidebar";
       "The log region has aria-live, so new messages are announced.",
       "Enter sends and Shift+Enter adds a line; IME composition never sends.",
     ],
+    accessibility: {
+      keyboard: [["Enter", "Sends the draft."], ["Shift+Enter", "Adds a line."]],
+      notes: ["The conversation is role=\"log\" with aria-live=\"polite\", so new messages are read as they arrive.", "Composing with an input method (IME) never sends early; a send failure keeps the draft and is shown as role=\"alert\"."],
+    },
   },
   {
     name: "locale",
     title: "Locale",
     category: "Foundations",
     description: "Locale provider and dictionaries: every Aedis UI component reads its text from here, in English, Portuguese or Spanish.",
-    example: <LocaleExample />,
+    usage: `import { LocaleProvider } from "@/lib/locale";
+import { ptBR } from "@/lib/locales/pt-br";
+
+<LocaleProvider locale="pt-BR" messages={ptBR}>
+  {children}
+</LocaleProvider>`,
     props: [
       { name: "locale", type: "string", description: 'BCP 47 tag the app already resolved, e.g. "pt-BR". Drives formatting too.' },
       { name: "messages", type: "Messages", default: "en", description: "Dictionary: en (built in), ptBR (locale-pt-br) or es (locale-es)." },
@@ -215,7 +251,13 @@ import { Sidebar } from "@/components/ui/sidebar";
     title: "Locale Switcher",
     category: "Foundations",
     description: "Language picker. The app stores the choice and re-renders the provider.",
-    example: <LocaleExample />,
+    examples: [{ title: "Locale Switcher", file: "locale-switcher/demo", component: LocaleSwitcherDemo }],
+    usage: `import { LocaleSwitcher } from "@/components/ui/locale-switcher";
+
+<LocaleSwitcher
+  locales={[{ code: "en", label: "English" }, { code: "pt-BR", label: "Português" }, { code: "es", label: "Español" }]}
+  onChange={(code) => setLocale(code)}
+/>`,
     props: [
       { name: "locales", type: "{ code; label }[]", description: "Options, each label in its own language." },
       { name: "value", type: "string", description: "Selected locale. Defaults to the provider locale." },
@@ -223,20 +265,21 @@ import { Sidebar } from "@/components/ui/sidebar";
       { name: "label", type: "string", description: "Accessible name. Defaults to the dictionary." },
     ],
     security: ["A native select: keyboard and screen readers work everywhere; each option carries its own lang."],
+    accessibility: {
+      notes: ["A native select with an accessible name (\"Language\" by default); each option is labelled in its own language."],
+    },
   },
   {
     name: "use-format",
     title: "useFormat",
     category: "Foundations",
     description: "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
-    example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`const f = useFormat();
+    usage: `import { useFormat } from "@/hooks/use-format";
+
+const f = useFormat();
 f.relative(message.createdAt); // "há 4 minutos"
 f.currency(449, "BRL");        // "R$ 449,00"
-f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
-      </pre>
-    ),
+f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     props: [
       { name: "date(value, options?)", type: "string", description: 'Intl.DateTimeFormat; default { dateStyle: "medium" }.' },
       { name: "dateTime(value)", type: "string", description: "Medium date and short time." },
@@ -273,7 +316,10 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Streaming Markdown",
     category: "AI and agents",
     description: "Markdown for an agent answer that arrives token by token.",
-    example: <StreamingExample />,
+    examples: [{ title: "Streaming Markdown", file: "streaming-markdown/demo", component: StreamingMarkdownDemo }],
+    usage: `import { StreamingMarkdown } from "@/components/ui/streaming-markdown";
+
+<StreamingMarkdown streaming={!done}>{answerSoFar}</StreamingMarkdown>`,
     props: [
       { name: "children", type: "string", description: "The answer so far, as untrusted markdown." },
       { name: "streaming", type: "boolean", default: "false", description: "Tokens still arriving: caret on, incomplete links held back, aria-busy." },
@@ -286,13 +332,20 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "A link becomes clickable only once it closes, and a bare URL only once it is followed by a space: a half-written URL is never clickable.",
       "Rendered at most once per animation frame, with a length cap, so a fast or runaway stream cannot freeze the page.",
     ],
+    accessibility: {
+      notes: ["aria-busy while tokens arrive, so screen readers wait for the settled text instead of reading every token."],
+      motion: "A caret blinks at the end while streaming. With reduced motion there is no caret.",
+    },
   },
   {
     name: "prompt-input",
     title: "Prompt Input",
     category: "AI and agents",
     description: "The composer for an agent chat: bounded text, attachments, a model picker and a send button that turns into stop.",
-    example: <PromptInputExample />,
+    examples: [{ title: "Prompt Input", file: "prompt-input/demo", component: PromptInputDemo }],
+    usage: `import { PromptInput } from "@/components/ui/prompt-input";
+
+<PromptInput onSend={(message, { signal }) => ask(message, { signal })} />`,
     props: [
       { name: "onSend", type: "(message, { signal }) => Promise<void>", description: "Resolve when the answer is complete; Stop aborts signal. Throw to keep the draft." },
       { name: "maxLength", type: "number", default: "8000", description: "Match your server limit." },
@@ -308,13 +361,21 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Stop aborts the request through AbortController; cancel the work on the server through that same signal.",
       "The browser guesses a file's type from its name: the server must check the content again.",
     ],
+    accessibility: {
+      keyboard: [["Enter", "Sends."], ["Shift+Enter", "Adds a line."], ["Tab", "Reaches Attach, the model picker and Send or Stop."]],
+      notes: ["Send and Stop are icon buttons with names from the dictionary; while an answer streams, Send becomes Stop.", "Refused files and failures are shown as role=\"alert\"; composing with an IME never sends early."],
+      motion: "Send and Stop swap with a short scale and fade. With reduced motion they swap at once.",
+    },
   },
   {
     name: "feedback",
     title: "Feedback",
     category: "AI and agents",
     description: "Thumbs up or down on an agent answer, with an optional comment, for evaluating agents.",
-    example: <FeedbackExample />,
+    examples: [{ title: "Feedback", file: "feedback/demo", component: FeedbackDemo }],
+    usage: `import { Feedback } from "@/components/ui/feedback";
+
+<Feedback messageId={message.id} endpoint="/api/feedback" />`,
     props: [
       { name: "messageId", type: "string", description: "The answer being rated, from the app; never typed by the person." },
       { name: "endpoint", type: "string", description: "Same-origin path; receives { messageId, rating, comment? } through api()." },
@@ -326,27 +387,22 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "The comment is bounded and has hidden characters removed.",
       "The message id comes from the app, so nobody can rate an answer they did not see by typing its id.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Reaches the two rating buttons, then the optional comment."]],
+      notes: ["The ratings are a labelled group of buttons; the thanks message is a status announced politely."],
+      motion: "The thanks message fades in. With reduced motion it appears at once.",
+    },
   },
   {
     name: "sources",
     title: "Sources",
     category: "AI and agents",
     description: "Citations for answers grounded in documents: a numbered list and inline markers.",
-    example: (
-      <div className="space-y-3 text-callout">
-        <p>
-          Shoot days are billed monthly<Citation n={1} idPrefix="example-sources" title="Pricing policy 2026" /> and delivered in 48 hours
-          <Citation n={2} idPrefix="example-sources" title="Service levels" />.
-        </p>
-        <Sources
-          idPrefix="example-sources"
-          sources={[
-            { title: "Pricing policy 2026", url: "https://www.example.com/docs/pricing", snippet: "Shoot days are billed monthly, in advance." },
-            { title: "Service levels", url: "/docs/approval-card" },
-          ]}
-        />
-      </div>
-    ),
+    examples: [{ title: "Sources", file: "sources/demo", component: SourcesDemo }],
+    usage: `import { Citation, Sources } from "@/components/ui/sources";
+
+<p>Shoot days are billed monthly<Citation n={1} idPrefix="answer-42" title="Pricing policy" />.</p>
+<Sources idPrefix="answer-42" sources={[{ title: "Pricing policy", url: "https://example.com/pricing" }]} />`,
     props: [
       { name: "Sources sources", type: "{ title; url; snippet? }[]", description: "Titles and snippets are text; URLs go through safeUrl." },
       { name: "Sources idPrefix", type: "string", description: "Anchor prefix shared with the inline Citation markers." },
@@ -360,19 +416,20 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "No favicon is fetched from third parties: nothing leaks who reads the answer, and img-src stays strict.",
       "Titles and snippets are text, hidden characters removed.",
     ],
+    accessibility: {
+      keyboard: [["Enter", "On a citation, jumps to its source."]],
+      notes: ["Each citation is a link named \"Source n: title\"; the list shows the domain a person lands on before they follow it."],
+    },
   },
   {
     name: "tool-call",
     title: "Tool Call",
     category: "AI and agents",
     description: "Which tool an agent ran, with what and what came back; tools that act outside wait for approval.",
-    example: (
-      <div className="grid gap-3">
-        <ToolCall name="crm.lookup" status="done" args={{ email: "ana@acme.com", apiKey: "sk_live_123" }} result={{ name: "Ana", plan: "Pro" }} />
-        <ToolCall name="calendar.search" status="running" args={{ week: "2026-W43" }} />
-        <Reasoning durationMs={3800}>{"The client asked for four days. Check the calendar first, then draft the proposal with token=abc123 redacted."}</Reasoning>
-      </div>
-    ),
+    examples: [{ title: "Tool Call", file: "tool-call/demo", component: ToolCallDemo }],
+    usage: `import { ToolCall } from "@/components/ui/tool-call";
+
+<ToolCall name="crm.lookup" status="done" args={call.args} result={call.result} />`,
     props: [
       { name: "name / status", type: 'string / "running" | "done" | "error" | "awaiting-approval"', description: "What ran and where it is." },
       { name: "args / result", type: "unknown", description: "Shown as JSON text after redaction." },
@@ -387,6 +444,11 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "An external tool waiting for approval goes through ApprovalCard, which confirms through an AlertDialog that starts on Cancel.",
       "Reasoning starts collapsed and uses the same redaction.",
     ],
+    accessibility: {
+      keyboard: [["Enter / Space", "Opens and closes the arguments and result."]],
+      notes: ["The status is text, not only color; a call waiting on a person shows a status message and an ApprovalCard."],
+      motion: "Details open on a spring; the Reasoning label pulses while the agent thinks. With reduced motion both are still.",
+    },
   },
   {
     name: "code-block",
@@ -923,7 +985,9 @@ toast.success("Saved");`,
     title: "useReducedMotion",
     category: "Foundations",
     description: "True when the person asked for less motion. For motion driven by JavaScript; CSS motion already reads the theme tokens.",
-    example: <p className="text-callout text-muted-foreground">const reduced = useReducedMotion();</p>,
+    usage: `import { useReducedMotion } from "@/hooks/use-reduced-motion";
+
+const reduced = useReducedMotion();`,
     props: [{ name: "returns", type: "boolean", description: "Follows prefers-reduced-motion live; false on the server." }],
     security: ["No side effects; reads a media query."],
   },
@@ -932,15 +996,12 @@ toast.success("Saved");`,
     title: "useEventStream",
     category: "Transport",
     description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
-    example: (
-      <CodeBlock
-        lang="tsx"
-        code={`const state = useEventStream<Message>("/api/conversations/42/events", {
+    usage: `import { useEventStream } from "@/hooks/use-event-stream";
+
+const state = useEventStream<Message>("/api/conversations/42/events", {
   events: ["message", "done"],
   onEvent: (message, { type }) => setMessages((m) => [...m, message]),
-});`}
-      />
-    ),
+});`,
     props: [
       { name: "path", type: "string | null", description: "Same-origin path; null pauses. A token in the query string is refused." },
       { name: "onEvent", type: "(data, { type, id }) => void", description: "Called with the parsed JSON of each allowed event; malformed JSON is ignored." },
@@ -964,16 +1025,13 @@ toast.success("Saved");`,
     title: "event-stream",
     category: "Transport",
     description: "The library under useEventStream: an incremental SSE parser and a fetch-based connection with resume and backoff, for code outside React.",
-    example: (
-      <CodeBlock
-        lang="ts"
-        code={`const { close } = connectEventStream<Progress>("/api/tasks/7/events", {
+    usage: `import { connectEventStream } from "@/lib/event-stream";
+
+const { close } = connectEventStream<Progress>("/api/tasks/7/events", {
   events: ["progress"],
   onEvent: (p) => render(p),
   onState: (s) => setStatus(s),
-});`}
-      />
-    ),
+});`,
     props: [
       { name: "connectEventStream(path, options)", type: "{ close }", description: "Same options as useEventStream plus signal and onState." },
       { name: "createSseParser({ onEvent, onRetry?, maxEventBytes? })", type: "{ push(text), end() }", description: "Feed decoded text; chunking never changes the events." },
@@ -986,20 +1044,14 @@ toast.success("Saved");`,
     title: "bffStream",
     category: "Transport",
     description: "A Next.js route handler that relays the API's event stream with the session's bearer, so the token never reaches the browser.",
-    example: (
-      <CodeBlock
-        lang="ts"
-        title="app/api/conversations/[id]/events/route.ts"
-        code={`import { bffStream } from "@/lib/bff-stream";
+    usage: `import { bffStream } from "@/lib/bff-stream";
 
 export const dynamic = "force-dynamic";
 
 export const GET = bffStream({
   upstream: (req) => \`\${process.env.API_URL}/conversations/\${conversationId(req)}/events\`,
   getAccessToken: async () => (await auth())?.accessToken ?? null,
-});`}
-      />
-    ),
+});`,
     props: [
       { name: "upstream", type: "string | URL | (request) => string | URL", description: "The API stream, from configuration; http(s) only. Never read a URL from the request." },
       { name: "getAccessToken", type: "(request) => string | null", description: "The bearer of the server-side session; null answers 401 without calling the API." },
@@ -1020,18 +1072,16 @@ export const GET = bffStream({
     title: "secureAction",
     category: "Transport",
     description: "A wrapper for Server Actions: required authorization, rate limit, size limit and schema inside the action, and a typed result without error messages.",
-    example: (
-      <CodeBlock
-        lang="ts"
-        code={`export const renameAgent = secureAction({
+    usage: `import { z } from "zod";
+import { secureAction } from "@/lib/secure-action";
+
+export const renameAgent = secureAction({
   authorize: currentUser,
   schema: z.object({ id: z.string().uuid(), name: z.string().max(80) }),
   handler: ({ id, name }, user) => db.agents.rename(user.tenantId, id, name),
 });
 
-const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: false, code }`}
-      />
-    ),
+const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: false, code }`,
     props: [
       { name: "authorize", type: "() => Ctx | null", description: "Required; runs on every call. null answers \"unauthorized\"; throw ActionError(\"forbidden\") for a caller without the right." },
       { name: "schema", type: "StandardSchemaV1", description: "Any Standard Schema validator; the handler only sees its output. Invalid input returns the failing field paths." },
@@ -1052,10 +1102,9 @@ const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: fa
     title: "mf-bridge",
     category: "Micro-frontends",
     description: "A typed, origin-checked postMessage channel between a host page and an embedded app.",
-    example: (
-      <CodeBlock
-        lang="ts"
-        code={`// Both sides declare what they accept.
+    usage: `import { createBridge } from "@/lib/mf-bridge";
+
+// Both sides declare what they accept.
 const isHeight = (p: unknown): p is { height: number } => typeof (p as { height?: unknown })?.height === "number";
 
 // Host
@@ -1069,9 +1118,7 @@ bridge.on("resize", ({ height }) => setHeight(height));
 // Embedded app
 const parent = createBridge({ target: window.parent, origins: ["https://backoffice.example.com"], messages: {} });
 await parent.ready;
-parent.send("resize", { height: document.body.scrollHeight });`}
-      />
-    ),
+parent.send("resize", { height: document.body.scrollHeight });`,
     props: [
       { name: "target", type: "Window | () => Window | null", description: "The other window: the iframe's contentWindow, or window.parent." },
       { name: "origins", type: "string[]", description: "Exact origins from configuration; malformed entries and wildcards are dropped." },
@@ -1092,10 +1139,10 @@ parent.send("resize", { height: document.body.scrollHeight });`}
     title: "mf-frame",
     category: "Micro-frontends",
     description: "The host side of an embed: a sandboxed iframe that the embedded app sizes over mf-bridge, and the headers for both apps.",
-    example: (
-      <CodeBlock
-        lang="tsx"
-        code={`// Host page
+    usage: `import { MfFrame, useReportHeight } from "@/components/ui/mf-frame";
+import { embeddedAppHeaders, hostAppHeaders } from "@/lib/mf-embed-headers";
+
+// Host page
 <MfFrame src="https://agent.example.com/panel" title="Agent panel" maxHeight={900} />
 
 // Embedded app (any component that renders inside the frame)
@@ -1103,9 +1150,7 @@ useReportHeight(["https://backoffice.example.com"]);
 
 // middleware.ts of each app
 headers: hostAppHeaders({ nonce, frameOrigins: [process.env.AGENT_ORIGIN!] })          // host
-headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN!] })  // embedded app`}
-      />
-    ),
+headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN!] })  // embedded app`,
     props: [
       { name: "src / title", type: "string / string", description: "Absolute http(s) URL; title is required." },
       { name: "sandbox", type: "SandboxToken[]", default: '["allow-scripts", "allow-forms"]', description: "Known tokens only; allow-same-origin is refused when the frame has the host's origin." },
@@ -1121,16 +1166,19 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
       "The height comes over mf-bridge from the frame's origin only, and is bounded.",
       "frame-ancestors on the embedded app and frame-src on the host come from configuration; wildcards and malformed entries are dropped, so neither can become '*'.",
     ],
+    accessibility: {
+      notes: ["The iframe needs a title, which is its accessible name.", "Its height follows the embedded page (useReportHeight), so there is no second scrollbar to reach."],
+      motion: "The frame grows to the reported height on a spring and fades in when loaded. With reduced motion it resizes at once.",
+    },
   },
   {
     name: "mf-element",
     title: "mf-element",
     category: "Micro-frontends",
     description: "Turns a React component into a Web Component, for embeds that need tighter integration with the host page than an iframe gives.",
-    example: (
-      <CodeBlock
-        lang="tsx"
-        code={`defineMfElement<{ agentName?: string; config?: Config }>("agent-panel", AgentPanel, {
+    usage: `import { defineMfElement } from "@/lib/mf-element";
+
+defineMfElement<{ agentName?: string; config?: Config }>("agent-panel", AgentPanel, {
   attributes: { "agent-name": "string", config: "json" },
   events: ["approve"],
   css: builtTailwindCss,
@@ -1138,9 +1186,7 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
 
 // Host page
 <agent-panel agent-name="Avalo"></agent-panel>
-panel.addEventListener("approve", (e) => approve(e.detail));`}
-      />
-    ),
+panel.addEventListener("approve", (e) => approve(e.detail));`,
     props: [
       { name: "attributes", type: 'Record<name, "string" | "number" | "boolean" | "json">', description: "Typed attributes, mapped to camelCase props and properties; bad values become undefined." },
       { name: "events", type: "string[]", description: "Events the component may emit through emit(); composed, bubbling CustomEvents. Others throw." },
@@ -1160,19 +1206,16 @@ panel.addEventListener("approve", (e) => approve(e.detail));`}
     title: "mf-context",
     category: "Micro-frontends",
     description: "Keeps an embedded app in step with its host: theme, locale and session, over mf-bridge.",
-    example: (
-      <CodeBlock
-        lang="tsx"
-        code={`// Host
+    usage: `import { hostMessages, useMfContext, useMfContextHost } from "@/lib/mf-context";
+
+// Host
 const [bridge, setBridge] = useState<Bridge<typeof hostMessages> | null>(null);
 const endSession = useMfContextHost(bridge, { mode, theme, locale });
 <MfFrame src={AGENT_URL} title="Agent panel" messages={hostMessages} onBridge={setBridge} />
 // on logout: endSession(); then sign out
 
 // Embedded app
-const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["en", "pt-BR", "es"], onSessionEnd: signOut });`}
-      />
-    ),
+const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["en", "pt-BR", "es"], onSessionEnd: signOut });`,
     props: [
       { name: "useMfContextHost(bridge, { mode, theme?, locale })", type: "() => void", description: "Sends theme and locale on change; returns endSession for logout; relays the child's activity to useIdleTimeout." },
       { name: "useMfContext({ hostOrigins, locales, onSessionEnd, activityEveryMs? })", type: "{ locale; mode }", description: "Applies the host's theme, follows its locale, ends the session with it and reports activity (every 30 s at most)." },
@@ -1191,11 +1234,9 @@ const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["e
     title: "useIdleTimeout",
     category: "Security",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
-    example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`useIdleTimeout(15 * 60_000, () => signOut("idle"));`}</code>
-      </pre>
-    ),
+    usage: `import { useIdleTimeout } from "@/hooks/use-idle-timeout";
+
+useIdleTimeout(15 * 60_000, () => signOut("idle"));`,
     props: [
       { name: "ms", type: "number", description: "Idle period in milliseconds." },
       { name: "onIdle", type: "() => void", description: "Called once per idle period; sign out and clear state here." },
@@ -1211,12 +1252,10 @@ const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["e
     title: "api",
     category: "Transport",
     description: "Same-origin JSON client for the app's own backend.",
-    example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`const approvals = await api<Approval[]>("/api/approvals");
-await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`}</code>
-      </pre>
-    ),
+    usage: `import { api } from "@/lib/api";
+
+const approvals = await api<Approval[]>("/api/approvals");
+await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`,
     props: [
       { name: "path", type: "string", description: "Relative path on this origin; absolute URLs are refused." },
       { name: "body", type: "unknown", description: "JSON body; defaults the method to POST." },
@@ -1235,13 +1274,11 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
     title: "securityHeaders",
     category: "Security",
     description: "Response headers for an app built with these components: strict CSP, HSTS, no framing, no sniffing.",
-    example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`// proxy.ts (Next.js) or any edge/middleware
+    usage: `import { securityHeaders } from "@/lib/security-headers";
+
+// proxy.ts (Next.js) or any edge/middleware
 const nonce = crypto.randomUUID();
-for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response.headers.set(name, value);`}</code>
-      </pre>
-    ),
+for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response.headers.set(name, value);`,
     props: [
       { name: "nonce", type: "string", description: "Per-request nonce; the framework must put it on its scripts." },
       { name: "hashes", type: "string[]", description: "Static sites: sha256-/sha384-/sha512- hashes of the inline scripts, computed at build time. Use instead of nonce; the policy is then 'self' plus the hashes." },
@@ -1261,11 +1298,9 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "untrusted",
     category: "Security",
     description: "Helpers for text written by agents or people: removes code points that hide text from the reader.",
-    example: (
-      <pre className="overflow-x-auto text-sm">
-        <code>{`stripInvisible("Pay\\u{E0049}\\u{E0047}\\u{E004E}\\u{E004F}\\u{E0052}\\u{E0045} the invoice") // "Pay the invoice"`}</code>
-      </pre>
-    ),
+    usage: `import { stripInvisible } from "@/lib/untrusted";
+
+stripInvisible("Pay\\u{E0049}\\u{E0047}\\u{E004E}\\u{E004F}\\u{E0052}\\u{E0045} the invoice") // "Pay the invoice"`,
     props: [
       { name: "stripInvisible", type: "(text: string) => string", description: "Removes zero-width, bidi-override and Unicode-tag code points." },
       { name: "hasInvisible", type: "(text: string) => boolean", description: "Whether the text carries any of them." },

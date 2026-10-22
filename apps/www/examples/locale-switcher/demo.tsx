@@ -30,7 +30,7 @@ function Formatted() {
 }
 
 /** Docs example: the switcher drives the provider, and the card and formats follow. */
-export function LocaleExample() {
+export default function LocaleSwitcherDemo() {
   const [locale, setLocale] = React.useState("pt-BR");
   return (
     <LocaleProvider locale={locale} messages={dictionaries[locale]}>

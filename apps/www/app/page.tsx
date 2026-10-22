@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ComponentType } from "react";
 
 import { CLI } from "@/components/site/install-command";
 import { Gallery } from "@/components/site/gallery";
@@ -10,7 +11,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/registry/aedis/u
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
 const ui = new Set(registry.items.filter((i) => i.type === "registry:ui").map((i) => i.name));
-const tiles = components.filter((c) => ui.has(c.name)).sort((a, b) => a.title.localeCompare(b.title));
+const tiles = components.filter((c) => ui.has(c.name) && c.examples?.length).sort((a, b) => a.title.localeCompare(b.title));
 
 const sinks = [
   { tag: "DOM", title: "What is shown", text: "Content comes in as props and renders as data. No prop takes markup; links pass through safeUrl." },
@@ -18,6 +19,10 @@ const sinks = [
   { tag: "Transport", title: "What goes to the backend", text: "Same-origin only, no redirects, a CSRF header, JSON only and a timeout on every call." },
   { tag: "Session", title: "What the browser keeps", text: "Nothing readable by script: HttpOnly cookie, idle timeout and opener isolation." },
 ];
+
+function Preview({ component: Example }: { component: ComponentType }) {
+  return <Example />;
+}
 
 export default function Home() {
   return (
@@ -52,7 +57,7 @@ export default function Home() {
         <h2 className="text-title-1">Every component, live</h2>
         <Gallery
           categories={categories.filter((c) => tiles.some((t) => t.category === c))}
-          items={tiles.map((c) => ({ name: c.name, title: c.title, category: c.category, preview: c.example }))}
+          items={tiles.map((c) => ({ name: c.name, title: c.title, category: c.category, preview: <Preview component={c.examples![0].component} /> }))}
         />
       </section>
     </main>

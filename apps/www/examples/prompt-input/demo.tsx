@@ -5,7 +5,7 @@ import * as React from "react";
 import { PromptInput } from "@/registry/aedis/ui/prompt-input";
 
 /** Pretends to stream an answer for two seconds so Stop can be tried. */
-export function PromptInputExample() {
+export default function PromptInputDemo() {
   const [last, setLast] = React.useState<string | null>(null);
   const [model, setModel] = React.useState("fast");
   return (
