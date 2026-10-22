@@ -22,8 +22,8 @@ describe("_headers", () => {
     expect(inlineScriptHashes(html)).toEqual([sha('self.__next_f.push([1,"x"])'), sha("\n a()\n")]);
   });
 
-  it("sends every security header on every path, with the 404 page's policy for unknown ones", () => {
-    const all = rule(headersFile("<script>nf()</script>", []), "/*");
+  it("sends every security header but the CSP on every path", () => {
+    const all = rule(headersFile([]), "/*");
     expect(all).toEqual(
       expect.arrayContaining([
         "  X-Frame-Options: DENY",
@@ -36,29 +36,31 @@ describe("_headers", () => {
       ]),
     );
     expect(all.some((l) => l.startsWith("  Strict-Transport-Security: "))).toBe(true);
-    const csp = all.filter((l) => l.startsWith("  Content-Security-Policy: "));
-    expect(csp).toHaveLength(1);
-    expect(csp[0]).toContain(`script-src 'self' '${sha("nf()")}';`);
-    expect(csp[0]).toContain("frame-ancestors 'none'");
-    expect(csp[0]).not.toMatch(/script-src[^;]*unsafe-inline/);
+    expect(all.some((l) => l.includes("Content-Security-Policy"))).toBe(false);
   });
 
-  it("gives each page its own policy with its hashes, once each, replacing the default one", () => {
-    const file = headersFile("", [["/", "<script>a()</script><script>a()</script><script>b()</script>"], ["/docs/x", "<script>c()</script>"]]);
-    const [detach, csp] = rule(file, "/");
-    expect(detach).toBe("  ! Content-Security-Policy");
-    expect(csp).toContain(`script-src 'self' '${[sha("a()"), sha("b()")].sort().join("' '")}';`);
-    expect(rule(file, "/docs/x")[1]).toContain(`script-src 'self' '${sha("c()")}';`);
+  // Production Cloudflare sent both the /* and the / policy on / despite a detach: no path may depend on one.
+  it("gives each page exactly one policy, with its hashes once each, and no rule to detach", () => {
+    const file = headersFile([["/", "<script>a()</script><script>a()</script><script>b()</script>"], ["/docs/x", "<script>c()</script>"]]);
+    expect(file).not.toContain("! Content-Security-Policy");
+    for (const path of ["/", "/docs/x"]) {
+      const csp = [...rule(file, "/*"), ...rule(file, path)].filter((l) => l.startsWith("  Content-Security-Policy: "));
+      expect(csp).toHaveLength(1);
+      expect(csp[0]).toContain("frame-ancestors 'none'");
+      expect(csp[0]).not.toMatch(/script-src[^;]*unsafe-inline/);
+    }
+    expect(rule(file, "/")[0]).toContain(`script-src 'self' '${[sha("a()"), sha("b()")].sort().join("' '")}';`);
+    expect(rule(file, "/docs/x")[0]).toContain(`script-src 'self' '${sha("c()")}';`);
   });
 
   it("lets hashed build assets be cached for good", () => {
-    expect(rule(headersFile("", []), "/_next/static/*")).toEqual(["  ! Cache-Control", "  Cache-Control: public, max-age=31536000, immutable"]);
+    expect(rule(headersFile([]), "/_next/static/*")).toEqual(["  ! Cache-Control", "  Cache-Control: public, max-age=31536000, immutable"]);
   });
 
   it("fails the build instead of shipping a file Cloudflare would reject", () => {
-    expect(() => headersFile("", Array.from({ length: 99 }, (_, i): [string, string] => [`/p${i}`, ""]))).toThrow(/rules/);
+    expect(() => headersFile(Array.from({ length: 99 }, (_, i): [string, string] => [`/p${i}`, ""]))).toThrow(/rules/);
     const many = Array.from({ length: 40 }, (_, i) => `<script>${i}</script>`).join("");
-    expect(() => headersFile("", [["/", many]])).toThrow(/characters/);
+    expect(() => headersFile([["/", many]])).toThrow(/characters/);
   });
 
   it("finds every exported page, nested ones included, at the path Cloudflare serves it", () => {

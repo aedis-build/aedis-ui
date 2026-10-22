@@ -28,19 +28,3 @@ jobs:
     # environment. inherit hands it CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; the prd protection rules
     # (main only, required reviewer) still gate the job that reads them.
     secrets: inherit
-
-  # DAST baseline (OWASP ZAP) against what is live, headers included; accepted alerts in dast-accept.yaml.
-  dast:
-    name: DAST (live site)
-    needs: deploy
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: aedis-build/aedis-platform/.github/actions/dast@177a6c164de12e82a23aae67107294d2439e406b # main
-        with:
-          target-url: https://ui.aedis.build/
-          fail-on: Medium

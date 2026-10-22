@@ -21,20 +21,20 @@ const csp = (html: string) => securityHeaders({ hashes: [...new Set(inlineScript
 /**
  * The Cloudflare `_headers` file for the exported site: the aedis-ui security headers on every path, and a CSP per
  * page with the hashes of that page's inline scripts. One policy for the whole site does not fit: Cloudflare caps a
- * line at 2,000 characters. `/*` carries the 404 page's policy (unknown paths); each page rule detaches it and sets
- * its own, since a header set twice would be comma-joined into two policies that both apply.
+ * line at 2,000 characters. Only page rules set a CSP, so no path gets two: a header set by two matching rules is
+ * comma-joined into two policies that both apply, and production Cloudflare did not honour a `! Content-Security-Policy`
+ * detach on `/`. Unknown paths (the 404 page) get the other headers but no CSP.
  */
-export function headersFile(notFound: string, pages: [path: string, html: string][]): string {
+export function headersFile(pages: [path: string, html: string][]): string {
   const { "Content-Security-Policy": _, ...common } = securityHeaders({ hashes: [] });
   const lines = [
     "/*",
     ...Object.entries(common).map(([name, value]) => `  ${name}: ${value}`),
-    `  Content-Security-Policy: ${csp(notFound)}`,
     // Hashed build assets never change: they keep the headers but swap no-store for immutable caching.
     "/_next/static/*",
     "  ! Cache-Control",
     "  Cache-Control: public, max-age=31536000, immutable",
-    ...pages.flatMap(([path, html]) => [path, "  ! Content-Security-Policy", `  Content-Security-Policy: ${csp(html)}`]),
+    ...pages.flatMap(([path, html]) => [path, `  Content-Security-Policy: ${csp(html)}`]),
   ];
   // shortcut: one rule per page, fine up to ~98 pages; past that, move the inline scripts to files and drop the hashes.
   if (pages.length + 2 > MAX_RULES) throw new Error(`_headers: ${pages.length + 2} rules, Cloudflare allows ${MAX_RULES}`);
@@ -59,9 +59,6 @@ export function urlPath(dir: string, file: string): string {
 /* v8 ignore start */
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const out = process.argv[2] ?? "out";
-  const pages = htmlFiles(out)
-    .map((f): [string, string] => [urlPath(out, f), readFileSync(f, "utf8")])
-    .filter(([path]) => path !== "/404");
-  writeFileSync(join(out, "_headers"), headersFile(readFileSync(join(out, "404.html"), "utf8"), pages));
+  writeFileSync(join(out, "_headers"), headersFile(htmlFiles(out).map((f) => [urlPath(out, f), readFileSync(f, "utf8")])));
 }
 /* v8 ignore stop */
