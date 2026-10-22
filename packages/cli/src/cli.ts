@@ -6,6 +6,7 @@ import { detectPackageManager, installCommand, pickVersions } from "./deps";
 import { lineDiff } from "./diff";
 import { insideProject } from "./paths";
 import { releaseSource, resolveItems, urlSource, type ItemSource } from "./registry";
+import { serve } from "./mcp";
 import { themeImport } from "./theme";
 import { planFiles } from "./transform";
 import type { SignatureCheck } from "./verify";
@@ -25,6 +26,9 @@ export type Io = {
   confirm: (question: string) => Promise<boolean>;
   log: (line: string) => void;
   now?: number;
+  /** For `aedis mcp`: stdin as lines, and raw stdout (log would mix in other output). */
+  stdin?: () => AsyncIterable<string>;
+  stdout?: (text: string) => void;
 };
 
 type Flags = { registry?: string; release?: string; yes: boolean; overwrite: boolean; cwd?: string };
@@ -36,6 +40,7 @@ Usage
   npx @aedis/cli@${VERSION} add <item...>     add items and their dependencies
   npx @aedis/cli@${VERSION} diff [item...]    compare local copies with the registry
   npx @aedis/cli@${VERSION} theme import <file.json>
+  npx @aedis/cli@${VERSION} mcp               read-only docs server for coding agents (MCP, stdio)
 
 Options
   --release vX.Y.Z   registry release (default: aedis.json, or v${VERSION} on init)
@@ -140,6 +145,11 @@ export async function run(argv: string[], io: Io): Promise<number> {
     const [command, ...args] = rest;
     if (!command || command === "help") return io.log(HELP), 0;
     if (command === "version") return io.log(VERSION), 0;
+    if (command === "mcp") {
+      if (!io.stdin || !io.stdout) throw new Error("mcp: needs stdin and stdout");
+      await serve(io.stdin(), io.stdout, io.fetcher, VERSION);
+      return 0;
+    }
     const root = path.resolve(io.cwd, flags.cwd ?? ".");
     if (!existsSync(path.join(root, "package.json"))) throw new Error(`${root} has no package.json; run inside your app`);
 

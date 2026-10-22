@@ -59,6 +59,17 @@ import TooltipDemo from "@/examples/tooltip/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
+/** The API reference by part: rows named like "SheetContent labels" go to SheetContent, then the explicit parts. */
+export function apiParts(doc: ComponentDoc): ApiPart[] {
+  const byPart = new Map<string, Prop[]>([[doc.title.replace(/\s/g, ""), []]]);
+  for (const p of doc.props) {
+    const [, part, prop] = /^([A-Z]\w+) ([a-z].*)$/.exec(p.name) ?? [];
+    const key = part ?? [...byPart.keys()][0];
+    byPart.set(key, [...(byPart.get(key) ?? []), part ? { ...p, name: prop } : p]);
+  }
+  return [...[...byPart].filter(([, props]) => props.length).map(([name, props]) => ({ name, props })), ...(doc.parts ?? [])];
+}
+
 /** Sidebar and gallery order. */
 export const categories = ["Getting started", "Foundations", "Security", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "AI and agents", "Transport", "Micro-frontends", "Blocks"] as const;
 export type Category = (typeof categories)[number];

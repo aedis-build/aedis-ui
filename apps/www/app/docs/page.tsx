@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CLI, InstallCommand, RegistrySetup, ThemeImport } from "@/components/site/install-command";
+import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Kbd } from "@/registry/aedis/ui/kbd";
 
 export const metadata: Metadata = { title: "Introduction", description: "What Aedis UI is and how to install it with the Aedis CLI." };
@@ -44,6 +45,16 @@ export default function Introduction() {
           what is sent to the backend (Transport), what the browser keeps (Session) and what people type (Input). Content comes in as props and
           renders as data; no prop accepts markup.
         </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-title-2">For coding agents</h2>
+        <p className="text-callout text-muted-foreground">
+          Agents read the same docs, with the rules that matter for each item: <a href="/llms.txt" className={link}>llms.txt</a> indexes everything and{" "}
+          <a href="/llms-full.txt" className={link}>llms-full.txt</a> has every entry in full. A read-only docs server speaks the Model Context Protocol on
+          stdio: it lists and searches items, returns one with its API and security rules, and gives its install command.
+        </p>
+        <CodeBlock lang="json" title=".mcp.json" code={JSON.stringify({ mcpServers: { "aedis-ui": { command: "npx", args: ["-y", CLI, "mcp"] } } }, null, 2)} />
       </section>
 
       <section className="space-y-3">
