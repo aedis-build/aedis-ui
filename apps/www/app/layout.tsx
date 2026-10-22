@@ -28,6 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <NavigationMenuLink href="/docs/button" render={<Link href="/docs/button" />}>Components</NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
+                  <NavigationMenuLink href="/themes" render={<Link href="/themes" />}>Themes</NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
                   <NavigationMenuLink href="https://github.com/aedis-build/aedis-ui">GitHub</NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -39,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <p className="mb-2 text-caption uppercase text-muted-foreground">Getting started</p>
             <ul className="mb-6 space-y-1 text-callout">
               <li><Link href="/docs/theming" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Theming</Link></li>
+              <li><Link href="/themes" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Themes</Link></li>
               <li><Link href="/docs/server-actions" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Server Actions</Link></li>
               <li><Link href="/docs/micro-frontends" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Micro-frontends</Link></li>
             </ul>
