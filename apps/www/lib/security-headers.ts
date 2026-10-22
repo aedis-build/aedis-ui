@@ -42,7 +42,7 @@ const sources = (list: string[]) => [...(list.includes("'self'") ? ["'self'"] : 
  * HTTP response headers for an app built with Aedis UI: a strict CSP (no inline script, no eval, no plugins, no
  * framing, forms only to this origin), HSTS, no MIME sniffing, no referrer leak, no powerful browser features and
  * no caching of pages that may hold personal data. Apply them from the framework's middleware or the edge; the
- * docs site is static and cannot send them.
+ * static docs site ships them as a Cloudflare `_headers` file (scripts/headers.ts).
  */
 export function securityHeaders({ nonce, hashes, connectSrc = [], imgSrc = [], frameAncestors: ancestors = [], frameSrc }: SecurityHeadersOptions): Record<string, string> {
   const frameAncestors = sources(ancestors);

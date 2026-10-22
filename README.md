@@ -33,7 +33,7 @@ The same with other package managers: `pnpm dlx @aedis/cli@0.1.0 add button`, `y
 `npx @aedis/cli@0.1.0 diff` shows where your copies differ from the registry, and `theme import <file.json>` turns a
 theme made in the theming page's editor into CSS after validating it.
 
-The registry stays compatible with the shadcn CLI (`"@aedis": "https://aedis-build.github.io/aedis-ui/r/{name}.json"`
+The registry stays compatible with the shadcn CLI (`"@aedis": "https://ui.aedis.build/r/{name}.json"`
 in `components.json`), but that path verifies nothing: prefer `@aedis/cli`.
 
 Aedis items depend only on other Aedis items (including its own `@aedis/utils`), so an install never pulls a package that Aedis did not choose.
