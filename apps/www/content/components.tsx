@@ -1,41 +1,43 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/registry/aedis/ui/alert-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/registry/aedis/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/registry/aedis/ui/alert";
 import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/registry/aedis/ui/breadcrumb";
 import { Button } from "@/registry/aedis/ui/button";
-import { ButtonGroup, ButtonGroupSeparator } from "@/registry/aedis/ui/button-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
-import { Checkbox } from "@/registry/aedis/ui/checkbox";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/aedis/ui/collapsible";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/registry/aedis/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/registry/aedis/ui/dropdown-menu";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/registry/aedis/ui/empty";
-import { Input } from "@/registry/aedis/ui/input";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/registry/aedis/ui/item";
 import { Kbd, KbdGroup } from "@/registry/aedis/ui/kbd";
-import { Label } from "@/registry/aedis/ui/label";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/registry/aedis/ui/pagination";
 import { paginationRange } from "@/registry/aedis/lib/pagination";
 import { Progress } from "@/registry/aedis/ui/progress";
 import { Reasoning } from "@/registry/aedis/ui/reasoning";
-import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
-import { CommandExample } from "@/components/examples/command-example";
+import ButtonSizes from "@/examples/button/sizes";
+import ButtonAsLink from "@/examples/button/as-link";
+import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
+import InputStates from "@/examples/input/states";
+import ButtonDemo from "@/examples/button/demo";
+import ButtonGroupDemo from "@/examples/button-group/demo";
+import LinkDemo from "@/examples/link/demo";
+import InputDemo from "@/examples/input/demo";
+import TextareaDemo from "@/examples/textarea/demo";
+import LabelDemo from "@/examples/label/demo";
+import CheckboxDemo from "@/examples/checkbox/demo";
+import RadioGroupDemo from "@/examples/radio-group/demo";
+import SwitchDemo from "@/examples/switch/demo";
+import DialogDemo from "@/examples/dialog/demo";
+import AlertDialogDemo from "@/examples/alert-dialog/demo";
+import SheetDemo from "@/examples/sheet/demo";
+import TooltipDemo from "@/examples/tooltip/demo";
+import DropdownMenuDemo from "@/examples/dropdown-menu/demo";
+import DropdownMenuCheckboxRadio from "@/examples/dropdown-menu/checkbox-radio";
+import DropdownMenuSubmenu from "@/examples/dropdown-menu/submenu-disabled";
+import CommandDemo from "@/examples/command/demo";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
 import { FeedbackExample } from "@/components/examples/feedback-example";
@@ -43,24 +45,19 @@ import { PromptInputExample } from "@/components/examples/prompt-input-example";
 import { StreamingExample } from "@/components/examples/streaming-example";
 import { ToastExample } from "@/components/examples/toast-example";
 import { AppShell } from "@/registry/aedis/ui/app-shell";
-import { Link } from "@/registry/aedis/ui/link";
 import { Markdown } from "@/registry/aedis/ui/markdown";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/registry/aedis/ui/navigation-menu";
 import { ScrollArea } from "@/registry/aedis/ui/scroll-area";
 import { Separator } from "@/registry/aedis/ui/separator";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 import { Sidebar } from "@/registry/aedis/ui/sidebar";
 import { SiteFooter } from "@/registry/aedis/ui/site-footer";
 import { SiteHeader } from "@/registry/aedis/ui/site-header";
 import { Skeleton } from "@/registry/aedis/ui/skeleton";
 import { Citation, Sources } from "@/registry/aedis/ui/sources";
 import { Spinner } from "@/registry/aedis/ui/spinner";
-import { Switch } from "@/registry/aedis/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
-import { Textarea } from "@/registry/aedis/ui/textarea";
 import { ToolCall } from "@/registry/aedis/ui/tool-call";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/aedis/ui/tooltip";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -68,13 +65,36 @@ export type Prop = { name: string; type: string; default?: string; description: 
 export const categories = ["Getting started", "Foundations", "Security", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "AI and agents", "Transport", "Micro-frontends"] as const;
 export type Category = (typeof categories)[number];
 
+/** A file in examples/: rendered in Preview, its source shown in Code. A test checks `component` is that file's export. */
+export type Example = { title: string; description?: string; file: string; component: ComponentType };
+
+/** One exported part, e.g. DropdownMenuItem, with its own props. */
+export type ApiPart = { name: string; description?: string; props: Prop[] };
+
+export type Accessibility = {
+  /** Key, then what it does. */
+  keyboard?: [key: string, action: string][];
+  /** Roles, names and what a screen reader announces. */
+  notes?: string[];
+  /** What moves, and what reduced motion changes. */
+  motion?: string;
+};
+
 export type ComponentDoc = {
   name: string;
   title: string;
   category: Category;
   description: string;
-  example: ReactNode;
+  /** The first is the main preview; the rest are listed under Examples. */
+  examples?: Example[];
+  /** Until an entry moves to examples/: a preview without a Code tab. */
+  example?: ReactNode;
+  /** The smallest correct use, imports included. */
+  usage?: string;
   props: Prop[];
+  /** Subcomponents after the main one, each with its own props. */
+  parts?: ApiPart[];
+  accessibility?: Accessibility;
   security: string[];
 };
 
@@ -453,25 +473,19 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Sheet",
     category: "Overlays",
     description: "A panel from the edge of the screen for navigation on phones, details and filters. Swipe it away.",
-    example: (
-      <div className="flex flex-wrap gap-2">
-        {(["right", "left", "bottom"] as const).map((side) => (
-          <Sheet key={side} side={side}>
-            <SheetTrigger render={<Button variant="outline" />}>Open {side}</SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Approval pending</SheetTitle>
-                <SheetDescription>The agent wants to send the report outside the company.</SheetDescription>
-              </SheetHeader>
-              <Input aria-label="Note" placeholder="Add a note" />
-              <SheetFooter>
-                <SheetClose render={<Button />}>Done</SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
-        ))}
-      </div>
-    ),
+    examples: [{ title: "Sheet", file: "sheet/demo", component: SheetDemo }],
+    usage: `import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+
+<Sheet side="right">
+  <SheetTrigger render={<Button variant="outline" />}>Details</SheetTrigger>
+  <SheetContent>
+    <SheetHeader>
+      <SheetTitle>Approval pending</SheetTitle>
+      <SheetDescription>The agent wants to send the report.</SheetDescription>
+    </SheetHeader>
+  </SheetContent>
+</Sheet>`,
     props: [
       { name: "Sheet side", type: '"right" | "left" | "bottom" | "top"', default: '"right"', description: "Edge it comes from; also the direction that swipes it away." },
       { name: "SheetContent showCloseButton", type: "boolean", default: "true", description: "The labelled close button in the corner." },
@@ -483,35 +497,84 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Modal: focus is trapped while open and returns to the trigger on close; the page behind is inert; Escape closes.",
       "Title and description are wired to aria-labelledby and aria-describedby.",
     ],
+    accessibility: {
+      keyboard: [["Tab / Shift+Tab", "Moves focus inside the sheet only."], ["Esc", "Closes it and returns focus to the trigger."]],
+      notes: ["A modal dialog named by SheetTitle; the close button is labelled (\"Close\" by default).", "Swiping toward its edge closes it, as on a phone."],
+      motion: "It slides in from its side on the 700 ms sheet spring and follows the finger while swiped; the release keeps the swipe's speed. Content arrives in parallax and the scrim dims with how open it is. With reduced motion it only fades.",
+    },
   },
   {
     name: "dropdown-menu",
     title: "Dropdown Menu",
     category: "Overlays",
     description: "A menu of actions: account menu, row actions, a more button.",
-    example: (
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" />}>Session actions</DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Session</DropdownMenuLabel>
-          <DropdownMenuItem>Renew token</DropdownMenuItem>
-          <DropdownMenuLinkItem href="/docs/approval-card">See devices</DropdownMenuLinkItem>
-          <DropdownMenuLinkItem href="https://github.com/aedis-build/aedis-ui">Source</DropdownMenuLinkItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" confirm={{ title: "Revoke every session?", description: "Every device signs out right away." }}>
-            Revoke all sessions…
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-    props: [
-      { name: "DropdownMenuItem variant", type: '"default" | "destructive"', default: '"default"', description: "Destructive items open an AlertDialog that starts on Cancel; onClick runs only after confirming." },
-      { name: "DropdownMenuItem confirm", type: "{ title?; description?; action? }", description: "Text of that confirmation; the dictionary fills the rest, the action defaults to the item text." },
-      { name: "DropdownMenuLinkItem href", type: "string", description: "Goes through safeUrl; a refused URL leaves the item disabled. External links get noopener noreferrer and a marker." },
-      { name: "DropdownMenuContent side / align", type: "Base UI Positioner props", default: '"bottom" / "start"', description: "Where the menu opens." },
-      { name: "labels", type: "Partial<DropdownMenuLabels>", description: "confirmTitle, confirmDescription, confirm, cancel." },
-      ...baseProps("@base-ui/react Menu"),
+    examples: [
+      { title: "Session actions", file: "dropdown-menu/demo", component: DropdownMenuDemo },
+      { title: "Checkbox and radio items", description: "Options that stay in the menu: a toggle and a choice of one.", file: "dropdown-menu/checkbox-radio", component: DropdownMenuCheckboxRadio },
+      { title: "Submenu, shortcut and disabled items", description: "A refused link is disabled rather than removed, so the menu keeps its shape.", file: "dropdown-menu/submenu-disabled", component: DropdownMenuSubmenu },
     ],
+    usage: `import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+<DropdownMenu>
+  <DropdownMenuTrigger render={<Button variant="outline" />}>Agent</DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem onClick={rename}>Rename</DropdownMenuItem>
+    <DropdownMenuItem variant="destructive" confirm={{ title: "Delete this agent?" }} onClick={remove}>
+      Delete
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>`,
+    props: [
+      { name: "labels", type: "Partial<DropdownMenuLabels>", description: "confirmTitle, confirmDescription, confirm, cancel. The rest comes from the Locale provider." },
+      ...baseProps("@base-ui/react Menu.Root (open, onOpenChange, modal…)"),
+    ],
+    parts: [
+      { name: "DropdownMenuTrigger", props: baseProps("@base-ui/react Menu.Trigger") },
+      {
+        name: "DropdownMenuContent",
+        props: [
+          { name: "side", type: '"top" | "bottom" | "left" | "right"', default: '"bottom"', description: "Where the menu opens." },
+          { name: "align", type: '"start" | "center" | "end"', default: '"start"', description: "Alignment with the trigger." },
+          { name: "sideOffset / alignOffset", type: "number", default: "6 / 0", description: "Distance from the trigger, in pixels." },
+        ],
+      },
+      {
+        name: "DropdownMenuItem",
+        props: [
+          { name: "variant", type: '"default" | "destructive"', default: '"default"', description: "A destructive item opens an AlertDialog that starts on Cancel; onClick runs only after confirming." },
+          { name: "confirm", type: "{ title?; description?; action? }", description: "Text of that confirmation; the dictionary fills the rest, the action defaults to the item text." },
+          { name: "inset", type: "boolean", default: "false", description: "Indents the text to line up with items that have an indicator." },
+          ...baseProps("@base-ui/react Menu.Item (disabled, closeOnClick…)"),
+        ],
+      },
+      {
+        name: "DropdownMenuLinkItem",
+        props: [
+          { name: "href", type: "string", description: "Goes through safeUrl; a refused URL leaves the item disabled. External links get noopener noreferrer and a marker." },
+          { name: "labels", type: "Partial<LinkLabels>", description: "The external marker's text for screen readers." },
+        ],
+      },
+      { name: "DropdownMenuCheckboxItem", props: baseProps("@base-ui/react Menu.CheckboxItem (checked, onCheckedChange)") },
+      { name: "DropdownMenuRadioGroup / DropdownMenuRadioItem", props: baseProps("@base-ui/react Menu.RadioGroup (value, onValueChange) and Menu.RadioItem (value)") },
+      { name: "DropdownMenuSub / SubTrigger / SubContent", description: "A nested menu; SubContent opens to the right (start in RTL).", props: baseProps("@base-ui/react Menu.SubmenuRoot and Menu.SubmenuTrigger") },
+      { name: "DropdownMenuLabel, Separator, Group, Shortcut", description: "Structure: a group heading, a hairline, a group and a key hint shown at the end of an item.", props: [] },
+    ],
+    accessibility: {
+      keyboard: [
+        ["Enter / Space / ↓", "Opens the menu from the trigger and focuses the first item."],
+        ["↑ ↓", "Moves between items; Home and End go to the first and last."],
+        ["→ / ←", "Opens and closes a submenu."],
+        ["A–Z", "Moves to the next item that starts with that letter."],
+        ["Esc", "Closes the menu and returns focus to the trigger."],
+      ],
+      notes: [
+        "The trigger has aria-haspopup and aria-expanded; the popup is a menu of menuitem, menuitemcheckbox and menuitemradio.",
+        "The external marker on a link item is announced, so a reader knows the link leaves the site.",
+        "After a destructive confirmation, focus returns to the trigger, not to the page body.",
+      ],
+      motion: "The menu materializes from its trigger on a critically damped spring and its items arrive in a 50 ms cascade; it closes in 200 ms with no cascade. With reduced motion it only fades.",
+    },
     security: [
       "A destructive item never runs on its own click: it asks through an AlertDialog whose focus starts on Cancel, the same rule as outbound agent actions.",
       "Link items go through safeUrl; external links never get window.opener and are marked.",
@@ -821,20 +884,27 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Button Group",
     category: "Actions",
     description: "Buttons that belong together: toolbars and segmented actions.",
-    example: (
-      <ButtonGroup aria-label="Message actions">
-        <Button variant="outline">Reply</Button>
-        <Button variant="outline">Forward</Button>
-        <ButtonGroupSeparator />
-        <Button variant="outline">Archive</Button>
-      </ButtonGroup>
-    ),
+    examples: [
+      { title: "Button Group", file: "button-group/demo", component: ButtonGroupDemo },
+      { title: "Vertical and with text", file: "button-group/vertical-text", component: ButtonGroupVerticalText },
+    ],
+    usage: `import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+
+<ButtonGroup aria-label="Message actions">
+  <Button variant="outline">Reply</Button>
+  <Button variant="outline">Forward</Button>
+</ButtonGroup>`,
     props: [
       { name: "aria-label | aria-labelledby", type: "string", description: "Required: the group's name." },
       { name: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Direction; joined edges lose their inner radius." },
       { name: "ButtonGroupText / ButtonGroupSeparator", type: "components", description: "A text cell (e.g. a URL prefix) and a divider." },
     ],
     security: ["role=\"group\" with a name; each button keeps its own semantics and tab stop."],
+    accessibility: {
+      keyboard: [["Tab", "Moves to each button in turn: every button keeps its own tab stop."]],
+      notes: ["The group is role=\"group\" and its name is required by the type, so a reader hears what the buttons are for."],
+    },
   },
   {
     name: "toast",
@@ -860,17 +930,20 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Link",
     category: "Actions",
     description: "An anchor for URLs that come from content or configuration.",
-    example: (
-      <p className="text-callout">
-        Read the <Link href="/docs/theming">theming guide</Link>, the <Link href="https://github.com/aedis-build/aedis-ui">source</Link> or a <Link href="javascript:alert(1)">refused link</Link>.
-      </p>
-    ),
+    examples: [{ title: "Link", file: "link/demo", component: LinkDemo }],
+    usage: `import { Link } from "@/components/ui/link";
+
+<Link href={source.url}>{source.title}</Link>`,
     props: [
       { name: "href", type: "string", description: "Any URL; only http, https, mailto and relative ones become links." },
       { name: "linkProps(href)", type: "{ href | null; external; rel }", description: "The same rules for components that render their own anchor." },
       { name: "labels", type: "Partial<LinkLabels>", description: "external: the screen-reader text after external links." },
     ],
     security: ["Refused URLs render their text without a link.", "External links never get window.opener or the Referer of this page."],
+    accessibility: {
+      keyboard: [["Enter", "Follows the link."]],
+      notes: ["External links end with an arrow and screen-reader text (\"(external site)\" by default), so people know before following them.", "A refused URL renders plain text, never a link that goes nowhere."],
+    },
   },
   {
     name: "use-reduced-motion",
@@ -1251,47 +1324,62 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Button",
     category: "Actions",
     description: "The base action. Defaults to type=\"button\", so it never submits a form by accident.",
-    example: (
-      <div className="flex flex-wrap gap-3">
-        <Button>Default</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="destructive">Destructive</Button>
-      </div>
-    ),
+    examples: [
+      { title: "Button", file: "button/demo", component: ButtonDemo },
+      { title: "Sizes and states", file: "button/sizes", component: ButtonSizes },
+      { title: "As a link", description: "render keeps the element's own role: these are links styled as buttons.", file: "button/as-link", component: ButtonAsLink },
+    ],
+    usage: `import { Button } from "@/components/ui/button";
+
+<Button onClick={save}>Save</Button>
+<Button type="submit">Send</Button>`,
     props: [
       { name: "variant", type: '"default" | "secondary" | "outline" | "ghost" | "destructive" | "link"', default: '"default"', description: "Visual style." },
       { name: "size", type: '"default" | "sm" | "lg" | "icon"', default: '"default"', description: "Height and padding." },
       { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Render another element (e.g. a link) with the button styles. It keeps its own role, so a link stays a link." },
     ],
     security: ["Defaults to type=\"button\": submitting a form must be explicit (type=\"submit\")."],
+    accessibility: {
+      keyboard: [["Enter / Space", "Activates the button."]],
+      notes: ["An icon-only button needs an aria-label.", "Disabled buttons use the native disabled attribute, so they leave the tab order."],
+      motion: "Presses sink on pointer-down and spring back on release. With reduced motion there is no scale.",
+    },
   },
   {
     name: "alert-dialog",
     title: "Alert Dialog",
     category: "Overlays",
     description: "Confirmation for actions that cannot be undone or that leave the company: send, approve, delete.",
-    example: (
-      <AlertDialog>
-        <AlertDialogTrigger render={<Button />}>Approve and send</AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send this proposal to the client?</AlertDialogTitle>
-            <AlertDialogDescription>The agent will send it on the conversation channel right away.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Approve and send</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    ),
+    examples: [{ title: "Alert Dialog", file: "alert-dialog/demo", component: AlertDialogDemo }],
+    usage: `import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+
+<AlertDialog>
+  <AlertDialogTrigger render={<Button />}>Send</AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Send this proposal to the client?</AlertDialogTitle>
+      <AlertDialogDescription>It leaves the company right away.</AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction onClick={send}>Send</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>`,
     props: baseProps("@base-ui/react AlertDialog"),
     security: [
       "Focus starts on Cancel, so pressing Enter right after opening never confirms.",
       "Escape and clicking outside do not confirm; only the action button does.",
     ],
+    accessibility: {
+      keyboard: [["Enter", "Right after opening, activates Cancel: focus starts there."], ["Tab", "Moves between Cancel and the action, inside the dialog only."], ["Esc", "Closes without confirming."]],
+      notes: ["role=\"alertdialog\" with aria-modal, named by its title and described by its description."],
+      motion: "It materializes with a short blur clearing and closes in 200 ms. With reduced motion it only fades.",
+    },
   },
   {
     name: "avatar",
@@ -1347,41 +1435,60 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Checkbox",
     category: "Forms",
     description: "Checkbox for consent and settings.",
-    example: (
-      <div className="flex items-center gap-2">
-        <Checkbox id="can-approve" />
-        <Label htmlFor="can-approve">Can approve what their team sends out</Label>
-      </div>
-    ),
+    examples: [{ title: "Checkbox", file: "checkbox/demo", component: CheckboxDemo }],
+    usage: `import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+<Checkbox id="notify" checked={notify} onCheckedChange={setNotify} />
+<Label htmlFor="notify">Notify me</Label>`,
     props: baseProps("@base-ui/react Checkbox"),
     security: ["Consent checkboxes must start unchecked; do not pass defaultChecked for consent."],
+    accessibility: {
+      keyboard: [["Space", "Checks and unchecks."]],
+      notes: ["role=\"checkbox\" with aria-checked; a hidden native input keeps forms and autofill working."],
+      motion: "The border and fill change color in 200 ms; the check mark appears with them.",
+    },
   },
   {
     name: "dialog",
     title: "Dialog",
     category: "Overlays",
     description: "Modal dialog for forms and details. Use Alert Dialog for confirmations.",
-    example: (
-      <Dialog>
-        <DialogTrigger render={<Button variant="outline" />}>Invite a person</DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Invite a person</DialogTitle>
-            <DialogDescription>They join after accepting the invitation.</DialogDescription>
-          </DialogHeader>
-          <Input aria-label="Email" placeholder="name@company.com" />
-        </DialogContent>
-      </Dialog>
-    ),
+    examples: [{ title: "Dialog", file: "dialog/demo", component: DialogDemo }],
+    usage: `import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
+<Dialog>
+  <DialogTrigger render={<Button variant="outline" />}>Invite a person</DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Invite a person</DialogTitle>
+      <DialogDescription>They join after accepting the invitation.</DialogDescription>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>`,
     props: baseProps("@base-ui/react Dialog"),
     security: ["Focus is trapped while open and returns to the trigger on close."],
+    accessibility: {
+      keyboard: [["Tab / Shift+Tab", "Moves focus inside the dialog only."], ["Esc", "Closes it and returns focus to the trigger."]],
+      notes: ["role=\"dialog\" with aria-modal; DialogTitle and DialogDescription become its name and description."],
+      motion: "It materializes: it scales in with a short blur clearing while the scrim fades in, and closes in 200 ms. With reduced motion it only fades.",
+    },
   },
   {
     name: "command",
     title: "Command",
     category: "Overlays",
     description: "A search box over a list, alone or in a dialog: type to filter, arrow keys to move, Enter to choose.",
-    example: <CommandExample />,
+    examples: [{ title: "Command", file: "command/demo", component: CommandDemo }],
+    usage: `import { CommandDialog } from "@/components/ui/command";
+
+<CommandDialog
+  open={open}
+  onOpenChange={setOpen}
+  items={[{ value: "/approvals", label: "Approvals", group: "Pages" }]}
+  onSelect={(item) => router.push(item.value)}
+/>`,
     props: [
       { name: "items", type: "CommandItem[]", description: "value, label, and optional description and group. Shown as text, never as markup." },
       { name: "onSelect", type: "(item: CommandItem) => void", description: "Called with the chosen item, by click or Enter." },
@@ -1393,18 +1500,26 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       "The search field is bounded to 256 characters, like every Aedis Input.",
       "Focus stays in the field; the active option is announced with aria-activedescendant.",
     ],
+    accessibility: {
+      keyboard: [["↑ ↓", "Moves the active option; Home and End go to the first and last."], ["Enter", "Chooses the active option."], ["Esc", "Closes the dialog and returns focus."]],
+      notes: ["The field is a combobox that controls a listbox; focus stays in the field and the active option is announced through aria-activedescendant.", "When nothing matches, a status message says so."],
+      motion: "The dialog materializes and closes in 200 ms. With reduced motion it only fades.",
+    },
   },
   {
     name: "input",
     title: "Input",
     category: "Forms",
     description: "Text input.",
-    example: (
-      <div className="grid max-w-sm gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" placeholder="name@company.com" />
-      </div>
-    ),
+    examples: [
+      { title: "Input", file: "input/demo", component: InputDemo },
+      { title: "Invalid and disabled", description: "aria-invalid draws the error border; tie the message to the field with aria-describedby.", file: "input/states", component: InputStates },
+    ],
+    usage: `import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+<Label htmlFor="email">Email</Label>
+<Input id="email" type="email" maxLength={254} />`,
     props: [
       { name: "maxLength", type: "number", default: "256 for text-like types", description: "Length limit; match it to the server's." },
       { name: "...props", type: "input props", description: "Every prop of the native input. Set aria-invalid to show the error state." },
@@ -1413,15 +1528,27 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       "Text, search, email, url, tel and password inputs are limited to 256 characters unless maxLength says otherwise.",
       "Validate on the server too; client-side constraints are only a convenience.",
     ],
+    accessibility: {
+      notes: ["Give every field a Label (htmlFor) or an aria-label.", "Set aria-invalid and aria-describedby to announce an error with its message."],
+      motion: "The border color changes on focus and error in 200 ms. Nothing moves.",
+    },
   },
   {
     name: "label",
     title: "Label",
     category: "Forms",
     description: "Accessible label for form controls.",
-    example: <Label>Daily ceiling</Label>,
+    examples: [{ title: "Label", file: "label/demo", component: LabelDemo }],
+    usage: `import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+<Label htmlFor="name">Name</Label>
+<Input id="name" />`,
     props: [{ name: "...props", type: "label props", description: "Every prop of the native label." }],
     security: ["Every control needs a label or an aria-label; tests check this with axe."],
+    accessibility: {
+      notes: ["A native label: clicking it focuses or toggles its control, and its text is the control's accessible name.", "Placed after a disabled peer control, it dims with it."],
+    },
   },
   {
     name: "progress",
@@ -1437,20 +1564,21 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Radio Group",
     category: "Forms",
     description: "Single choice among options.",
-    example: (
-      <RadioGroup defaultValue="case" aria-label="Scope">
-        <div className="flex items-center gap-2">
-          <RadioGroupItem value="case" id="case" />
-          <Label htmlFor="case">Just this case</Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <RadioGroupItem value="always" id="always" />
-          <Label htmlFor="always">Always</Label>
-        </div>
-      </RadioGroup>
-    ),
+    examples: [{ title: "Radio Group", file: "radio-group/demo", component: RadioGroupDemo }],
+    usage: `import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+<RadioGroup defaultValue="case" aria-label="Scope">
+  <RadioGroupItem value="case" id="case" />
+  <Label htmlFor="case">Just this case</Label>
+</RadioGroup>`,
     props: baseProps("@base-ui/react RadioGroup and Radio"),
     security: ["Arrow keys move between options; the group needs an accessible name."],
+    accessibility: {
+      keyboard: [["Tab", "Moves into the group, to the checked option."], ["↑ ↓ / ← →", "Moves to the next option and checks it."]],
+      notes: ["role=\"radiogroup\" with one tab stop; name it with aria-label or aria-labelledby."],
+      motion: "The ring and dot change color in 200 ms.",
+    },
   },
   {
     name: "separator",
@@ -1486,14 +1614,19 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Switch",
     category: "Forms",
     description: "On/off toggle, e.g. the channels an agent answers on.",
-    example: (
-      <div className="flex items-center gap-2">
-        <Switch id="whatsapp" defaultChecked />
-        <Label htmlFor="whatsapp">WhatsApp</Label>
-      </div>
-    ),
+    examples: [{ title: "Switch", file: "switch/demo", component: SwitchDemo }],
+    usage: `import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+
+<Switch id="autopilot" checked={on} onCheckedChange={setOn} />
+<Label htmlFor="autopilot">Autopilot</Label>`,
     props: baseProps("@base-ui/react Switch"),
     security: ["Use disabled (not hidden) for settings that cannot be turned off, so the reason stays visible."],
+    accessibility: {
+      keyboard: [["Space", "Turns it on and off."]],
+      notes: ["role=\"switch\" with aria-checked. Use it for settings that apply at once; use a Checkbox inside a form that is submitted."],
+      motion: "The thumb slides on a critically damped spring. With reduced motion it moves without the spring.",
+    },
   },
   {
     name: "table",
@@ -1544,25 +1677,38 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Textarea",
     category: "Forms",
     description: "Multi-line text input.",
-    example: <Textarea aria-label="Your answer" placeholder="Your answer" className="max-w-sm" />,
+    examples: [{ title: "Textarea", file: "textarea/demo", component: TextareaDemo }],
+    usage: `import { Textarea } from "@/components/ui/textarea";
+
+<Textarea aria-label="Note" maxLength={1000} />`,
     props: [
       { name: "maxLength", type: "number", default: "4000", description: "Length limit; match it to the server's." },
       { name: "...props", type: "textarea props", description: "Every prop of the native textarea." },
     ],
     security: ["Limited to 4000 characters by default; set maxLength to the server's limit so people see it before submitting."],
+    accessibility: {
+      notes: ["Give it a Label or an aria-label.", "The browser stops typing at maxLength (4000 by default); say the limit in the label or a hint if people may reach it."],
+    },
   },
   {
     name: "tooltip",
     title: "Tooltip",
     category: "Overlays",
     description: "Short hint on hover or focus.",
-    example: (
-      <Tooltip>
-        <TooltipTrigger render={<Button variant="outline" />}>Ceiling</TooltipTrigger>
-        <TooltipContent>The most this agent can cost per day.</TooltipContent>
-      </Tooltip>
-    ),
+    examples: [{ title: "Tooltip", file: "tooltip/demo", component: TooltipDemo }],
+    usage: `import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+<Tooltip>
+  <TooltipTrigger render={<Button variant="outline" />}>Ceiling</TooltipTrigger>
+  <TooltipContent>The most this agent can cost per day.</TooltipContent>
+</Tooltip>`,
     props: baseProps("@base-ui/react Tooltip"),
     security: ["Never put essential information only in a tooltip; it is not available on touch devices."],
+    accessibility: {
+      keyboard: [["Tab", "Focusing the trigger shows the tooltip."], ["Esc", "Hides it."]],
+      notes: ["The tooltip describes its trigger; it is not shown on touch, so never put the only copy of information in it."],
+      motion: "It materializes after a 300 ms delay and fades out in 200 ms. With reduced motion it only fades.",
+    },
   },
 ];

@@ -13,7 +13,7 @@ const agents: CommandItem[] = [
   { value: "usage", label: "Usage and limits", description: "Ceilings per agent", group: "Pages" },
 ];
 
-export function CommandExample() {
+export default function CommandDemo() {
   const [open, setOpen] = React.useState(false);
   const [chosen, setChosen] = React.useState<string | null>(null);
   return (
