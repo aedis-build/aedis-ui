@@ -14,7 +14,7 @@ function Buttons() {
   );
 }
 
-export function ToastExample() {
+export default function ToastDemo() {
   return (
     <Toaster>
       <Buttons />

@@ -1,22 +1,34 @@
 import type { ComponentType, ReactNode } from "react";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/registry/aedis/ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "@/registry/aedis/ui/alert";
-import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
-import { Badge } from "@/registry/aedis/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/registry/aedis/ui/breadcrumb";
-import { Button } from "@/registry/aedis/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/aedis/ui/collapsible";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/registry/aedis/ui/empty";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/registry/aedis/ui/item";
-import { Kbd, KbdGroup } from "@/registry/aedis/ui/kbd";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/registry/aedis/ui/pagination";
-import { paginationRange } from "@/registry/aedis/lib/pagination";
-import { Progress } from "@/registry/aedis/ui/progress";
 import { Reasoning } from "@/registry/aedis/ui/reasoning";
 import { ChatExample } from "@/components/examples/chat-example";
+import SidebarDemo from "@/examples/sidebar/demo";
+import AppShellDemo from "@/examples/app-shell/demo";
+import SiteHeaderDemo from "@/examples/site-header/demo";
+import SiteFooterDemo from "@/examples/site-footer/demo";
+import NavigationMenuDemo from "@/examples/navigation-menu/demo";
+import BreadcrumbDemo from "@/examples/breadcrumb/demo";
+import PaginationDemo from "@/examples/pagination/demo";
+import TabsDemo from "@/examples/tabs/demo";
+import AlertDemo from "@/examples/alert/demo";
+import ToastDemo from "@/examples/toast/demo";
+import ProgressDemo from "@/examples/progress/demo";
+import SpinnerDemo from "@/examples/spinner/demo";
+import SkeletonDemo from "@/examples/skeleton/demo";
+import EmptyDemo from "@/examples/empty/demo";
+import CardDemo from "@/examples/card/demo";
+import TableDemo from "@/examples/table/demo";
+import AvatarDemo from "@/examples/avatar/demo";
+import BadgeDemo from "@/examples/badge/demo";
+import SeparatorDemo from "@/examples/separator/demo";
+import KbdDemo from "@/examples/kbd/demo";
+import ItemDemo from "@/examples/item/demo";
+import ScrollAreaDemo from "@/examples/scroll-area/demo";
+import CodeBlockDemo from "@/examples/code-block/demo";
+import AccordionDemo from "@/examples/accordion/demo";
+import CollapsibleDemo from "@/examples/collapsible/demo";
+import MarkdownDemo from "@/examples/markdown/demo";
 import ButtonSizes from "@/examples/button/sizes";
 import ButtonAsLink from "@/examples/button/as-link";
 import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
@@ -43,20 +55,7 @@ import { LocaleExample } from "@/components/examples/locale-examples";
 import { FeedbackExample } from "@/components/examples/feedback-example";
 import { PromptInputExample } from "@/components/examples/prompt-input-example";
 import { StreamingExample } from "@/components/examples/streaming-example";
-import { ToastExample } from "@/components/examples/toast-example";
-import { AppShell } from "@/registry/aedis/ui/app-shell";
-import { Markdown } from "@/registry/aedis/ui/markdown";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/registry/aedis/ui/navigation-menu";
-import { ScrollArea } from "@/registry/aedis/ui/scroll-area";
-import { Separator } from "@/registry/aedis/ui/separator";
-import { Sidebar } from "@/registry/aedis/ui/sidebar";
-import { SiteFooter } from "@/registry/aedis/ui/site-footer";
-import { SiteHeader } from "@/registry/aedis/ui/site-header";
-import { Skeleton } from "@/registry/aedis/ui/skeleton";
 import { Citation, Sources } from "@/registry/aedis/ui/sources";
-import { Spinner } from "@/registry/aedis/ui/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/registry/aedis/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
 import { ToolCall } from "@/registry/aedis/ui/tool-call";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
@@ -102,25 +101,6 @@ const baseProps = (part: string): Prop[] => [
   { name: "...props", type: `${part} props`, description: "Every prop of the underlying Base UI part, including render for composition." },
 ];
 
-const exampleNav = (
-  <Sidebar
-    className="w-60 rounded-xl"
-    header={<span className="px-2 font-semibold">Acme Studio</span>}
-    groups={[
-      { label: "Areas", items: [
-        { href: "#pipeline", label: "Sales pipeline" },
-        { href: "#social", label: "Social media", disabled: true, disabledReason: "opens after hiring a social media agent" },
-      ] },
-      { label: "Work", items: [
-        { href: "#home", label: "Home", active: true },
-        { href: "#approvals", label: "Approvals", count: 3, countLabel: "3 waiting" },
-        { href: "#hands", label: "Raised hands", count: 1, countLabel: "1 waiting" },
-      ] },
-    ]}
-    footer={<span className="px-2">Jordan · CEO</span>}
-  />
-);
-
 /** The written guides; they join the navigation and the search next to the components. */
 export const guides: { href: string; title: string; description: string; category: Category }[] = [
   { href: "/docs", title: "Introduction", description: "What Aedis UI is and how to install it.", category: "Getting started" },
@@ -137,19 +117,23 @@ export const components: ComponentDoc[] = [
     title: "App Shell",
     category: "Navigation",
     description: "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar.",
-    example: (
-      <div className="h-80 overflow-hidden rounded-xl border border-border">
-        <AppShell className="min-h-0 h-full" title="Approvals" sidebar={exampleNav}>
-          <p className="text-sm text-muted-foreground">Page content.</p>
-        </AppShell>
-      </div>
-    ),
+    examples: [{ title: "App Shell", file: "app-shell/demo", component: AppShellDemo }],
+    usage: `import { AppShell } from "@/components/ui/app-shell";
+import { Sidebar } from "@/components/ui/sidebar";
+
+<AppShell title="Approvals" sidebar={<Sidebar groups={groups} />}>
+  {children}
+</AppShell>`,
     props: [
       { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar." },
       { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
       { name: "menuLabel", type: "string", description: "Accessible name of the menu toggle. Defaults to the Locale provider." },
     ],
     security: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."],
+    accessibility: {
+      keyboard: [["Enter / Space", "On small screens, the menu toggle opens and closes the sidebar."]],
+      notes: ["The toggle has aria-expanded and aria-controls pointing at the sidebar; its name comes from the Locale provider (\"Menu\")."],
+    },
   },
   {
     name: "approval-card",
@@ -267,9 +251,10 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Markdown",
     category: "Data display",
     description: "Renders untrusted markdown from agents or users.",
-    example: (
-      <Markdown className="text-sm">{"**Proposal** for *Acme*:\n\n- 4 days a month\n- [terms](https://example.com) · [bad](javascript:alert(1))\n\n<img src=x onerror=alert(1)> <b>raw html is dropped</b>"}</Markdown>
-    ),
+    examples: [{ title: "Markdown", file: "markdown/demo", component: MarkdownDemo }],
+    usage: `import { Markdown } from "@/components/ui/markdown";
+
+<Markdown>{agentReply}</Markdown>`,
     props: [
       { name: "children", type: "string", description: "The markdown." },
       { name: "allowImages", type: "boolean", default: "false", description: "Render images. Off by default: image URLs leak the reader's IP and read receipts." },
@@ -279,6 +264,9 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Only http, https, mailto and relative URLs survive; javascript:, data: and others become plain text.",
       "External links open in a new tab with rel=\"noopener noreferrer\".",
     ],
+    accessibility: {
+      notes: ["Renders real headings, lists, tables and links, so the structure is navigable; external links are marked."],
+    },
   },
   {
     name: "streaming-markdown",
@@ -405,12 +393,10 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
     title: "Code Block",
     category: "Data display",
     description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
-    example: (
-      <div className="space-y-4">
-        <CodeBlock title="app/page.tsx" lang="tsx" code={'import { Button } from "@/components/ui/button";\n\nexport default function Page() {\n  return <Button>Approve</Button>;\n}'} />
-        <CodeBlock animated lang="bash" code={"npx @aedis/cli@0.1.0 add approval-card\npnpm dev"} />
-      </div>
-    ),
+    examples: [{ title: "Code Block", file: "code-block/demo", component: CodeBlockDemo }],
+    usage: `import { CodeBlock } from "@/components/ui/code-block";
+
+<CodeBlock lang="bash" code="npx @aedis/cli@0.1.0 add button" />`,
     props: [
       { name: "code", type: "string", description: "The code, rendered as text. Copy copies exactly this." },
       { name: "lang", type: "string", default: '"text"', description: "Any language shiki bundles; unknown ones are plain text." },
@@ -425,37 +411,27 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Copy happens only on a click, as plain text, and copies the original code without the markers.",
       "Uses shiki's JavaScript regex engine: no WebAssembly, so a CSP without 'wasm-unsafe-eval' keeps working.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Reaches the copy button."]],
+      notes: ["The copy button is named \"Copy code\" and announces \"Copied\" or a failure.", "Hidden bidi and zero-width characters show as visible markers with their code point."],
+      motion: "With animated, lines appear one by one when the block scrolls into view. With reduced motion they all appear at once.",
+    },
   },
   {
     name: "navigation-menu",
     title: "Navigation Menu",
     category: "Navigation",
     description: "Top navigation for a public site, with panels of grouped links.",
-    example: (
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-            <NavigationMenuContent className="grid w-72 gap-1">
-              <NavigationMenuLink href="/docs/approval-card">
-                <span className="block font-medium">Approval Card</span>
-                <span className="block text-footnote text-muted-foreground">Agent requests that wait for a person.</span>
-              </NavigationMenuLink>
-              <NavigationMenuLink href="/docs/chat">
-                <span className="block font-medium">Chat</span>
-                <span className="block text-footnote text-muted-foreground">Conversation with an agent, output as data.</span>
-              </NavigationMenuLink>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem active>
-            <NavigationMenuLink href="/docs/navigation-menu" active>Docs</NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink href="https://github.com/aedis-build/aedis-ui">GitHub</NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-    ),
+    examples: [{ title: "Navigation Menu", file: "navigation-menu/demo", component: NavigationMenuDemo }],
+    usage: `import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
+
+<NavigationMenu>
+  <NavigationMenuList>
+    <NavigationMenuItem>
+      <NavigationMenuLink href="/docs">Docs</NavigationMenuLink>
+    </NavigationMenuItem>
+  </NavigationMenuList>
+</NavigationMenu>`,
     props: [
       { name: "NavigationMenuLink href", type: "string", description: "Goes through safeUrl; a refused URL renders as text. External links get rel=\"noopener noreferrer\" and a marker." },
       { name: "NavigationMenuItem active", type: "boolean", description: "The current section; the indicator rests under it when no panel is open." },
@@ -467,6 +443,11 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
       "Every href goes through safeUrl: javascript:, data: and vbscript: never become links.",
       "External links get rel=\"noopener noreferrer\" and a visible arrow with screen-reader text, so people know they leave the site.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Moves between top-level items."], ["Enter / Space / ↓", "Opens a trigger's panel and moves into it."], ["Esc", "Closes the panel and returns focus to its trigger."]],
+      notes: ["A nav landmark named \"Site navigation\" by default; triggers have aria-expanded."],
+      motion: "An indicator slides under the active item on a spring; panels materialize and their content slides in. The chevron turns in 200 ms. With reduced motion they only fade.",
+    },
   },
   {
     name: "sheet",
@@ -585,65 +566,63 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
     title: "Accordion",
     category: "Data display",
     description: "FAQ and docs sections that expand.",
-    example: (
-      <Accordion className="max-w-lg">
-        <AccordionItem value="who">
-          <AccordionTrigger>Who approves what the agent sends?</AccordionTrigger>
-          <AccordionContent>A person on the team. Anything that leaves the company waits in an Approval Card.</AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="data">
-          <AccordionTrigger>Can the agent read my passwords?</AccordionTrigger>
-          <AccordionContent>No. The session lives in an HttpOnly cookie that no script can read.</AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    ),
+    examples: [{ title: "Accordion", file: "accordion/demo", component: AccordionDemo }],
+    usage: `import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+<Accordion>
+  <AccordionItem value="who">
+    <AccordionTrigger>Who approves what the agent sends?</AccordionTrigger>
+    <AccordionContent>A person on the team.</AccordionContent>
+  </AccordionItem>
+</Accordion>`,
     props: [
       { name: "multiple", type: "boolean", default: "false", description: "Allow several items open at once." },
       { name: "hiddenUntilFound", type: "boolean", default: "true", description: "Collapsed content stays in the DOM and opens when the browser's in-page search finds it." },
       ...baseProps("@base-ui/react Accordion"),
     ],
     security: ["Content is rendered as data; collapsed content stays in the DOM, so nothing is fetched or injected on open."],
+    accessibility: {
+      keyboard: [["Enter / Space", "Opens and closes an item."], ["↑ ↓", "Moves between triggers; Home and End go to the first and last."]],
+      notes: ["Triggers are buttons inside headings with aria-expanded; closed panels are hidden until found, so find-in-page still reaches their text."],
+      motion: "Panels open on a critically damped spring and close in 200 ms; the chevron turns with them. With reduced motion they open at once.",
+    },
   },
   {
     name: "collapsible",
     title: "Collapsible",
     category: "Data display",
     description: "Shows and hides one area.",
-    example: (
-      <Collapsible className="max-w-lg space-y-2">
-        <CollapsibleTrigger render={<Button variant="outline" />}>Show the three steps</CollapsibleTrigger>
-        <CollapsibleContent>
-          <ol className="list-decimal space-y-1 pl-5 text-callout">
-            <li>Add the registry.</li>
-            <li>Import the theme.</li>
-            <li>Add a component.</li>
-          </ol>
-        </CollapsibleContent>
-      </Collapsible>
-    ),
+    examples: [{ title: "Collapsible", file: "collapsible/demo", component: CollapsibleDemo }],
+    usage: `import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+<Collapsible>
+  <CollapsibleTrigger render={<Button variant="ghost" />}>Show details</CollapsibleTrigger>
+  <CollapsibleContent>…</CollapsibleContent>
+</Collapsible>`,
     props: [
       { name: "CollapsibleContent hiddenUntilFound", type: "boolean", default: "true", description: "Findable with in-page search while collapsed." },
       ...baseProps("@base-ui/react Collapsible"),
     ],
     security: ["Content is rendered as data."],
+    accessibility: {
+      keyboard: [["Enter / Space", "Opens and closes the panel."]],
+      notes: ["The trigger has aria-expanded and aria-controls; a closed panel is hidden until found by find-in-page."],
+      motion: "The panel opens on a critically damped spring and closes in 200 ms. With reduced motion it opens at once.",
+    },
   },
   {
     name: "alert",
     title: "Alert",
     category: "Feedback",
     description: "A callout for status, success, warnings and errors.",
-    example: (
-      <div className="grid gap-3">
-        <Alert>
-          <AlertTitle>Approvals moved</AlertTitle>
-          <AlertDescription>Pending approvals now live in the sidebar.</AlertDescription>
-        </Alert>
-        <Alert variant="destructive">
-          <AlertTitle>Could not send the proposal</AlertTitle>
-          <AlertDescription>Nothing was sent. Try again in a minute.</AlertDescription>
-        </Alert>
-      </div>
-    ),
+    examples: [{ title: "Alert", file: "alert/demo", component: AlertDemo }],
+    usage: `import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+<Alert variant="destructive">
+  <AlertTitle>Could not send the proposal</AlertTitle>
+  <AlertDescription>Nothing was sent. Try again in a minute.</AlertDescription>
+</Alert>`,
     props: [
       { name: "variant", type: '"default" | "success" | "warning" | "destructive"', default: '"default"', description: "Only destructive uses role=\"alert\"; the rest are role=\"status\"." },
       { name: "role", type: "string", description: "Override when the default announcement is wrong for the context." },
@@ -652,85 +631,74 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       "Text only: no prop takes markup.",
       "Write the message yourself; never show the server's error text as is (it can disclose internals).",
     ],
+    accessibility: {
+      notes: ["Only the destructive variant is role=\"alert\" and interrupts; the others are role=\"status\" and announced politely.", "Color is never the only cue: give every alert a title."],
+    },
   },
   {
     name: "empty",
     title: "Empty",
     category: "Feedback",
     description: "The state of a page or list with nothing in it yet, and what to do next.",
-    example: (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="6" r="2.5" /><path d="M3.5 13.5a4.5 4.5 0 0 1 9 0" /></svg>
-          </EmptyMedia>
-          <EmptyTitle>No agents yet</EmptyTitle>
-          <EmptyDescription>Hire your first agent to start handing off work.</EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button>Hire an agent</Button>
-        </EmptyContent>
-      </Empty>
-    ),
+    examples: [{ title: "Empty", file: "empty/demo", component: EmptyDemo }],
+    usage: `import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+
+<Empty>
+  <EmptyHeader>
+    <EmptyTitle>No agents yet</EmptyTitle>
+    <EmptyDescription>Hire one to start.</EmptyDescription>
+  </EmptyHeader>
+</Empty>`,
     props: [{ name: "EmptyMedia variant", type: '"default" | "icon"', default: '"default"', description: "Decorative, hidden from assistive technology." }],
     security: ["Text only."],
+    accessibility: {
+      notes: ["Plain content: the title and description are read in order; the media is decorative and hidden."],
+    },
   },
   {
     name: "spinner",
     title: "Spinner",
     category: "Feedback",
     description: "Loading indicator.",
-    example: (
-      <div className="flex items-center gap-6">
-        <Spinner />
-        <Button disabled>
-          <Spinner className="text-current" labels={{ label: "Sending" }} />
-        </Button>
-      </div>
-    ),
+    examples: [{ title: "Spinner", file: "spinner/demo", component: SpinnerDemo }],
+    usage: `import { Spinner } from "@/components/ui/spinner";
+
+<Spinner />`,
     props: [
       { name: "labels", type: "Partial<SpinnerLabels>", description: "label: what is loading, announced politely." },
       { name: "...props", type: "span props", description: "Every prop of the wrapping span (role=\"status\")." },
     ],
     security: ["With reduced motion it stops rotating and shows its label as text."],
+    accessibility: {
+      notes: ["role=\"status\" with the label \"Loading\" from the Locale provider, announced politely."],
+      motion: "It rotates. With reduced motion it stops and shows its label as text instead.",
+    },
   },
   {
     name: "kbd",
     title: "Kbd",
     category: "Data display",
     description: "A key or a key combination.",
-    example: (
-      <p className="text-callout">
-        Search with{" "}
-        <KbdGroup>
-          <Kbd>⌘</Kbd>
-          <Kbd>K</Kbd>
-        </KbdGroup>
-      </p>
-    ),
+    examples: [{ title: "Kbd", file: "kbd/demo", component: KbdDemo }],
+    usage: `import { Kbd, KbdGroup } from "@/components/ui/kbd";
+
+<KbdGroup><Kbd>⌘</Kbd><Kbd>K</Kbd></KbdGroup>`,
     props: [{ name: "KbdGroup", type: "kbd", description: "A combination: nested kbd elements, as HTML specifies." }],
     security: ["Text only."],
+    accessibility: {
+      notes: ["Native kbd elements, nested for a combination as HTML specifies."],
+    },
   },
   {
     name: "site-header",
     title: "Site Header",
     category: "Navigation",
     description: "The sticky top bar of a site: brand, navigation and actions. Below md the items and actions move into a sheet.",
-    example: (
-      <SiteHeader
-        className="static"
-        brand="Aedis"
-        items={[
-          { label: "Docs", href: "/docs/site-header", active: true },
-          { label: "Components", href: "/docs/button" },
-        ]}
-        actions={
-          <Button size="sm" render={<a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer" />}>
-            GitHub
-          </Button>
-        }
-      />
-    ),
+    examples: [{ title: "Site Header", file: "site-header/demo", component: SiteHeaderDemo }],
+    usage: `import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/ui/site-header";
+
+<SiteHeader brand="Acme" items={[{ label: "Docs", href: "/docs", active: true }]} actions={<Button>Sign in</Button>} />`,
     props: [
       { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref named by labels.home." },
       { name: "homeHref", type: "string", default: '"/"', description: "Where the brand links; goes through safeUrl." },
@@ -743,22 +711,21 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       "Every href goes through safeUrl: javascript:, data: and vbscript: never become links.",
       "External items get rel=\"noopener noreferrer\" and a visible marker.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Moves through the brand, the links and the actions."], ["Esc", "Closes the menu sheet on small screens."]],
+      notes: ["A banner landmark; the brand link is named by the Locale provider (\"Home\"), the current item has aria-current=\"page\".", "On small screens the items move into a sheet behind a labelled menu button."],
+      motion: "The header is a translucent material that fades the content scrolling under it. With reduced transparency it is solid.",
+    },
   },
   {
     name: "site-footer",
     title: "Site Footer",
     category: "Navigation",
     description: "The bottom of a site: links and notes such as the license.",
-    example: (
-      <SiteFooter
-        links={[
-          { label: "Docs", href: "/docs/site-footer" },
-          { label: "GitHub", href: "https://github.com/aedis-build/aedis-ui" },
-        ]}
-      >
-        MIT licensed.
-      </SiteFooter>
-    ),
+    examples: [{ title: "Site Footer", file: "site-footer/demo", component: SiteFooterDemo }],
+    usage: `import { SiteFooter } from "@/components/ui/site-footer";
+
+<SiteFooter links={[{ label: "Privacy", href: "/privacy" }]}>© Acme</SiteFooter>`,
     props: [
       { name: "links", type: "{ label: string; href: string }[]", description: "Rendered with Link: safe protocols only, external marker and noopener." },
       { name: "children", type: "ReactNode", description: "Notes, e.g. the license line." },
@@ -766,56 +733,51 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       { name: "className", type: "string", description: "Classes for the footer element." },
     ],
     security: ["Refused URLs render their text without a link.", "External links never get window.opener or the Referer of this page."],
+    accessibility: {
+      notes: ["A contentinfo landmark with its links in a nav named by the Locale provider; links go through safeUrl like every Aedis link."],
+    },
   },
   {
     name: "breadcrumb",
     title: "Breadcrumb",
     category: "Navigation",
     description: "Where a page sits in the site.",
-    example: (
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/docs/button">Components</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-    ),
+    examples: [{ title: "Breadcrumb", file: "breadcrumb/demo", component: BreadcrumbDemo }],
+    usage: `import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem><BreadcrumbPage>Approvals</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`,
     props: [
       { name: "BreadcrumbLink href", type: "string", description: "Goes through safeUrl; pass render={<Link />} for a router link." },
       { name: "BreadcrumbPage", type: "span", description: "The current page, with aria-current=\"page\"." },
       { name: "labels", type: "Partial<BreadcrumbLabels>", description: "label (landmark), more (ellipsis)." },
     ],
     security: ["Every href goes through safeUrl; external links get noopener noreferrer and a marker."],
+    accessibility: {
+      notes: ["A nav named \"Breadcrumb\" around an ordered list; the current page has aria-current=\"page\".", "Separators are hidden from screen readers; the ellipsis is announced as \"More\"."],
+    },
   },
   {
     name: "pagination",
     title: "Pagination",
     category: "Navigation",
     description: "Previous, next and page links for paginated lists.",
-    example: (
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="?page=4" />
-          </PaginationItem>
-          {paginationRange(5, 12).map((p, i) => (
-            <PaginationItem key={i}>{p === "ellipsis" ? <PaginationEllipsis /> : <PaginationLink href={`?page=${p}`} isActive={p === 5}>{p}</PaginationLink>}</PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext href="?page=6" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    ),
+    examples: [{ title: "Pagination", file: "pagination/demo", component: PaginationDemo }],
+    usage: `import { paginationRange } from "@/lib/pagination";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+
+<Pagination>
+  <PaginationContent>
+    {paginationRange(page, total).map((p, i) => (
+      <PaginationItem key={i}>{p === "ellipsis" ? <PaginationEllipsis /> : <PaginationLink href={\`?page=\${p}\`} isActive={p === page}>{p}</PaginationLink>}</PaginationItem>
+    ))}
+  </PaginationContent>
+</Pagination>`,
     props: [
       { name: "parsePage(value, total)", type: "number", description: "A page from the URL or a form, as an integer from 1 to total; anything else becomes 1." },
       { name: "paginationRange(page, total, siblings?)", type: '(number | "ellipsis")[]', description: "Pages to render around the current one." },
@@ -826,31 +788,25 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       "Page numbers from the URL are untrusted: parsePage keeps integers within bounds and caps the total.",
       "Every href goes through safeUrl; a refused one renders a disabled page.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Moves through the page links."]],
+      notes: ["A nav named \"Pagination\"; the current page has aria-current=\"page\"; Previous and Next have full names (\"Go to previous page\").", "A link with no target page is aria-disabled and not focusable."],
+    },
   },
   {
     name: "item",
     title: "Item",
     category: "Data display",
     description: "A row in a list: media, content and actions.",
-    example: (
-      <ItemGroup aria-label="Agents" className="max-w-md">
-        <Item variant="outline">
-          <ItemContent>
-            <ItemTitle>Avalo</ItemTitle>
-            <ItemDescription>Answers leads on WhatsApp.</ItemDescription>
-          </ItemContent>
-          <ItemActions>
-            <Button size="sm" variant="secondary">Pause</Button>
-          </ItemActions>
-        </Item>
-        <Item variant="outline" href="/docs/approval-card">
-          <ItemContent>
-            <ItemTitle>Talbot</ItemTitle>
-            <ItemDescription>3 approvals waiting.</ItemDescription>
-          </ItemContent>
-        </Item>
-      </ItemGroup>
-    ),
+    examples: [{ title: "Item", file: "item/demo", component: ItemDemo }],
+    usage: `import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+
+<Item variant="outline">
+  <ItemContent>
+    <ItemTitle>Sales agent</ItemTitle>
+    <ItemDescription>3 proposals waiting</ItemDescription>
+  </ItemContent>
+</Item>`,
     props: [
       { name: "href", type: "string", description: "Makes the row a link, through safeUrl. Inside an ItemGroup it is wrapped in a listitem and keeps its link role." },
       { name: "variant", type: '"default" | "outline" | "muted"', default: '"default"', description: "Surface." },
@@ -858,26 +814,32 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       { name: "render", type: "ReactElement", description: "Another element to render, e.g. a router link." },
     ],
     security: ["Links go through safeUrl; external ones get noopener noreferrer and a marker."],
+    accessibility: {
+      keyboard: [["Enter", "Follows an item with href."]],
+      notes: ["ItemGroup is a list; linked items are wrapped as list items so the list stays valid.", "An item with href goes through safeUrl and becomes a link."],
+    },
   },
   {
     name: "scroll-area",
     title: "Scroll Area",
     category: "Data display",
     description: "A scrollable region with consistent scrollbars, for code, side panels and long lists.",
-    example: (
-      <ScrollArea aria-label="Release notes" className="h-40 w-full max-w-md rounded-md border border-hairline bg-surface">
-        <ul className="space-y-2 p-4 text-callout">
-          {Array.from({ length: 20 }, (_, i) => (
-            <li key={i}>Release 0.{20 - i}: security fixes and new components.</li>
-          ))}
-        </ul>
-      </ScrollArea>
-    ),
+    examples: [{ title: "Scroll Area", file: "scroll-area/demo", component: ScrollAreaDemo }],
+    usage: `import { ScrollArea } from "@/components/ui/scroll-area";
+
+<ScrollArea className="h-48" aria-label="Activity">
+  {entries}
+</ScrollArea>`,
     props: [
       { name: "aria-label", type: "string", description: "Names the region; the viewport is focusable when it overflows so the keyboard can scroll it." },
       ...baseProps("@base-ui/react ScrollArea"),
     ],
     security: ["Scrolling stays native: wheel, touch, keyboard and in-page search work as usual."],
+    accessibility: {
+      keyboard: [["↑ ↓ / Page Up / Page Down", "Scrolls when the area has focus."]],
+      notes: ["With aria-label it becomes a named region, so keyboard users can find and scroll it."],
+      motion: "Scrollbars fade in while hovering or scrolling. With reduced motion they are always visible.",
+    },
   },
   {
     name: "button-group",
@@ -911,7 +873,13 @@ import { ButtonGroup } from "@/components/ui/button-group";
     title: "Toast",
     category: "Feedback",
     description: "Feedback after an action: Copied, Saved, Request failed.",
-    example: <ToastExample />,
+    examples: [{ title: "Toast", file: "toast/demo", component: ToastDemo }],
+    usage: `import { Toaster, toast } from "@/components/ui/toast";
+
+// Once, near the root of the app:
+<Toaster />
+
+toast.success("Saved");`,
     props: [
       { name: "<Toaster />", type: "component", description: "Once near the root; renders the stack in the bottom corner. labels: region, close, failed." },
       { name: "toast.show / success / info / warning / error(title, options?)", type: "string id", description: "Text only. Errors are announced urgently (role=\"alert\"); the rest politely." },
@@ -924,6 +892,11 @@ import { ButtonGroup } from "@/components/ui/button-group";
       "Show a message you wrote or the generic one; never the server's error text.",
       "Timers pause while the stack is hovered or focused, so nobody has to race a message.",
     ],
+    accessibility: {
+      keyboard: [["F6", "Moves focus to the toast region (Base UI's landmark shortcut)."], ["Esc", "Dismisses the focused toast."]],
+      notes: ["Errors are announced assertively, like role=\"alert\"; everything else politely.", "The region and the close button are named by the Locale provider; timers pause while a toast is hovered or focused."],
+      motion: "Toasts stack with a peek of the ones behind, slide in from the bottom and can be swiped away. With reduced motion they only fade.",
+    },
   },
   {
     name: "link",
@@ -1307,7 +1280,14 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "Sidebar",
     category: "Navigation",
     description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
-    example: exampleNav,
+    examples: [{ title: "Sidebar", file: "sidebar/demo", component: SidebarDemo }],
+    usage: `import Link from "next/link";
+import { Sidebar } from "@/components/ui/sidebar";
+
+<Sidebar
+  linkComponent={Link}
+  groups={[{ label: "Work", items: [{ href: "/approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }] }]}
+/>`,
     props: [
       { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason." },
       { name: "header / footer", type: "ReactNode", description: "Organization switcher at the top, signed-in user at the bottom." },
@@ -1318,6 +1298,11 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       "Disabled items stay visible with their reason instead of disappearing, so people know an area exists.",
       "Counters have accessible text (countLabel), not just a number.",
     ],
+    accessibility: {
+      keyboard: [["Tab", "Moves through the links; disabled items are skipped."]],
+      notes: ["A nav landmark named \"Main navigation\" by default; the current item has aria-current=\"page\".", "Counters are read from countLabel, not the bare number.", "A disabled item stays visible with aria-disabled and its reason."],
+      motion: "Items sink slightly when pressed. With reduced motion there is no scale.",
+    },
   },
   {
     name: "button",
@@ -1386,49 +1371,54 @@ import { Button } from "@/components/ui/button";
     title: "Avatar",
     category: "Data display",
     description: "Image with fallback initials, used for people and agents.",
-    example: (
-      <Avatar>
-        <AvatarFallback>RA</AvatarFallback>
-      </Avatar>
-    ),
+    examples: [{ title: "Avatar", file: "avatar/demo", component: AvatarDemo }],
+    usage: `import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+<Avatar>
+  <AvatarImage src={user.photo} alt="" />
+  <AvatarFallback>RA</AvatarFallback>
+</Avatar>`,
     props: baseProps("@base-ui/react Avatar"),
     security: ["Load avatar images from origins your CSP allows; the fallback renders when the image fails."],
+    accessibility: {
+      notes: ["Next to a visible name, give the image alt=\"\" so the name is not read twice; alone, give it the person's name."],
+    },
   },
   {
     name: "badge",
     title: "Badge",
     category: "Data display",
     description: "Small status label: level, channel, state.",
-    example: (
-      <div className="flex gap-2">
-        <Badge>Junior</Badge>
-        <Badge variant="secondary">24/7</Badge>
-        <Badge variant="accent">Hand raised</Badge>
-        <Badge variant="outline">Slack</Badge>
-      </div>
-    ),
+    examples: [{ title: "Badge", file: "badge/demo", component: BadgeDemo }],
+    usage: `import { Badge } from "@/components/ui/badge";
+
+<Badge variant="secondary">Draft</Badge>`,
     props: [{ name: "variant", type: '"default" | "secondary" | "accent" | "outline" | "destructive"', default: '"default"', description: "Visual style." }],
     security: ["Text only; pass labels as children."],
+    accessibility: {
+      notes: ["Inline text. If a badge only carries a number, add the meaning in text (\"3 waiting\")."],
+    },
   },
   {
     name: "card",
     title: "Card",
     category: "Data display",
     description: "Container with header, content and footer.",
-    example: (
-      <Card className="max-w-sm">
-        <CardHeader>
-          <CardTitle>Account Executive</CardTitle>
-          <CardDescription>Turns opportunities into signed projects.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm">Junior · business hours · 3 channels</CardContent>
-        <CardFooter>
-          <Button size="sm">Interview</Button>
-        </CardFooter>
-      </Card>
-    ),
+    examples: [{ title: "Card", file: "card/demo", component: CardDemo }],
+    usage: `import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+<Card>
+  <CardHeader>
+    <CardTitle>Account Executive</CardTitle>
+    <CardDescription>Turns opportunities into signed projects.</CardDescription>
+  </CardHeader>
+  <CardContent>…</CardContent>
+</Card>`,
     props: [{ name: "...props", type: "div props", description: "Each part forwards the props of its element." }],
     security: ["No behavior; render agent text inside with the Chat or markdown components, never as raw HTML."],
+    accessibility: {
+      notes: ["CardTitle is an h3: keep the heading order of the page around it."],
+    },
   },
   {
     name: "checkbox",
@@ -1555,9 +1545,16 @@ import { Label } from "@/components/ui/label";
     title: "Progress",
     category: "Feedback",
     description: "Progress bar; the base of the usage meter.",
-    example: <Progress value={62} aria-label="Ceiling used" className="max-w-sm" />,
+    examples: [{ title: "Progress", file: "progress/demo", component: ProgressDemo }],
+    usage: `import { Progress } from "@/components/ui/progress";
+
+<Progress value={62} aria-label="Ceiling used" />`,
     props: [{ name: "value", type: "number", description: "0 to 100; values outside are clamped." }, ...baseProps("@base-ui/react Progress")],
     security: ["Give it an aria-label; the value is announced to assistive technology."],
+    accessibility: {
+      notes: ["role=\"progressbar\" with aria-valuenow; give it an aria-label."],
+      motion: "The bar moves to a new value on a critically damped spring. With reduced motion it jumps.",
+    },
   },
   {
     name: "radio-group",
@@ -1585,29 +1582,33 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
     title: "Separator",
     category: "Data display",
     description: "Visual or semantic divider.",
-    example: (
-      <div className="max-w-sm space-y-2 text-sm">
-        <p>Plan</p>
-        <Separator />
-        <p>This week</p>
-      </div>
-    ),
+    examples: [{ title: "Separator", file: "separator/demo", component: SeparatorDemo }],
+    usage: `import { Separator } from "@/components/ui/separator";
+
+<Separator />`,
     props: baseProps("@base-ui/react Separator"),
     security: ["Decorative by default (hidden from assistive technology)."],
+    accessibility: {
+      notes: ["Decorative by default (role=\"none\"); pass decorative={false} when it separates sections a reader should hear."],
+    },
   },
   {
     name: "skeleton",
     title: "Skeleton",
     category: "Feedback",
     description: "Loading placeholder.",
-    example: (
-      <div role="status" className="max-w-sm space-y-2" aria-busy="true" aria-label="Loading team">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-      </div>
-    ),
+    examples: [{ title: "Skeleton", file: "skeleton/demo", component: SkeletonDemo }],
+    usage: `import { Skeleton } from "@/components/ui/skeleton";
+
+<div aria-busy="true">
+  <Skeleton className="h-4 w-48" />
+</div>`,
     props: [{ name: "...props", type: "div props", description: "Size it with classes." }],
     security: ["Hidden from assistive technology; give the loading region role=\"status\", aria-busy and a label."],
+    accessibility: {
+      notes: ["Hidden from assistive technology; mark the region that is loading with aria-busy instead."],
+      motion: "It pulses. With reduced motion it is still.",
+    },
   },
   {
     name: "switch",
@@ -1633,44 +1634,46 @@ import { Switch } from "@/components/ui/switch";
     title: "Table",
     category: "Data display",
     description: "Responsive table parts; scrolls horizontally on small screens.",
-    example: (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Agent</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead className="text-right">Ceiling used</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell>Rafael</TableCell>
-            <TableCell>Account Executive</TableCell>
-            <TableCell className="text-right">12%</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    ),
+    examples: [{ title: "Table", file: "table/demo", component: TableDemo }],
+    usage: `import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+<Table>
+  <TableHeader>
+    <TableRow><TableHead>Agent</TableHead><TableHead>Cost</TableHead></TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow><TableCell>Sales</TableCell><TableCell>$12</TableCell></TableRow>
+  </TableBody>
+</Table>`,
     props: [{ name: "...props", type: "table element props", description: "Each part forwards the props of its element." }],
     security: ["Render cell values as text."],
+    accessibility: {
+      notes: ["A native table: headers are th, so screen readers announce the column with each cell. Add a TableCaption to name it."],
+    },
   },
   {
     name: "tabs",
     title: "Tabs",
     category: "Navigation",
     description: "Tabbed sections.",
-    example: (
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="agents">Created by agents</TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="text-sm">Every automation.</TabsContent>
-        <TabsContent value="agents" className="text-sm">Automations agents proposed.</TabsContent>
-      </Tabs>
-    ),
+    examples: [{ title: "Tabs", file: "tabs/demo", component: TabsDemo }],
+    usage: `import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+<Tabs defaultValue="activity">
+  <TabsList aria-label="Agent">
+    <TabsTrigger value="activity">Activity</TabsTrigger>
+    <TabsTrigger value="settings">Settings</TabsTrigger>
+  </TabsList>
+  <TabsContent value="activity">…</TabsContent>
+  <TabsContent value="settings">…</TabsContent>
+</Tabs>`,
     props: baseProps("@base-ui/react Tabs"),
     security: ["Arrow keys move between tabs."],
+    accessibility: {
+      keyboard: [["← →", "Moves between tabs and shows each one."], ["Home / End", "First and last tab."], ["Tab", "Leaves the tab list for the panel."]],
+      notes: ["tablist, tab and tabpanel roles with aria-selected and aria-controls; name the list with aria-label."],
+      motion: "The selected tab's background and color change in 200 ms.",
+    },
   },
   {
     name: "textarea",
