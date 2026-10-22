@@ -35,6 +35,7 @@ import { Progress } from "@/registry/aedis/ui/progress";
 import { Reasoning } from "@/registry/aedis/ui/reasoning";
 import { RadioGroup, RadioGroupItem } from "@/registry/aedis/ui/radio-group";
 import { ChatExample } from "@/components/examples/chat-example";
+import { CommandExample } from "@/components/examples/command-example";
 import { ApprovalCardExample, HandRaiseExample } from "@/components/examples/human-in-the-loop-examples";
 import { LocaleExample } from "@/components/examples/locale-examples";
 import { FeedbackExample } from "@/components/examples/feedback-example";
@@ -63,9 +64,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/aedis/ui/too
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
+/** Sidebar and gallery order. */
+export const categories = ["Getting started", "Foundations", "Security", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "AI and agents", "Transport", "Micro-frontends"] as const;
+export type Category = (typeof categories)[number];
+
 export type ComponentDoc = {
   name: string;
   title: string;
+  category: Category;
   description: string;
   example: ReactNode;
   props: Prop[];
@@ -95,11 +101,21 @@ const exampleNav = (
   />
 );
 
+/** The written guides; they join the navigation and the search next to the components. */
+export const guides: { href: string; title: string; description: string; category: Category }[] = [
+  { href: "/docs", title: "Introduction", description: "What Aedis UI is and how to install it.", category: "Getting started" },
+  { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
+  { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
+  { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
+  { href: "/docs/micro-frontends", title: "Micro-frontends", description: "Compose apps from isolated frames and elements.", category: "Micro-frontends" },
+];
+
 /** One entry per registry item. The docs page and the sidebar are generated from this list. */
 export const components: ComponentDoc[] = [
   {
     name: "app-shell",
     title: "App Shell",
+    category: "Navigation",
     description: "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar.",
     example: (
       <div className="h-80 overflow-hidden rounded-xl border border-border">
@@ -118,6 +134,7 @@ export const components: ComponentDoc[] = [
   {
     name: "approval-card",
     title: "Approval Card",
+    category: "AI and agents",
     description: "A request from an agent that waits for a human before anything leaves the company.",
     example: <ApprovalCardExample />,
     props: [
@@ -137,6 +154,7 @@ export const components: ComponentDoc[] = [
   {
     name: "hand-raise",
     title: "Hand Raise",
+    category: "AI and agents",
     description: "A question an agent could not resolve with the knowledge base or its colleagues.",
     example: <HandRaiseExample />,
     props: [
@@ -154,6 +172,7 @@ export const components: ComponentDoc[] = [
   {
     name: "chat",
     title: "Chat",
+    category: "AI and agents",
     description: "Conversation with an agent. Agent messages render as safe markdown; people's messages as plain text.",
     example: <ChatExample />,
     props: [
@@ -172,6 +191,7 @@ export const components: ComponentDoc[] = [
   {
     name: "locale",
     title: "Locale",
+    category: "Foundations",
     description: "Locale provider and dictionaries: every Aedis UI component reads its text from here, in English, Portuguese or Spanish.",
     example: <LocaleExample />,
     props: [
@@ -189,6 +209,7 @@ export const components: ComponentDoc[] = [
   {
     name: "locale-switcher",
     title: "Locale Switcher",
+    category: "Foundations",
     description: "Language picker. The app stores the choice and re-renders the provider.",
     example: <LocaleExample />,
     props: [
@@ -202,6 +223,7 @@ export const components: ComponentDoc[] = [
   {
     name: "use-format",
     title: "useFormat",
+    category: "Foundations",
     description: "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
     example: (
       <pre className="overflow-x-auto text-sm">
@@ -223,6 +245,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "markdown",
     title: "Markdown",
+    category: "Data display",
     description: "Renders untrusted markdown from agents or users.",
     example: (
       <Markdown className="text-sm">{"**Proposal** for *Acme*:\n\n- 4 days a month\n- [terms](https://example.com) · [bad](javascript:alert(1))\n\n<img src=x onerror=alert(1)> <b>raw html is dropped</b>"}</Markdown>
@@ -240,6 +263,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "streaming-markdown",
     title: "Streaming Markdown",
+    category: "AI and agents",
     description: "Markdown for an agent answer that arrives token by token.",
     example: <StreamingExample />,
     props: [
@@ -258,6 +282,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "prompt-input",
     title: "Prompt Input",
+    category: "AI and agents",
     description: "The composer for an agent chat: bounded text, attachments, a model picker and a send button that turns into stop.",
     example: <PromptInputExample />,
     props: [
@@ -279,6 +304,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "feedback",
     title: "Feedback",
+    category: "AI and agents",
     description: "Thumbs up or down on an agent answer, with an optional comment, for evaluating agents.",
     example: <FeedbackExample />,
     props: [
@@ -296,6 +322,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "sources",
     title: "Sources",
+    category: "AI and agents",
     description: "Citations for answers grounded in documents: a numbered list and inline markers.",
     example: (
       <div className="space-y-3 text-callout">
@@ -329,6 +356,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "tool-call",
     title: "Tool Call",
+    category: "AI and agents",
     description: "Which tool an agent ran, with what and what came back; tools that act outside wait for approval.",
     example: (
       <div className="grid gap-3">
@@ -355,6 +383,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "code-block",
     title: "Code Block",
+    category: "Data display",
     description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
     example: (
       <div className="space-y-4">
@@ -380,6 +409,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "navigation-menu",
     title: "Navigation Menu",
+    category: "Navigation",
     description: "Top navigation for a public site, with panels of grouped links.",
     example: (
       <NavigationMenu>
@@ -421,6 +451,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "sheet",
     title: "Sheet",
+    category: "Overlays",
     description: "A panel from the edge of the screen for navigation on phones, details and filters. Swipe it away.",
     example: (
       <div className="flex flex-wrap gap-2">
@@ -456,6 +487,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "dropdown-menu",
     title: "Dropdown Menu",
+    category: "Overlays",
     description: "A menu of actions: account menu, row actions, a more button.",
     example: (
       <DropdownMenu>
@@ -488,6 +520,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "accordion",
     title: "Accordion",
+    category: "Data display",
     description: "FAQ and docs sections that expand.",
     example: (
       <Accordion className="max-w-lg">
@@ -511,6 +544,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "collapsible",
     title: "Collapsible",
+    category: "Data display",
     description: "Shows and hides one area.",
     example: (
       <Collapsible className="max-w-lg space-y-2">
@@ -533,6 +567,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "alert",
     title: "Alert",
+    category: "Feedback",
     description: "A callout for status, success, warnings and errors.",
     example: (
       <div className="grid gap-3">
@@ -558,6 +593,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "empty",
     title: "Empty",
+    category: "Feedback",
     description: "The state of a page or list with nothing in it yet, and what to do next.",
     example: (
       <Empty>
@@ -579,6 +615,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "spinner",
     title: "Spinner",
+    category: "Feedback",
     description: "Loading indicator.",
     example: (
       <div className="flex items-center gap-6">
@@ -597,6 +634,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "kbd",
     title: "Kbd",
+    category: "Data display",
     description: "A key or a key combination.",
     example: (
       <p className="text-callout">
@@ -613,6 +651,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "site-header",
     title: "Site Header",
+    category: "Navigation",
     description: "The sticky top bar of a site: brand, navigation and actions. Below md the items and actions move into a sheet.",
     example: (
       <SiteHeader
@@ -645,6 +684,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "site-footer",
     title: "Site Footer",
+    category: "Navigation",
     description: "The bottom of a site: links and notes such as the license.",
     example: (
       <SiteFooter
@@ -667,6 +707,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "breadcrumb",
     title: "Breadcrumb",
+    category: "Navigation",
     description: "Where a page sits in the site.",
     example: (
       <Breadcrumb>
@@ -695,6 +736,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "pagination",
     title: "Pagination",
+    category: "Navigation",
     description: "Previous, next and page links for paginated lists.",
     example: (
       <Pagination>
@@ -725,6 +767,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "item",
     title: "Item",
+    category: "Data display",
     description: "A row in a list: media, content and actions.",
     example: (
       <ItemGroup aria-label="Agents" className="max-w-md">
@@ -756,6 +799,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "scroll-area",
     title: "Scroll Area",
+    category: "Data display",
     description: "A scrollable region with consistent scrollbars, for code, side panels and long lists.",
     example: (
       <ScrollArea aria-label="Release notes" className="h-40 w-full max-w-md rounded-md border border-hairline bg-surface">
@@ -775,6 +819,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "button-group",
     title: "Button Group",
+    category: "Actions",
     description: "Buttons that belong together: toolbars and segmented actions.",
     example: (
       <ButtonGroup aria-label="Message actions">
@@ -794,6 +839,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "toast",
     title: "Toast",
+    category: "Feedback",
     description: "Feedback after an action: Copied, Saved, Request failed.",
     example: <ToastExample />,
     props: [
@@ -812,6 +858,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "link",
     title: "Link",
+    category: "Actions",
     description: "An anchor for URLs that come from content or configuration.",
     example: (
       <p className="text-callout">
@@ -828,6 +875,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "use-reduced-motion",
     title: "useReducedMotion",
+    category: "Foundations",
     description: "True when the person asked for less motion. For motion driven by JavaScript; CSS motion already reads the theme tokens.",
     example: <p className="text-callout text-muted-foreground">const reduced = useReducedMotion();</p>,
     props: [{ name: "returns", type: "boolean", description: "Follows prefers-reduced-motion live; false on the server." }],
@@ -836,6 +884,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "use-event-stream",
     title: "useEventStream",
+    category: "Transport",
     description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
     example: (
       <CodeBlock
@@ -867,6 +916,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "event-stream",
     title: "event-stream",
+    category: "Transport",
     description: "The library under useEventStream: an incremental SSE parser and a fetch-based connection with resume and backoff, for code outside React.",
     example: (
       <CodeBlock
@@ -888,6 +938,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`}</code>
   {
     name: "bff-stream",
     title: "bffStream",
+    category: "Transport",
     description: "A Next.js route handler that relays the API's event stream with the session's bearer, so the token never reaches the browser.",
     example: (
       <CodeBlock
@@ -921,6 +972,7 @@ export const GET = bffStream({
   {
     name: "secure-action",
     title: "secureAction",
+    category: "Transport",
     description: "A wrapper for Server Actions: required authorization, rate limit, size limit and schema inside the action, and a typed result without error messages.",
     example: (
       <CodeBlock
@@ -952,6 +1004,7 @@ const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: fa
   {
     name: "mf-bridge",
     title: "mf-bridge",
+    category: "Micro-frontends",
     description: "A typed, origin-checked postMessage channel between a host page and an embedded app.",
     example: (
       <CodeBlock
@@ -991,6 +1044,7 @@ parent.send("resize", { height: document.body.scrollHeight });`}
   {
     name: "mf-frame",
     title: "mf-frame",
+    category: "Micro-frontends",
     description: "The host side of an embed: a sandboxed iframe that the embedded app sizes over mf-bridge, and the headers for both apps.",
     example: (
       <CodeBlock
@@ -1025,6 +1079,7 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
   {
     name: "mf-element",
     title: "mf-element",
+    category: "Micro-frontends",
     description: "Turns a React component into a Web Component, for embeds that need tighter integration with the host page than an iframe gives.",
     example: (
       <CodeBlock
@@ -1057,6 +1112,7 @@ panel.addEventListener("approve", (e) => approve(e.detail));`}
   {
     name: "mf-context",
     title: "mf-context",
+    category: "Micro-frontends",
     description: "Keeps an embedded app in step with its host: theme, locale and session, over mf-bridge.",
     example: (
       <CodeBlock
@@ -1087,6 +1143,7 @@ const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["e
   {
     name: "use-idle-timeout",
     title: "useIdleTimeout",
+    category: "Security",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
     example: (
       <pre className="overflow-x-auto text-sm">
@@ -1106,6 +1163,7 @@ const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["e
   {
     name: "api",
     title: "api",
+    category: "Transport",
     description: "Same-origin JSON client for the app's own backend.",
     example: (
       <pre className="overflow-x-auto text-sm">
@@ -1129,6 +1187,7 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
   {
     name: "security-headers",
     title: "securityHeaders",
+    category: "Security",
     description: "Response headers for an app built with these components: strict CSP, HSTS, no framing, no sniffing.",
     example: (
       <pre className="overflow-x-auto text-sm">
@@ -1154,6 +1213,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "untrusted",
     title: "untrusted",
+    category: "Security",
     description: "Helpers for text written by agents or people: removes code points that hide text from the reader.",
     example: (
       <pre className="overflow-x-auto text-sm">
@@ -1172,6 +1232,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "sidebar",
     title: "Sidebar",
+    category: "Navigation",
     description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
     example: exampleNav,
     props: [
@@ -1188,6 +1249,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "button",
     title: "Button",
+    category: "Actions",
     description: "The base action. Defaults to type=\"button\", so it never submits a form by accident.",
     example: (
       <div className="flex flex-wrap gap-3">
@@ -1208,6 +1270,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "alert-dialog",
     title: "Alert Dialog",
+    category: "Overlays",
     description: "Confirmation for actions that cannot be undone or that leave the company: send, approve, delete.",
     example: (
       <AlertDialog>
@@ -1233,6 +1296,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "avatar",
     title: "Avatar",
+    category: "Data display",
     description: "Image with fallback initials, used for people and agents.",
     example: (
       <Avatar>
@@ -1245,6 +1309,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "badge",
     title: "Badge",
+    category: "Data display",
     description: "Small status label: level, channel, state.",
     example: (
       <div className="flex gap-2">
@@ -1260,6 +1325,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "card",
     title: "Card",
+    category: "Data display",
     description: "Container with header, content and footer.",
     example: (
       <Card className="max-w-sm">
@@ -1279,6 +1345,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "checkbox",
     title: "Checkbox",
+    category: "Forms",
     description: "Checkbox for consent and settings.",
     example: (
       <div className="flex items-center gap-2">
@@ -1292,6 +1359,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "dialog",
     title: "Dialog",
+    category: "Overlays",
     description: "Modal dialog for forms and details. Use Alert Dialog for confirmations.",
     example: (
       <Dialog>
@@ -1309,8 +1377,27 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     security: ["Focus is trapped while open and returns to the trigger on close."],
   },
   {
+    name: "command",
+    title: "Command",
+    category: "Overlays",
+    description: "A search box over a list, alone or in a dialog: type to filter, arrow keys to move, Enter to choose.",
+    example: <CommandExample />,
+    props: [
+      { name: "items", type: "CommandItem[]", description: "value, label, and optional description and group. Shown as text, never as markup." },
+      { name: "onSelect", type: "(item: CommandItem) => void", description: "Called with the chosen item, by click or Enter." },
+      { name: "labels", type: "Partial<CommandLabels>", description: "Override single strings; the rest comes from the Locale provider." },
+      { name: "open, onOpenChange", type: "CommandDialog only", description: "Controlled dialog state, e.g. toggled by ⌘K." },
+    ],
+    security: [
+      "Item labels, descriptions and groups render as text; the query never reaches the DOM as markup.",
+      "The search field is bounded to 256 characters, like every Aedis Input.",
+      "Focus stays in the field; the active option is announced with aria-activedescendant.",
+    ],
+  },
+  {
     name: "input",
     title: "Input",
+    category: "Forms",
     description: "Text input.",
     example: (
       <div className="grid max-w-sm gap-2">
@@ -1330,6 +1417,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "label",
     title: "Label",
+    category: "Forms",
     description: "Accessible label for form controls.",
     example: <Label>Daily ceiling</Label>,
     props: [{ name: "...props", type: "label props", description: "Every prop of the native label." }],
@@ -1338,6 +1426,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "progress",
     title: "Progress",
+    category: "Feedback",
     description: "Progress bar; the base of the usage meter.",
     example: <Progress value={62} aria-label="Ceiling used" className="max-w-sm" />,
     props: [{ name: "value", type: "number", description: "0 to 100; values outside are clamped." }, ...baseProps("@base-ui/react Progress")],
@@ -1346,6 +1435,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "radio-group",
     title: "Radio Group",
+    category: "Forms",
     description: "Single choice among options.",
     example: (
       <RadioGroup defaultValue="case" aria-label="Scope">
@@ -1365,6 +1455,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "separator",
     title: "Separator",
+    category: "Data display",
     description: "Visual or semantic divider.",
     example: (
       <div className="max-w-sm space-y-2 text-sm">
@@ -1379,6 +1470,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "skeleton",
     title: "Skeleton",
+    category: "Feedback",
     description: "Loading placeholder.",
     example: (
       <div role="status" className="max-w-sm space-y-2" aria-busy="true" aria-label="Loading team">
@@ -1392,6 +1484,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "switch",
     title: "Switch",
+    category: "Forms",
     description: "On/off toggle, e.g. the channels an agent answers on.",
     example: (
       <div className="flex items-center gap-2">
@@ -1405,6 +1498,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "table",
     title: "Table",
+    category: "Data display",
     description: "Responsive table parts; scrolls horizontally on small screens.",
     example: (
       <Table>
@@ -1430,6 +1524,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "tabs",
     title: "Tabs",
+    category: "Navigation",
     description: "Tabbed sections.",
     example: (
       <Tabs defaultValue="all">
@@ -1447,6 +1542,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "textarea",
     title: "Textarea",
+    category: "Forms",
     description: "Multi-line text input.",
     example: <Textarea aria-label="Your answer" placeholder="Your answer" className="max-w-sm" />,
     props: [
@@ -1458,6 +1554,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
   {
     name: "tooltip",
     title: "Tooltip",
+    category: "Overlays",
     description: "Short hint on hover or focus.",
     example: (
       <Tooltip>

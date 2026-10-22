@@ -126,6 +126,11 @@ export type Messages = {
     sendError: string;
     model: string;
   };
+  command: {
+    label: string;
+    placeholder: string;
+    empty: string;
+  };
   feedback: {
     label: string;
     positive: string;
@@ -261,6 +266,11 @@ export const en: Messages = {
     uploadFailed: "{name} could not be uploaded. Try again.",
     sendError: "The message could not be sent. Try again.",
     model: "Model",
+  },
+  command: {
+    label: "Search",
+    placeholder: "Search…",
+    empty: "No results.",
   },
   feedback: {
     label: "Rate this answer",

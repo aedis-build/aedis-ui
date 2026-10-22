@@ -123,6 +123,11 @@ export const es: Messages = {
     sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     model: "Modelo",
   },
+  command: {
+    label: "Buscar",
+    placeholder: "Buscar…",
+    empty: "Sin resultados.",
+  },
   feedback: {
     label: "Valora esta respuesta",
     positive: "Buena respuesta",

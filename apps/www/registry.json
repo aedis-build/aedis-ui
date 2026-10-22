@@ -299,6 +299,25 @@
       ]
     },
     {
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command",
+      "description": "Search box over a list, alone or in a dialog (⌘K): type to filter, arrow keys to move, Enter to choose. Items render as text.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/dialog",
+        "@aedis/input"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/command.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert Dialog",

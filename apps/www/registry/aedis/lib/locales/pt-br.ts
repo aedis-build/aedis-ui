@@ -123,6 +123,11 @@ export const ptBR: Messages = {
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
     model: "Modelo",
   },
+  command: {
+    label: "Buscar",
+    placeholder: "Buscar…",
+    empty: "Nenhum resultado.",
+  },
   feedback: {
     label: "Avalie esta resposta",
     positive: "Resposta boa",
