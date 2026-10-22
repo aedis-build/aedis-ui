@@ -67,7 +67,7 @@ aedis-dotnet does this by default (`AedisApiHost`, `Aedis.Security`, `Aedis.AI`)
 | Best Practices gold | criteria tracked by `aedis org audit`; this repository ships the files and workflows the audit checks |
 | Coverage ≥ 85 % lines, ≥ 70 % branches, no regression | the platform's `coverage-js.yml` gate at **95 / 85** (the same bar as the .NET framework), `coverage-summary` artifact in the platform contract, no-regression against the last green run |
 | PLT-13 SAST gate | the platform's `sast.yml`: Semgrep public rulesets for JS/TS/React/Next plus the shared Aedis rules (`aedis.dangerously-set-inner-html`, `aedis.rehype-raw`, `aedis.secret-in-web-storage`, `aedis.fetch-credentials-include`, `aedis.raw-text-field`); CodeQL `security-extended` |
-| PLT-14 DAST gate | OWASP ZAP baseline against the built site and registry on every PR (`ci.yml`), `dast-summary` artifact |
+| PLT-14 DAST gate | OWASP ZAP baseline against the built site and registry on every PR (`aedis-ci.yml`), `dast-summary` artifact |
 | PLT-10 production only by PR with review | `main` ruleset: linear history, 1 approval, code owners, required checks, squash; Pages deploys from `main` only |
 | PLT-21 evidence retained | `coverage-summary`, `sast-summary`, `dast-summary` and `scorecard` artifacts on every run |
 | PLT-19 attestation verified at admission · PLT-16 drift report · PLT-20 WAF | **not applicable**: this repository ships source files, not a container image or an API. The app that consumes the registry runs on the platform, which applies them |

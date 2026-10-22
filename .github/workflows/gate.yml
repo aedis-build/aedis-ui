@@ -1,11 +1,11 @@
-# Merge gate: after every CI, SAST and CodeQL run on a pull request, evaluates .github/aedis-merge-policy.yaml and,
+# Merge gate: after every aedis-ci run on a pull request, evaluates .github/aedis-merge-policy.yaml and,
 # when everything passes, approves as the "Aedis Compliance" GitHub App and enables auto-merge. Runs from main
 # (workflow_run) and never checks out the pull request's code.
 name: gate
 
 on:
   workflow_run:
-    workflows: [CI, sast, codeql]
+    workflows: [aedis-ci]
     types: [completed]
 
 permissions: {}

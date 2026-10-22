@@ -1,0 +1,39 @@
+# Single quality pipeline of aedis-ui: calls aedis-ci from Aedis Platform (Conventional Commits, tests with the 95/85
+# coverage gate and no regression, typecheck and build of the site and the CLI, SAST with the Aedis and Next.js
+# rules, CodeQL security-extended, REUSE, and a DAST baseline against the static site and the registry JSON).
+# The pipeline belongs to the platform; this file only holds the trigger, the permissions and the repository's
+# parameters. On pull requests it runs for any base, so stacked pull requests are validated too.
+name: aedis-ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  schedule:
+    - cron: "29 5 * * 2"
+
+permissions: {}
+
+jobs:
+  aedis:
+    uses: aedis-build/aedis-platform/.github/workflows/aedis-ci.yml@177a6c164de12e82a23aae67107294d2439e406b # main
+    permissions:
+      contents: read
+      actions: read
+      packages: read
+      security-events: write
+      id-token: write
+    with:
+      language: node
+      coverage-script: test:coverage
+      coverage-reports: apps/www/coverage/cobertura-coverage.xml
+      min-line: 95
+      min-branch: 85
+      no-regression: true
+      check-scripts: typecheck build
+      reuse: true
+      codeql-queries: security-extended
+      sast-extra-configs: p/nextjs
+      dast-start: "pnpm site:build && (python3 -m http.server 8080 -d apps/www/out > dast-server.log 2>&1 &)"
+      dast-fail-on: High
+      platform-ref: 177a6c164de12e82a23aae67107294d2439e406b
