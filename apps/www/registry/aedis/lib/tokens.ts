@@ -133,6 +133,9 @@ export const durations = {
   spring: "560ms",
   sheet: "700ms",
   stagger: "50ms",
+  // Page-load entrance: a slow rise, one block after another.
+  enter: "900ms",
+  "enter-stagger": "90ms",
 };
 
 /** Springs sampled with linear(): no dependency. Tailwind: `ease-<name>`. */

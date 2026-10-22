@@ -40,6 +40,15 @@ export const syntax: Record<string, string> = {
   "token-link": "link",
 };
 
+// A dark code surface in every theme (a terminal on a light page): the dark theme's own roles, so its contrast is the
+// dark theme's, checked by the tests. Syntax variables are set again because they resolve where they are declared.
+const terminalRoles = [...new Set(["surface", "muted", "hairline", ...Object.values(syntax)])];
+export const terminal = [
+  ...terminalRoles.map((role) => `--${role}: ${colors[role as keyof typeof colors].dark};`),
+  ...Object.entries(syntax).map(([k, v]) => `--syntax-${k}: ${colors[v as keyof typeof colors].dark};`),
+  "color-scheme: dark;",
+];
+
 const mapped = [
   ...Object.keys(colors).map((name) => `--color-${name}: var(--${name});`),
   ...Object.keys(shadows).map((name) => `--shadow-${name}: var(--${name});`),
@@ -306,6 +315,51 @@ const utilities = String.raw`
   }
 }
 
+/* Page-load entrance: each child rises into place, one after another. Under reduced motion only a short fade. */
+@keyframes aedis-enter {
+  from {
+    opacity: 0;
+    translate: 0 0.875rem;
+  }
+}
+@utility enter {
+  & > * {
+    animation: aedis-enter var(--duration-enter) var(--ease-cinematic) both;
+  }
+  & > :nth-child(2) { animation-delay: var(--duration-enter-stagger); }
+  & > :nth-child(3) { animation-delay: calc(2 * var(--duration-enter-stagger)); }
+  & > :nth-child(4) { animation-delay: calc(3 * var(--duration-enter-stagger)); }
+  & > :nth-child(n + 5) { animation-delay: calc(4 * var(--duration-enter-stagger)); }
+  @media (prefers-reduced-motion: reduce) {
+    & > * {
+      animation-name: aedis-fade-in;
+    }
+  }
+}
+@keyframes aedis-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* An interactive card rises a little on hover, on the spring, with a deeper shadow. */
+@utility lift {
+  transition:
+    translate var(--duration-spring) var(--ease-spring-critical),
+    box-shadow var(--duration-base) var(--ease-cinematic);
+  &:hover,
+  &:focus-within {
+    translate: 0 -4px;
+    box-shadow: var(--elevation-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover,
+    &:focus-within {
+      translate: none;
+    }
+  }
+}
+
 /* Blinking text cursor; never under reduced motion. */
 @utility caret {
   animation: caret 1s steps(1) infinite;
@@ -389,6 +443,9 @@ export function themeCss() {
     "",
     `@media (prefers-contrast: more) {\n${block(":root:root", ["--border: var(--border-control);", "--hairline: var(--border-control);"], "  ")}\n}`,
     "",
+    "/* Code on a dark surface in any theme, e.g. a terminal on a light page: `terminal` on the CodeBlock. */",
+    block("@utility terminal", terminal),
+    "",
     "/* Reduced motion: slides, scale, blur and bounce become a short cross-fade. */",
     `@media (prefers-reduced-motion: reduce) {\n${block(":root:root", [
       "--press-scale: 1;",
@@ -400,6 +457,8 @@ export function themeCss() {
       "--duration-spring: var(--duration-fast);",
       "--duration-sheet: var(--duration-fast);",
       "--duration-stagger: 0ms;",
+      "--duration-enter: var(--duration-fast);",
+      "--duration-enter-stagger: 0ms;",
       "--ease-spring-critical: ease;",
       "--ease-spring-bouncy: ease;",
     ], "  ")}\n}`,
