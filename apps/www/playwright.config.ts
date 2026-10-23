@@ -16,6 +16,8 @@ export default defineConfig({
     { name: "layout", testMatch: "layout.spec.ts", use: { colorScheme: "light" } },
     { name: "light", testIgnore: "layout.spec.ts", use: { colorScheme: "light" } },
     { name: "dark", testIgnore: "layout.spec.ts", use: { colorScheme: "dark" } },
+    // The third theme is chosen by data-theme, not by a media feature: the spec sets it.
+    { name: "brand", testIgnore: "layout.spec.ts", use: { colorScheme: "light" } },
     { name: "reduced-motion", testIgnore: "layout.spec.ts", use: { colorScheme: "light", reducedMotion: "reduce" } },
     // Browsers cannot emulate prefers-reduced-transparency: the spec sets data-reduced-transparency, which the theme honours the same way.
     { name: "reduced-transparency", testIgnore: "layout.spec.ts", use: { colorScheme: "light" } },

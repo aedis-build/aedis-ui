@@ -25,6 +25,7 @@ for (const path of pages) {
   test(`${path} matches its baseline`, async ({ page }, info) => {
     await page.goto(path, { waitUntil: "networkidle" });
     if (info.project.name === "reduced-transparency") await page.evaluate(() => document.documentElement.setAttribute("data-reduced-transparency", ""));
+    if (info.project.name === "brand") await page.evaluate(() => document.documentElement.setAttribute("data-theme", "brand"));
     // Code blocks reveal lines when scrolled into view (some sit far down, e.g. in the home gallery), with a timer, and
     // highlight after shiki loads: bring each into view, then wait for the final state.
     for (const block of await page.locator("[data-slot=code-block]").all()) await block.scrollIntoViewIfNeeded();

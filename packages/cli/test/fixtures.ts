@@ -38,10 +38,10 @@ export function bundleFor(archive: Buffer, release: string, overrides: { name?: 
 
 /** Accepts only bundles "signed" by the expected release workflow identity, like sigstore would. */
 export const fakeCheck =
-  (signedFor: string): SignatureCheck =>
+  (signedFor: string, repo = REPO): SignatureCheck =>
   async (_bundle, { certificateIdentityURI, certificateIssuer }) => {
     if (certificateIssuer !== "https://token.actions.githubusercontent.com") throw new Error("wrong issuer");
-    if (certificateIdentityURI !== `${REPO}/.github/workflows/release.yml@refs/tags/${signedFor}`) throw new Error("certificate identity mismatch");
+    if (certificateIdentityURI !== `${repo}/.github/workflows/release.yml@refs/tags/${signedFor}`) throw new Error("certificate identity mismatch");
     return {};
   };
 
@@ -100,8 +100,8 @@ export function fakeFetch(routes: Record<string, () => Response>) {
   return { fetcher, calls };
 }
 
-export function releaseRoutes(release: string, archive = releaseArchive(), bundle: unknown = bundleFor(archive, release)) {
-  const base = `${REPO}/releases/download/${release}/aedis-ui-registry-${release}.tgz`;
+export function releaseRoutes(release: string, archive = releaseArchive(), bundle: unknown = bundleFor(archive, release), repo = REPO) {
+  const base = `${repo}/releases/download/${release}/${repo.split("/").at(-1)}-registry-${release}.tgz`;
   return {
     [base]: () => new Response(archive),
     [`${base}.sigstore`]: () => (bundle === null ? new Response("nope", { status: 404 }) : Response.json(bundle)),
