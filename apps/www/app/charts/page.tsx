@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 import { ChartsGallery } from "@/components/site/charts-gallery";
+import { JsonLd } from "@/components/site/json-ld";
+import { pageMetadata } from "@/content/share";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Card } from "@/registry/aedis/ui/card";
 
-export const metadata: Metadata = { title: "Charts", description: "Charts for usage, spend and agent health. Data in, text out." };
+export const metadata: Metadata = pageMetadata("/charts");
 
 // The four rules of #112, each proved in test/chart.test.tsx.
 const rules = [
@@ -17,6 +19,7 @@ const rules = [
 export default function Charts() {
   return (
     <main className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
+      <JsonLd path="/charts" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Charts</h1>
         <p className="text-title-3 font-normal text-muted-foreground">Charts for usage, spend and agent health. Data in, text out: no chart ever renders markup from your data.</p>

@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 
 import { InlineMarkdown } from "@/components/site/inline-markdown";
 import { CLI } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { securityDoc, type Status } from "@/components/site/security-doc";
+import { pageMetadata } from "@/content/share";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
 import { Checkbox } from "@/registry/aedis/ui/checkbox";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Label } from "@/registry/aedis/ui/label";
 
-export const metadata: Metadata = {
-  title: "Security by construction",
-  description: "How Aedis UI treats each class of attack a browser application faces, and what it leaves to the backend.",
-};
+export const metadata: Metadata = pageMetadata("/security");
 
 const status: Record<Status, string> = {
   structural: "bg-success/12 text-success",
@@ -28,6 +27,7 @@ export default function Security() {
   const supply = doc.attacks.find((a) => a.attack.includes("Supply chain"));
   return (
     <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
+      <JsonLd path="/security" />
       <section className="enter max-w-3xl space-y-4">
         <Badge className="bg-success/12 text-success">L3 Regulated · OWASP · MITRE ATT&amp;CK and ATLAS</Badge>
         <h1 className="text-display">Security by construction</h1>

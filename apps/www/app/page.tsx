@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CLI } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { ShellDiagram } from "@/components/site/shell-diagram";
 import { Showcase } from "@/components/site/showcase";
+import { pageMetadata } from "@/content/share";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
@@ -18,6 +21,9 @@ const sinks = [
 // Plain wordmarks as text: no third-party logo files.
 const builtOn = ["React", "Base UI", "Tailwind CSS", "Next.js", "Sigstore", "OpenSSF Scorecard"];
 
+// The home page keeps the bare site name as its title; the card says the rest.
+export const metadata: Metadata = { ...pageMetadata("/"), title: { absolute: "Aedis UI" } };
+
 function Eyebrow({ children }: { children: string }) {
   return <span className="text-caption font-semibold uppercase tracking-wide text-link">{children}</span>;
 }
@@ -31,6 +37,7 @@ function More({ href, children }: { href: string; children: string }) {
 export default function Home() {
   return (
     <main>
+      <JsonLd path="/" />
       <section className="enter mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 pt-16 pb-10 text-center md:px-6 md:pt-20">
         <Link href="/blocks" className="focus-ring rounded-full">
           <Badge variant="outline">New: Charts, Blocks and the micro-frontend kit →</Badge>

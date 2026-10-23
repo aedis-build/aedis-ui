@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/site/mobile-nav";
 import { SiteSearch } from "@/components/site/site-search";
 import { ThemeSwitch } from "@/components/site/theme-switch";
 import { navGroups, searchItems } from "@/content/nav";
+import { llmsAlternate } from "@/content/share";
 import { headerLinks } from "@/content/site";
 import { Button } from "@/registry/aedis/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/registry/aedis/ui/navigation-menu";
@@ -15,6 +16,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Aedis UI", template: "%s · Aedis UI" },
   description: "Secure-by-default React components for building AI platforms.",
+  // Pages with share metadata repeat it (a page's alternates replace the layout's).
+  alternates: { types: llmsAlternate },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

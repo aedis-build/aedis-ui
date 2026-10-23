@@ -84,6 +84,12 @@ export function headersFile(paths: string[]): string {
     "/color-scheme.js",
     "  ! Cross-Origin-Resource-Policy",
     "  Cross-Origin-Resource-Policy: cross-origin",
+    // The share cards (app/og): named by a hash of what they show, and fetched by chat apps and networks from anywhere.
+    "/og/*",
+    "  ! Cache-Control",
+    "  Cache-Control: public, max-age=31536000, immutable",
+    "  ! Cross-Origin-Resource-Policy",
+    "  Cross-Origin-Resource-Policy: cross-origin",
     ...policyRules(paths).flatMap(([rule, frameable]) => [rule, `  Content-Security-Policy: ${policy(frameable)}`]),
   ];
   const rules = lines.filter((l) => l.startsWith("/")).length;

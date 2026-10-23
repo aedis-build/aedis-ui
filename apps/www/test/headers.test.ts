@@ -81,10 +81,10 @@ describe("_headers", () => {
     const file = headersFile(PAGES);
     for (const p of PAGES) expect(policies(file, p)[0]).toContain(/^\/(blocks\/view|demo\/remote)\//.test(p) ? "frame-ancestors 'self';" : "frame-ancestors 'none';");
     // Rules by directory: a new docs page or block needs no new rule.
-    expect(file.split("\n").filter((l) => l.startsWith("/"))).toEqual(["/*", "/_next/static/*", "/color-scheme.js", "/", "/404", "/blocks", "/blocks/agent-console", "/blocks/usage-limits", "/blocks/view/*", "/charts", "/demo/*", "/docs", "/docs/*", "/micro-frontends"]);
+    expect(file.split("\n").filter((l) => l.startsWith("/"))).toEqual(["/*", "/_next/static/*", "/color-scheme.js", "/og/*", "/", "/404", "/blocks", "/blocks/agent-console", "/blocks/usage-limits", "/blocks/view/*", "/charts", "/demo/*", "/docs", "/docs/*", "/micro-frontends"]);
   });
 
-  it("lets hashed build assets, the moved scripts included, be cached for good", () => {
+  it("lets hashed build assets, the moved scripts and the share cards included, be cached for good", () => {
     expect(rule(headersFile([]), "/_next/static/*")).toEqual([
       "  ! Cache-Control",
       "  Cache-Control: public, max-age=31536000, immutable",
@@ -93,11 +93,14 @@ describe("_headers", () => {
     ]);
     expect(INLINE_DIR.startsWith("/_next/static/")).toBe(true);
     expect(rule(headersFile([]), "/color-scheme.js")).toEqual(["  ! Cross-Origin-Resource-Policy", "  Cross-Origin-Resource-Policy: cross-origin"]);
+    // Share cards are named by a hash of what they show, and loaded by other sites' previews.
+    expect(rule(headersFile([]), "/og/*")).toEqual(rule(headersFile([]), "/_next/static/*"));
+    expect(policies(headersFile(PAGES), "/og/home-0123456789ab.png")).toEqual([]);
   });
 
   it("fails the build instead of shipping a file Cloudflare would reject", () => {
-    expect(() => headersFile(Array.from({ length: 97 }, (_, i) => `/p${i}`))).not.toThrow();
-    expect(() => headersFile(Array.from({ length: 98 }, (_, i) => `/p${i}`))).toThrow("_headers: 101 rules, Cloudflare allows 100");
+    expect(() => headersFile(Array.from({ length: 96 }, (_, i) => `/p${i}`))).not.toThrow();
+    expect(() => headersFile(Array.from({ length: 97 }, (_, i) => `/p${i}`))).toThrow("_headers: 101 rules, Cloudflare allows 100");
     expect(() => headersFile([`/${"x".repeat(2000)}`])).toThrow(/characters/);
   });
 
