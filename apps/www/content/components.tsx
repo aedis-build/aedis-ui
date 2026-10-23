@@ -1179,7 +1179,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
       { name: "aria-label", type: "string", description: "Names the region; the viewport is focusable when it overflows so the keyboard can scroll it." },
       ...baseProps("@base-ui/react ScrollArea"),
     ],
-    security: { sinks: [], notes: ["Scrolling stays native: wheel, touch, keyboard and in-page search work as usual."] },
+    security: { sinks: [], notes: ["Scrolling stays native: wheel, touch, keyboard and in-page search work as usual.", "Base UI hides the native scrollbar with an inline <style> element: under a nonce CSP pass the nonce prop; a static site gives securityHeaders its hash (styleHashes)."] },
     accessibility: {
       keyboard: [["↑ ↓ / Page Up / Page Down", "Scrolls when the area has focus."]],
       notes: ["With aria-label it becomes a named region, so keyboard users can find and scroll it."],
@@ -1786,7 +1786,7 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
     name: "security-headers",
     title: "securityHeaders",
     category: "Security",
-    description: "Response headers for an app built with these components: strict CSP, HSTS, no framing, no sniffing.",
+    description: "Response headers for an app built with these components: strict CSP for scripts and styles, HSTS, no framing, no sniffing.",
     usage: `import { securityHeaders } from "@/lib/security-headers";
 
 // proxy.ts (Next.js) or any edge/middleware
@@ -1795,6 +1795,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     props: [
       { name: "nonce", type: "string", description: "Per-request nonce; the framework must put it on its scripts." },
       { name: "hashes", type: "string[]", description: "Static sites: sha256-/sha384-/sha512- hashes of the inline scripts, computed at build time. Use instead of nonce; the policy is then 'self' plus the hashes." },
+      { name: "styleHashes", type: "string[]", default: "[]", description: "Hashes of the inline <style> elements a page carries without a nonce (Base UI's scrollbar style, the framework's error page); a static site computes them at build time." },
       { name: "connectSrc", type: "string[]", default: "[]", description: "Extra origins for fetch and SSE." },
       { name: "imgSrc", type: "string[]", default: "[]", description: "Extra origins for images." },
       { name: "frameAncestors", type: "string[]", default: "[]", description: "Who may frame the page; nobody by default." },
@@ -1809,6 +1810,12 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
           ids: ["CWE-79", "CWE-693", "ATT&CK T1059.007"],
         },
         {
+          title: "No injected stylesheet",
+          text: "Style elements only from this origin, the nonce or a build-time hash, never 'unsafe-inline'; the components' style attributes stay allowed, since an attribute runs no script.",
+          evidence: [["security-headers.test.ts", "refuses an injected <style> element but keeps the components' style attributes"]],
+          ids: ["CWE-79", "CWE-693"],
+        },
+        {
           title: "No framing, no foreign forms",
           text: "frame-ancestors 'none' and X-Frame-Options DENY stop clickjacking; form-action 'self' stops form hijacking.",
           evidence: [["security-headers.test.ts", "allows no inline script, eval, plugin, framing or foreign form target"]],
@@ -1821,7 +1828,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
           ids: ["CWE-319", "CWE-524", "ATT&CK T1557"],
         },
       ],
-      backend: "apply them from the framework's middleware on every response, and pass the nonce to its scripts.",
+      backend: "apply them from the framework's middleware on every response, and pass the nonce to its scripts and to ScrollArea.",
     },
   },
   {

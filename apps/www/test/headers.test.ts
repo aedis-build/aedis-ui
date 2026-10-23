@@ -1,9 +1,10 @@
 import fc from "fast-check";
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { externalizeScripts, headersFile, htmlFiles, INLINE_DIR, urlPath } from "@/scripts/headers";
+import { externalizeScripts, headersFile, htmlFiles, INLINE_DIR, styleHashes, urlPath } from "@/scripts/headers";
 
 /** The header lines of the rule for `path`. */
 const rule = (file: string, path: string) => {
@@ -44,6 +45,18 @@ describe("_headers", () => {
         expect(new Set(files.values())).toEqual(new Set(scripts.filter(([, external]) => !external).map(([body]) => body)));
       }),
     );
+  });
+
+  it("hashes every inline <style> element, so the policy needs no 'unsafe-inline' for them", () => {
+    const sha = (text: string) => `sha256-${createHash("sha256").update(text).digest("base64")}`;
+    const html = `<style data-precedence="base-ui:low">.a{scrollbar-width:none}</style><p>x</p><style>body{margin:0}</style>`;
+    expect(styleHashes(html)).toEqual([sha(".a{scrollbar-width:none}"), sha("body{margin:0}")]);
+    expect(styleHashes("<p>no style</p>")).toEqual([]);
+    // The browser hashes the decoded text, so an entity would never match: better to fail the build.
+    expect(() => styleHashes("<style>a::before{content:'&gt;'}</style>")).toThrow(/entity/);
+    const [one] = policies(headersFile(PAGES, [sha("body{margin:0}")]), "/docs/button");
+    expect(one).toContain(`style-src-elem 'self' '${sha("body{margin:0}")}'; style-src-attr 'unsafe-inline';`);
+    expect(one).not.toContain("style-src '");
   });
 
   it("sends every security header but the CSP on every path, and forbids proxies to rewrite pages", () => {
