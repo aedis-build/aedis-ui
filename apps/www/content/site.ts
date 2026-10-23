@@ -4,6 +4,6 @@ export const headerLinks: { href: string; label: string }[] = [
   { href: "/components", label: "Components" },
   { href: "/blocks", label: "Blocks" },
   { href: "/charts", label: "Charts" },
-  { href: "/docs/micro-frontends", label: "Micro-frontends" },
+  { href: "/micro-frontends", label: "Micro-frontends" },
   { href: "/security", label: "Security" },
 ];
