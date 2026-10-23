@@ -1,12 +1,12 @@
 import { stripInvisible } from "@/lib/untrusted";
 
 import { colorDistance, contrast, parseOklch } from "./contrast";
-import { blurs, colors, contrastPairs, fonts, radii, shadows, type ColorName, type ShadowName } from "./tokens";
+import { blurs, colors, contrastPairs, fonts, radii, shadows, typeScale, type ColorName, type ShadowName } from "./tokens";
 
 /**
  * A custom theme is typed data, never CSS. Every value is parsed and written back from numbers, so nothing a
  * theme says can close a rule, import a stylesheet or reach a url(). Themes change color, radius, blur, shadow
- * strength and font: never display, visibility or opacity, so safety cues stay visible.
+ * strength, font and type sizes: never display, visibility or opacity, so safety cues stay visible.
  */
 export type CustomTheme = {
   version: 1;
@@ -20,7 +20,17 @@ export type CustomTheme = {
   /** Multiplies the opacity of the default shadows, 0–2. */
   shadow?: number;
   font?: FontName;
+  /** The type scale, within bounds that keep text readable (see `typeRanges`). */
+  type?: Partial<Record<TypeKey, number>>;
 };
+
+/**
+ * base: body size in px, every size follows it. scale: how far headings sit above body (1 is the default scale).
+ * leading: body line height. Bounds keep body at 14 px or more and no text under 12 px.
+ */
+export const typeRanges = { base: [14, 18], scale: [0.8, 1.2], leading: [1.3, 1.7] } as const;
+type TypeKey = keyof typeof typeRanges;
+const MIN_TEXT_PX = 12;
 
 export type ThemeMode = "light" | "dark";
 type RadiusName = keyof typeof radii;
@@ -72,7 +82,7 @@ function unknownKeys(o: Record<string, unknown>, allowed: readonly string[], pat
 /** Validates untrusted input (a parsed JSON value) and returns a normalized theme, or every reason it is refused. */
 export function validateTheme(input: unknown): ThemeResult {
   if (!isRecord(input)) return { ok: false, errors: ["theme must be an object"] };
-  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "font"], "");
+  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "font", "type"], "");
   if (input.version !== 1) errors.push("version must be 1");
 
   const name = typeof input.name === "string" ? stripInvisible(input.name).trim() : "";
@@ -131,6 +141,21 @@ export function validateTheme(input: unknown): ThemeResult {
     else errors.push(`font must be one of ${Object.keys(themeFonts).join(", ")}`);
   }
 
+  if (input.type !== undefined) {
+    if (!isRecord(input.type)) errors.push("type must be an object");
+    else {
+      errors.push(...unknownKeys(input.type, Object.keys(typeRanges), "type."));
+      const type: Partial<Record<TypeKey, number>> = {};
+      for (const [k, [min, max]] of Object.entries(typeRanges) as [TypeKey, readonly [number, number]][]) {
+        if (input.type[k] === undefined) continue;
+        const v = numberIn(input.type[k], min, max);
+        if (v === null) errors.push(`type.${k} must be a number from ${min} to ${max}`);
+        else type[k] = v;
+      }
+      theme.type = type;
+    }
+  }
+
   if (errors.length === 0) errors.push(...readability(theme));
   return errors.length ? { ok: false, errors } : { ok: true, theme };
 }
@@ -173,6 +198,21 @@ export function themeVariables(theme: CustomTheme, mode: ThemeMode): Record<stri
   for (const [k, v] of Object.entries(theme.radius ?? {})) vars[`--radius-${k}`] = `${v}px`;
   for (const [k, v] of Object.entries(theme.blur ?? {})) vars[`--blur-${k}`] = `${v}px`;
   if (theme.font) vars["--font-sans"] = themeFonts[theme.font];
+  if (theme.type) Object.assign(vars, typeVariables(theme.type));
+  return vars;
+}
+
+/** Sizes in rem from the type settings: every size follows base, headings move by scale, nothing under 12 px. */
+export function typeVariables({ base = 16, scale = 1, leading }: Partial<Record<TypeKey, number>>): Record<string, string> {
+  const px = (rem: string) => parseFloat(rem) * 16;
+  const body = px(typeScale.body.size) * (base / 16);
+  const vars: Record<string, string> = {};
+  for (const [name, style] of Object.entries(typeScale)) {
+    const size = px(style.size) * (base / 16);
+    const out = size > body ? body + (size - body) * scale : size;
+    vars[`--text-${name}`] = `${num(Math.max(MIN_TEXT_PX, out) / 16)}rem`;
+  }
+  if (leading !== undefined) vars["--text-body--line-height"] = num(leading);
   return vars;
 }
 
@@ -214,5 +254,7 @@ export const themeVariableNames = new Set([
   ...Object.keys(radii).map((k) => `--radius-${k}`),
   ...Object.keys(blurs).filter((k) => k !== "materialize").map((k) => `--blur-${k}`),
   "--font-sans",
+  ...Object.keys(typeScale).map((k) => `--text-${k}`),
+  "--text-body--line-height",
   "color-scheme",
 ]);

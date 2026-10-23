@@ -9,6 +9,7 @@ import {
   themeToCss,
   themeVariableNames,
   themeVariables,
+  typeVariables,
   validateTheme,
   type CustomTheme,
 } from "@/registry/aedis/lib/custom-theme";
@@ -49,6 +50,27 @@ describe("validateTheme", () => {
     expect(errors({ ...base, colors: { light: [], dark: {} } })).toContain("colors.light must be an object");
     expect(errors({ ...base, colors: "x" })).toContain("colors must be an object with light and dark");
     expect(errors("theme")).toEqual(["theme must be an object"]);
+  });
+
+  it("takes type settings only within the bounds that keep text readable", () => {
+    expect(validateTheme({ ...base, type: { base: 15, scale: 0.9, leading: 1.6 } })).toMatchObject({ ok: true, theme: { type: { base: 15, scale: 0.9, leading: 1.6 } } });
+    expect(errors({ ...base, type: { base: 11 } })).toContain("type.base must be a number from 14 to 18");
+    expect(errors({ ...base, type: { leading: "2; color: red" } })).toContain("type.leading must be a number from 1.3 to 1.7");
+    expect(errors({ ...base, type: { tracking: 1 } })).toContain("type.tracking is not part of the theme schema");
+    expect(errors({ ...base, type: [] })).toContain("type must be an object");
+  });
+
+  it("derives every size from the type settings, never under 12 px (property)", () => {
+    fc.assert(
+      fc.property(fc.double({ min: 14, max: 18, noNaN: true }), fc.double({ min: 0.8, max: 1.2, noNaN: true }), (b, k) => {
+        const vars = typeVariables({ base: b, scale: k });
+        for (const v of Object.values(vars)) expect(parseFloat(v) * 16).toBeGreaterThanOrEqual(12 - 1e-6);
+        expect(parseFloat(vars["--text-body"]) * 16).toBeCloseTo(b, 2);
+        expect(parseFloat(vars["--text-display"])).toBeGreaterThan(parseFloat(vars["--text-title-1"]));
+      }),
+    );
+    expect(typeVariables({})["--text-display"]).toBe("3rem");
+    expect(typeVariables({ leading: 1.6 })["--text-body--line-height"]).toBe("1.6");
   });
 
   it("refuses a theme that fails contrast AA, in light or dark", () => {
