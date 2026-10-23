@@ -2,7 +2,7 @@
 
 Secure-by-default React components for building AI platforms: agent chat, approvals, hand raises, usage ceilings, workflow editors and the app shell around them.
 
-Aedis UI follows the [shadcn/ui](https://ui.shadcn.com) model: components are not a dependency you install, they are source code you add to your app and own. The registry is compatible with the shadcn CLI.
+Components are not a dependency you install: they are source code you add to your app and own, after the CLI verifies the signed release they come from.
 
 > Status: early preview. The registry, docs site and first components are being proposed through pull requests.
 

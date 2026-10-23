@@ -29,7 +29,7 @@ describe("Create", () => {
     expect(seen.size).toBe(15); // every click that changes a choice changes the id
     const last = decodePreset(command(container));
     expect(last.ok && last.preset).toMatchObject({ framework: "v", theme: "b", radius: "l", motion: "o", level: "3", blocks: ["secure-shell", "charts", "mf-frame"] });
-  });
+  }, 15_000); // clicks through every choice: room above the 5 s default when the suite runs in parallel
 
   it("previews the preset's theme on real components", async () => {
     const user = userEvent.setup();
