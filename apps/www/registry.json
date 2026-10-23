@@ -89,7 +89,12 @@
           "path": "lib/api.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "api() is the transport primitive: same-origin, no redirects, the CSRF header, a timeout."
+        }
+      }
     },
     {
       "name": "security-headers",
@@ -1164,7 +1169,12 @@
           "path": "registry/aedis/lib/event-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Server-sent events with api()'s guarantees: same-origin path, no redirects, the CSRF header."
+        }
+      }
     },
     {
       "name": "bff-stream",
@@ -1179,7 +1189,12 @@
           "path": "registry/aedis/lib/bff-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Runs on the server (the BFF), streaming from the agent backend; the browser never calls it."
+        }
+      }
     },
     {
       "name": "secure-action",
@@ -1305,7 +1320,12 @@
           "path": "registry/aedis/lib/attachment.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Uploads need progress, which fetch lacks: XMLHttpRequest with api()'s guarantees."
+        }
+      }
     },
     {
       "name": "prompt-input",
