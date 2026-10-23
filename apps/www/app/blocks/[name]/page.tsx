@@ -2,13 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ComponentPreview } from "@/components/site/component-preview";
+import { BlockFrame } from "@/components/site/block-frame";
 import { source } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
 import { SecurityPanel } from "@/components/site/security-panel";
-import { blocks } from "@/content/blocks";
-import { components, type Sink } from "@/content/components";
-import registry from "@/registry.json";
+import { blocks, blockSecurity } from "@/content/blocks";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Kbd } from "@/registry/aedis/ui/kbd";
 
@@ -24,19 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   return { title: block?.title, description: block?.description };
 }
 
-/** The registry items a block is built from, with their docs entries. */
-function blockParts(name: string) {
-  const item = registry.items.find((i) => i.name === name);
-  return (item?.registryDependencies ?? []).flatMap((d) => components.filter((c) => c.name === d.replace("@aedis/", "")));
-}
-
 export default async function BlockPage({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
   const block = blocks.find((b) => b.name === name);
   if (!block) notFound();
-  const parts = blockParts(name);
-  const order: Sink[] = ["DOM", "Input", "Transport", "Session"];
-  const sinks = order.filter((s) => parts.some((p) => p.security.sinks.includes(s)));
+  const { parts, security } = blockSecurity(block);
 
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 pt-12 pb-24 md:px-6">
@@ -46,7 +36,7 @@ export default async function BlockPage({ params }: { params: Promise<{ name: st
         <p className="max-w-3xl text-body text-muted-foreground">{block.description}</p>
       </header>
 
-      <ComponentPreview code={source(`registry/aedis/blocks/${name}.tsx`)} component={block.demo} label={`${block.title} block`} />
+      <BlockFrame name={name} title={block.title} height={block.height} code={source(`registry/aedis/blocks/${name}.tsx`)} />
 
       <section className="space-y-3">
         <h2 className="text-title-2">Installation</h2>
@@ -68,10 +58,7 @@ export default async function BlockPage({ params }: { params: Promise<{ name: st
 
       <section className="space-y-3">
         <h2 className="text-title-2">Security</h2>
-        <SecurityPanel
-          name={name}
-          security={{ sinks, defenses: block.defenses, backend: block.backend, notes: [`Every item inside keeps its own defenses: see the security of ${parts.map((p) => p.title).join(", ")}.`] }}
-        />
+        <SecurityPanel name={name} security={security} />
       </section>
 
       <section className="space-y-3">

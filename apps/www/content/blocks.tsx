@@ -1,10 +1,14 @@
 import type { ComponentType } from "react";
 
-import type { Accessibility, Defense } from "@/content/components";
+import { components, type Accessibility, type Defense, type Security, type Sink } from "@/content/components";
 import AgentConsoleDemo from "@/examples/blocks/agent-console";
 import ApprovalInboxDemo from "@/examples/blocks/approval-inbox";
 import SecureShellDemo from "@/examples/blocks/secure-shell";
 import UsageLimitsDemo from "@/examples/blocks/usage-limits";
+import registry from "@/registry.json";
+
+/** The tabs of the Blocks page, in the board's order; a category may have no block yet. */
+export const blockCategories = ["AI platform", "Approvals", "Usage and limits", "Secure shell", "Micro-frontends"] as const;
 
 /**
  * A whole screen built only from registry items, installed with `aedis add <name>`. The Code tab shows the block's
@@ -14,6 +18,9 @@ export type BlockDoc = {
   name: string;
   title: string;
   description: string;
+  category: (typeof blockCategories)[number];
+  /** Height of the preview frame, in px: the block's own height at desktop width. */
+  height: number;
   demo: ComponentType;
   /** The demo's file in examples/blocks, wired with sample data. */
   demoFile: string;
@@ -28,6 +35,8 @@ export const blocks: BlockDoc[] = [
     name: "agent-console",
     title: "Agent Console",
     description: "A conversation with an agent: streaming answers as safe markdown, tool calls with redaction, sources with their real domain, and a prompt input with Stop.",
+    category: "AI platform",
+    height: 640,
     demo: AgentConsoleDemo,
     demoFile: "blocks/agent-console",
     usage: `import { AgentConsole } from "@/components/ui/agent-console";
@@ -56,6 +65,8 @@ export const blocks: BlockDoc[] = [
     name: "approval-inbox",
     title: "Approval Inbox",
     description: "Pending approvals and raised hands in one list, with the ApprovalCard or HandRaise of the one selected.",
+    category: "Approvals",
+    height: 560,
     demo: ApprovalInboxDemo,
     demoFile: "blocks/approval-inbox",
     usage: `import { ApprovalInbox } from "@/components/ui/approval-inbox";
@@ -85,6 +96,8 @@ export const blocks: BlockDoc[] = [
     name: "usage-limits",
     title: "Usage and Limits",
     description: "Spend per agent against its ceiling, with a warning near the limit and an error once an agent is paused.",
+    category: "Usage and limits",
+    height: 620,
     demo: UsageLimitsDemo,
     demoFile: "blocks/usage-limits",
     usage: `import { UsageLimits } from "@/components/ui/usage-limits";
@@ -108,6 +121,8 @@ export const blocks: BlockDoc[] = [
     name: "secure-shell",
     title: "Secure Shell",
     description: "The signed-in frame of an app: AppShell while the session is active, sign-out after idle time, and a clear state when the session ends.",
+    category: "Secure shell",
+    height: 520,
     demo: SecureShellDemo,
     demoFile: "blocks/secure-shell",
     usage: `import { SecureShell } from "@/components/ui/secure-shell";
@@ -137,3 +152,19 @@ export const blocks: BlockDoc[] = [
     },
   },
 ];
+
+/** The items a block is built from (registry.json), and its security panel: their sinks plus the block's defenses. */
+export function blockSecurity(block: BlockDoc): { parts: typeof components; security: Security } {
+  const item = registry.items.find((i) => i.name === block.name);
+  const parts = (item?.registryDependencies ?? []).flatMap((d) => components.filter((c) => c.name === d.replace("@aedis/", "")));
+  const order: Sink[] = ["DOM", "Input", "Transport", "Session"];
+  return {
+    parts,
+    security: {
+      sinks: order.filter((s) => parts.some((p) => p.security.sinks.includes(s))),
+      defenses: block.defenses,
+      backend: block.backend,
+      notes: [`Every item inside keeps its own defenses: see the security of ${parts.map((p) => p.title).join(", ")}.`],
+    },
+  };
+}
