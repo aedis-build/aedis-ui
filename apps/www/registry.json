@@ -89,7 +89,12 @@
           "path": "lib/api.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "api() is the transport primitive: same-origin, no redirects, the CSRF header, a timeout."
+        }
+      }
     },
     {
       "name": "security-headers",
@@ -409,6 +414,100 @@
       "files": [
         {
           "path": "registry/aedis/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "What every chart shares: values checked before drawing, labels as text, a keyboard tooltip, a legend and a data table for screen readers.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-format"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "area-chart",
+      "type": "registry:ui",
+      "title": "Area Chart",
+      "description": "Filled lines, stacked or overlapping, for usage over time.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/area-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "bar-chart",
+      "type": "registry:ui",
+      "title": "Bar Chart",
+      "description": "Bars per row, grouped when there are several series.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/bar-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "line-chart",
+      "type": "registry:ui",
+      "title": "Line Chart",
+      "description": "Lines with a dot per value, for latency and trends.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/line-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "pie-chart",
+      "type": "registry:ui",
+      "title": "Pie Chart",
+      "description": "A donut of shares, with the total in the middle.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/pie-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radial-chart",
+      "type": "registry:ui",
+      "title": "Radial Chart",
+      "description": "One value against its maximum, as a ring and a percentage.",
+      "registryDependencies": [
+        "@aedis/chart",
+        "@aedis/use-format"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/radial-chart.tsx",
           "type": "registry:ui"
         }
       ]
@@ -1070,7 +1169,12 @@
           "path": "registry/aedis/lib/event-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Server-sent events with api()'s guarantees: same-origin path, no redirects, the CSRF header."
+        }
+      }
     },
     {
       "name": "bff-stream",
@@ -1085,7 +1189,12 @@
           "path": "registry/aedis/lib/bff-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Runs on the server (the BFF), streaming from the agent backend; the browser never calls it."
+        }
+      }
     },
     {
       "name": "secure-action",
@@ -1211,7 +1320,12 @@
           "path": "registry/aedis/lib/attachment.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Uploads need progress, which fetch lacks: XMLHttpRequest with api()'s guarantees."
+        }
+      }
     },
     {
       "name": "prompt-input",

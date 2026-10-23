@@ -27,7 +27,7 @@ export default function Security() {
   const doc = securityDoc();
   const supply = doc.attacks.find((a) => a.attack.includes("Supply chain"));
   return (
-    <main className="mx-auto max-w-6xl space-y-14 px-4 pt-16 pb-24 md:px-6">
+    <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
       <section className="enter max-w-3xl space-y-4">
         <Badge className="bg-success/12 text-success">L3 Regulated · OWASP · MITRE ATT&amp;CK and ATLAS</Badge>
         <h1 className="text-display">Security by construction</h1>
@@ -35,7 +35,7 @@ export default function Security() {
         <p className="text-callout text-muted-foreground"><InlineMarkdown text={doc.intro.join(" ")} /></p>
       </section>
 
-      <section aria-label="Sinks" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Sinks" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {doc.sinks.map((s) => (
           <Card key={s.sink} className="shadow-elevation-2">
             <CardHeader>
@@ -72,7 +72,7 @@ export default function Security() {
         </div>
       </section>
 
-      <section className="grid items-start gap-6 lg:grid-cols-2">
+      <section className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <h2 className="text-title-2">Supply chain you can check</h2>
           {supply ? <p className="text-callout text-muted-foreground"><InlineMarkdown text={supply.how} /></p> : null}
