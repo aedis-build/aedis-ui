@@ -97,6 +97,11 @@ export const es: Messages = {
     wantsToRun: "quiere ejecutarse con estos argumentos.",
     waiting: "Esperando que una persona apruebe.",
   },
+  chart: {
+    chart: "gráfico",
+    item: "Elemento",
+    notShown: "{count} valores no mostrados: no son números en el rango.",
+  },
   reasoning: {
     thinking: "Pensando…",
     thought: "Razonamiento",

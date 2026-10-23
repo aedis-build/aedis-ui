@@ -8,7 +8,7 @@ import { exampleSource } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
-import { components, type ApiPart, type Prop } from "@/content/components";
+import { apiParts, components, type Prop } from "@/content/components";
 import registry from "@/registry.json";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -69,14 +69,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   const adds = (item?.registryDependencies ?? []).map((d) => d.replace("@aedis/", "")).filter((d) => !INIT.has(d));
   const [main, ...more] = doc.examples ?? [];
   const a11y = doc.accessibility;
-  // A row named "SheetContent labels" belongs to SheetContent: one table per part.
-  const byPart = new Map<string, Prop[]>([[doc.title.replace(/\s/g, ""), []]]);
-  for (const p of doc.props) {
-    const [, part, prop] = /^([A-Z]\w+) ([a-z].*)$/.exec(p.name) ?? [];
-    const key = part ?? [...byPart.keys()][0];
-    byPart.set(key, [...(byPart.get(key) ?? []), part ? { ...p, name: prop } : p]);
-  }
-  const parts: ApiPart[] = [...[...byPart].filter(([, props]) => props.length).map(([name, props]) => ({ name, props })), ...(doc.parts ?? [])];
+  const parts = apiParts(doc);
   const badges = [
     npm.some((d) => d.startsWith("@base-ui/react@")) && "Base UI",
     a11y?.keyboard?.length && "Keyboard",

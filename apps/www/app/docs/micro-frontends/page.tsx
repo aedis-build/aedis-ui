@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { approaches as options } from "@/content/micro-frontends";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
 export const metadata: Metadata = {
@@ -9,13 +10,6 @@ export const metadata: Metadata = {
 
 const th = "py-2 pr-4 text-left text-footnote font-medium text-muted-foreground";
 const td = "py-2 pr-4 align-top";
-
-const options: [string, string, string, string][] = [
-  ["iframe (mf-frame + mf-bridge)", "A panel from another team or another trust level inside your page: an agent console in a back office.", "Separate origin and sandbox; talks only through a checked, typed channel; headers on both sides say who may frame whom.", "Its own layout box; height comes over the bridge; no shared styles."],
-  ["Web Component (mf-element)", "A widget tied to the host's layout that the host trusts as its own code.", "None between the two: the element runs in the host's origin and sees what the page sees.", "Shadow DOM keeps CSS apart; props and events cross directly."],
-  ["Multi-Zones", "Whole pages split by path on one site: /docs from one app, /app from another.", "Same origin, so shared cookies; each zone sends its own CSP.", "Navigating to another zone is a full page load."],
-  ["Module Federation", "Not recommended with the App Router.", "Remote code loaded at runtime into the host's origin, outside your build's integrity checks.", "Server Components, streaming and the App Router's bundling are not designed for it; the Next.js plugins target the Pages Router."],
-];
 
 export default function MicroFrontends() {
   return (

@@ -11,3 +11,8 @@ body {
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
 }
+
+/* A block's preview page (/blocks/view/<name>) is the block alone: no site header inside the frame. */
+body:has([data-block-view]) > header {
+  display: none;
+}
