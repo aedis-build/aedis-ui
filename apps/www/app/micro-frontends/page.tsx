@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { MfDemoShell } from "@/components/site/mf-demo-shell";
 import { ShellDiagram } from "@/components/site/shell-diagram";
 import { FramePanel } from "@/components/site/showcase";
 import { approaches, defends, verdicts } from "@/content/micro-frontends";
@@ -39,6 +40,17 @@ export default function MicroFrontends() {
         <Card className="p-5">
           <ShellDiagram />
         </Card>
+      </section>
+
+      <section aria-labelledby="live-demo" className="space-y-3.5">
+        <div className="max-w-3xl space-y-1.5">
+          <h2 id="live-demo" className="text-title-2">Watch it work</h2>
+          <p className="text-callout text-muted-foreground">
+            A shell and a billing remote, live on this page. The remote is a page of this site in an <code className="font-mono">MfFrame</code>, sandboxed, so its
+            origin is opaque; everything it says crosses <code className="font-mono">mf-bridge</code>, and the log shows what the bridge lets through and what it drops.
+          </p>
+        </div>
+        <MfDemoShell />
       </section>
 
       <section className="space-y-3.5">
