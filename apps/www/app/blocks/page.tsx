@@ -5,6 +5,7 @@ import { BlockFrame } from "@/components/site/block-frame";
 import { BlockTabs } from "@/components/site/block-tabs";
 import { source } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { blockCategories, blocks, blockSecurity, type BlockDoc } from "@/content/blocks";
 import { pageMetadata } from "@/content/share";
@@ -39,6 +40,7 @@ function Block({ block }: { block: BlockDoc }) {
 export default function Blocks() {
   return (
     <main className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
+      <JsonLd path="/blocks" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Blocks</h1>
         <p className="text-title-3 font-normal text-muted-foreground">

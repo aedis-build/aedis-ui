@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { ComponentPreview } from "@/components/site/component-preview";
 import { exampleSource } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
 import { apiParts, components, type Prop } from "@/content/components";
@@ -86,6 +87,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
 
   return (
     <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_11rem]">
+      <JsonLd path={`/docs/${name}`} />
       <article className="min-w-0 space-y-10">
         <header className="space-y-3">
           <p className="text-footnote text-muted-foreground">Components › {doc.category}</p>

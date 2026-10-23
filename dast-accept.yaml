@@ -6,7 +6,7 @@ accept:
     reason: "CSP style-src 'unsafe-inline' is deliberate in securityHeaders (components set inline style attributes, scripts never do); remove once the components stop using style attributes."
   - pluginId: 10038
     until: 2027-01-20
-    reason: "No CSP on unknown paths (the 404 page, which holds no data or session): _headers cannot give it a policy without a detach, which production ignored on /; remove once Cloudflare honours the detach or the 404 gets a CSP another way."
+    reason: "No CSP on unknown paths (the 404 page, which holds no data or session; robots.txt and sitemap.xml are now real files, so ZAP's probes of them no longer land here): _headers cannot give it a policy without a detach, which production ignored on /; remove once Cloudflare honours the detach or the 404 gets a CSP another way."
   - pluginId: 10099
     until: 2027-01-20
     reason: "False positive: 'SQL source code disclosure' matches English prose on /docs/use-idle-timeout; remove if the alert ever points at real code or a non-prose page."

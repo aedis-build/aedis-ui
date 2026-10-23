@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLd } from "@/components/site/json-ld";
 import { MfDemoShell } from "@/components/site/mf-demo-shell";
 import { ShellDiagram } from "@/components/site/shell-diagram";
 import { FramePanel } from "@/components/site/showcase";
@@ -26,6 +27,7 @@ useReportHeight(["https://app.example"]);`;
 export default function MicroFrontends() {
   return (
     <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
+      <JsonLd path="/micro-frontends" />
       <section className="enter grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
           <span className="text-caption font-semibold uppercase tracking-wide text-link">Micro-frontends</span>
