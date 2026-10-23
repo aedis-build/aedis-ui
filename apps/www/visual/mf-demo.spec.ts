@@ -59,6 +59,23 @@ test("reached by a client-side navigation, the demo still frames the remote: the
   await expect(page.frameLocator("iframe[title='Billing remote']").getByText("theme: light")).toBeVisible();
 });
 
+test("reached by a client-side navigation, a Blocks preview still loads in its frame", async ({ page }) => {
+  // llms.txt is linked from the home page: it is a file, so the router must not prefetch it as a page.
+  const prefetched: string[] = [];
+  page.on("request", (r) => /\.txt\/__next/.test(r.url()) && prefetched.push(r.url()));
+  await page.goto("/");
+  await page.locator('a[href="/llms.txt"]').first().hover();
+  await page.locator('a[href="/blocks"]').first().evaluate((a: HTMLAnchorElement) => a.click());
+  await expect(page).toHaveURL(/\/blocks$/);
+  expect(await page.evaluate(() => new URL(performance.getEntriesByType("navigation")[0].name).pathname)).toBe("/");
+
+  const preview = page.locator('iframe[src^="/blocks/view/"]').first();
+  await preview.scrollIntoViewIfNeeded();
+  // A blocked frame holds Chrome's error page, which has no data-bare main.
+  await expect(preview.contentFrame().locator("main[data-bare]")).toBeVisible();
+  expect(prefetched).toEqual([]);
+});
+
 test("the mf-element widget runs in a shadow root and emits only its declared event", async ({ page }) => {
   await page.goto("/micro-frontends");
   const meter = page.locator("aedis-usage-meter");
