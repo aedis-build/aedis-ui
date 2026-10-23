@@ -23,7 +23,9 @@ function Eyebrow({ children }: { children: string }) {
 }
 
 function More({ href, children }: { href: string; children: string }) {
-  return <Link href={href} className="focus-ring self-start rounded-xs text-callout font-medium text-link underline-offset-4 hover:underline">{children}</Link>;
+  // llms.txt is a file, not a page: a Link would prefetch and route it as one.
+  const Item = href.endsWith(".txt") ? "a" : Link;
+  return <Item href={href} className="focus-ring self-start rounded-xs text-callout font-medium text-link underline-offset-4 hover:underline">{children}</Item>;
 }
 
 export default function Home() {
