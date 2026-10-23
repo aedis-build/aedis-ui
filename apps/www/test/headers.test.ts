@@ -29,7 +29,8 @@ describe("_headers", () => {
     const { html: out, files } = externalizeScripts(html);
     expect([...files.values()]).toEqual(['self.__next_f.push([1,"x"])', "b()"]);
     const [same, mod] = [...files.keys()];
-    expect(same).toMatch(new RegExp(`^${INLINE_DIR}/[0-9a-f]{32}\\.js$`));
+    // No digits: a run of them would read as a card number to a PII scanner.
+    expect(same).toMatch(new RegExp(`^${INLINE_DIR}/[a-p]{32}\\.js$`));
     expect(out).toBe(`<script src="/a.js" async=""></script><script src="${same}"></script><script type="application/ld+json">{}</script><p>x</p><script src="${same}"></script><script type="module" src="${mod}"></script>`);
   });
 

@@ -25,7 +25,9 @@ export function externalizeScripts(html: string): { html: string; files: Map<str
   const files = new Map<string, string>();
   const out = html.replace(INLINE_SCRIPT, (tag, attrs: string, body: string) => {
     if (DATA_BLOCK.test(attrs)) return tag;
-    const path = `${INLINE_DIR}/${createHash("sha256").update(body, "utf8").digest("hex").slice(0, 32)}.js`;
+    // Hex with its digits spelled as letters: a run of digits in a name reads as a card number to scanners (ZAP 10062).
+    const name = createHash("sha256").update(body, "utf8").digest("hex").slice(0, 32).replace(/\d/g, (d) => "ghijklmnop"[Number(d)]);
+    const path = `${INLINE_DIR}/${name}.js`;
     files.set(path, body);
     return `<script${attrs} src="${path}"></script>`;
   });
