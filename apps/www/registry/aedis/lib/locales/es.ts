@@ -97,6 +97,11 @@ export const es: Messages = {
     wantsToRun: "quiere ejecutarse con estos argumentos.",
     waiting: "Esperando que una persona apruebe.",
   },
+  chart: {
+    chart: "gráfico",
+    item: "Elemento",
+    notShown: "{count} valores no mostrados: no son números en el rango.",
+  },
   reasoning: {
     thinking: "Pensando…",
     thought: "Razonamiento",
@@ -122,6 +127,11 @@ export const es: Messages = {
     uploadFailed: "No se pudo subir {name}. Inténtalo de nuevo.",
     sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     model: "Modelo",
+  },
+  command: {
+    label: "Buscar",
+    placeholder: "Buscar…",
+    empty: "Sin resultados.",
   },
   feedback: {
     label: "Valora esta respuesta",

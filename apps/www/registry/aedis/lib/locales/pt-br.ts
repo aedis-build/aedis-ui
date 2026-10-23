@@ -97,6 +97,11 @@ export const ptBR: Messages = {
     wantsToRun: "quer rodar com estes argumentos.",
     waiting: "Aguardando uma pessoa aprovar.",
   },
+  chart: {
+    chart: "gráfico",
+    item: "Item",
+    notShown: "{count} valores não mostrados: não são números no intervalo.",
+  },
   reasoning: {
     thinking: "Pensando…",
     thought: "Raciocínio",
@@ -122,6 +127,11 @@ export const ptBR: Messages = {
     uploadFailed: "Não deu para enviar {name}. Tente de novo.",
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
     model: "Modelo",
+  },
+  command: {
+    label: "Buscar",
+    placeholder: "Buscar…",
+    empty: "Nenhum resultado.",
   },
   feedback: {
     label: "Avalie esta resposta",

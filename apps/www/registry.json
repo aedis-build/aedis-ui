@@ -89,7 +89,12 @@
           "path": "lib/api.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "api() is the transport primitive: same-origin, no redirects, the CSRF header, a timeout."
+        }
+      }
     },
     {
       "name": "security-headers",
@@ -299,6 +304,25 @@
       ]
     },
     {
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command",
+      "description": "Search box over a list, alone or in a dialog (⌘K): type to filter, arrow keys to move, Enter to choose. Items render as text.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/dialog",
+        "@aedis/input"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/command.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert Dialog",
@@ -390,6 +414,100 @@
       "files": [
         {
           "path": "registry/aedis/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "What every chart shares: values checked before drawing, labels as text, a keyboard tooltip, a legend and a data table for screen readers.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-format"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "area-chart",
+      "type": "registry:ui",
+      "title": "Area Chart",
+      "description": "Filled lines, stacked or overlapping, for usage over time.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/area-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "bar-chart",
+      "type": "registry:ui",
+      "title": "Bar Chart",
+      "description": "Bars per row, grouped when there are several series.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/bar-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "line-chart",
+      "type": "registry:ui",
+      "title": "Line Chart",
+      "description": "Lines with a dot per value, for latency and trends.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/line-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "pie-chart",
+      "type": "registry:ui",
+      "title": "Pie Chart",
+      "description": "A donut of shares, with the total in the middle.",
+      "registryDependencies": [
+        "@aedis/chart"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/pie-chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radial-chart",
+      "type": "registry:ui",
+      "title": "Radial Chart",
+      "description": "One value against its maximum, as a ring and a percentage.",
+      "registryDependencies": [
+        "@aedis/chart",
+        "@aedis/use-format"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/radial-chart.tsx",
           "type": "registry:ui"
         }
       ]
@@ -1051,7 +1169,12 @@
           "path": "registry/aedis/lib/event-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Server-sent events with api()'s guarantees: same-origin path, no redirects, the CSRF header."
+        }
+      }
     },
     {
       "name": "bff-stream",
@@ -1066,7 +1189,12 @@
           "path": "registry/aedis/lib/bff-stream.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Runs on the server (the BFF), streaming from the agent backend; the browser never calls it."
+        }
+      }
     },
     {
       "name": "secure-action",
@@ -1192,7 +1320,12 @@
           "path": "registry/aedis/lib/attachment.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "aedisLint": {
+          "transport": "Uploads need progress, which fetch lacks: XMLHttpRequest with api()'s guarantees."
+        }
+      }
     },
     {
       "name": "prompt-input",
@@ -1313,6 +1446,88 @@
         {
           "path": "registry/aedis/lib/mf-context.ts",
           "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "agent-console",
+      "type": "registry:block",
+      "title": "Agent Console",
+      "description": "A conversation with an agent: streaming answers as safe markdown, tool calls with redaction, sources with their real domain, and a prompt input with Stop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/prompt-input",
+        "@aedis/sources",
+        "@aedis/streaming-markdown",
+        "@aedis/tool-call"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/agent-console.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "approval-inbox",
+      "type": "registry:block",
+      "title": "Approval Inbox",
+      "description": "Pending approvals and raised hands in one list, with the ApprovalCard or HandRaise of the one selected.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/approval-card",
+        "@aedis/badge",
+        "@aedis/empty",
+        "@aedis/hand-raise",
+        "@aedis/tabs"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/approval-inbox.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "usage-limits",
+      "type": "registry:block",
+      "title": "Usage and Limits",
+      "description": "Spend per agent against its ceiling, with a warning near the limit and an error once an agent is paused.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-format",
+        "@aedis/alert",
+        "@aedis/badge",
+        "@aedis/card",
+        "@aedis/progress"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/usage-limits.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "secure-shell",
+      "type": "registry:block",
+      "title": "Secure Shell",
+      "description": "The signed-in frame of an app: AppShell while the session is active, sign-out after idle time, and a clear state when the session ends.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-idle-timeout",
+        "@aedis/app-shell",
+        "@aedis/button",
+        "@aedis/empty"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/secure-shell.tsx",
+          "type": "registry:component"
         }
       ]
     }

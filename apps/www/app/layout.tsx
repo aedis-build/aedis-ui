@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+import { Logo } from "@/components/site/logo";
 import { MobileNav } from "@/components/site/mobile-nav";
-import { components } from "@/content/components";
+import { SiteSearch } from "@/components/site/site-search";
+import { ThemeSwitch } from "@/components/site/theme-switch";
+import { navGroups, searchItems } from "@/content/nav";
+import { headerLinks } from "@/content/site";
+import { Button } from "@/registry/aedis/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/registry/aedis/ui/navigation-menu";
 import "./globals.css";
 
@@ -14,49 +19,41 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // color-scheme.js sets data-theme before React hydrates.
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script src="/color-scheme.js" />
+      </head>
       <body className="min-h-screen antialiased">
         <header className="material-regular scroll-edge sticky top-0 z-40">
-          <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-            <div className="flex items-center gap-2">
-              <MobileNav items={components.map((c) => ({ name: c.name, title: c.title }))} />
-              <Link href="/" className="focus-ring rounded-xs text-headline">Aedis UI</Link>
-            </div>
-            <NavigationMenu align="end">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 md:gap-6 md:px-6">
+            <MobileNav groups={[{ title: "Site", items: headerLinks.map((h) => ({ href: h.href, title: h.label })) }, ...navGroups]} />
+            <Link href="/" className="focus-ring flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xs text-headline">
+              <Logo className="size-6 shrink-0" />
+              Aedis UI
+            </Link>
+            <NavigationMenu className="hidden flex-1 min-[1360px]:flex" align="start">
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="/docs/button" render={<Link href="/docs/button" />}>Components</NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="/themes" render={<Link href="/themes" />}>Themes</NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="https://github.com/aedis-build/aedis-ui">GitHub</NavigationMenuLink>
-                </NavigationMenuItem>
+                {headerLinks.map((h) => (
+                  <NavigationMenuItem key={h.href}>
+                    <NavigationMenuLink href={h.href} render={<Link href={h.href} />} className="whitespace-nowrap px-2">{h.label}</NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
+            <div className="ml-auto flex items-center gap-2">
+              <SiteSearch items={searchItems} />
+              <Button variant="ghost" size="icon" aria-label="GitHub (external site)" render={<a href="https://github.com/aedis-build/aedis-ui" rel="noopener noreferrer" />}>
+                <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+                  <path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.67.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0z" />
+                </svg>
+              </Button>
+              <ThemeSwitch />
+              <Button size="sm" className="hidden sm:inline-flex" render={<Link href="/docs" />}>Get started</Button>
+            </div>
           </div>
         </header>
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[200px_1fr]">
-          <aside className="hidden md:block">
-            <p className="mb-2 text-caption uppercase text-muted-foreground">Getting started</p>
-            <ul className="mb-6 space-y-1 text-callout">
-              <li><Link href="/docs/theming" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Theming</Link></li>
-              <li><Link href="/themes" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Themes</Link></li>
-              <li><Link href="/docs/server-actions" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Server Actions</Link></li>
-              <li><Link href="/docs/micro-frontends" className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">Micro-frontends</Link></li>
-            </ul>
-            <p className="mb-2 text-caption uppercase text-muted-foreground">Components</p>
-            <ul className="space-y-1 text-callout">
-              {components.map((c) => (
-                <li key={c.name}>
-                  <Link href={`/docs/${c.name}`} className="focus-ring rounded-xs text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground">{c.title}</Link>
-                </li>
-              ))}
-            </ul>
-          </aside>
-          <main className="min-w-0">{children}</main>
-        </div>
+        {children}
       </body>
     </html>
   );

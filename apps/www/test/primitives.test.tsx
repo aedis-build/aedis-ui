@@ -18,7 +18,9 @@ import { Textarea } from "@/registry/aedis/ui/textarea";
 import { violations } from "./a11y";
 
 describe("primitives", () => {
-  it.each(components.map((c) => [c.name, c.example] as const))("%s example has no accessibility violations", async (_name, example) => {
+  const examples = components.flatMap((c) => (c.examples ?? []).map((e) => [e.file, <e.component key={e.file} />] as const));
+
+  it.each(examples)("%s example has no accessibility violations", async (_name, example) => {
     const { container } = render(<>{example}</>);
     expect(await violations(container)).toEqual([]);
   });
