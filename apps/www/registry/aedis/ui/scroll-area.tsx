@@ -21,7 +21,7 @@ function ScrollArea({ className, children, "aria-label": ariaLabel, ...props }: 
         data-slot="scroll-area-viewport"
         aria-label={ariaLabel}
         role={ariaLabel ? "region" : undefined}
-        className="focus-ring size-full [border-radius:inherit] overscroll-contain"
+        className="size-full [border-radius:inherit] overscroll-contain outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

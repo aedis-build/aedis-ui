@@ -38,6 +38,11 @@ export const colors = {
   "material-thick": { light: "rgba(255,255,255,0.86)", dark: "rgba(22,26,33,0.86)", brand: "rgba(251,248,241,0.86)" },
   "material-edge": { light: "rgba(255,255,255,0.60)", dark: "rgba(255,255,255,0.08)", brand: "rgba(255,255,255,0.60)" },
   scrim: { light: "rgba(13,16,21,0.32)", dark: "rgba(0,0,0,0.55)", brand: "rgba(26,39,64,0.32)" },
+  "chart-1": { light: "#2457d6", dark: "#7aa2ff", brand: "#1a2740" },
+  "chart-2": { light: "#0f8577", dark: "#3dd6c4", brand: "#8a6a1f" },
+  "chart-3": { light: "#b25e09", dark: "#f5a524", brand: "#2f6f73" },
+  "chart-4": { light: "#8e4ec6", dark: "#c79bff", brand: "#a1452b" },
+  "chart-5": { light: "#d1366b", dark: "#ff7aa8", brand: "#6b4c9a" },
 } satisfies Record<string, PerTheme>;
 export type ColorName = keyof typeof colors;
 
@@ -70,6 +75,11 @@ export const colorUsage: Record<ColorName, string> = {
   "material-thick": "Sheet, sidebar, large surfaces (with blur-thick).",
   "material-edge": "Light top edge of a material.",
   scrim: "Dims the page behind a modal.",
+  "chart-1": "First chart series; every chart color is 3:1 on surface and background.",
+  "chart-2": "Second chart series.",
+  "chart-3": "Third chart series.",
+  "chart-4": "Fourth chart series.",
+  "chart-5": "Fifth chart series.",
 };
 
 /** Two layers: one short and defined, one long and soft. Tailwind: `shadow-<name>`. */
@@ -168,4 +178,9 @@ export const contrastPairs: [ColorName, ColorName, number][] = [
   ["warning", "surface", 4.5],
   ["border-control", "surface", 3],
   ["foreground", "material-thick", 4.5],
+  // Chart marks are graphics: 3:1 on what they are drawn on (WCAG 1.4.11).
+  ...(["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"] as const).flatMap((c): [ColorName, ColorName, number][] => [
+    [c, "surface", 3],
+    [c, "background", 3],
+  ]),
 ];
