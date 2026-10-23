@@ -18,7 +18,7 @@ export function Gallery({ items, categories }: { items: GalleryItem[]; categorie
         {["All", ...categories].map((c) => <TabsTrigger key={c} value={c}>{c}</TabsTrigger>)}
       </TabsList>
       <TabsContent value={category}>
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((i) => (
             <li key={i.name}>
               <Link href={`/docs/${i.name}`} className="lift focus-ring flex h-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1">

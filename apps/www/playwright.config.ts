@@ -12,11 +12,13 @@ export default defineConfig({
   use: { ...devices["Desktop Chrome"], baseURL: "http://127.0.0.1:4173", viewport: { width: 1280, height: 800 } },
   webServer: { command: "node visual/serve.mjs", url: "http://127.0.0.1:4173/", reuseExistingServer: !process.env.CI },
   projects: [
-    { name: "light", use: { colorScheme: "light" } },
-    { name: "dark", use: { colorScheme: "dark" } },
-    { name: "reduced-motion", use: { colorScheme: "light", reducedMotion: "reduce" } },
+    // Geometry, not pixels (#118): runs once and switches the themes itself.
+    { name: "layout", testMatch: "layout.spec.ts", use: { colorScheme: "light" } },
+    { name: "light", testIgnore: "layout.spec.ts", use: { colorScheme: "light" } },
+    { name: "dark", testIgnore: "layout.spec.ts", use: { colorScheme: "dark" } },
+    { name: "reduced-motion", testIgnore: "layout.spec.ts", use: { colorScheme: "light", reducedMotion: "reduce" } },
     // Browsers cannot emulate prefers-reduced-transparency: the spec sets data-reduced-transparency, which the theme honours the same way.
-    { name: "reduced-transparency", use: { colorScheme: "light" } },
-    { name: "high-contrast", use: { colorScheme: "light", contrast: "more" } },
+    { name: "reduced-transparency", testIgnore: "layout.spec.ts", use: { colorScheme: "light" } },
+    { name: "high-contrast", testIgnore: "layout.spec.ts", use: { colorScheme: "light", contrast: "more" } },
   ],
 });

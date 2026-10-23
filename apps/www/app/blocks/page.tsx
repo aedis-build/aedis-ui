@@ -16,7 +16,7 @@ export default function Blocks() {
           Whole screens for AI platforms, built only from registry items. Each one installs with the CLI and keeps the defenses of everything inside it.
         </p>
       </header>
-      <ul className="grid gap-6 lg:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {blocks.map(({ name, title, description, demo: Demo }) => (
           <li key={name}>
             <Link href={`/blocks/${name}`} className="lift focus-ring flex h-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1">

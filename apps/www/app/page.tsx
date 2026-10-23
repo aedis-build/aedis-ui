@@ -41,7 +41,7 @@ export default function Home() {
         <CodeBlock lang="bash" className="terminal w-full max-w-md text-left" code={`npx ${CLI} add dropdown-menu`} />
       </section>
 
-      <section aria-label="What every component defends" className="grid gap-4 pb-14 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="What every component defends" className="grid grid-cols-1 gap-4 pb-14 sm:grid-cols-2 lg:grid-cols-4">
         {sinks.map((s) => (
           <Card key={s.tag}>
             <CardHeader>

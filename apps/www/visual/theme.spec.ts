@@ -45,17 +45,3 @@ test("the reduced-transparency hook makes materials solid", async ({ page }, inf
   expect(await read("--material-thick")).toBe(await read("--surface"));
   expect(await read("--blur-thick")).toBe("0px");
 });
-
-test("radio and checkbox indicators sit in the centre of their control", async ({ page }, info) => {
-  test.skip(info.project.name !== "light", "one project is enough");
-  for (const [path, slot] of [["/docs/radio-group", "radio-group-item"], ["/docs/checkbox", "checkbox"]] as const) {
-    await page.goto(path);
-    const root = page.locator(`[data-slot=${slot}]`).first();
-    if (slot === "checkbox") await root.click();
-    const outer = await root.boundingBox();
-    const inner = await root.locator("[data-slot$=indicator]").boundingBox();
-    if (!outer || !inner) throw new Error(`${slot}: no box`);
-    expect(Math.abs(inner.x + inner.width / 2 - (outer.x + outer.width / 2))).toBeLessThan(0.5);
-    expect(Math.abs(inner.y + inner.height / 2 - (outer.y + outer.height / 2))).toBeLessThan(0.5);
-  }
-});
