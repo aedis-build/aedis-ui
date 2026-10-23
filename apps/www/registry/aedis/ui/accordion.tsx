@@ -26,7 +26,7 @@ function AccordionTrigger({ className, children, ...props }: WithClassName<Accor
         {...props}
       >
         {children}
-        <Chevron />
+        <Chevron className="mt-[calc((1lh-1rem)/2)]" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   );
@@ -45,12 +45,13 @@ function AccordionContent({ className, children, ...props }: WithClassName<Accor
   );
 }
 
-function Chevron() {
+/** Centred in a row; the accordion trigger centres it on its first line instead, since titles may wrap. */
+function Chevron({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 16 16"
       aria-hidden="true"
-      className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-spring) ease-spring-critical group-data-panel-open:rotate-180 motion-reduce:transition-none"
+      className={cn("size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-spring) ease-spring-critical group-data-panel-open:rotate-180 motion-reduce:transition-none", className)}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"

@@ -18,7 +18,7 @@ describe("ScrollArea", () => {
     );
     const viewport = screen.getByRole("region", { name: "Release notes" });
     expect(viewport).toHaveAttribute("data-slot", "scroll-area-viewport");
-    expect(viewport.className).toContain("focus-ring");
+    expect(viewport.className).toContain("focus-visible:ring-inset"); // the root clips, so the ring is drawn inside
     for (const bar of container.querySelectorAll("[data-slot=scroll-area-scrollbar]")) {
       expect(bar.className).toContain("motion-reduce:opacity-100");
       expect(bar.className).toContain("motion-reduce:transition-none");

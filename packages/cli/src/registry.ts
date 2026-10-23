@@ -26,10 +26,20 @@ export function parseItem(json: unknown, expected: string): RegistryItem {
   return { name: item.name, type: String(item.type), dependencies: strings(item.dependencies, "dependencies"), registryDependencies: strings(item.registryDependencies, "registryDependencies"), files };
 }
 
-export type ItemSource = { get: (name: string) => Promise<RegistryItem>; verified: boolean; label: string };
+/** Where items come from. `namespace` is the prefix of the registry dependencies it may resolve, e.g. "@aedis". */
+export type ItemSource = { get: (name: string) => Promise<RegistryItem>; verified: boolean; label: string; namespace: string };
 
-export const assetName = (release: string) => `aedis-ui-registry-${release}.tgz`;
-const assetUrl = (release: string, file: string) => `https://github.com/${REPOSITORY}/releases/download/${release}/${file}`;
+/** The release asset of a registry: <repository name>-registry-<tag>.tgz, as aedis-ui's release workflow names it. */
+export const assetName = (release: string, repository = REPOSITORY) => `${repository.split("/")[1]}-registry-${release}.tgz`;
+const assetUrl = (repository: string, release: string, file: string) => `https://github.com/${repository}/releases/download/${release}/${file}`;
+
+const GITHUB = /^github:([A-Za-z0-9-]{1,39})\/([A-Za-z0-9._-]{1,100})@(v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/;
+
+/** A third-party registry given as github:<owner>/<repo>@<tag>; null for anything else. Its namespace is @<owner>. */
+export function githubRegistry(value: string) {
+  const m = GITHUB.exec(value);
+  return m ? { repository: `${m[1]}/${m[2]}`, release: m[3], namespace: `@${m[1].toLowerCase()}` } : null;
+}
 
 async function download(fetcher: typeof fetch, url: string, limit: number) {
   const response = await fetcher(url, { redirect: "follow" });
@@ -40,20 +50,24 @@ async function download(fetcher: typeof fetch, url: string, limit: number) {
 }
 
 /** A signed release: the archive and its attestation are downloaded and verified before any item is read. */
-export async function releaseSource(release: string, { fetcher = fetch, check }: { fetcher?: typeof fetch; check: SignatureCheck }): Promise<ItemSource> {
-  const name = assetName(release);
-  const archive = await download(fetcher, assetUrl(release, name), 32 * 1024 * 1024);
+export async function releaseSource(
+  release: string,
+  { fetcher = fetch, check, repository = REPOSITORY, namespace = "@aedis" }: { fetcher?: typeof fetch; check: SignatureCheck; repository?: string; namespace?: string },
+): Promise<ItemSource> {
+  const name = assetName(release, repository);
+  const archive = await download(fetcher, assetUrl(repository, release, name), 32 * 1024 * 1024);
   let bundle: unknown;
   try {
-    bundle = JSON.parse(new TextDecoder().decode(await download(fetcher, assetUrl(release, `${name}.sigstore`), 1024 * 1024)));
+    bundle = JSON.parse(new TextDecoder().decode(await download(fetcher, assetUrl(repository, release, `${name}.sigstore`), 1024 * 1024)));
   } catch (error) {
     throw new Error(`provenance: missing attestation for ${release} (${(error as Error).message})`);
   }
-  await verifyRelease({ archive, bundle, release, assetName: name, check });
+  await verifyRelease({ archive, bundle, release, assetName: name, check, repository });
   const files = readTarGz(archive);
   return {
     verified: true,
-    label: `${REPOSITORY} ${release} (verified)`,
+    namespace,
+    label: `${repository} ${release} (verified)`,
     async get(item) {
       if (!NAME.test(item)) throw new Error(`registry: invalid item name ${JSON.stringify(item)}`);
       const raw = files.get(`r/${item}.json`);
@@ -69,6 +83,7 @@ export function urlSource(base: string, { fetcher = fetch }: { fetcher?: typeof 
   if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("--registry must be an http(s) URL");
   return {
     verified: false,
+    namespace: "@aedis",
     label: `${url.href} (NOT verified)`,
     async get(item) {
       if (!NAME.test(item)) throw new Error(`registry: invalid item name ${JSON.stringify(item)}`);
@@ -78,7 +93,7 @@ export function urlSource(base: string, { fetcher = fetch }: { fetcher?: typeof 
   };
 }
 
-/** The items and everything they depend on, dependencies first, each once. Only @aedis/ dependencies are followed. */
+/** The items and everything they depend on, dependencies first, each once. Only the source's own namespace is followed. */
 export async function resolveItems(names: string[], source: ItemSource): Promise<RegistryItem[]> {
   const done = new Map<string, RegistryItem>();
   const visiting = new Set<string>();
@@ -87,12 +102,12 @@ export async function resolveItems(names: string[], source: ItemSource): Promise
     visiting.add(name);
     const item = await source.get(name);
     for (const dep of item.registryDependencies) {
-      if (!dep.startsWith("@aedis/")) throw new Error(`registry: ${name} depends on ${dep}, outside @aedis`);
-      await visit(dep.slice("@aedis/".length));
+      if (!dep.startsWith(`${source.namespace}/`)) throw new Error(`registry: ${name} depends on ${dep}, outside ${source.namespace}`);
+      await visit(dep.slice(source.namespace.length + 1));
     }
     visiting.delete(name);
     done.set(name, item);
   };
-  for (const name of names) await visit(name.replace(/^@aedis\//, ""));
+  for (const name of names) await visit(name.startsWith(`${source.namespace}/`) ? name.slice(source.namespace.length + 1) : name);
   return [...done.values()];
 }
