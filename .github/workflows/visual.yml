@@ -8,14 +8,20 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened, labeled, closed]
+
+# One run per pull request: a new push or closing the PR cancels the run in progress. Pushes to main and label
+# events never share a group (run_id): a label must not cancel a comparison it does not replace.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.action != 'labeled' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 permissions: {}
 
 jobs:
   compare:
     name: Compare with the baselines
-    if: github.event.action != 'labeled'
+    if: github.event.action != 'labeled' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: read
