@@ -176,7 +176,7 @@ export type CartesianChartProps = {
 };
 
 /** The drawing area shared by area, bar and line charts, in viewBox units. */
-export const plot = { width: 520, height: 190, top: 8, bottom: 168 };
+export const plot = { width: 520, height: 172, top: 8, bottom: 168 };
 
 /** "M x y L x y …" through the points, starting a new segment after each dropped value instead of bridging it. */
 export function linePath(points: (readonly [number, number] | null)[]) {
@@ -201,20 +201,31 @@ export function lineScale(rows: CleanRow[], stacked = false) {
   return (v: number) => plot.bottom - (v / top) * (plot.bottom - plot.top);
 }
 
-/** Horizontal grid lines and the x tick labels (text nodes). */
-function CartesianGrid({ rows, x }: { rows: CleanRow[]; x: (i: number) => number }) {
+/** Horizontal grid lines behind the marks. */
+function CartesianGrid() {
   return (
     <g aria-hidden="true">
       {[0, 1, 2, 3].map((k) => {
         const y = plot.top + ((plot.bottom - plot.top) * k) / 3;
         return <line key={k} x1={0} x2={plot.width} y1={y} y2={y} stroke="var(--hairline)" />;
       })}
-      {rows.map((r, i) => (
-        <text key={i} x={x(i)} y={plot.height - 4} fontSize={10} fill="var(--muted-foreground)" textAnchor="middle">
-          {tick(r.label, Math.max(3, Math.floor(plot.width / rows.length / 6)))}
-        </text>
-      ))}
     </g>
+  );
+}
+
+/** The x labels as HTML text under the drawing, so they keep their size however narrow the chart gets. */
+function XTicks({ rows, x }: { rows: CleanRow[]; x: (i: number) => number }) {
+  return (
+    <div data-slot="chart-ticks" aria-hidden="true" className="relative h-4 text-caption text-muted-foreground">
+      {rows.map((r, i) => {
+        const left = (x(i) / plot.width) * 100;
+        return (
+          <span key={i} className="absolute top-0 whitespace-nowrap" style={{ left: `${left}%`, transform: `translateX(${left <= 0 ? 0 : left >= 100 ? -100 : -50}%)` }}>
+            {tick(r.label, Math.max(3, Math.floor(64 / rows.length)))}
+          </span>
+        );
+      })}
+    </div>
   );
 }
 
@@ -230,4 +241,4 @@ function HitColumns({ count, hover }: { count: number; hover: (i: number | null)
   );
 }
 
-export { CartesianGrid, ChartFrame, ChartLegend, HitColumns };
+export { CartesianGrid, ChartFrame, ChartLegend, HitColumns, XTicks };

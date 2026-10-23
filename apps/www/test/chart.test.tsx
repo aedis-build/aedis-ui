@@ -31,7 +31,7 @@ describe("charts", () => {
     expect(container.querySelector("img")).toBeNull();
     expect(screen.getByRole("group", { name: "Bars" }).textContent).toContain(XSS);
     expect(screen.getAllByRole("table")[0].textContent).toContain(XSS);
-    expect(container.querySelector("svg text")?.textContent).toBe(XSS);
+    expect(container.querySelector("[data-slot=chart-ticks]")?.textContent).toBe(XSS);
   });
 
   it("drop and count every value that is not a finite number in range (property)", () => {
