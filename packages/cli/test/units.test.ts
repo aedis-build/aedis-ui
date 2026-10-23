@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import fc from "fast-check";
 
@@ -9,6 +10,7 @@ import { parseItem, releaseSource, resolveItems, urlSource } from "../src/regist
 import { readTarGz } from "../src/tar";
 import { themeImport } from "../src/theme";
 import { planFiles, rewriteImports, targetOf } from "../src/transform";
+import { VERSION } from "../src/cli";
 import { verifyRelease } from "../src/verify";
 import { bundleFor, fakeCheck, fakeFetch, ITEMS, NOW, PLATFORM, project, releaseArchive, releaseRoutes, REPO, tarGz } from "./fixtures";
 
@@ -54,6 +56,15 @@ describe("config", () => {
     expect(readConfig(root)).toBeNull();
     const bad = project({ "aedis.json": JSON.stringify({ release: "latest", paths: { ui: "../x", lib: "lib", hooks: "hooks", styles: "styles" }, aliases: { ui: "@/x", lib: "@/lib", hooks: "@/h y" } }) });
     expect(() => readConfig(bad)).toThrow(/release must look like v1.2.3; paths.ui must be a relative directory; aliases.hooks must be an import alias/);
+  });
+});
+
+describe("version", () => {
+  // The release workflows check the tag against package.json; the CLI prints and defaults to VERSION. One number.
+  it("is the same in the CLI, its package.json and the registry's package.json", () => {
+    const read = (file: string) => (JSON.parse(readFileSync(path.resolve(file), "utf8")) as { version: string }).version;
+    expect(read("package.json")).toBe(VERSION);
+    expect(read("../../package.json")).toBe(VERSION);
   });
 });
 

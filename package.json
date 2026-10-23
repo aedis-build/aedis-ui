@@ -11,7 +11,8 @@
     "registry:build": "pnpm -C apps/www registry:build",
     "test": "pnpm -C apps/www test && pnpm -C packages/cli test",
     "typecheck": "pnpm -C apps/www typecheck && pnpm -C packages/cli typecheck",
-    "test:coverage": "pnpm -C apps/www test:coverage && pnpm -C packages/cli test:coverage"
+    "test:coverage": "pnpm -C apps/www test:coverage && pnpm -C packages/cli test:coverage",
+    "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
     "wrangler": "4.149.0"

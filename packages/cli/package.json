@@ -2,6 +2,16 @@
   "name": "@aedis/cli",
   "version": "0.1.0",
   "description": "Add Aedis UI components to your app with verified provenance: signed releases, exact and aged dependencies, no install scripts.",
+  "keywords": [
+    "aedis",
+    "shadcn",
+    "registry",
+    "security",
+    "sigstore",
+    "slsa"
+  ],
+  "homepage": "https://ui.aedis.build",
+  "bugs": "https://github.com/aedis-build/aedis-ui/issues",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {

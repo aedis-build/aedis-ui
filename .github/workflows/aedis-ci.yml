@@ -38,7 +38,9 @@ jobs:
       min-line: 95
       min-branch: 85
       no-regression: true
-      check-scripts: typecheck build
+      # smoke: packs @aedis/cli as npm would publish it, installs the tarball in a scratch project and runs init, add
+      # and diff against the registry built here (scripts/smoke.mjs), so every PR proves the release path.
+      check-scripts: typecheck build smoke
       reuse: true
       codeql-queries: security-extended
       sast-extra-configs: p/nextjs
