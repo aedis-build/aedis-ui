@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 
 import { DirectoryTable } from "@/components/site/directory-table";
 import { CLI } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { directory } from "@/content/directory";
+import { pageMetadata } from "@/content/share";
 import { Card } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Directory", description: "Registries you can add with the Aedis CLI, each checked the same way as Aedis UI." };
+export const metadata: Metadata = pageMetadata("/directory");
 
 const requirements = [
   ["Signed release", "The registry archive (<repo>-registry-<tag>.tgz) is signed with Sigstore, keyless, by the repository's own .github/workflows/release.yml."],
@@ -27,6 +29,7 @@ added button`;
 export default function Directory() {
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 pt-12 pb-24 md:px-6">
+      <JsonLd path="/directory" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Directory</h1>
         <p className="text-title-3 font-normal text-muted-foreground">

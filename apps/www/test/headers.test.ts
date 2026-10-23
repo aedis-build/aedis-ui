@@ -1,9 +1,10 @@
 import fc from "fast-check";
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { externalizeScripts, headersFile, htmlFiles, INLINE_DIR, urlPath } from "@/scripts/headers";
+import { externalizeScripts, headersFile, htmlFiles, INLINE_DIR, styleHashes, urlPath } from "@/scripts/headers";
 
 /** The header lines of the rule for `path`. */
 const rule = (file: string, path: string) => {
@@ -46,6 +47,18 @@ describe("_headers", () => {
     );
   });
 
+  it("hashes every inline <style> element, so the policy needs no 'unsafe-inline' for them", () => {
+    const sha = (text: string) => `sha256-${createHash("sha256").update(text).digest("base64")}`;
+    const html = `<style data-precedence="base-ui:low">.a{scrollbar-width:none}</style><p>x</p><style>body{margin:0}</style>`;
+    expect(styleHashes(html)).toEqual([sha(".a{scrollbar-width:none}"), sha("body{margin:0}")]);
+    expect(styleHashes("<p>no style</p>")).toEqual([]);
+    // The browser hashes the decoded text, so an entity would never match: better to fail the build.
+    expect(() => styleHashes("<style>a::before{content:'&gt;'}</style>")).toThrow(/entity/);
+    const [one] = policies(headersFile(PAGES, [sha("body{margin:0}")]), "/docs/button");
+    expect(one).toContain(`style-src-elem 'self' '${sha("body{margin:0}")}'; style-src-attr 'unsafe-inline';`);
+    expect(one).not.toContain("style-src '");
+  });
+
   it("sends every security header but the CSP on every path, and forbids proxies to rewrite pages", () => {
     const all = rule(headersFile([]), "/*");
     expect(all).toEqual(
@@ -81,10 +94,10 @@ describe("_headers", () => {
     const file = headersFile(PAGES);
     for (const p of PAGES) expect(policies(file, p)[0]).toContain(/^\/(blocks\/view|demo\/remote)\//.test(p) ? "frame-ancestors 'self';" : "frame-ancestors 'none';");
     // Rules by directory: a new docs page or block needs no new rule.
-    expect(file.split("\n").filter((l) => l.startsWith("/"))).toEqual(["/*", "/_next/static/*", "/color-scheme.js", "/", "/404", "/blocks", "/blocks/agent-console", "/blocks/usage-limits", "/blocks/view/*", "/charts", "/demo/*", "/docs", "/docs/*", "/micro-frontends"]);
+    expect(file.split("\n").filter((l) => l.startsWith("/"))).toEqual(["/*", "/_next/static/*", "/color-scheme.js", "/og/*", "/", "/404", "/blocks", "/blocks/agent-console", "/blocks/usage-limits", "/blocks/view/*", "/charts", "/demo/*", "/docs", "/docs/*", "/micro-frontends"]);
   });
 
-  it("lets hashed build assets, the moved scripts included, be cached for good", () => {
+  it("lets hashed build assets, the moved scripts and the share cards included, be cached for good", () => {
     expect(rule(headersFile([]), "/_next/static/*")).toEqual([
       "  ! Cache-Control",
       "  Cache-Control: public, max-age=31536000, immutable",
@@ -93,11 +106,14 @@ describe("_headers", () => {
     ]);
     expect(INLINE_DIR.startsWith("/_next/static/")).toBe(true);
     expect(rule(headersFile([]), "/color-scheme.js")).toEqual(["  ! Cross-Origin-Resource-Policy", "  Cross-Origin-Resource-Policy: cross-origin"]);
+    // Share cards are named by a hash of what they show, and loaded by other sites' previews.
+    expect(rule(headersFile([]), "/og/*")).toEqual(rule(headersFile([]), "/_next/static/*"));
+    expect(policies(headersFile(PAGES), "/og/home-0123456789ab.png")).toEqual([]);
   });
 
   it("fails the build instead of shipping a file Cloudflare would reject", () => {
-    expect(() => headersFile(Array.from({ length: 97 }, (_, i) => `/p${i}`))).not.toThrow();
-    expect(() => headersFile(Array.from({ length: 98 }, (_, i) => `/p${i}`))).toThrow("_headers: 101 rules, Cloudflare allows 100");
+    expect(() => headersFile(Array.from({ length: 96 }, (_, i) => `/p${i}`))).not.toThrow();
+    expect(() => headersFile(Array.from({ length: 97 }, (_, i) => `/p${i}`))).toThrow("_headers: 101 rules, Cloudflare allows 100");
     expect(() => headersFile([`/${"x".repeat(2000)}`])).toThrow(/characters/);
   });
 

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import type { ComponentType } from "react";
 
 import { Gallery } from "@/components/site/gallery";
+import { JsonLd } from "@/components/site/json-ld";
 import { categories, components } from "@/content/components";
+import { pageMetadata } from "@/content/share";
 import registry from "@/registry.json";
 
-export const metadata: Metadata = { title: "Components", description: "Every Aedis UI component and hook, live, by category, with the sink it defends." };
+export const metadata: Metadata = pageMetadata("/components");
 
 // Every registry item with a docs entry; blocks have their own page.
 const items = new Set(registry.items.filter((i) => i.type !== "registry:block").map((i) => i.name));
@@ -21,6 +23,7 @@ function Preview({ component: Example }: { component: ComponentType }) {
 export default function Components() {
   return (
     <main className="mx-auto max-w-7xl space-y-9 px-4 pt-12 pb-24 md:px-6">
+      <JsonLd path="/components" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Components</h1>
         <p className="text-title-3 font-normal text-muted-foreground">

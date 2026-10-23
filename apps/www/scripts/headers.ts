@@ -9,6 +9,8 @@ const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi;
 // A type other than JavaScript makes a data block (application/ld+json…): the browser never runs it.
 const DATA_BLOCK = /\btype\s*=\s*(?!["']?(?:text\/javascript|module)\b)/i;
 
+const STYLE_ELEMENT = /<style(?:\s[^>]*)?>([\s\S]*?)<\/style>/gi;
+
 /** Where the moved inline scripts are served: under /_next/static, so they get its immutable caching and CORP. */
 export const INLINE_DIR = "/_next/static/inline";
 
@@ -34,13 +36,25 @@ export function externalizeScripts(html: string): { html: string; files: Map<str
   return { html: out, files };
 }
 
+/**
+ * The CSP hashes of a page's inline `<style>` elements: Base UI's scrollbar style on the pages with a scroll area,
+ * Next's error page. They let `style-src-elem` do without 'unsafe-inline' where no server can mint a nonce.
+ */
+export function styleHashes(html: string): string[] {
+  return [...html.matchAll(STYLE_ELEMENT)].map(([, body]) => {
+    // The browser hashes the text as it reads it: an entity would decode to something else than React wrote.
+    if (/[&<]/.test(body)) throw new Error("_headers: an inline <style> holds an entity, so its hash would not match");
+    return `sha256-${createHash("sha256").update(body, "utf8").digest("base64")}`;
+  });
+}
+
 /** Pages only this site may frame: the block previews and the micro-frontends demo remote. Every other page refuses. */
 export const FRAMEABLE = /^\/(?:blocks\/view|demo\/remote)\//;
 
 // The site's one policy, and the one for the frameable pages: they differ only in frame-ancestors. Browsers ignore
 // X-Frame-Options (DENY, set on /*) when the CSP has frame-ancestors, so the CSP alone decides.
-const policy = (frameable: boolean) =>
-  securityHeaders({ hashes: [], frameAncestors: frameable ? ["'self'"] : [], frameSrc: ["'self'"] })["Content-Security-Policy"];
+const policy = (frameable: boolean, styleHashes: string[]) =>
+  securityHeaders({ hashes: [], styleHashes, frameAncestors: frameable ? ["'self'"] : [], frameSrc: ["'self'"] })["Content-Security-Policy"];
 
 /**
  * The rules that give every page its policy, none overlapping: a directory whose pages all take the same policy gets
@@ -67,7 +81,7 @@ function policyRules(paths: string[], dir = ""): [rule: string, frameable: boole
  * site frames itself. The policy is the same on every page because a client-side navigation keeps the CSP of the
  * page the visit started on. Unknown paths outside the page directories (the 404 page) get no CSP.
  */
-export function headersFile(paths: string[]): string {
+export function headersFile(paths: string[], styles: string[] = []): string {
   const { "Content-Security-Policy": _, ...common } = securityHeaders({ hashes: [] });
   const lines = [
     "/*",
@@ -84,7 +98,13 @@ export function headersFile(paths: string[]): string {
     "/color-scheme.js",
     "  ! Cross-Origin-Resource-Policy",
     "  Cross-Origin-Resource-Policy: cross-origin",
-    ...policyRules(paths).flatMap(([rule, frameable]) => [rule, `  Content-Security-Policy: ${policy(frameable)}`]),
+    // The share cards (app/og): named by a hash of what they show, and fetched by chat apps and networks from anywhere.
+    "/og/*",
+    "  ! Cache-Control",
+    "  Cache-Control: public, max-age=31536000, immutable",
+    "  ! Cross-Origin-Resource-Policy",
+    "  Cross-Origin-Resource-Policy: cross-origin",
+    ...policyRules(paths).flatMap(([rule, frameable]) => [rule, `  Content-Security-Policy: ${policy(frameable, styles)}`]),
   ];
   const rules = lines.filter((l) => l.startsWith("/")).length;
   if (rules > MAX_RULES) throw new Error(`_headers: ${rules} rules, Cloudflare allows ${MAX_RULES}`);
@@ -110,14 +130,16 @@ export function urlPath(dir: string, file: string): string {
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const out = process.argv[2] ?? "out";
   const pages = htmlFiles(out);
+  const styles = new Set<string>();
   for (const file of pages) {
     const { html, files } = externalizeScripts(readFileSync(file, "utf8"));
+    for (const hash of styleHashes(html)) styles.add(hash);
     for (const [path, body] of files) {
       mkdirSync(join(out, INLINE_DIR), { recursive: true });
       writeFileSync(join(out, path), body);
     }
     writeFileSync(file, html);
   }
-  writeFileSync(join(out, "_headers"), headersFile(pages.map((f) => urlPath(out, f))));
+  writeFileSync(join(out, "_headers"), headersFile(pages.map((f) => urlPath(out, f)), [...styles].sort()));
 }
 /* v8 ignore stop */

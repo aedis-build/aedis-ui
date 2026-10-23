@@ -10,7 +10,7 @@ import { readTarGz } from "../src/tar";
 import { themeImport } from "../src/theme";
 import { planFiles, rewriteImports, targetOf } from "../src/transform";
 import { verifyRelease } from "../src/verify";
-import { bundleFor, fakeCheck, fakeFetch, ITEMS, NOW, project, releaseArchive, releaseRoutes, tarGz } from "./fixtures";
+import { bundleFor, fakeCheck, fakeFetch, ITEMS, NOW, PLATFORM, project, releaseArchive, releaseRoutes, REPO, tarGz } from "./fixtures";
 
 const ROOT = path.resolve("/tmp/app");
 const config = defaultConfig(ROOT, "v0.1.0");
@@ -63,6 +63,15 @@ describe("verifyRelease", () => {
 
   it("accepts the release signed and built by this repository's release workflow", async () => {
     await expect(verifyRelease({ ...ok, bundle: bundleFor(archive, "v0.1.0") })).resolves.toMatchObject({ digest: expect.stringMatching(/^[0-9a-f]{64}$/) });
+  });
+
+  it("accepts the release built by the platform's release workflow, called by this repository's at this tag", async () => {
+    await expect(verifyRelease({ ...ok, check: fakeCheck("v0.1.0", REPO, PLATFORM), bundle: bundleFor(archive, "v0.1.0") })).resolves.toMatchObject({ digest: expect.any(String) });
+    // The platform builder signs, but the provenance says another repository or tag called it.
+    await expect(verifyRelease({ ...ok, check: fakeCheck("v0.1.0", REPO, PLATFORM), bundle: bundleFor(archive, "v0.1.0", { ref: "refs/tags/v9.9.9" }) })).rejects.toThrow(/built from refs\/tags\/v9.9.9/);
+    // Another platform workflow, a look-alike path, or an identity with a longer tail is no builder.
+    for (const signer of [PLATFORM.replace("release-registry-js", "deploy-static"), PLATFORM.replace("aedis-platform/", "aedis-platform.evil/"), `${PLATFORM}@x`, `x${PLATFORM}`])
+      await expect(verifyRelease({ ...ok, check: fakeCheck("v0.1.0", REPO, signer), bundle: bundleFor(archive, "v0.1.0") })).rejects.toThrow(/signature does not verify/);
   });
 
   it.each([

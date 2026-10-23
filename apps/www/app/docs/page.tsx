@@ -3,12 +3,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { CLI, InstallCommand, RegistrySetup, ThemeImport } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { Toc } from "@/components/site/toc";
+import { pageMetadata } from "@/content/share";
 import registry from "@/registry.json";
 import { Card, CardDescription, CardTitle } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Introduction", description: "What Aedis UI is and where to start." };
+export const metadata: Metadata = pageMetadata("/docs");
 
 const link = "focus-ring rounded-xs underline underline-offset-4";
 const count = registry.items.filter((i) => ["registry:ui", "registry:hook"].includes(i.type)).length;
@@ -53,6 +55,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 export default function Introduction() {
   return (
     <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_11rem]">
+      <JsonLd path="/docs" />
       <article className="max-w-3xl space-y-10">
         <header id="introduction" className="scroll-mt-20 space-y-3">
           <p className="text-footnote text-muted-foreground">Docs · Getting started</p>

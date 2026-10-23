@@ -4,7 +4,7 @@ import registry from "@/registry.json";
 export type DirectoryEntry = {
   namespace: string;
   title: string;
-  /** owner/repo on GitHub: whose release workflow must have signed and built the registry. */
+  /** owner/repo on GitHub: whose release workflow must have built the registry, itself or through the Aedis platform's. */
   repository: string;
   kind: "Official" | "Community";
   items: number;

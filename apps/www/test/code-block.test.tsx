@@ -43,7 +43,7 @@ describe("CodeBlock", () => {
     await user.click(screen.getByRole("button", { name: "Copy code" }));
     expect(writeText).toHaveBeenCalledWith(code);
     expect(screen.getByRole("status")).toHaveTextContent("Copied");
-  });
+  }, 15_000); // highlights with shiki first: room above the 5 s default when the suite runs in parallel
 
   it("says when copying failed", async () => {
     const user = userEvent.setup();

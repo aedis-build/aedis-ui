@@ -6,9 +6,11 @@ import type { ReactNode } from "react";
 import { ComponentPreview } from "@/components/site/component-preview";
 import { exampleSource } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
 import { apiParts, components, type Prop } from "@/content/components";
+import { pageMetadata } from "@/content/share";
 import registry from "@/registry.json";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -22,8 +24,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params;
-  const doc = components.find((c) => c.name === name);
-  return { title: doc?.title, description: doc?.description };
+  return pageMetadata(`/docs/${name}`);
 }
 
 // What `aedis init` already installed: not worth listing as something `add` brings.
@@ -86,6 +87,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
 
   return (
     <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_11rem]">
+      <JsonLd path={`/docs/${name}`} />
       <article className="min-w-0 space-y-10">
         <header className="space-y-3">
           <p className="text-footnote text-muted-foreground">Components › {doc.category}</p>

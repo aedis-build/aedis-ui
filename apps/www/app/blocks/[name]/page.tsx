@@ -5,8 +5,10 @@ import { notFound } from "next/navigation";
 import { BlockFrame } from "@/components/site/block-frame";
 import { source } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
+import { JsonLd } from "@/components/site/json-ld";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { blocks, blockSecurity } from "@/content/blocks";
+import { pageMetadata } from "@/content/share";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Kbd } from "@/registry/aedis/ui/kbd";
 
@@ -18,8 +20,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params;
-  const block = blocks.find((b) => b.name === name);
-  return { title: block?.title, description: block?.description };
+  return pageMetadata(`/blocks/${name}`);
 }
 
 export default async function BlockPage({ params }: { params: Promise<{ name: string }> }) {
@@ -30,6 +31,7 @@ export default async function BlockPage({ params }: { params: Promise<{ name: st
 
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 pt-12 pb-24 md:px-6">
+      <JsonLd path={`/blocks/${name}`} />
       <header className="space-y-3">
         <p className="text-footnote text-muted-foreground"><Link href="/blocks" className="focus-ring rounded-xs hover:text-foreground">Blocks</Link> › {block.title}</p>
         <h1 className="text-title-1">{block.title}</h1>
