@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { JsonLd } from "@/components/site/json-ld";
 import { pageMetadata } from "@/content/share";
 import { contrast } from "@/registry/aedis/lib/contrast";
 import { blurs, colors, colorUsage, contrastPairs, durations, easings, radii, scales, shadows, themeNames, typeScale } from "@/registry/aedis/lib/tokens";
@@ -53,6 +54,7 @@ function Swatch({ value }: { value: string }) {
 export default function Theming() {
   return (
     <article className="space-y-10">
+      <JsonLd path="/docs/theming" />
       <header className="space-y-2">
         <h1 className="text-title-1">Theming</h1>
         <p className="text-body text-muted-foreground">

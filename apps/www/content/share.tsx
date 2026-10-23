@@ -120,11 +120,19 @@ export function shareImageFile(page: SharePage): string {
   return `${slug}-${hash}.png`;
 }
 
+const sharePage = (path: string) => {
+  const page = sharePages().find((p) => p.path === path);
+  if (!page) throw new Error(`no share card for ${path}`);
+  return page;
+};
+
+/** `<link rel="alternate" type="text/plain" title="llms.txt">` in every head: where agents find the docs as text. */
+export const llmsAlternate = { "text/plain": [{ url: `${SITE.origin}/llms.txt`, title: "llms.txt" }] };
+
 /** The page's metadata: title, description, canonical link and every share tag, with its card as the image. */
 export function pageMetadata(path: string): Metadata {
-  const page = sharePages().find((p) => p.path === path);
-  if (!page) throw new Error(`pageMetadata: no share card for ${path}`);
-  return shareMetadata({
+  const page = sharePage(path);
+  const metadata = shareMetadata({
     site: SITE,
     url: `${SITE.origin}${path}`,
     title: page.title,
@@ -132,4 +140,33 @@ export function pageMetadata(path: string): Metadata {
     image: { url: `${SITE.origin}/og/${shareImageFile(page)}`, alt: `${page.title} · ${SITE.name}` },
     type: page.type,
   });
+  return { ...metadata, alternates: { ...metadata.alternates, types: llmsAlternate } };
+}
+
+const REPOSITORY = "https://github.com/aedis-build/aedis-ui";
+
+/**
+ * The page's structured data (schema.org JSON-LD): the WebSite on every page, the source code of Aedis UI on the
+ * product pages and a TechArticle on the docs pages, all from the same table as the cards.
+ */
+export function jsonLd(path: string) {
+  const page = sharePage(path);
+  const url = `${SITE.origin}${path}`;
+  const website = { "@type": "WebSite", "@id": `${SITE.origin}/#website`, url: `${SITE.origin}/`, name: SITE.name, inLanguage: "en", publisher: { "@type": "Organization", name: "Aedis", url: "https://aedis.build" } };
+  const code = {
+    "@type": "SoftwareSourceCode",
+    "@id": `${SITE.origin}/#source`,
+    name: SITE.name,
+    description: "Secure-by-default React components for building AI platforms.",
+    url: `${SITE.origin}/`,
+    codeRepository: REPOSITORY,
+    license: "https://www.apache.org/licenses/LICENSE-2.0",
+    programmingLanguage: ["TypeScript", "React"],
+    runtimePlatform: "Next.js",
+  };
+  const image = `${SITE.origin}/og/${shareImageFile(page)}`;
+  const own = page.type === "article"
+    ? { "@type": "TechArticle", "@id": `${url}#article`, headline: page.title, description: page.description, url, image, inLanguage: "en", isPartOf: { "@id": website["@id"] }, about: { "@id": code["@id"] }, author: website.publisher, publisher: website.publisher }
+    : { "@type": "WebPage", "@id": `${url}#webpage`, name: page.title, description: page.description, url, image, isPartOf: { "@id": website["@id"] }, about: { "@id": code["@id"] } };
+  return { "@context": "https://schema.org", "@graph": [website, code, own] };
 }

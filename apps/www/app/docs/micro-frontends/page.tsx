@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { JsonLd } from "@/components/site/json-ld";
 import { approaches as options } from "@/content/micro-frontends";
 import { pageMetadata } from "@/content/share";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -12,6 +13,7 @@ const td = "py-2 pr-4 align-top";
 export default function MicroFrontends() {
   return (
     <article className="space-y-10">
+      <JsonLd path="/docs/micro-frontends" />
       <header className="space-y-2">
         <h1 className="text-title-1">Micro-frontends</h1>
         <p className="text-body text-muted-foreground">
