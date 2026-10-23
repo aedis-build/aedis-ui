@@ -73,6 +73,14 @@ describe("validateTheme", () => {
     expect(typeVariables({ leading: 1.6 })["--text-body--line-height"]).toBe("1.6");
   });
 
+  it("scales every motion duration, and 0 turns motion off", () => {
+    const off = validateTheme({ ...base, motion: 0 });
+    expect(off.ok && themeVariables(off.theme, "light")["--duration-spring"]).toBe("0ms");
+    const slow = validateTheme({ ...base, motion: 1.25 });
+    expect(slow.ok && themeVariables(slow.theme, "light")["--duration-fast"]).toBe("250ms");
+    expect(errors({ ...base, motion: 3 })).toContain("motion must be a number from 0 to 1.5");
+  });
+
   it("refuses a theme that fails contrast AA, in light or dark", () => {
     expect(errors({ ...base, colors: { light: { foreground: "#f6f7f9" }, dark: {} } })).toContain("light: foreground on background is 1.00:1, needs 4.5:1");
     expect(errors({ ...base, colors: { light: {}, dark: { "muted-foreground": "#3a3f48" } } }).some((e) => e.startsWith("dark: muted-foreground on"))).toBe(true);
