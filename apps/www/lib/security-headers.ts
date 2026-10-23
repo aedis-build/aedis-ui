@@ -70,6 +70,7 @@ export function securityHeaders({ nonce, hashes, connectSrc = [], imgSrc = [], f
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
-    "Cache-Control": "no-store",
+    // no-transform: a proxy (Cloudflare's analytics or bot scripts) must not rewrite the page.
+    "Cache-Control": "no-store, no-transform",
   };
 }

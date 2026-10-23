@@ -19,7 +19,7 @@ describe("securityHeaders", () => {
     expect(headers["X-Content-Type-Options"]).toBe("nosniff");
     expect(headers["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["Cross-Origin-Opener-Policy"]).toBe("same-origin");
-    expect(headers["Cache-Control"]).toBe("no-store");
+    expect(headers["Cache-Control"]).toBe("no-store, no-transform");
     expect(headers["Permissions-Policy"]).toContain("camera=()");
   });
 
