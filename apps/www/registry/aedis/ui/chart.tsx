@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { useFormat } from "@/registry/aedis/hooks/use-format";
+import { useReducedMotion } from "@/registry/aedis/hooks/use-reduced-motion";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 
 export type ChartLabels = Messages["chart"];
@@ -165,6 +166,45 @@ function ChartLegend({ series, className }: { series: readonly ChartSeries[]; cl
   );
 }
 
+const token = (css: CSSStyleDeclaration, name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
+
+/**
+ * Chart motion from the theme's tokens. On enter (and when the number of rows changes) marks that carry data-enter
+ * animate with the Web Animations API: "grow" (transform scaleY, bars), "draw" (stroke-dashoffset, lines), "sweep"
+ * (stroke-dasharray, arcs) and "fade" (opacity). Value changes move through CSS transitions on the marks' geometry
+ * (`moves`). Nothing renders per frame, and with animate={false} or reduced motion nothing moves: the final state is
+ * drawn at once.
+ */
+export function useChartMotion(animate: boolean, replayOn: unknown) {
+  const reduced = useReducedMotion();
+  const on = animate && !reduced;
+  const ref = React.useRef<SVGSVGElement>(null);
+  React.useEffect(() => {
+    const svg = ref.current;
+    if (!on || !svg || typeof svg.animate !== "function") return;
+    const css = getComputedStyle(svg);
+    const duration = token(css, "--duration-spring", 560);
+    const stagger = token(css, "--duration-stagger", 50);
+    const easing = css.getPropertyValue("--ease-cinematic").trim() || "ease-out";
+    const played = [...svg.querySelectorAll<SVGElement>("[data-enter]")].map((el, i) => {
+      const kind = el.dataset.enter;
+      const dash = el.getAttribute("stroke-dasharray") ?? "0 0";
+      const frames =
+        kind === "grow" ? [{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }]
+        : kind === "draw" ? [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }]
+        : kind === "sweep" ? [{ strokeDasharray: `0 ${dash.split(/[\s,]+/)[1] ?? 0}` }, { strokeDasharray: dash }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      return el.animate(frames, { duration, delay: Number(el.dataset.order ?? i) * stagger, easing, fill: "backwards" });
+    });
+    return () => played.forEach((a) => a.cancel());
+  }, [on, replayOn]);
+  return { ref, moves: on };
+}
+
+/** The CSS transition that moves a mark to new values, or none. */
+export const moveOn = (moves: boolean, properties: string) =>
+  moves ? { transition: properties.split(" ").map((p) => `${p} var(--duration-base) var(--ease-cinematic)`).join(", ") } : undefined;
+
 /** Props every cartesian chart takes. */
 export type CartesianChartProps = {
   title: string;
@@ -178,6 +218,8 @@ export type CartesianChartProps = {
   legend?: boolean;
   labels?: Partial<ChartLabels>;
   className?: string;
+  /** Animate on enter and between values; true by default, never under reduced motion. */
+  animate?: boolean;
 };
 
 /** The drawing area shared by area, bar and line charts, in viewBox units. */

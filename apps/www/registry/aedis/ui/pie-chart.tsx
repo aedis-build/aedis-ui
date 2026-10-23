@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartFrame, cleanRows, seriesColor, type ChartLabels, type ChartRow } from "@/registry/aedis/ui/chart";
+import { ChartFrame, cleanRows, moveOn, seriesColor, useChartMotion, type ChartLabels, type ChartRow } from "@/registry/aedis/ui/chart";
 
 type PieChartProps = {
   title: string;
@@ -15,6 +15,8 @@ type PieChartProps = {
   format?: (value: number) => string;
   labels?: Partial<ChartLabels>;
   className?: string;
+  /** Sweep the arcs on enter and between values; true by default, never under reduced motion. */
+  animate?: boolean;
 };
 
 const SIZE = 150;
@@ -22,9 +24,10 @@ const R = 64;
 const C = 2 * Math.PI * R;
 
 /** A donut: one ring segment per row, colored in order, with the legend naming the rows. */
-function PieChart({ title, data, index, value, center, format, labels, className }: PieChartProps) {
+function PieChart({ title, data, index, value, center, format, labels, className, animate = true }: PieChartProps) {
   const series = [value];
   const { rows, dropped } = cleanRows(data, index, series);
+  const { ref, moves } = useChartMotion(animate, rows.length);
   const total = rows.reduce((a, r) => a + (r.values[0] ?? 0), 0);
   // The legend names slices, not the one value series: give each row its own color.
   const slices = rows.map((r, i) => ({ key: String(i), label: r.label }));
@@ -33,7 +36,7 @@ function PieChart({ title, data, index, value, center, format, labels, className
     <ChartFrame title={title} series={series} rows={rows} dropped={dropped} format={format} legend={false} labels={labels} className={className}>
       {({ active, hover }) => (
         <div className="flex flex-col items-center gap-3">
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} aria-hidden="true" className="block">
+          <svg ref={ref} viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} aria-hidden="true" className="block">
             <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="var(--muted)" strokeWidth={22} />
             {total > 0
               ? rows.map((r, i) => {
@@ -53,6 +56,9 @@ function PieChart({ title, data, index, value, center, format, labels, className
                       strokeDashoffset={-offset}
                       transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
                       onPointerEnter={() => hover(i)}
+                      data-enter="sweep"
+                      data-order={i}
+                      style={moveOn(moves, "stroke-dasharray stroke-dashoffset stroke-width")}
                     />
                   ) : null;
                 })
