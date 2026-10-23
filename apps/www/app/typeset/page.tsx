@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { Typeset } from "@/components/site/typeset";
+import { pageMetadata } from "@/content/share";
 
-export const metadata: Metadata = { title: "Typeset", description: "Set the type for your product and see it on real content." };
+export const metadata: Metadata = pageMetadata("/typeset");
 
 export default function TypesetPage() {
   return (

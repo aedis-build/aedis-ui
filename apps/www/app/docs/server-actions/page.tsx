@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/content/share";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Server Actions", description: "Every Server Action is a public POST endpoint. How to keep them safe with secureAction." };
+export const metadata: Metadata = pageMetadata("/docs/server-actions");
 
 export default function ServerActions() {
   return (

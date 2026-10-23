@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
 import { ChartsGallery } from "@/components/site/charts-gallery";
+import { pageMetadata } from "@/content/share";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Card } from "@/registry/aedis/ui/card";
 
-export const metadata: Metadata = { title: "Charts", description: "Charts for usage, spend and agent health. Data in, text out." };
+export const metadata: Metadata = pageMetadata("/charts");
 
 // The four rules of #112, each proved in test/chart.test.tsx.
 const rules = [

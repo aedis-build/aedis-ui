@@ -7,6 +7,7 @@ import { source } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { blocks, blockSecurity } from "@/content/blocks";
+import { pageMetadata } from "@/content/share";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Kbd } from "@/registry/aedis/ui/kbd";
 
@@ -18,8 +19,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params;
-  const block = blocks.find((b) => b.name === name);
-  return { title: block?.title, description: block?.description };
+  return pageMetadata(`/blocks/${name}`);
 }
 
 export default async function BlockPage({ params }: { params: Promise<{ name: string }> }) {

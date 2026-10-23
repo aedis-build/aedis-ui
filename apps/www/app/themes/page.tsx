@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
 
 import { CLI } from "@/components/site/install-command";
 import { ThemeEditor } from "@/components/site/theme-editor";
+import { pageMetadata } from "@/content/share";
 import { MAX_THEME_BYTES, MAX_THEME_NAME, themeFonts } from "@/registry/aedis/lib/custom-theme";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Themes", description: "Create your own Aedis UI theme: edit it live, check contrast, export the JSON and import it with the CLI." };
+export const metadata: Metadata = pageMetadata("/themes");
 
 const refused: [rule: string, why: string][] = [
   ["A text or control pair below contrast AA in light or dark: 4.5:1 for text, 3:1 for control outlines.", "A theme must never make a warning, a label or a field unreadable."],

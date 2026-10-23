@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 
 import { approaches as options } from "@/content/micro-frontends";
+import { pageMetadata } from "@/content/share";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = {
-  title: "Micro-frontends",
-  description: "Choosing between an iframe, a Web Component, Multi-Zones and Module Federation, and running Multi-Zones safely on one site.",
-};
+export const metadata: Metadata = pageMetadata("/docs/micro-frontends");
 
 const th = "py-2 pr-4 text-left text-footnote font-medium text-muted-foreground";
 const td = "py-2 pr-4 align-top";

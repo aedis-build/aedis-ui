@@ -5,12 +5,13 @@ import { MfDemoShell } from "@/components/site/mf-demo-shell";
 import { ShellDiagram } from "@/components/site/shell-diagram";
 import { FramePanel } from "@/components/site/showcase";
 import { approaches, defends, verdicts } from "@/content/micro-frontends";
+import { pageMetadata } from "@/content/share";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Micro-frontends", description: "Compose apps from frames, elements and zones without giving up the CSP." };
+export const metadata: Metadata = pageMetadata("/micro-frontends");
 
 const repo = "https://github.com/aedis-build/aedis-ui/blob/main/apps/www/test";
 

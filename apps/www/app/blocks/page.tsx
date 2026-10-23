@@ -7,9 +7,10 @@ import { source } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { blockCategories, blocks, blockSecurity, type BlockDoc } from "@/content/blocks";
+import { pageMetadata } from "@/content/share";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/aedis/ui/collapsible";
 
-export const metadata: Metadata = { title: "Blocks", description: "Whole screens for AI platforms, built only from Aedis UI components and installed with the CLI." };
+export const metadata: Metadata = pageMetadata("/blocks");
 
 function Block({ block }: { block: BlockDoc }) {
   const { security } = blockSecurity(block);

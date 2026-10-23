@@ -9,6 +9,7 @@ import { InstallCommand } from "@/components/site/install-command";
 import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
 import { apiParts, components, type Prop } from "@/content/components";
+import { pageMetadata } from "@/content/share";
 import registry from "@/registry.json";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -22,8 +23,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
   const { name } = await params;
-  const doc = components.find((c) => c.name === name);
-  return { title: doc?.title, description: doc?.description };
+  return pageMetadata(`/docs/${name}`);
 }
 
 // What `aedis init` already installed: not worth listing as something `add` brings.

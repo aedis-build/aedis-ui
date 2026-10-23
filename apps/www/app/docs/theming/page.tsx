@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { pageMetadata } from "@/content/share";
 import { contrast } from "@/registry/aedis/lib/contrast";
 import { blurs, colors, colorUsage, contrastPairs, durations, easings, radii, scales, shadows, themeNames, typeScale } from "@/registry/aedis/lib/tokens";
 
-export const metadata: Metadata = { title: "Theming", description: "The Aedis UI default theme: color, type, depth, material and motion tokens." };
+export const metadata: Metadata = pageMetadata("/docs/theming");
 
 const code = "rounded-md border border-hairline bg-muted px-4 py-3 font-mono text-code overflow-x-auto";
 const th = "py-2 pr-4 text-footnote font-medium text-muted-foreground";

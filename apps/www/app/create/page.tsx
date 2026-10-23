@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { Create } from "@/components/site/create";
+import { pageMetadata } from "@/content/share";
 
-export const metadata: Metadata = { title: "Create", description: "Start a project with your theme, your blocks and the security level you need." };
+export const metadata: Metadata = pageMetadata("/create");
 
 export default function CreatePage() {
   return (

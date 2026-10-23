@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { DirectoryTable } from "@/components/site/directory-table";
 import { CLI } from "@/components/site/install-command";
 import { directory } from "@/content/directory";
+import { pageMetadata } from "@/content/share";
 import { Card } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Directory", description: "Registries you can add with the Aedis CLI, each checked the same way as Aedis UI." };
+export const metadata: Metadata = pageMetadata("/directory");
 
 const requirements = [
   ["Signed release", "The registry archive (<repo>-registry-<tag>.tgz) is signed with Sigstore, keyless, by the repository's own .github/workflows/release.yml."],

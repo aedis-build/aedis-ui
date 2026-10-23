@@ -3,9 +3,10 @@ import type { ComponentType } from "react";
 
 import { Gallery } from "@/components/site/gallery";
 import { categories, components } from "@/content/components";
+import { pageMetadata } from "@/content/share";
 import registry from "@/registry.json";
 
-export const metadata: Metadata = { title: "Components", description: "Every Aedis UI component and hook, live, by category, with the sink it defends." };
+export const metadata: Metadata = pageMetadata("/components");
 
 // Every registry item with a docs entry; blocks have their own page.
 const items = new Set(registry.items.filter((i) => i.type !== "registry:block").map((i) => i.name));
