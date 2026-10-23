@@ -31,7 +31,12 @@ The same with other package managers: `pnpm dlx @aedis/cli@0.1.0 add button`, `y
 ```
 
 `npx @aedis/cli@0.1.0 diff` shows where your copies differ from the registry, and `theme import <file.json>` turns a
-theme made in the theming page's editor into CSS after validating it.
+theme made in the editor on the [Themes](https://ui.aedis.build/themes) page into CSS after validating it.
+
+For coding agents, the site serves [llms.txt](https://ui.aedis.build/llms.txt) and
+[llms-full.txt](https://ui.aedis.build/llms-full.txt), and `npx @aedis/cli@0.1.0 mcp` is a read-only docs server over
+the Model Context Protocol (stdio): list and search items, read one with its API and security rules, get its install
+command.
 
 The registry stays compatible with the shadcn CLI (`"@aedis": "https://ui.aedis.build/r/{name}.json"`
 in `components.json`), but that path verifies nothing: prefer `@aedis/cli`.

@@ -104,7 +104,7 @@ describe("registry", () => {
 
   it("resolves dependencies first, once, refuses foreign namespaces and survives cycles", async () => {
     const items: Record<string, unknown> = { ...ITEMS, a: { ...ITEMS.button, name: "a", registryDependencies: ["@aedis/b"] }, b: { ...ITEMS.button, name: "b", registryDependencies: ["@aedis/a"] }, bad: { ...ITEMS.button, name: "bad", registryDependencies: ["@shadcn/utils"] } };
-    const source = { verified: false, label: "t", get: async (n: string) => parseItem(items[n], n) };
+    const source = { verified: false, label: "t", namespace: "@aedis", get: async (n: string) => parseItem(items[n], n) };
     expect((await resolveItems(["button", "@aedis/button"], source)).map((i) => i.name)).toEqual(["utils", "theme", "button"]);
     expect((await resolveItems(["a"], source)).map((i) => i.name)).toEqual(["b", "a"]);
     await expect(resolveItems(["bad"], source)).rejects.toThrow(/outside @aedis/);

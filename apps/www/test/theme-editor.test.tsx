@@ -25,6 +25,16 @@ describe("ThemeEditor", () => {
     expect(preview().style.getPropertyValue("--foreground")).toBe(colors.foreground.light);
   });
 
+  it("starts from the brand palette and back", async () => {
+    const user = userEvent.setup();
+    render(<ThemeEditor />);
+    await user.click(screen.getByRole("button", { name: "Brand" }));
+    await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.brand));
+    expect(screen.getByRole("status")).toHaveTextContent("Passes contrast AA");
+    await user.click(screen.getByRole("button", { name: "Light and dark" }));
+    await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.light));
+  });
+
   it("edits dark separately", async () => {
     const user = userEvent.setup();
     render(<ThemeEditor />);

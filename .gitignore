@@ -9,5 +9,7 @@ apps/www/public/r/
 packages/cli/dist/
 apps/www/playwright-report/
 apps/www/test-results/
+# Page screenshots for pull requests (pnpm -C apps/www capture)
+apps/www/visual/captures/
 # wrangler dev state
 .wrangler/
