@@ -48,7 +48,7 @@ describe("charts", () => {
   });
 
   it("never draw outside the canvas, whatever the data (property)", () => {
-    const value = fc.oneof(fc.double(), fc.constantFrom(Number.NaN, Infinity, -5, Number.MAX_VALUE), fc.string());
+    const value = fc.oneof(fc.double(), fc.constantFrom(Number.NaN, Infinity, -5, 5e-324, Number.MAX_VALUE), fc.string());
     fc.assert(
       fc.property(fc.array(fc.record({ day: fc.string(), a: value, b: value }), { minLength: 1, maxLength: 12 }), (rows) => {
         const { container, unmount } = render(
@@ -76,6 +76,7 @@ describe("charts", () => {
     const many = Array.from({ length: MAX_ROWS + 10 }, (_, i) => ({ k: String(i), a: 1, b: 1 }));
     expect(cleanRows(many, "k", series)).toMatchObject({ dropped: 20 });
     expect(cleanRows(many, "k", series).rows).toHaveLength(MAX_ROWS);
+    expect(cleanRows([{ k: { toString: 1 }, a: 1, b: 1 }, { k: 7, a: 1, b: 1 }], "k", series).rows.map((r) => r.label)).toEqual(["", "7"]);
   });
 
   it("take series colors from theme tokens that pass 3:1 on surface and background in every theme", () => {
@@ -126,5 +127,6 @@ describe("charts", () => {
 
   it("round the axis up to a readable number", () => {
     expect([niceMax(0), niceMax(7), niceMax(12), niceMax(23), niceMax(420), niceMax(0.3)]).toEqual([1, 10, 20, 25, 500, 0.5]);
+    expect([niceMax(5e-324), niceMax(Number.MAX_VALUE)]).toEqual([5e-324, Number.MAX_VALUE]);
   });
 });

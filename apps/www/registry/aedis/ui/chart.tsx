@@ -23,6 +23,9 @@ export const seriesColor = (s: ChartSeries, i: number) => `var(--chart-${s.color
 export const MAX_ROWS = 500;
 export const MAX_LABEL = 64;
 
+/** Strings and numbers name a row; anything else (objects with a hostile toString included) is an empty label. */
+const label = (v: unknown) => (typeof v === "string" ? v : typeof v === "number" ? String(v) : "");
+
 /**
  * Keeps finite numbers within [min, max] and drops (and counts) everything else: NaN, Infinity, strings, values out of
  * range. Labels become strings, cut to MAX_LABEL. A dropped value is never drawn, so nothing lands off the canvas.
@@ -30,7 +33,7 @@ export const MAX_LABEL = 64;
 export function cleanRows(rows: readonly ChartRow[], index: string, series: readonly ChartSeries[], min = 0, max = Number.MAX_SAFE_INTEGER) {
   let dropped = Math.max(0, rows.length - MAX_ROWS) * series.length;
   const clean: CleanRow[] = rows.slice(0, MAX_ROWS).map((row) => ({
-    label: String(row[index] ?? "").slice(0, MAX_LABEL),
+    label: label(row[index]).slice(0, MAX_LABEL),
     values: series.map((s) => {
       const v = row[s.key];
       if (typeof v === "number" && Number.isFinite(v) && v >= min && v <= max) return v;
@@ -45,7 +48,9 @@ export function cleanRows(rows: readonly ChartRow[], index: string, series: read
 export function niceMax(value: number) {
   if (!(value > 0)) return 1;
   const p = 10 ** Math.floor(Math.log10(value));
-  return ([1, 2, 2.5, 5, 10].find((m) => m * p >= value) ?? 10) * p;
+  const top = ([1, 2, 2.5, 5, 10].find((m) => m * p >= value) ?? 10) * p;
+  // Subnormal values underflow p to 0 and huge ones overflow it: then the value itself is the top.
+  return top > 0 && Number.isFinite(top) ? top : value;
 }
 
 /** A tick label short enough for its slot; the full label stays in the tooltip and the table. */
