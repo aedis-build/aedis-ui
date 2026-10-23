@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="material-regular scroll-edge sticky top-0 z-40">
           <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 md:gap-6 md:px-6">
             <MobileNav groups={[{ title: "Site", items: headerLinks.map((h) => ({ href: h.href, title: h.label })) }, ...navGroups]} />
-            <Link href="/" className="focus-ring flex items-center gap-2 rounded-xs text-headline">
+            <Link href="/" className="focus-ring flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xs text-headline">
               <Logo className="size-6 shrink-0" />
               Aedis UI
             </Link>
