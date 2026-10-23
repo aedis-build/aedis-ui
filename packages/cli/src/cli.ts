@@ -51,7 +51,8 @@ Options
   --release vX.Y.Z   registry release (default: aedis.json, or v${VERSION} on init)
   --registry github:<owner>/<repo>@<tag>
                      a third-party registry, verified like Aedis UI: Sigstore signature and SLSA
-                     provenance from that repository's release workflow
+                     provenance from that repository's release workflow, built there or by the
+                     Aedis platform's release workflow
   --registry <url> --allow-unverified
                      any other registry, e.g. a local branch; refused unless you allow it
   --yes, -y          do not ask before writing

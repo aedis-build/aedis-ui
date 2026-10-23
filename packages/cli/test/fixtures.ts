@@ -36,12 +36,17 @@ export function bundleFor(archive: Buffer, release: string, overrides: { name?: 
   return { mediaType: "application/vnd.dev.sigstore.bundle.v0.3+json", dsseEnvelope: { payloadType: "application/vnd.in-toto+json", payload: Buffer.from(JSON.stringify(statement)).toString("base64"), signatures: [{ sig: "x" }] } };
 }
 
-/** Accepts only bundles "signed" by the expected release workflow identity, like sigstore would. */
+export const PLATFORM = "https://github.com/aedis-build/aedis-platform/.github/workflows/release-registry-js.yml@3a42caac428d5581312a4a83cf1d7a6487a181f0";
+
+/**
+ * Accepts only bundles "signed" by the expected identity, matching the pattern against the signer like sigstore
+ * would. The signer is the repository's release workflow at `signedFor`, or `signer` when given.
+ */
 export const fakeCheck =
-  (signedFor: string, repo = REPO): SignatureCheck =>
+  (signedFor: string, repo = REPO, signer = `${repo}/.github/workflows/release.yml@refs/tags/${signedFor}`): SignatureCheck =>
   async (_bundle, { certificateIdentityURI, certificateIssuer }) => {
     if (certificateIssuer !== "https://token.actions.githubusercontent.com") throw new Error("wrong issuer");
-    if (certificateIdentityURI !== `${repo}/.github/workflows/release.yml@refs/tags/${signedFor}`) throw new Error("certificate identity mismatch");
+    if (!new RegExp(certificateIdentityURI).test(signer)) throw new Error("certificate identity mismatch");
     return {};
   };
 

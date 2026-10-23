@@ -1,9 +1,6 @@
 # Accepted DAST (ZAP) alerts, read by the Aedis Platform DAST action. Each item has pluginId, until and reason.
 # Accepted by the maintainer on 2026-10-22 for 90 days (aedis-ui#94); each reason says what would remove it.
 accept:
-  - pluginId: 10055
-    until: 2027-01-20
-    reason: "CSP style-src 'unsafe-inline' is deliberate in securityHeaders (components set inline style attributes, scripts never do); remove once the components stop using style attributes."
   - pluginId: 10038
     until: 2027-01-20
     reason: "No CSP on unknown paths (the 404 page, which holds no data or session; robots.txt and sitemap.xml are now real files, so ZAP's probes of them no longer land here): _headers cannot give it a policy without a detach, which production ignored on /; remove once Cloudflare honours the detach or the 404 gets a CSP another way."

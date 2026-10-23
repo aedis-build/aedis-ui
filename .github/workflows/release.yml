@@ -1,5 +1,8 @@
-# Release of the registry: on a vX.Y.Z tag, builds the registry JSON, packs it, attests its provenance (SLSA, Sigstore)
-# and publishes the archive plus the attestation bundle as release assets. The site keeps publishing from main.
+# Release of the registry on a vX.Y.Z tag: the Aedis Platform reusable builds the registry JSON in a job isolated
+# from this repository (SLSA Build L3), packs it, attests its provenance (Sigstore) and publishes the archive, the
+# attestation bundle the CLI verifies and the SBOM as release assets. The tag must be the version in package.json.
+# The site keeps publishing from main. To check a published release:
+#   gh attestation verify aedis-ui-registry-vX.Y.Z.tgz -R aedis-build/aedis-ui --signer-workflow aedis-build/aedis-platform/.github/workflows/release-registry-js.yml
 name: release
 
 on:
@@ -9,38 +12,12 @@ on:
 permissions: {}
 
 jobs:
-  publish:
-    name: Build, attest and publish the registry
-    runs-on: ubuntu-latest
+  release:
+    uses: aedis-build/aedis-platform/.github/workflows/release-registry-js.yml@3a42caac428d5581312a4a83cf1d7a6487a181f0 # feat/visual-regression
     permissions:
       contents: write
       id-token: write
       attestations: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm registry:build
-      - name: Pack
-        env:
-          TAG: ${{ github.ref_name }}
-        run: tar -czf "aedis-ui-registry-$TAG.tgz" -C apps/www/public r
-      - id: attest
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: aedis-ui-registry-*.tgz
-      - name: Publish
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
-        run: |
-          set -euo pipefail
-          cp "$BUNDLE" "aedis-ui-registry-$TAG.tgz.sigstore"
-          gh release create "$TAG" "aedis-ui-registry-$TAG.tgz" "aedis-ui-registry-$TAG.tgz.sigstore" --generate-notes --verify-tag
+    with:
+      name: aedis-ui-registry
+      registry-dir: apps/www/public/r
