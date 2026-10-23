@@ -38,4 +38,4 @@ The reasoning behind each rule is in [docs/SECURITY-BY-CONSTRUCTION.md](docs/SEC
 
 ## Commits and pull requests
 
-[Conventional Commits](https://www.conventionalcommits.org/), signed off (`git commit -s`), one purpose per PR, linked to an issue that explains the need. Changes under `.github/`, `docs/`, `apps/www/lib/` and the Markdown component always need a human review (see `.github/aedis-merge-policy.yaml`). The gates (coverage, SAST rules, DAST, merge gate) are the shared ones of [aedis-platform](https://github.com/aedis-build/aedis-platform); this repository carries no glue of its own.
+[Conventional Commits](https://www.conventionalcommits.org/), signed off (`git commit -s`), one purpose per PR, linked to an issue that explains the need. Changes under `.github/`, `docs/`, `apps/www/lib/` and the Markdown component always need a human review (see `.github/aedis-merge-policy.yaml`). The gates (coverage, SAST rules, DAST, merge gate), the releases (registry, `@aedis/cli`) and the visual regression are the shared reusable workflows of [aedis-platform](https://github.com/aedis-build/aedis-platform); this repository carries no glue of its own.

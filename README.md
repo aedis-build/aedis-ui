@@ -8,8 +8,8 @@ Components are not a dependency you install: they are source code you add to you
 
 ## Usage
 
-Install with the Aedis CLI, pinned to a version. It verifies the signed registry release (Sigstore, built by this
-repository's release workflow) before writing any file, installs npm dependencies at exact versions that are at
+Install with the Aedis CLI, pinned to a version. It verifies the signed registry release (Sigstore, built from
+this repository's release workflow by the Aedis platform) before writing any file, installs npm dependencies at exact versions that are at
 least 7 days old, and runs no install scripts:
 
 ```bash
