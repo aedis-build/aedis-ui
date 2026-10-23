@@ -4,8 +4,9 @@ import path from "node:path";
 import { CONFIG_FILE, defaultConfig, isRelease, readConfig, type AedisConfig } from "./config";
 import { detectPackageManager, installCommand, pickVersions } from "./deps";
 import { lineDiff } from "./diff";
+import { lintMessages, lintRegistry } from "./lint";
 import { insideProject } from "./paths";
-import { releaseSource, resolveItems, urlSource, type ItemSource } from "./registry";
+import { githubRegistry, releaseSource, resolveItems, urlSource, type ItemSource } from "./registry";
 import { serve } from "./mcp";
 import { themeImport } from "./theme";
 import { planFiles } from "./transform";
@@ -31,7 +32,7 @@ export type Io = {
   stdout?: (text: string) => void;
 };
 
-type Flags = { registry?: string; release?: string; yes: boolean; overwrite: boolean; cwd?: string };
+type Flags = { registry?: string; release?: string; yes: boolean; overwrite: boolean; allowUnverified: boolean; cwd?: string };
 
 const HELP = `aedis ${VERSION}: Aedis UI components with verified provenance
 
@@ -40,22 +41,28 @@ Usage
   npx @aedis/cli@${VERSION} add <item...>     add items and their dependencies
   npx @aedis/cli@${VERSION} diff [item...]    compare local copies with the registry
   npx @aedis/cli@${VERSION} theme import <file.json>
+  npx @aedis/cli@${VERSION} lint [registry.json]  check a registry's items against the Aedis rules
   npx @aedis/cli@${VERSION} mcp               read-only docs server for coding agents (MCP, stdio)
 
 Options
   --release vX.Y.Z   registry release (default: aedis.json, or v${VERSION} on init)
-  --registry <url>   another registry, e.g. a local branch; NOT verified
+  --registry github:<owner>/<repo>@<tag>
+                     a third-party registry, verified like Aedis UI: Sigstore signature and SLSA
+                     provenance from that repository's release workflow
+  --registry <url> --allow-unverified
+                     any other registry, e.g. a local branch; refused unless you allow it
   --yes, -y          do not ask before writing
   --overwrite        replace local copies that differ from the registry
   --cwd <dir>        project root (default: current directory)`;
 
 function parse(argv: string[]) {
-  const flags: Flags = { yes: false, overwrite: false };
+  const flags: Flags = { yes: false, overwrite: false, allowUnverified: false };
   const rest: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--yes" || a === "-y") flags.yes = true;
     else if (a === "--overwrite") flags.overwrite = true;
+    else if (a === "--allow-unverified") flags.allowUnverified = true;
     else if (a === "--registry" || a === "--release" || a === "--cwd") {
       const value = argv[++i];
       if (!value) throw new Error(`${a} needs a value`);
@@ -68,6 +75,14 @@ function parse(argv: string[]) {
 
 async function source(config: AedisConfig, flags: Flags, io: Io): Promise<ItemSource> {
   if (flags.registry) {
+    const github = githubRegistry(flags.registry);
+    if (github) {
+      io.log(`verifying ${github.repository} ${github.release}…`);
+      return releaseSource(github.release, { fetcher: io.fetcher, check: io.check, repository: github.repository, namespace: github.namespace });
+    }
+    if (!flags.allowUnverified) {
+      throw new Error(`refusing ${flags.registry}: it is not a signed release. Use github:<owner>/<repo>@<tag> for a verified registry, or pass --allow-unverified to install from it anyway`);
+    }
     io.log(`warning: ${flags.registry} is not a signed release; provenance is NOT verified.`);
     return urlSource(flags.registry, { fetcher: io.fetcher });
   }
@@ -151,6 +166,14 @@ export async function run(argv: string[], io: Io): Promise<number> {
       return 0;
     }
     const root = path.resolve(io.cwd, flags.cwd ?? ".");
+    if (command === "lint") {
+      const file = path.resolve(root, args[0] ?? "registry.json");
+      const dir = path.dirname(file);
+      const findings = lintRegistry(JSON.parse(readFileSync(file, "utf8")), (p) => readFileSync(insideProject(dir, p), "utf8"));
+      for (const f of findings) io.log(`  ${f.item} ${f.file}:${f.line} ${lintMessages[f.rule]} (${f.rule}): ${f.text}`);
+      io.log(findings.length ? `${findings.length} finding(s); exempt an item only with a reason in meta.aedisLint` : "aedis lint: every item passes");
+      return findings.length ? 1 : 0;
+    }
     if (!existsSync(path.join(root, "package.json"))) throw new Error(`${root} has no package.json; run inside your app`);
 
     if (command === "init") {

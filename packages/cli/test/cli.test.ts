@@ -65,10 +65,14 @@ describe("aedis add", () => {
     expect(read(root, "lib/utils.ts")).toBe("export const cn = 1;\n");
   });
 
-  it("says loudly that another registry is not verified", async () => {
+  it("refuses an unverified registry unless allowed, and then says loudly it is not verified", async () => {
     const root = await initialized();
     const t = io(root, { "http://localhost:3000/r/untrusted.json": () => Response.json(ITEMS.untrusted) });
-    expect(await run(["add", "untrusted", "--registry", "http://localhost:3000/r", "--yes"], t.io)).toBe(0);
+    expect(await run(["add", "untrusted", "--registry", "http://localhost:3000/r", "--yes"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toMatch(/^error: refusing http:\/\/localhost:3000\/r: it is not a signed release/);
+    expect(t.calls.some((c) => c.startsWith("http://localhost:3000"))).toBe(false);
+    t.lines.length = 0;
+    expect(await run(["add", "untrusted", "--registry", "http://localhost:3000/r", "--allow-unverified", "--yes"], t.io)).toBe(0);
     expect(t.lines[0]).toBe("warning: http://localhost:3000/r is not a signed release; provenance is NOT verified.");
     expect(t.lines).toContain("from http://localhost:3000/r/ (NOT verified):");
   });
@@ -140,5 +144,97 @@ describe("aedis", () => {
     const empty = io(path.join(root, "nowhere"), {});
     expect(await run(["init"], empty.io)).toBe(1);
     expect(empty.lines.at(-1)).toMatch(/has no package.json/);
+  });
+});
+
+describe("third-party registries", () => {
+  const ACME = "https://github.com/acme/ui";
+  const card = { name: "card", type: "registry:ui", registryDependencies: ["@acme/tokens"], files: [{ path: "registry/acme/ui/card.tsx", type: "registry:ui", content: "export const card = 1;\n" }] };
+  const tokens = { name: "tokens", type: "registry:lib", files: [{ path: "lib/tokens.ts", type: "registry:lib", content: "export {};\n" }] };
+  const acmeArchive = (items: Record<string, unknown> = { card, tokens }) => releaseArchive(items);
+  const bundle = (archive: Buffer) => bundleFor(archive, "v1.0.0", { name: "ui-registry-v1.0.0.tgz", repository: ACME });
+
+  async function initialized() {
+    const root = project();
+    await run(["init", "--yes"], io(root, releaseRoutes(RELEASE)).io);
+    return root;
+  }
+
+  it("verifies a third-party registry with the same checks as Aedis UI before writing", async () => {
+    const root = await initialized();
+    const archive = acmeArchive();
+    const t = io(root, releaseRoutes("v1.0.0", archive, bundle(archive), ACME), { check: fakeCheck("v1.0.0", ACME) });
+    expect(await run(["add", "@acme/card", "--registry", "github:acme/ui@v1.0.0", "--yes"], t.io)).toBe(0);
+    expect(t.lines).toContain("from acme/ui v1.0.0 (verified):");
+    expect(existsSync(path.join(root, "components/ui/card.tsx"))).toBe(true);
+    expect(existsSync(path.join(root, "lib/tokens.ts"))).toBe(true);
+  });
+
+  it("refuses an unsigned, mis-signed or tampered third-party release and writes nothing", async () => {
+    const root = await initialized();
+    const archive = acmeArchive();
+    const cases: [Record<string, () => Response>, ReturnType<typeof fakeCheck>, RegExp][] = [
+      [releaseRoutes("v1.0.0", archive, null, ACME), fakeCheck("v1.0.0", ACME), /missing attestation/],
+      [releaseRoutes("v1.0.0", archive, bundle(archive), ACME), fakeCheck("v1.0.0"), /signature does not verify for https:\/\/github.com\/acme\/ui/],
+      [releaseRoutes("v1.0.0", archive, bundleFor(archive, "v1.0.0", { name: "ui-registry-v1.0.0.tgz" }), ACME), fakeCheck("v1.0.0", ACME), /built from https:\/\/github.com\/aedis-build\/aedis-ui/],
+      [releaseRoutes("v1.0.0", acmeArchive({ card, tokens: { ...tokens, files: [{ ...tokens.files[0], content: "evil" }] } }), bundle(archive), ACME), fakeCheck("v1.0.0", ACME), /tampered or replaced/],
+    ];
+    for (const [routes, check, error] of cases) {
+      const t = io(root, routes, { check });
+      expect(await run(["add", "@acme/card", "--registry", "github:acme/ui@v1.0.0", "--yes"], t.io)).toBe(1);
+      expect(t.lines.at(-1)).toMatch(error);
+    }
+    expect(existsSync(path.join(root, "components/ui/card.tsx"))).toBe(false);
+  });
+
+  it("holds third-party npm dependencies to exact, aged pins, and its items to their own namespace", async () => {
+    const root = await initialized();
+    const fresh = { ...card, registryDependencies: [], dependencies: ["brand-new"] };
+    const foreign = { ...card, registryDependencies: ["@aedis/button"] };
+    for (const [items, error] of [[{ card: fresh }, /brand-new/], [{ card: foreign }, /depends on @aedis\/button, outside @acme/]] as const) {
+      const archive = acmeArchive(items);
+      const t = io(root, releaseRoutes("v1.0.0", archive, bundle(archive), ACME), { check: fakeCheck("v1.0.0", ACME) });
+      expect(await run(["add", "card", "--registry", "github:acme/ui@v1.0.0", "--yes"], t.io)).toBe(1);
+      expect(t.lines.at(-1)).toMatch(error);
+    }
+    expect(existsSync(path.join(root, "components/ui/card.tsx"))).toBe(false);
+  });
+});
+
+describe("aedis lint", () => {
+  it("passes the Aedis UI registry itself", async () => {
+    const t = io(path.resolve("../../apps/www"), {});
+    expect(await run(["lint"], t.io)).toBe(0);
+    expect(t.lines.at(-1)).toBe("aedis lint: every item passes");
+  });
+
+  it("reports markup, unbounded fields and direct transport, and honours an exemption with a reason", async () => {
+    const root = project({
+      "registry.json": JSON.stringify({
+        items: [
+          { name: "bad", files: [{ path: "bad.tsx" }] },
+          { name: "client", files: [{ path: "client.ts" }], meta: { aedisLint: { transport: "this is the registry's api()" } } },
+          { name: "empty", files: [{ path: "client.ts" }], meta: { aedisLint: { transport: " " } } },
+        ],
+      }),
+      "bad.tsx": 'export const A = () => <div dangerouslySetInnerHTML={{ __html: x }} />;\nexport const B = () => <textarea name="q" />;\nexport const C = () => <input type="file" />;\nexport const D = () => <input maxLength={9} />;\n',
+      "client.ts": 'export const get = () => fetch("/x");\n',
+    });
+    const t = io(root, {});
+    expect(await run(["lint"], t.io)).toBe(1);
+    expect(t.lines.slice(0, -1)).toEqual([
+      "  bad bad.tsx:1 renders a string as markup (markup): export const A = () => <div dangerouslySetInnerHTML={{ __html: x }} />;",
+      '  bad bad.tsx:2 a text field without maxLength (input): <textarea name="q" />',
+      '  empty client.ts:1 talks to the backend without api() (transport): export const get = () => fetch("/x");',
+    ]);
+  });
+
+  it("refuses files outside the registry and a registry without items", async () => {
+    const outside = project({ "registry.json": JSON.stringify({ items: [{ name: "x", files: [{ path: "../secret" }] }] }) });
+    const t = io(outside, {});
+    expect(await run(["lint"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toMatch(/outside the registry/);
+    const none = project({ "registry.json": "{}" });
+    expect(await run(["lint"], io(none, {}).io)).toBe(1);
   });
 });
