@@ -139,6 +139,7 @@ export const guides: { href: string; title: string; description: string; categor
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
   { href: "/blocks", title: "Blocks", description: "Whole screens for AI platforms, built only from registry items.", category: "Blocks" },
+  { href: "/charts", title: "Charts", description: "Every chart type with sample data, and how charts stay safe.", category: "Charts" },
   { href: "/security", title: "Security by construction", description: "How each attack is treated, the four sinks, the checklist for apps and what the UI cannot do.", category: "Security" },
   { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
   { href: "/docs/micro-frontends", title: "Micro-frontends", description: "Compose apps from isolated frames and elements.", category: "Micro-frontends" },
