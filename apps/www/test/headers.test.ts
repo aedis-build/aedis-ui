@@ -53,14 +53,14 @@ describe("_headers", () => {
     expect(rule(file, "/docs/x")[0]).toContain(`script-src 'self' '${sha("c()")}';`);
   });
 
-  it("lets only the block previews and the demo remote be framed, only by this site, and only pages that show them frame", () => {
+  it("lets only the block previews and the demo remote be framed, only by this site, and every page may frame this site", () => {
     const paths = ["/blocks/view/agent-console", "/demo/remote/billing", "/blocks", "/blocks/agent-console", "/micro-frontends", "/", "/docs/mf-frame", "/blocks-x"];
     const file = headersFile(paths.map((p) => [p, ""]));
     const csp = (p: string) => rule(file, p)[0];
     for (const p of ["/blocks/view/agent-console", "/demo/remote/billing"]) expect(csp(p)).toContain("frame-ancestors 'self';");
     for (const p of ["/blocks", "/blocks/agent-console", "/micro-frontends", "/", "/docs/mf-frame", "/blocks-x"]) expect(csp(p)).toContain("frame-ancestors 'none';");
-    for (const p of ["/blocks", "/blocks/agent-console", "/micro-frontends"]) expect(csp(p)).toContain("frame-src 'self';");
-    for (const p of ["/blocks/view/agent-console", "/demo/remote/billing", "/", "/docs/mf-frame", "/blocks-x"]) expect(csp(p)).toContain("frame-src 'none';");
+    // A client-side navigation keeps the first page's CSP: from / to /micro-frontends, / must allow the frame.
+    for (const p of paths) expect(csp(p)).toContain("frame-src 'self';");
   });
 
   it("lets hashed build assets be cached for good", () => {

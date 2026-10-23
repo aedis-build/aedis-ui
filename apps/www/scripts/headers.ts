@@ -18,15 +18,15 @@ export function inlineScriptHashes(html: string): string[] {
 
 /** Pages only this site may frame: the block previews and the micro-frontends demo remote. Every other page refuses. */
 export const FRAMEABLE = /^\/(?:blocks\/view|demo\/remote)\//;
-/** Pages that frame those: the Blocks pages and the micro-frontends demo. Every other page may frame nothing. */
-export const FRAMING = /^\/(?:blocks(?:\/(?!view\/)[^/]+)?|micro-frontends)$/;
 
 // Browsers ignore X-Frame-Options (DENY, set on /*) when the CSP has frame-ancestors, so the CSP alone decides.
 const csp = (path: string, html: string) =>
   securityHeaders({
     hashes: [...new Set(inlineScriptHashes(html))].sort(),
     frameAncestors: FRAMEABLE.test(path) ? ["'self'"] : [],
-    frameSrc: FRAMING.test(path) ? ["'self'"] : [],
+    // The same on every page: a client-side navigation keeps the CSP of the page the visit started on, so a
+    // per-page frame-src blocked the demo and the block previews when reached from any other page.
+    frameSrc: ["'self'"],
   })["Content-Security-Policy"];
 
 /**

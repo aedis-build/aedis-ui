@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 /**
  * The live micro-frontends demo on the built site (#135): a shell and a same-origin, sandboxed remote talking over
- * mf-bridge. Headers are checked under wrangler dev in CI (DAST); this checks the behaviour.
+ * mf-bridge, served with the real _headers (visual/serve.mjs).
  */
 test("the shell and the remote talk over the bridge, and the bridge refuses what it must", async ({ page }) => {
   await page.goto("/micro-frontends");
@@ -43,6 +43,20 @@ test("the shell and the remote talk over the bridge, and the bridge refuses what
   // The shell ends the session, and the remote clears its content.
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(remote.getByRole("status")).toContainText("The shell ended the session");
+});
+
+test("reached by a client-side navigation, the demo still frames the remote: the first page's CSP stays", async ({ page }) => {
+  // Production broke here: the home page's CSP had frame-src 'none', and the document keeps it after a soft navigation.
+  await page.goto("/");
+  // The header's link (inside the closed navigation menu): a Next.js Link, so the router navigates in place.
+  await page.locator('a[href="/micro-frontends"]').first().evaluate((a: HTMLAnchorElement) => a.click());
+  await expect(page).toHaveURL(/\/micro-frontends$/);
+  expect(await page.evaluate(() => new URL(performance.getEntriesByType("navigation")[0].name).pathname)).toBe("/");
+
+  const log = page.getByRole("list", { name: "Bridge events" });
+  await expect(log).toContainText("Handshake: the remote is ready");
+  await expect(log).toContainText(/Height: the remote reports \d+ px/);
+  await expect(page.frameLocator("iframe[title='Billing remote']").getByText("theme: light")).toBeVisible();
 });
 
 test("the mf-element widget runs in a shadow root and emits only its declared event", async ({ page }) => {
