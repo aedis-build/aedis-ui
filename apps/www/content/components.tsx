@@ -142,6 +142,7 @@ export const guides: { href: string; title: string; description: string; categor
   { href: "/typeset", title: "Typeset", description: "Set the type scale on real content and import it as a theme.", category: "Getting started" },
   { href: "/blocks", title: "Blocks", description: "Whole screens for AI platforms, built only from registry items.", category: "Blocks" },
   { href: "/charts", title: "Charts", description: "Every chart type with sample data, and how charts stay safe.", category: "Charts" },
+  { href: "/directory", title: "Directory", description: "Registries the Aedis CLI can verify, and how to list yours.", category: "Security" },
   { href: "/security", title: "Security by construction", description: "How each attack is treated, the four sinks, the checklist for apps and what the UI cannot do.", category: "Security" },
   { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
   { href: "/micro-frontends", title: "Overview", description: "Micro-frontends without giving up the CSP: the approaches and what the kit defends.", category: "Micro-frontends" },
