@@ -100,6 +100,14 @@ export type Messages = {
     wantsToRun: string;
     waiting: string;
   };
+  chart: {
+    /** Read after the chart's name, e.g. "Tokens this week, chart". */
+    chart: string;
+    /** Header of the table's first column when the chart gives none. */
+    item: string;
+    /** {count} is the number of values that were not drawn. */
+    notShown: string;
+  };
   reasoning: {
     thinking: string;
     thought: string;
@@ -240,6 +248,11 @@ export const en: Messages = {
     external: "acts outside",
     wantsToRun: "wants to run with these arguments.",
     waiting: "Waiting for a person to approve.",
+  },
+  chart: {
+    chart: "chart",
+    item: "Item",
+    notShown: "{count} values not shown: not a number in range.",
   },
   reasoning: {
     thinking: "Thinking…",

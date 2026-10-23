@@ -20,5 +20,7 @@ const code = await run(process.argv.slice(2), {
     return /^y(es)?$/i.test(answer.trim());
   },
   log: (line) => console.log(line),
+  stdin: () => createInterface({ input: process.stdin, crlfDelay: Infinity }),
+  stdout: (text) => process.stdout.write(text),
 });
 process.exit(code);

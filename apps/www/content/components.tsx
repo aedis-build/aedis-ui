@@ -4,9 +4,11 @@ import AccordionDemo from "@/examples/accordion/demo";
 import AlertDialogDemo from "@/examples/alert-dialog/demo";
 import AlertDemo from "@/examples/alert/demo";
 import AppShellDemo from "@/examples/app-shell/demo";
+import AreaChartDemo from "@/examples/area-chart/demo";
 import ApprovalCardDemo from "@/examples/approval-card/demo";
 import AvatarDemo from "@/examples/avatar/demo";
 import BadgeDemo from "@/examples/badge/demo";
+import BarChartDemo from "@/examples/bar-chart/demo";
 import BreadcrumbDemo from "@/examples/breadcrumb/demo";
 import ButtonGroupDemo from "@/examples/button-group/demo";
 import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
@@ -14,6 +16,7 @@ import ButtonAsLink from "@/examples/button/as-link";
 import ButtonDemo from "@/examples/button/demo";
 import ButtonSizes from "@/examples/button/sizes";
 import CardDemo from "@/examples/card/demo";
+import ChartDemo from "@/examples/chart/demo";
 import ChatDemo from "@/examples/chat/demo";
 import CheckboxDemo from "@/examples/checkbox/demo";
 import CodeBlockDemo from "@/examples/code-block/demo";
@@ -31,14 +34,17 @@ import InputStates from "@/examples/input/states";
 import ItemDemo from "@/examples/item/demo";
 import KbdDemo from "@/examples/kbd/demo";
 import LabelDemo from "@/examples/label/demo";
+import LineChartDemo from "@/examples/line-chart/demo";
 import LinkDemo from "@/examples/link/demo";
 import LocaleSwitcherDemo from "@/examples/locale-switcher/demo";
 import MarkdownDemo from "@/examples/markdown/demo";
 import NavigationMenuDemo from "@/examples/navigation-menu/demo";
 import PaginationDemo from "@/examples/pagination/demo";
+import PieChartDemo from "@/examples/pie-chart/demo";
 import ProgressDemo from "@/examples/progress/demo";
 import PromptInputDemo from "@/examples/prompt-input/demo";
 import RadioGroupDemo from "@/examples/radio-group/demo";
+import RadialChartDemo from "@/examples/radial-chart/demo";
 import ScrollAreaDemo from "@/examples/scroll-area/demo";
 import SeparatorDemo from "@/examples/separator/demo";
 import SheetDemo from "@/examples/sheet/demo";
@@ -59,8 +65,19 @@ import TooltipDemo from "@/examples/tooltip/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
-/** Sidebar and gallery order. */
-export const categories = ["Getting started", "Foundations", "Security", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "AI and agents", "Transport", "Micro-frontends"] as const;
+/** The API reference by part: rows named like "SheetContent labels" go to SheetContent, then the explicit parts. */
+export function apiParts(doc: ComponentDoc): ApiPart[] {
+  const byPart = new Map<string, Prop[]>([[doc.title.replace(/\s/g, ""), []]]);
+  for (const p of doc.props) {
+    const [, part, prop] = /^([A-Z]\w+) ([a-z].*)$/.exec(p.name) ?? [];
+    const key = part ?? [...byPart.keys()][0];
+    byPart.set(key, [...(byPart.get(key) ?? []), part ? { ...p, name: prop } : p]);
+  }
+  return [...[...byPart].filter(([, props]) => props.length).map(([name, props]) => ({ name, props })), ...(doc.parts ?? [])];
+}
+
+/** Sidebar and gallery order: the guides first (as the Docs board groups them), then the components by category. */
+export const categories = ["Getting started", "Security", "Micro-frontends", "For agents", "Foundations", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "Charts", "AI and agents", "Transport", "Blocks"] as const;
 export type Category = (typeof categories)[number];
 
 /** A file in examples/: rendered in Preview, its source shown in Code. A test checks `component` is that file's export. */
@@ -118,12 +135,22 @@ const baseProps = (part: string): Prop[] => [
 
 /** The written guides; they join the navigation and the search next to the components. */
 export const guides: { href: string; title: string; description: string; category: Category }[] = [
-  { href: "/docs", title: "Introduction", description: "What Aedis UI is and how to install it.", category: "Getting started" },
+  { href: "/docs", title: "Introduction", description: "What Aedis UI is, where to start and how it differs from shadcn/ui.", category: "Getting started" },
+  { href: "/docs#installation", title: "Installation", description: "init once, then add components with the CLI that verifies every release.", category: "Getting started" },
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
+  { href: "/create", title: "Create", description: "Pick a theme, blocks and a security level; get one init command.", category: "Getting started" },
+  { href: "/typeset", title: "Typeset", description: "Set the type scale on real content and import it as a theme.", category: "Getting started" },
+  { href: "/blocks", title: "Blocks", description: "Whole screens for AI platforms, built only from registry items.", category: "Blocks" },
+  { href: "/charts", title: "Charts", description: "Every chart type with sample data, and how charts stay safe.", category: "Charts" },
+  { href: "/directory", title: "Directory", description: "Registries the Aedis CLI can verify, and how to list yours.", category: "Security" },
   { href: "/security", title: "Security by construction", description: "How each attack is treated, the four sinks, the checklist for apps and what the UI cannot do.", category: "Security" },
   { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
-  { href: "/docs/micro-frontends", title: "Micro-frontends", description: "Compose apps from isolated frames and elements.", category: "Micro-frontends" },
+  { href: "/micro-frontends", title: "Overview", description: "Micro-frontends without giving up the CSP: the approaches and what the kit defends.", category: "Micro-frontends" },
+  { href: "/docs/micro-frontends", title: "Choosing an approach", description: "Compose apps from isolated frames and elements; Multi-Zones on one site.", category: "Micro-frontends" },
+  { href: "/llms.txt", title: "llms.txt", description: "Every page and item, indexed for coding agents.", category: "For agents" },
+  { href: "/llms-full.txt", title: "llms-full.txt", description: "Every entry in full, in one file.", category: "For agents" },
+  { href: "/docs#for-agents", title: "MCP server", description: "A read-only docs server for coding agents: aedis mcp.", category: "For agents" },
 ];
 
 /** One entry per registry item. The docs page and the sidebar are generated from this list. */
@@ -2121,6 +2148,7 @@ import { Label } from "@/components/ui/label";
       motion: "The bar moves to a new value on a critically damped spring. With reduced motion it jumps.",
     },
   },
+  ...chartDocs(),
   {
     name: "radio-group",
     title: "Radio Group",
@@ -2291,3 +2319,93 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
     },
   },
 ];
+
+/** The chart items share their props, security and accessibility; only the drawing differs. */
+function chartDocs(): ComponentDoc[] {
+  const cartesian: Prop[] = [
+    { name: "title", type: "string", description: "Names the chart for assistive technology and captions its data table." },
+    { name: "data", type: "Record<string, unknown>[]", description: "Rows as they came. Values that are not finite numbers ≥ 0 are dropped and counted; at most 500 rows." },
+    { name: "index", type: "string", description: "The key that names each row: the x axis." },
+    { name: "series", type: "{ key: string; label: string; color?: 1 | 2 | 3 | 4 | 5 }[]", description: "What to draw, under which name. Colors are the chart-1…chart-5 tokens only." },
+    { name: "indexLabel", type: "string", default: "\"Item\"", description: "Header of the table's first column." },
+    { name: "format", type: "(value: number) => string", default: "useFormat().number", description: "How values read in the tooltip and the table." },
+    { name: "legend", type: "boolean", default: "series.length > 1", description: "Shows the series names under the chart." },
+    { name: "labels", type: "Partial<ChartLabels>", description: "Overrides the locale's words." },
+  ];
+  const security: Security = {
+    sinks: ["DOM"],
+    defenses: [
+      {
+        title: "Labels are text",
+        text: "Series names, ticks, tooltips and centre labels are text nodes. No prop takes markup, and nothing is set through innerHTML.",
+        evidence: [["chart.test.tsx", "render names, ticks, tooltips and the center as text, never as markup"]],
+        ids: ["CWE-79", "OWASP LLM05:2025"],
+      },
+      {
+        title: "Numbers are checked",
+        text: "Only finite numbers in range are drawn; the rest are dropped, counted and reported under the chart. Rows past 500 are dropped too.",
+        evidence: [
+          ["chart.test.tsx", "drop and count every value that is not a finite number in range (property)"],
+          ["chart.test.tsx", "never draw outside the canvas, whatever the data (property)"],
+          ["chart.test.tsx", "say how many values were dropped and cap the rows"],
+        ],
+        ids: ["CWE-20", "CWE-400"],
+      },
+    ],
+    backend: "aggregate on the server and send only the numbers a chart needs; a chart never decides what someone may see.",
+    notes: ["Series colors come from the theme and pass 3:1 against surface and background in every theme (chart.test.tsx)."],
+  };
+  const accessibility: Accessibility = {
+    keyboard: [["Tab", "Focuses the chart."], ["← → / ↑ ↓", "Moves the tooltip through the rows."], ["Home / End", "First or last row."], ["Escape", "Hides the tooltip."]],
+    notes: ["The drawing is hidden from assistive technology; a table captioned with the title holds every value.", "The tooltip is text in a polite live region, so keyboard moves are read out."],
+    motion: "Nothing animates.",
+  };
+  const doc = (name: string, title: string, description: string, component: ComponentType, usage: string, props: Prop[] = cartesian): ComponentDoc => ({
+    name,
+    title,
+    category: "Charts",
+    description,
+    examples: [{ title, file: `${name}/demo`, component }],
+    usage,
+    props,
+    security,
+    accessibility,
+  });
+  return [
+    doc("chart", "Chart", "What every chart shares: values checked before drawing, labels as text, a keyboard tooltip, a legend and a data table.", ChartDemo, `import { BarChart } from "@/components/ui/bar-chart";
+
+// A label with markup shows up as characters; NaN and "9" are dropped and counted.
+<BarChart title="Runs by agent" data={runs} index="agent" series={[{ key: "runs", label: "Runs" }]} />`),
+    doc("area-chart", "Area Chart", "Filled lines, stacked or overlapping, for usage over time.", AreaChartDemo, `import { AreaChart } from "@/components/ui/area-chart";
+
+<AreaChart
+  title="Tokens by agent"
+  data={tokens}
+  index="day"
+  stacked
+  series={[{ key: "support", label: "Support" }, { key: "reports", label: "Reports" }]}
+/>`, [...cartesian, { name: "stacked", type: "boolean", default: "false", description: "Stacks the series, so the top line is the total." }]),
+    doc("bar-chart", "Bar Chart", "Bars per row, grouped when there are several series.", BarChartDemo, `import { BarChart } from "@/components/ui/bar-chart";
+
+<BarChart title="Approvals per day" data={approvals} index="day" series={[{ key: "approved", label: "Approved" }]} />`),
+    doc("line-chart", "Line Chart", "Lines with a dot per value, for latency and trends.", LineChartDemo, `import { LineChart } from "@/components/ui/line-chart";
+
+<LineChart title="Agent latency p95" data={latency} index="day" series={[{ key: "p95", label: "p95" }]} format={(s) => \`\${s.toFixed(1)} s\`} />`),
+    doc("pie-chart", "Pie Chart", "A donut of shares, with the total in the middle.", PieChartDemo, `import { PieChart } from "@/components/ui/pie-chart";
+
+<PieChart title="Spend by model" data={spend} index="model" value={{ key: "usd", label: "Spend" }} center="$1,211" />`, [
+      ...cartesian.filter((p) => ["title", "data", "index", "format", "labels"].includes(p.name)),
+      { name: "value", type: "{ key: string; label: string }", description: "The key that holds each slice's value, and its name in the tooltip and table." },
+      { name: "center", type: "string", description: "Text in the hole, e.g. the total. Text only, cut to 12 characters." },
+    ]),
+    doc("radial-chart", "Radial Chart", "One value against its maximum, as a ring and a percentage.", RadialChartDemo, `import { RadialChart } from "@/components/ui/radial-chart";
+
+<RadialChart title="Ceiling used" value={1080} max={1500} caption="of $1,500" />`, [
+      cartesian[0],
+      { name: "value", type: "number", description: "Between 0 and max; anything else is dropped and the ring stays empty." },
+      { name: "max", type: "number", description: "A finite number above 0." },
+      { name: "caption", type: "string", description: "Under the percentage. Text only, cut to 24 characters." },
+      ...cartesian.filter((p) => ["format", "labels"].includes(p.name)),
+    ]),
+  ];
+}
