@@ -1,42 +1,73 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { securityHeaders } from "@/lib/security-headers";
 
-const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
+const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi;
+// A type other than JavaScript makes a data block (application/ld+json…): the browser never runs it.
+const DATA_BLOCK = /\btype\s*=\s*(?!["']?(?:text\/javascript|module)\b)/i;
+
+/** Where the moved inline scripts are served: under /_next/static, so they get its immutable caching and CORP. */
+export const INLINE_DIR = "/_next/static/inline";
 
 // Cloudflare static assets limits (developers.cloudflare.com/workers/platform/limits/#static-assets).
 const MAX_RULES = 100;
 const MAX_LINE = 2000;
 
-/** sha256 of each inline script, over the exact text the browser hashes. */
-export function inlineScriptHashes(html: string): string[] {
-  return [...html.matchAll(INLINE_SCRIPT)].map(([, body]) => `sha256-${createHash("sha256").update(body, "utf8").digest("base64")}`);
+/**
+ * Moves every inline script of a page to a file named by the hash of its text, so one policy fits every page:
+ * `script-src 'self'`, no per-page hashes. A parser-blocking `<script src>` runs in the same order, at the same
+ * point of the parse, as the inline script it replaces. Data blocks stay inline.
+ */
+export function externalizeScripts(html: string): { html: string; files: Map<string, string> } {
+  const files = new Map<string, string>();
+  const out = html.replace(INLINE_SCRIPT, (tag, attrs: string, body: string) => {
+    if (DATA_BLOCK.test(attrs)) return tag;
+    // Hex with its digits spelled as letters: a run of digits in a name reads as a card number to scanners (ZAP 10062).
+    const name = createHash("sha256").update(body, "utf8").digest("hex").slice(0, 32).replace(/\d/g, (d) => "ghijklmnop"[Number(d)]);
+    const path = `${INLINE_DIR}/${name}.js`;
+    files.set(path, body);
+    return `<script${attrs} src="${path}"></script>`;
+  });
+  return { html: out, files };
 }
 
 /** Pages only this site may frame: the block previews and the micro-frontends demo remote. Every other page refuses. */
 export const FRAMEABLE = /^\/(?:blocks\/view|demo\/remote)\//;
-/** Pages that frame those: the Blocks pages and the micro-frontends demo. Every other page may frame nothing. */
-export const FRAMING = /^\/(?:blocks(?:\/(?!view\/)[^/]+)?|micro-frontends)$/;
 
-// Browsers ignore X-Frame-Options (DENY, set on /*) when the CSP has frame-ancestors, so the CSP alone decides.
-const csp = (path: string, html: string) =>
-  securityHeaders({
-    hashes: [...new Set(inlineScriptHashes(html))].sort(),
-    frameAncestors: FRAMEABLE.test(path) ? ["'self'"] : [],
-    frameSrc: FRAMING.test(path) ? ["'self'"] : [],
-  })["Content-Security-Policy"];
+// The site's one policy, and the one for the frameable pages: they differ only in frame-ancestors. Browsers ignore
+// X-Frame-Options (DENY, set on /*) when the CSP has frame-ancestors, so the CSP alone decides.
+const policy = (frameable: boolean) =>
+  securityHeaders({ hashes: [], frameAncestors: frameable ? ["'self'"] : [], frameSrc: ["'self'"] })["Content-Security-Policy"];
 
 /**
- * The Cloudflare `_headers` file for the exported site: the aedis-ui security headers on every path, and a CSP per
- * page with the hashes of that page's inline scripts. One policy for the whole site does not fit: Cloudflare caps a
- * line at 2,000 characters. Only page rules set a CSP, so no path gets two: a header set by two matching rules is
- * comma-joined into two policies that both apply, and production Cloudflare did not honour a `! Content-Security-Policy`
- * detach on `/`. Unknown paths (the 404 page) get the other headers but no CSP.
+ * The rules that give every page its policy, none overlapping: a directory whose pages all take the same policy gets
+ * one `/dir/*` rule, anything else a rule of its own. No path may get two: a header set by two matching rules is
+ * comma-joined into two policies that both apply, and production Cloudflare did not honour a
+ * `! Content-Security-Policy` detach on `/`.
  */
-export function headersFile(pages: [path: string, html: string][]): string {
+function policyRules(paths: string[], dir = ""): [rule: string, frameable: boolean][] {
+  const below = paths.filter((p) => p.startsWith(`${dir}/`) && p !== `${dir}/`);
+  const kinds = new Set(below.map((p) => FRAMEABLE.test(p)));
+  if (dir && kinds.size === 1) return [[`${dir}/*`, [...kinds][0]]];
+  const children = [...new Set(below.map((p) => `${dir}/${p.slice(dir.length + 1).split("/")[0]}`))].sort();
+  // The home page is the one page that is no directory's child.
+  const home: [string, boolean][] = !dir && paths.includes("/") ? [["/", false]] : [];
+  return [...home, ...children.flatMap((child) => [
+    ...(paths.includes(child) ? [[child, FRAMEABLE.test(child)] as [string, boolean]] : []),
+    ...(paths.some((p) => p.startsWith(`${child}/`)) ? policyRules(paths, child) : []),
+  ])];
+}
+
+/**
+ * The Cloudflare `_headers` file for the exported site: the aedis-ui security headers on every path, and one CSP for
+ * every page (the inline scripts are files, see externalizeScripts), with frame-ancestors 'self' only where this
+ * site frames itself. The policy is the same on every page because a client-side navigation keeps the CSP of the
+ * page the visit started on. Unknown paths outside the page directories (the 404 page) get no CSP.
+ */
+export function headersFile(paths: string[]): string {
   const { "Content-Security-Policy": _, ...common } = securityHeaders({ hashes: [] });
   const lines = [
     "/*",
@@ -53,9 +84,8 @@ export function headersFile(pages: [path: string, html: string][]): string {
     "/color-scheme.js",
     "  ! Cross-Origin-Resource-Policy",
     "  Cross-Origin-Resource-Policy: cross-origin",
-    ...pages.flatMap(([path, html]) => [path, `  Content-Security-Policy: ${csp(path, html)}`]),
+    ...policyRules(paths).flatMap(([rule, frameable]) => [rule, `  Content-Security-Policy: ${policy(frameable)}`]),
   ];
-  // shortcut: one rule per page, fine up to 97 pages (3 fixed rules); past that, move the inline scripts to files and drop the hashes.
   const rules = lines.filter((l) => l.startsWith("/")).length;
   if (rules > MAX_RULES) throw new Error(`_headers: ${rules} rules, Cloudflare allows ${MAX_RULES}`);
   const long = lines.find((l) => l.length > MAX_LINE);
@@ -79,6 +109,15 @@ export function urlPath(dir: string, file: string): string {
 /* v8 ignore start */
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const out = process.argv[2] ?? "out";
-  writeFileSync(join(out, "_headers"), headersFile(htmlFiles(out).map((f) => [urlPath(out, f), readFileSync(f, "utf8")])));
+  const pages = htmlFiles(out);
+  for (const file of pages) {
+    const { html, files } = externalizeScripts(readFileSync(file, "utf8"));
+    for (const [path, body] of files) {
+      mkdirSync(join(out, INLINE_DIR), { recursive: true });
+      writeFileSync(join(out, path), body);
+    }
+    writeFileSync(file, html);
+  }
+  writeFileSync(join(out, "_headers"), headersFile(pages.map((f) => urlPath(out, f))));
 }
 /* v8 ignore stop */

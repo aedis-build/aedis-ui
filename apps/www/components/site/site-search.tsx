@@ -44,7 +44,9 @@ export function SiteSearch({ items }: { items: CommandItem[] }) {
         labels={{ label: "Search components and docs" }}
         onSelect={(item) => {
           setOpen(false);
-          router.push(item.value);
+          // llms.txt and llms-full.txt are files, not pages: load them, do not route.
+          if (item.value.endsWith(".txt")) window.location.assign(item.value);
+          else router.push(item.value);
         }}
       />
     </>

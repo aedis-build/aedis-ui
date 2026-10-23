@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type * as React from "react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -16,9 +17,12 @@ export function DocsNav({ groups, onNavigate }: { groups: NavGroup[]; onNavigate
         <div key={g.title}>
           <p className="mb-1 px-2.5 text-caption font-medium text-muted-foreground">{g.title}</p>
           <ul className="space-y-0.5">
-            {g.items.map((i) => (
+            {g.items.map((i) => {
+              // A route-handler file (llms.txt), not a page: a Link would prefetch and route it as one.
+              const Item: React.ElementType = i.href.endsWith(".txt") ? "a" : Link;
+              return (
               <li key={i.href}>
-                <Link
+                <Item
                   href={i.href}
                   onClick={onNavigate}
                   aria-current={pathname === i.href ? "page" : undefined}
@@ -28,9 +32,10 @@ export function DocsNav({ groups, onNavigate }: { groups: NavGroup[]; onNavigate
                   )}
                 >
                   {i.title}
-                </Link>
+                </Item>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       ))}
