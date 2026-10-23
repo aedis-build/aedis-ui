@@ -12,7 +12,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 const out = fileURLToPath(new URL("../out/", import.meta.url));
 const html = (dir: string) => readdirSync(`${out}${dir}`).filter((f) => f.endsWith(".html")).map((f) => `/${dir}${f.slice(0, -5)}`);
-const pages = ["/", ...html("").filter((p) => !["/index", "/404", "/_not-found"].includes(p)), ...html("docs/"), ...html("blocks/")];
+// Block pages show the block in a frame, so the bare block pages (blocks/view) run too.
+const pages = ["/", ...html("").filter((p) => !["/index", "/404", "/_not-found"].includes(p)), ...html("docs/"), ...html("blocks/"), ...html("blocks/view/")];
 const themes = ["light", "dark", "brand"] as const;
 
 /** Half a CSS pixel: anything visible to the eye is at least one device pixel off on a 2x screen. */
