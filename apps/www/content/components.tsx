@@ -47,6 +47,7 @@ import RadioGroupDemo from "@/examples/radio-group/demo";
 import RadialChartDemo from "@/examples/radial-chart/demo";
 import ScrollAreaDemo from "@/examples/scroll-area/demo";
 import SeparatorDemo from "@/examples/separator/demo";
+import ShareCardDemo from "@/examples/share-card/demo";
 import SheetDemo from "@/examples/sheet/demo";
 import SidebarDemo from "@/examples/sidebar/demo";
 import SiteFooterDemo from "@/examples/site-footer/demo";
@@ -1852,6 +1853,106 @@ stripInvisible("Pay\\u{E0049}\\u{E0047}\\u{E004E}\\u{E004F}\\u{E0052}\\u{E0045} 
         },
       ],
       notes: ["Markdown, Chat, Approval Card and Hand Raise already apply it to what they show and send."],
+    },
+  },
+  {
+    name: "share-card",
+    title: "Share card",
+    category: "Foundations",
+    description: "The image a chat app or network shows for a shared link: a 1200×630 card drawn at build time with next/og, in the theme's colors.",
+    examples: [{ title: "Light, dark and brand", file: "share-card/demo", component: ShareCardDemo }],
+    usage: `// app/docs/dropdown-menu/opengraph-image.tsx: a static PNG, drawn at build time
+import { ImageResponse } from "next/og";
+import { ShareCard, SHARE_CARD_SIZE, shareCardFonts } from "@/components/ui/share-card";
+
+export const dynamic = "force-static";
+export const size = SHARE_CARD_SIZE;
+export const contentType = "image/png";
+export const alt = "Dropdown Menu · Aedis UI";
+
+export default async function Image() {
+  return new ImageResponse(
+    <ShareCard brand={{ name: "Aedis UI", logo: <Logo /> }} eyebrow="Overlays · Component" title="Dropdown Menu"
+      description="A menu of actions." chips={["Base UI", "Keyboard"]} domain="ui.aedis.build" art={<MenuArt />} />,
+    { ...SHARE_CARD_SIZE, fonts: await shareCardFonts() },
+  );
+}`,
+    props: [
+      { name: "brand", type: "{ name: string; logo?: ReactNode }", description: "Product name, and its logo as a local SVG node." },
+      { name: "eyebrow / title / description", type: "string", description: "Text only, bounded (40 / 72 / 150 characters), the title on three lines and the description on two at most; longer text ends with an ellipsis." },
+      { name: "chips", type: "string[]", description: "Up to four tags of 24 characters; those that do not fit beside the domain are dropped." },
+      { name: "domain", type: "string", description: "The site, bottom right." },
+      { name: "art", type: "ReactNode", description: "The 430×300 illustration on the right: a local React or SVG node, never a URL." },
+      { name: "theme / mode", type: '"light" | "dark" | "brand" | CustomTheme / "light" | "dark"', default: '"light"', description: "Colors come from the theme tokens. A custom theme is validated first, and mode picks its light or dark colors." },
+      { name: "shareCardFonts(root?)", type: "() => Promise<Font[]>", description: "Geist Regular, SemiBold and Bold from the geist package (SIL Open Font License), read at build time." },
+      { name: "cardText(value, max) / fitChips(chips, domain)", type: "helpers", description: "What the card draws: hidden and unsupported characters removed and length bounded; the chips that fit." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "The build reaches no host",
+          text: "next/og fetches a font from Google or an emoji from a CDN for any character its fonts lack. The card keeps only the characters the bundled Geist covers, and its logo and art are local nodes, never a URL.",
+          evidence: [["share-card.test.tsx", "keeps worst-case text inside the card: long, unbreakable, non-Latin, emoji, hidden characters"], ["share-card.test.tsx", "bounds and cleans text: ellipsis, no hidden or unsupported characters"]],
+          ids: ["CWE-918", "CWE-829"],
+        },
+        {
+          title: "Text cannot break the layout",
+          text: "Every text is bounded, cleaned of hidden characters and clamped with an ellipsis; the padding and the art stay untouched whatever the text.",
+          evidence: [["share-card.test.tsx", "keeps worst-case text inside the card: long, unbreakable, non-Latin, emoji, hidden characters"], ["share-card.test.tsx", "keeps only the chips that fit beside the domain, in order"]],
+          ids: ["CWE-1287", "ATLAS AML.T0051.001"],
+        },
+        {
+          title: "A custom theme is data",
+          text: "A custom theme goes through the theme validator before its colors are used; an invalid one falls back to the light theme.",
+          evidence: [["share-card.test.tsx", "takes its colors from the theme tokens, and a custom theme only once validated"]],
+          ids: ["CWE-20"],
+        },
+      ],
+      notes: ["The PNG is a static file: the image route runs at build time and nothing is drawn per request."],
+    },
+    accessibility: {
+      notes: ["Give the image alt text (the route's alt export, or shareMetadata's image.alt), usually the page title and the site name.", "The card's text uses the theme's contrast pairs: foreground and muted text on the background."],
+    },
+  },
+  {
+    name: "share-metadata",
+    title: "shareMetadata",
+    category: "Foundations",
+    description: "Every tag a link preview reads, from one call in a page's metadata: Open Graph, the Twitter large card and the canonical link.",
+    usage: `import { shareMetadata } from "@/lib/share-metadata";
+
+export const metadata = shareMetadata({
+  site: { origin: "https://ui.aedis.build", name: "Aedis UI" },
+  url: "https://ui.aedis.build/docs/dropdown-menu",
+  title: "Dropdown Menu",
+  description: "A menu of actions: account menu, row actions, a more button.",
+  image: { url: "https://ui.aedis.build/docs/dropdown-menu/opengraph-image.png", alt: "Dropdown Menu · Aedis UI" },
+  type: "article",
+});`,
+    props: [
+      { name: "site", type: "{ origin: string; name: string }", description: "The site's https origin, and its name (og:site_name)." },
+      { name: "url", type: "string", description: "The canonical URL (og:url and the canonical link): absolute https on the site's origin." },
+      { name: "title / description", type: "string", description: "og:title, og:description and the Twitter card's, with hidden characters removed." },
+      { name: "image", type: "{ url: string; alt: string; width?: number; height?: number }", description: "og:image and twitter:image: absolute https on the site's origin, 1200×630 by default, alt required." },
+      { name: "type", type: '"website" | "article"', default: '"website"', description: "og:type." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "Only the site's own URLs",
+          text: "The page and image URLs go through safeUrl and must be absolute https on the configured origin; anything else fails the build instead of pointing a preview elsewhere.",
+          evidence: [["share-metadata.test.ts", "rejects a relative, foreign-origin, non-https or scripted image or page URL"]],
+          ids: ["CWE-601", "CWE-79"],
+        },
+        {
+          title: "No tag forgotten, no hidden text",
+          text: "One call returns every Open Graph and Twitter tag with the image size and alt; titles and descriptions lose their hidden characters.",
+          evidence: [["share-metadata.test.ts", "returns every Open Graph and Twitter tag a link preview reads"], ["share-metadata.test.ts", "needs an https site origin and an alt text, and strips hidden characters from the text"]],
+          ids: ["ATLAS AML.T0051.001"],
+        },
+      ],
     },
   },
   {
