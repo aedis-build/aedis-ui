@@ -1,8 +1,10 @@
 import type { NavGroup } from "@/components/site/docs-nav";
+import { blocks } from "@/content/blocks";
 import { categories, components, guides } from "@/content/components";
 
 const entries = [
   ...guides,
+  ...blocks.map((b) => ({ href: `/blocks/${b.name}`, title: b.title, description: b.description, category: "Blocks" as const })),
   ...[...components].sort((a, b) => a.title.localeCompare(b.title)).map((c) => ({ href: `/docs/${c.name}`, title: c.title, description: c.description, category: c.category })),
 ];
 

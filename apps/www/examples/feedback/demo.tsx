@@ -5,7 +5,7 @@ import * as React from "react";
 import { Feedback } from "@/registry/aedis/ui/feedback";
 
 /** The docs site is static, so the example answers the feedback request itself. */
-export function FeedbackExample() {
+export default function FeedbackDemo() {
   React.useEffect(() => {
     const original = window.fetch;
     window.fetch = async (input, init) =>

@@ -53,6 +53,13 @@ describe("_headers", () => {
     expect(rule(file, "/docs/x")[0]).toContain(`script-src 'self' '${sha("c()")}';`);
   });
 
+  it("lets only the block previews be framed, and only by this site", () => {
+    const file = headersFile([["/blocks/view/agent-console", ""], ["/blocks/agent-console", ""], ["/", ""]]);
+    expect(rule(file, "/blocks/view/agent-console")[0]).toContain("frame-ancestors 'self';");
+    expect(rule(file, "/blocks/agent-console")[0]).toContain("frame-ancestors 'none';");
+    expect(rule(file, "/")[0]).toContain("frame-ancestors 'none';");
+  });
+
   it("lets hashed build assets be cached for good", () => {
     expect(rule(headersFile([]), "/_next/static/*")).toEqual(["  ! Cache-Control", "  Cache-Control: public, max-age=31536000, immutable"]);
   });

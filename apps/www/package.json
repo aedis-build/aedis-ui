@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test:coverage": "vitest run --coverage",
     "test:visual": "playwright test",
+    "capture": "node visual/capture.mjs",
     "theme": "vitest run test/theme.test.ts -u"
   },
   "dependencies": {

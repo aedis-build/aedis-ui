@@ -15,7 +15,7 @@ const initial: ChatMessage[] = [
 ];
 
 /** Docs example: replies after a short delay, without a backend. */
-export function ChatExample() {
+export default function ChatDemo() {
   const [messages, setMessages] = React.useState(initial);
   const [working, setWorking] = React.useState(false);
 
