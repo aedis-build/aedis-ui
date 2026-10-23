@@ -1,8 +1,9 @@
 # Releases as features land. On every push to main, the next version is derived from the Conventional Commits since
 # the last tag (breaking → major, feat → minor, fix/perf/refactor/revert/deps → patch, anything else → no release)
 # and proposed as a release pull request, "chore(release): vX.Y.Z", that bumps the version everywhere it lives:
-# package.json (the registry), packages/cli/package.json and packages/cli/src/cli.ts, plus the `@aedis/cli@X.Y.Z`
-# pins in the docs. The PR goes through the same CI and gate as any change. When it merges, this workflow tags
+# package.json (the registry), packages/cli/package.json and packages/cli/src/cli.ts, the thin packages aedis-cli,
+# aedis-ui and create-aedis with their exact @aedis/cli pin, plus the `@aedis/cli@X.Y.Z` pins in the docs. The PR
+# goes through the same CI and gate as any change. When it merges, this workflow tags
 # vX.Y.Z and cli-vX.Y.Z on that commit, and release.yml (signed registry) and cli-release.yml (npm Trusted
 # Publishing) take over. The branch, the PR and the tags are made with the Aedis App's short-lived token: a tag
 # pushed with GITHUB_TOKEN starts no workflow, and no long-lived token exists. Nothing is proposed before the first
@@ -117,9 +118,11 @@ jobs:
           node - "$current" "$next" <<'JS'
           const fs = require("node:fs");
           const [current, next] = process.argv.slice(2);
-          for (const file of ["package.json", "packages/cli/package.json"]) {
+          for (const file of ["package.json", "packages/cli/package.json", "packages/aedis-cli/package.json", "packages/aedis-ui/package.json", "packages/create-aedis/package.json"]) {
             const json = JSON.parse(fs.readFileSync(file, "utf8"));
             json.version = next;
+            // The thin packages pin @aedis/cli to the version released with them.
+            if (json.dependencies?.["@aedis/cli"]) json.dependencies["@aedis/cli"] = next;
             fs.writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
           }
           const cli = "packages/cli/src/cli.ts";

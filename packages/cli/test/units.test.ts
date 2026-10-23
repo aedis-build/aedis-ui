@@ -66,6 +66,23 @@ describe("version", () => {
     expect(read("package.json")).toBe(VERSION);
     expect(read("../../package.json")).toBe(VERSION);
   });
+
+  // aedis-cli, aedis-ui and create-aedis are published with @aedis/cli, pinned to it exactly, and run only its entry point.
+  it.each(["aedis-cli", "aedis-ui", "create-aedis"])("%s is a thin, pinned bin over @aedis/cli", (name) => {
+    const dir = path.resolve("..", name);
+    const pkg = JSON.parse(readFileSync(path.join(dir, "package.json"), "utf8")) as { version: string; dependencies: Record<string, string>; bin: Record<string, string>; files: string[]; scripts?: unknown; publishConfig: Record<string, unknown> };
+    expect(pkg.version).toBe(VERSION);
+    expect(pkg.dependencies).toEqual({ "@aedis/cli": VERSION });
+    expect(pkg.scripts).toBeUndefined();
+    expect(pkg.files).toEqual(["bin"]);
+    expect(pkg.publishConfig).toEqual({ access: "public", provenance: true });
+    const [command, file] = Object.entries(pkg.bin)[0];
+    expect(command).toBe(name === "create-aedis" ? "create-aedis" : "aedis");
+    const source = readFileSync(path.join(dir, file), "utf8");
+    expect(source.startsWith("#!/usr/bin/env node\n")).toBe(true);
+    expect(source).toContain('"@aedis/cli/dist/aedis.js"');
+    if (name === "create-aedis") expect(source).toContain('process.argv.splice(2, 0, "init")');
+  });
 });
 
 describe("verifyRelease", () => {

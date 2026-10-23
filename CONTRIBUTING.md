@@ -43,7 +43,8 @@ Commits since the last tag (breaking → major, `feat` → minor, `fix`/`perf`/`
 patch, anything else → nothing) and opens or updates a release pull request, `chore(release): vX.Y.Z`, that bumps
 `package.json` (the registry), `packages/cli/package.json`, `packages/cli/src/cli.ts` and the `@aedis/cli@X.Y.Z` pins
 in the docs. Merging it tags `vX.Y.Z` and `cli-vX.Y.Z`; `release.yml` then publishes the signed registry release and
-`cli-release.yml` publishes `@aedis/cli` to npm with Trusted Publishing and provenance, both through the aedis-platform
+`cli-release.yml` publishes `@aedis/cli`, then the thin `aedis-cli`, `aedis-ui` and `create-aedis` (a bin over the exact
+`@aedis/cli` version, released together), to npm with Trusted Publishing and provenance, both through the aedis-platform
 reusables. The first release is cut on purpose: run `release-cut` by hand with an explicit bump.
 
 `pnpm smoke` (after `pnpm build`) proves the path without publishing: it packs the CLI as npm would, installs the

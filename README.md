@@ -21,6 +21,8 @@ The same with other package managers: `pnpm dlx @aedis/cli@0.1.0 add button`, `y
 (Yarn 2+; on Yarn 1 use `npx`), `bunx @aedis/cli@0.1.0 add button`.
 
 > Never run `npx aedis`: the unscoped `aedis` package on npm belongs to someone else. The CLI is `@aedis/cli`.
+> The unscoped `aedis-cli` and `aedis-ui` packages are ours and run the same command, pinned to the exact `@aedis/cli`
+> version released with them, and `npm create aedis` (`create-aedis`) runs `init`; prefer `@aedis/cli` itself.
 
 `init` writes `aedis.json` (the pinned release and where files go), the theme, `cn` and the security primitives
 (`untrusted`, `api`, `security-headers`). Import the theme once in your global CSS, after Tailwind:

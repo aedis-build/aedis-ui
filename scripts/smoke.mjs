@@ -82,6 +82,35 @@ try {
   if (!deps["@base-ui/react"]) fail("@base-ui/react was not installed as a dependency of button");
   if (Object.values(deps).some((v) => !/^\d+\.\d+\.\d+$/.test(v))) fail(`a dependency is not pinned to an exact version: ${JSON.stringify(deps)}`);
   console.log(`\nsmoke: @aedis/cli@${version} installs from its tarball; init, add and diff work against ${readdirSync(registry).length} registry items; dependencies: ${Object.entries(deps).map(([k, v]) => `${k}@${v}`).join(" ")}`);
+
+  // 4. The thin unscoped packages (aedis-cli, aedis-ui, create-aedis): packed as npm would publish them, installed
+  // next to the @aedis/cli tarball they pin, and run through their bin files (no bin links: the three share `aedis`).
+  const names = mkdtempSync(path.join(tmpdir(), "aedis-smoke-names-"));
+  try {
+    const tarballs = [path.join(scratch, tarball)];
+    for (const name of ["aedis-cli", "aedis-ui", "create-aedis"]) {
+      const dest = path.join(names, name);
+      const packed = spawnSync("pnpm", ["-C", path.join(root, "packages", name), "pack", "--pack-destination", dest, "--json"], { cwd: root, encoding: "utf8", shell });
+      if (packed.status !== 0) fail(`pnpm pack ${name} exited with ${packed.status}: ${packed.stderr}`);
+      const pack = JSON.parse(packed.stdout.slice(packed.stdout.indexOf("{")));
+      const files = pack.files.map((f) => f.path).sort();
+      const bin = `bin/${name === "create-aedis" ? "create-aedis" : "aedis"}.js`;
+      if (JSON.stringify(files) !== JSON.stringify(["LICENSE", "README.md", bin, "package.json"])) fail(`${name} tarball holds ${files.join(", ")}`);
+      console.log(`${path.basename(pack.filename)}: ${files.join(", ")}`);
+      tarballs.push(pack.filename);
+    }
+    writeFileSync(path.join(names, "package.json"), JSON.stringify({ name: "smoke-names", private: true }, null, 2));
+    await run("npm", ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--no-bin-links", ...tarballs], names);
+    for (const name of ["aedis-cli", "aedis-ui"]) {
+      const printed = await run("node", [path.join(names, "node_modules", name, "bin", "aedis.js"), "--version"], names, { capture: true });
+      if (printed !== version) fail(`${name} printed ${JSON.stringify(printed)}, expected ${version}`);
+    }
+    await run("node", [path.join(names, "node_modules", "create-aedis", "bin", "create-aedis.js"), ...from, "--yes"], names);
+    if (!existsSync(path.join(names, "aedis.json"))) fail("create-aedis did not run init");
+    console.log(`\nsmoke: aedis-cli, aedis-ui and create-aedis@${version} resolve @aedis/cli@${version} and run`);
+  } finally {
+    rmSync(names, { recursive: true, force: true, maxRetries: 3 });
+  }
 } finally {
   server.close();
   rmSync(scratch, { recursive: true, force: true, maxRetries: 3 });

@@ -1,8 +1,9 @@
 # Publishes @aedis/cli on a cli-vX.Y.Z tag through the Aedis Platform reusable: typecheck, tests with coverage and
 # build in packages/cli, SBOM, then npm Trusted Publishing (OIDC) with provenance. No npm token is stored anywhere;
-# npm records this repository, this workflow and this commit. The tag must match the package version. On npmjs.com
-# the package's trusted publisher is this file (cli-release.yml) in the npm environment, with 2FA required and
-# tokens disallowed.
+# npm records this repository, this workflow and this commit. The tag must match the package version. Then the
+# three thin packages that keep the names around it (aedis-cli, aedis-ui, create-aedis: a bin over the exact
+# @aedis/cli version just published) go out the same way, one job each. On npmjs.com each package's trusted
+# publisher is this file (cli-release.yml) in the npm environment, with 2FA required and tokens disallowed.
 name: cli-release
 
 on:
@@ -13,11 +14,29 @@ permissions: {}
 
 jobs:
   publish:
-    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@72cd046204300231b85a59a562355f5e00881128 # feat/visual-regression
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@9983ddbea56afa122becdefd901d487cfc1b54ad # feat/visual-regression
     permissions:
       contents: read
       id-token: write
     with:
       package-dir: packages/cli
       tag-prefix: cli-
+      node-version: "24"
+
+  # After @aedis/cli, so each one's exact dependency exists on npm when it is published.
+  names:
+    needs: publish
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [aedis-cli, aedis-ui, create-aedis]
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@9983ddbea56afa122becdefd901d487cfc1b54ad # feat/visual-regression
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      package-dir: packages/${{ matrix.package }}
+      tag-prefix: cli-
+      check-scripts: ""
+      build-script: ""
       node-version: "24"

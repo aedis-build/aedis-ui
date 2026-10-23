@@ -1,0 +1,36 @@
+{
+  "name": "aedis-cli",
+  "version": "0.1.0",
+  "description": "Same `aedis` command as @aedis/cli, under the unscoped name.",
+  "keywords": [
+    "aedis",
+    "shadcn",
+    "registry",
+    "security"
+  ],
+  "homepage": "https://ui.aedis.build",
+  "bugs": "https://github.com/aedis-build/aedis-ui/issues",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "aedis": "bin/aedis.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=22.22.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aedis-build/aedis-ui.git",
+    "directory": "packages/aedis-cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@aedis/cli": "0.1.0"
+  }
+}
