@@ -36,5 +36,5 @@ jobs:
       sast-extra-configs: p/nextjs
       # Served by the repo's pinned wrangler with the real _headers, as Cloudflare serves it; local mode needs no login.
       dast-start: "pnpm site:build && (WRANGLER_SEND_METRICS=false pnpm exec wrangler dev --ip 127.0.0.1 --port 8080 > dast-server.log 2>&1 &)"
-      dast-fail-on: High
+      dast-fail-on: Medium
       platform-ref: 177a6c164de12e82a23aae67107294d2439e406b

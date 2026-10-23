@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { applyTheme, parseThemeJson, themeFonts, validateTheme, type CustomTheme, type FontName, type ThemeMode } from "@/registry/aedis/lib/custom-theme";
+import { applyTheme, normalizeColor, parseThemeJson, themeFonts, validateTheme, type CustomTheme, type FontName, type ThemeMode } from "@/registry/aedis/lib/custom-theme";
 import { colors, type ColorName } from "@/registry/aedis/lib/tokens";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
@@ -20,6 +20,10 @@ export const STORAGE_KEY = "aedis-ui-theme";
 const editable: ColorName[] = ["background", "surface", "foreground", "muted-foreground", "primary", "primary-foreground", "accent", "accent-foreground", "destructive-solid", "border-control"];
 
 const initial: CustomTheme = { version: 1, name: "My theme", colors: { light: {}, dark: {} }, radius: { sm: 8, md: 12 }, shadow: 1, font: "system" };
+
+// The brand palette as light colors; its translucent tokens (rgba) are not theme values, so they keep the default.
+const brand = Object.fromEntries(Object.entries(colors).filter(([, v]) => normalizeColor(v.brand)).map(([k, v]) => [k, v.brand]));
+const starts = { default: { light: {}, dark: {} }, brand: { light: brand, dark: {} } } satisfies Record<string, CustomTheme["colors"]>;
 
 /** Live, validated theme editing over real components. Only a theme that passes validation is ever applied or saved. */
 export function ThemeEditor() {
@@ -79,6 +83,16 @@ export function ThemeEditor() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_1fr]">
       <form className="space-y-4" onSubmit={(e) => e.preventDefault()} aria-label="Theme editor">
+        <fieldset className="space-y-1.5">
+          <legend className="text-callout font-medium">Start from</legend>
+          <div className="flex gap-2">
+            {(Object.keys(starts) as (keyof typeof starts)[]).map((s) => (
+              <Button key={s} type="button" variant="secondary" size="sm" onClick={() => setDraft((d) => ({ ...d, colors: starts[s] }))}>
+                {s === "default" ? "Light and dark" : "Brand"}
+              </Button>
+            ))}
+          </div>
+        </fieldset>
         <div className="space-y-1.5">
           <Label htmlFor="theme-name">Name</Label>
           <Input id="theme-name" maxLength={64} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
