@@ -1,7 +1,7 @@
 import { stripInvisible } from "@/lib/untrusted";
 
 import { colorDistance, contrast, parseOklch } from "./contrast";
-import { blurs, colors, contrastPairs, fonts, radii, shadows, typeScale, type ColorName, type ShadowName } from "./tokens";
+import { blurs, colors, contrastPairs, durations, fonts, radii, shadows, typeScale, type ColorName, type ShadowName } from "./tokens";
 
 /**
  * A custom theme is typed data, never CSS. Every value is parsed and written back from numbers, so nothing a
@@ -19,6 +19,8 @@ export type CustomTheme = {
   blur?: Partial<Record<BlurName, number>>;
   /** Multiplies the opacity of the default shadows, 0–2. */
   shadow?: number;
+  /** Multiplies every motion duration, 0–1.5; 0 turns motion off. Reduced motion still wins. */
+  motion?: number;
   font?: FontName;
   /** The type scale, within bounds that keep text readable (see `typeRanges`). */
   type?: Partial<Record<TypeKey, number>>;
@@ -82,7 +84,7 @@ function unknownKeys(o: Record<string, unknown>, allowed: readonly string[], pat
 /** Validates untrusted input (a parsed JSON value) and returns a normalized theme, or every reason it is refused. */
 export function validateTheme(input: unknown): ThemeResult {
   if (!isRecord(input)) return { ok: false, errors: ["theme must be an object"] };
-  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "font", "type"], "");
+  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "motion", "font", "type"], "");
   if (input.version !== 1) errors.push("version must be 1");
 
   const name = typeof input.name === "string" ? stripInvisible(input.name).trim() : "";
@@ -135,6 +137,11 @@ export function validateTheme(input: unknown): ThemeResult {
     const v = numberIn(input.shadow, 0, 2);
     if (v === null) errors.push("shadow must be a number from 0 to 2");
     else theme.shadow = v;
+  }
+  if (input.motion !== undefined) {
+    const v = numberIn(input.motion, 0, 1.5);
+    if (v === null) errors.push("motion must be a number from 0 to 1.5");
+    else theme.motion = v;
   }
   if (input.font !== undefined) {
     if (typeof input.font === "string" && has(themeFonts, input.font)) theme.font = input.font as FontName;
@@ -197,6 +204,7 @@ export function themeVariables(theme: CustomTheme, mode: ThemeMode): Record<stri
   for (const [k, v] of Object.entries(shadows)) vars[`--${k}`] = scaleShadow(v[mode], theme.shadow ?? 1);
   for (const [k, v] of Object.entries(theme.radius ?? {})) vars[`--radius-${k}`] = `${v}px`;
   for (const [k, v] of Object.entries(theme.blur ?? {})) vars[`--blur-${k}`] = `${v}px`;
+  if (theme.motion !== undefined) for (const [k, v] of Object.entries(durations)) vars[`--duration-${k}`] = `${num(parseFloat(v) * theme.motion)}ms`;
   if (theme.font) vars["--font-sans"] = themeFonts[theme.font];
   if (theme.type) Object.assign(vars, typeVariables(theme.type));
   return vars;
@@ -253,6 +261,7 @@ export const themeVariableNames = new Set([
   ...(Object.keys(shadows) as ShadowName[]).map((k) => `--${k}`),
   ...Object.keys(radii).map((k) => `--radius-${k}`),
   ...Object.keys(blurs).filter((k) => k !== "materialize").map((k) => `--blur-${k}`),
+  ...Object.keys(durations).map((k) => `--duration-${k}`),
   "--font-sans",
   ...Object.keys(typeScale).map((k) => `--text-${k}`),
   "--text-body--line-height",
