@@ -27,7 +27,7 @@ export default function Security() {
   const doc = securityDoc();
   const supply = doc.attacks.find((a) => a.attack.includes("Supply chain"));
   return (
-    <main className="mx-auto max-w-6xl space-y-14 px-4 pt-16 pb-24 md:px-6">
+    <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
       <section className="enter max-w-3xl space-y-4">
         <Badge className="bg-success/12 text-success">L3 Regulated · OWASP · MITRE ATT&amp;CK and ATLAS</Badge>
         <h1 className="text-display">Security by construction</h1>
