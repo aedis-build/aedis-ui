@@ -19,7 +19,7 @@ const start = [
   { href: "/blocks", title: "Blocks", text: "Whole screens for AI platforms, ready to copy." },
   { href: "/charts", title: "Charts", text: "Data in, text out: charts that never render markup." },
   { href: "/security", title: "Security", text: "Four sinks, the attack table and the app checklist." },
-  { href: "/docs/micro-frontends", title: "Micro-frontends", text: "iframe, Web Component or Multi-Zones, by trust level." },
+  { href: "/micro-frontends", title: "Micro-frontends", text: "iframe, Web Component or Multi-Zones, by trust level." },
   { href: "/themes", title: "Themes", text: "Make it yours without editing a component." },
   { href: "#for-agents", title: "For agents", text: "llms.txt and an MCP server with the rules." },
 ];
