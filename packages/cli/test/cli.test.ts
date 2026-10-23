@@ -2,7 +2,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { INIT_ITEMS, run, VERSION } from "../src/cli";
-import { bundleFor, fakeCheck, io, ITEMS, project, releaseArchive, releaseRoutes } from "./fixtures";
+import { encodePreset } from "../../../apps/www/content/preset";
+import { bundleFor, fakeCheck, io, item, ITEMS, project, releaseArchive, releaseRoutes } from "./fixtures";
 
 const RELEASE = `v${VERSION}`;
 const read = (root: string, f: string) => readFileSync(path.join(root, f), "utf8");
@@ -236,5 +237,44 @@ describe("aedis lint", () => {
     expect(t.lines.at(-1)).toMatch(/outside the registry/);
     const none = project({ "registry.json": "{}" });
     expect(await run(["lint"], io(none, {}).io)).toBe(1);
+  });
+});
+
+describe("aedis init --preset", () => {
+  const items = { ...ITEMS, "use-idle-timeout": item("use-idle-timeout"), "approval-card": item("approval-card"), "agent-console": item("agent-console", { registryDependencies: ["@aedis/approval-card"] }) };
+  const routes = () => releaseRoutes(RELEASE, releaseArchive(items));
+  const id = encodePreset({ framework: "n", theme: "b", radius: "l", motion: "o", level: "3", blocks: ["agent-console"] });
+
+  it("shows the preset, asks, then installs its level and blocks and writes its validated theme", async () => {
+    const root = project();
+    const asked: string[] = [];
+    const t = io(root, routes(), { confirm: async (q) => (asked.push(q), true) });
+    expect(await run(["init", "--preset", id], t.io)).toBe(0);
+    expect(t.lines[0]).toBe(`preset ${id}:\n${JSON.stringify({ framework: "Next.js", theme: "Brand", radius: "Large", motion: "Off", security: "L3 Regulated", blocks: ["Agent console"] }, null, 2)}`);
+    expect(asked).toEqual(["Write these files?"]);
+    for (const f of ["components/ui/use-idle-timeout.tsx", "components/ui/approval-card.tsx", "components/ui/agent-console.tsx", "aedis.json"]) expect(existsSync(path.join(root, f)), f).toBe(true);
+    const css = readFileSync(path.join(root, "styles/aedis-custom-theme.css"), "utf8");
+    expect(css).toContain("--primary: #1a2740;");
+    expect(css).toContain("--duration-spring: 0ms;");
+    expect(t.lines).toContainEqual(expect.stringMatching(/^L3 Regulated: the platform adds DAST gate/));
+  });
+
+  it("rejects a tampered or foreign preset and writes nothing", async () => {
+    const root = project();
+    for (const [bad, error] of [[id.replace("3-", "1-"), /checksum does not match/], ["nbms3-01-$(id)", /not a preset id/]] as const) {
+      const t = io(root, routes());
+      expect(await run(["init", "--preset", bad, "--yes"], t.io)).toBe(1);
+      expect(t.lines.at(-1)).toMatch(error);
+      expect(t.calls).toEqual([]);
+    }
+    expect(existsSync(path.join(root, "aedis.json"))).toBe(false);
+  });
+
+  it("writes nothing when the person says no", async () => {
+    const root = project();
+    const t = io(root, routes(), { confirm: async () => false });
+    expect(await run(["init", "--preset", id], t.io)).toBe(1);
+    expect(existsSync(path.join(root, "styles/aedis-custom-theme.css"))).toBe(false);
+    expect(existsSync(path.join(root, "aedis.json"))).toBe(false);
   });
 });
