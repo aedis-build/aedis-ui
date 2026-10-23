@@ -8,7 +8,7 @@ import registry from "@/registry.json";
 import { Card, CardDescription, CardTitle } from "@/registry/aedis/ui/card";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
-export const metadata: Metadata = { title: "Introduction", description: "What Aedis UI is, where to start and how it differs from shadcn/ui." };
+export const metadata: Metadata = { title: "Introduction", description: "What Aedis UI is and where to start." };
 
 const link = "focus-ring rounded-xs underline underline-offset-4";
 const count = registry.items.filter((i) => ["registry:ui", "registry:hook"].includes(i.type)).length;
@@ -24,21 +24,20 @@ const start = [
   { href: "#for-agents", title: "For agents", text: "llms.txt and an MCP server with the rules." },
 ];
 
-/** Checked against ui.shadcn.com/docs and its llms.txt on COMPARED; re-check before changing a row. */
-const COMPARED = "2026-10-23";
-const comparison: [string, string, string][] = [
-  ["Ownership", "Copy the code into your app", "Copy the code, after the CLI verifies the signed release"],
-  ["Security", "Not covered by the docs; left to your app", "Each component defends its sink, and a test proves each defense"],
-  ["AI and agents", "Not in shadcn/ui; Vercel's AI Elements is a separate registry built on it", "Chat, approvals, tool calls, streaming, usage"],
-  ["Micro-frontends", "Not covered (there is a monorepo guide)", "mf-frame, mf-bridge, mf-element and a Multi-Zones guide"],
-  ["For coding agents", "llms.txt, an MCP server and Skills", "llms.txt and an MCP server that return each item's security rules"],
+/** What a project gets from Aedis UI, each with the page that shows it. */
+const gets: [title: string, text: string, href: string][] = [
+  ["Code you own, verified", "The CLI copies the source into your app, after checking the release was signed and built by this repository.", "#installation"],
+  ["Security per sink, with tests", "Each component defends what it touches (DOM, Input, Transport, Session), and a test proves each defense.", "/security"],
+  ["AI and agent components", "Chat, approvals, hand raises, tool calls, streaming answers, usage and charts.", "/components"],
+  ["Micro-frontends", "mf-frame, mf-bridge and mf-element, and a guide to Multi-Zones on one site.", "/micro-frontends"],
+  ["Docs for coding agents", "llms.txt and an MCP server that return each item's API and security rules.", "#for-agents"],
 ];
 
 const toc = [
   { id: "introduction", title: "Introduction" },
   { id: "where-to-start", title: "Where to start" },
   { id: "installation", title: "Installation" },
-  { id: "what-makes-it-different", title: "What makes it different" },
+  { id: "what-you-get", title: "What you get" },
   { id: "for-agents", title: "For coding agents" },
 ];
 
@@ -96,30 +95,15 @@ export default function Introduction() {
           </p>
         </Section>
 
-        <Section id="what-makes-it-different" title="What makes it different">
-          <div className="overflow-x-auto rounded-lg border border-hairline bg-surface">
-            <table className="w-full min-w-[34rem] text-left text-callout">
-              <thead className="text-footnote text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 font-medium"><span className="sr-only">Topic</span></th>
-                  <th className="px-3 py-2 font-medium">shadcn/ui</th>
-                  <th className="px-3 py-2 font-medium">Aedis UI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparison.map(([topic, shadcn, aedis]) => (
-                  <tr key={topic} className="border-t border-hairline align-top">
-                    <th scope="row" className="px-3 py-2.5 font-semibold">{topic}</th>
-                    <td className="px-3 py-2.5 text-muted-foreground">{shadcn}</td>
-                    <td className="px-3 py-2.5">{aedis}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-caption text-muted-foreground">
-            shadcn/ui as its <a href="https://ui.shadcn.com/docs" className={link}>docs</a> describe it on <time dateTime={COMPARED}>{COMPARED}</time>.
-          </p>
+        <Section id="what-you-get" title="What you get">
+          <ul className="m-0 flex list-none flex-col divide-y divide-hairline rounded-lg border border-hairline bg-surface p-0">
+            {gets.map(([title, text, href]) => (
+              <li key={title} className="flex flex-col gap-0.5 px-4 py-3">
+                <Link href={href} className="focus-ring self-start rounded-xs text-callout font-semibold hover:underline">{title}</Link>
+                <span className="text-callout text-muted-foreground">{text}</span>
+              </li>
+            ))}
+          </ul>
         </Section>
 
         <Section id="for-agents" title="For coding agents">

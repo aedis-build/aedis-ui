@@ -54,7 +54,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl space-y-5 px-4 pb-16 md:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-col gap-1.5">
-            <Eyebrow>What shadcn does not give you</Eyebrow>
+            <Eyebrow>Security</Eyebrow>
             <h2 className="text-title-1">Secure by construction</h2>
           </div>
           <More href="/security">How each attack is treated →</More>

@@ -135,7 +135,7 @@ const baseProps = (part: string): Prop[] => [
 
 /** The written guides; they join the navigation and the search next to the components. */
 export const guides: { href: string; title: string; description: string; category: Category }[] = [
-  { href: "/docs", title: "Introduction", description: "What Aedis UI is, where to start and how it differs from shadcn/ui.", category: "Getting started" },
+  { href: "/docs", title: "Introduction", description: "What Aedis UI is and where to start.", category: "Getting started" },
   { href: "/docs#installation", title: "Installation", description: "init once, then add components with the CLI that verifies every release.", category: "Getting started" },
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },

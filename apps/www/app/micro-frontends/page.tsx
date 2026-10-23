@@ -26,7 +26,7 @@ export default function MicroFrontends() {
     <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
       <section className="enter grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <span className="text-caption font-semibold uppercase tracking-wide text-link">Not in shadcn</span>
+          <span className="text-caption font-semibold uppercase tracking-wide text-link">Micro-frontends</span>
           <h1 className="text-display">Micro-frontends without giving up the CSP.</h1>
           <p className="text-title-3 font-normal text-muted-foreground">
             Pick the boundary by how much two apps trust each other, not by how the code is split. The kit gives you the safe default for each.
