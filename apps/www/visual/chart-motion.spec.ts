@@ -11,11 +11,23 @@ const marks = (page: Page) =>
 /** Animations whose target is a chart mark (the page has its own entrance animations). */
 const onMarks = (page: Page) => page.evaluate(() => document.getAnimations().filter((a) => ((a.effect as KeyframeEffect)?.target as Element | null)?.matches?.("[data-enter]")).length);
 const settled = (page: Page) => page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running"));
+/** Counts every enter animation started on a chart mark, however fast it finishes (polling running ones can miss them). */
+const countEnters = (page: Page) =>
+  page.addInitScript(() => {
+    const animate = Element.prototype.animate;
+    (window as unknown as { entered: number }).entered = 0;
+    Element.prototype.animate = function (...args) {
+      if (this.matches("[data-enter]")) (window as unknown as { entered: number }).entered++;
+      return animate.apply(this, args);
+    };
+  });
+const entered = (page: Page) => page.evaluate(() => (window as unknown as { entered: number }).entered);
 
 test("charts animate on enter and on Replay, then rest exactly where the static charts are", async ({ browser }) => {
   const moving = await browser.newPage();
+  await countEnters(moving);
   await moving.goto("/charts");
-  await expect.poll(() => moving.evaluate(() => document.getAnimations().length)).toBeGreaterThan(20);
+  await expect.poll(() => entered(moving)).toBeGreaterThan(20);
   await settled(moving);
   const after = await marks(moving);
 
@@ -23,8 +35,9 @@ test("charts animate on enter and on Replay, then rest exactly where the static 
   await still.goto("/charts");
   expect(await marks(still)).toEqual(after);
 
+  const before = await entered(moving);
   await moving.getByRole("button", { name: "Replay" }).click();
-  await expect.poll(() => moving.evaluate(() => document.getAnimations().filter((a) => a.playState === "running").length)).toBeGreaterThan(20);
+  await expect.poll(async () => (await entered(moving)) - before).toBeGreaterThan(20);
   await settled(moving);
   expect(await marks(moving)).toEqual(after);
 
