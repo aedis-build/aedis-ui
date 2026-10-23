@@ -76,8 +76,8 @@ export function apiParts(doc: ComponentDoc): ApiPart[] {
   return [...[...byPart].filter(([, props]) => props.length).map(([name, props]) => ({ name, props })), ...(doc.parts ?? [])];
 }
 
-/** Sidebar and gallery order. */
-export const categories = ["Getting started", "Foundations", "Security", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "Charts", "AI and agents", "Transport", "Micro-frontends", "Blocks"] as const;
+/** Sidebar and gallery order: the guides first (as the Docs board groups them), then the components by category. */
+export const categories = ["Getting started", "Security", "Micro-frontends", "For agents", "Foundations", "Actions", "Forms", "Overlays", "Navigation", "Feedback", "Data display", "Charts", "AI and agents", "Transport", "Blocks"] as const;
 export type Category = (typeof categories)[number];
 
 /** A file in examples/: rendered in Preview, its source shown in Code. A test checks `component` is that file's export. */
@@ -135,7 +135,8 @@ const baseProps = (part: string): Prop[] => [
 
 /** The written guides; they join the navigation and the search next to the components. */
 export const guides: { href: string; title: string; description: string; category: Category }[] = [
-  { href: "/docs", title: "Introduction", description: "What Aedis UI is and how to install it.", category: "Getting started" },
+  { href: "/docs", title: "Introduction", description: "What Aedis UI is, where to start and how it differs from shadcn/ui.", category: "Getting started" },
+  { href: "/docs#installation", title: "Installation", description: "init once, then add components with the CLI that verifies every release.", category: "Getting started" },
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
   { href: "/blocks", title: "Blocks", description: "Whole screens for AI platforms, built only from registry items.", category: "Blocks" },
@@ -143,6 +144,9 @@ export const guides: { href: string; title: string; description: string; categor
   { href: "/security", title: "Security by construction", description: "How each attack is treated, the four sinks, the checklist for apps and what the UI cannot do.", category: "Security" },
   { href: "/docs/server-actions", title: "Server Actions", description: "Keep every Server Action safe with secureAction.", category: "Transport" },
   { href: "/docs/micro-frontends", title: "Micro-frontends", description: "Compose apps from isolated frames and elements.", category: "Micro-frontends" },
+  { href: "/llms.txt", title: "llms.txt", description: "Every page and item, indexed for coding agents.", category: "For agents" },
+  { href: "/llms-full.txt", title: "llms-full.txt", description: "Every entry in full, in one file.", category: "For agents" },
+  { href: "/docs#for-agents", title: "MCP server", description: "A read-only docs server for coding agents: aedis mcp.", category: "For agents" },
 ];
 
 /** One entry per registry item. The docs page and the sidebar are generated from this list. */
