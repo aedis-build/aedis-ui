@@ -19,7 +19,7 @@ describe("Typeset", () => {
     }
     expect(container.textContent).toContain("--text-body--line-height: 1.7;");
     expect(container.textContent).toContain("--font-sans: ui-serif");
-  });
+  }, 15_000); // clicks through every choice: room above the 5 s default when the suite runs in parallel
 
   it("renders the prose through Markdown, so its raw HTML never becomes markup", () => {
     const { container } = render(<Typeset />);
