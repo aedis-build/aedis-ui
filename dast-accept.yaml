@@ -12,4 +12,5 @@ accept:
     reason: "False positive: 'SQL source code disclosure' matches English prose on /docs/use-idle-timeout; remove if the alert ever points at real code or a non-prose page."
   - pluginId: 90003
     until: 2027-01-21
+    paths: [/llms-full.txt]
     reason: "False positive: 'Sub Resource Integrity Attribute Missing' matches a code sample in /llms-full.txt (text/plain, the docs for coding agents: <Link href={source.url}>), not a resource any page loads; remove if the alert ever points at an HTML page or a real <script>/<link>."
