@@ -47,6 +47,22 @@ describe("MfFrame", () => {
     expect(await screen.findByTitle("Same origin")).toHaveAttribute("sandbox", "allow-scripts");
   });
 
+  it("talks to a frame on its own origin, whose sandbox makes its origin opaque", async () => {
+    const drops: string[] = [];
+    render(<MfFrame src={`${HOST}/embedded`} title="Same origin" minHeight={100} onDrop={(r) => drops.push(r)} />);
+    const frame = (await screen.findByTitle("Same origin")) as HTMLIFrameElement;
+    const child = frame.contentWindow!;
+    const send = (data: unknown, origin: string, source: Window = child) => act(() => void window.dispatchEvent(new MessageEvent("message", { data, origin, source })));
+    send(envelope("ready"), "null");
+    send(envelope("event", { type: RESIZE, payload: { height: 300 } }), "null");
+    await waitFor(() => expect(frame.style.height).toBe("300px"));
+    send(envelope("event", { type: RESIZE, payload: { height: 500 } }), HOST);
+    send(envelope("event", { type: RESIZE, payload: { height: 500 } }), "null", window);
+    send(envelope("event", { type: RESIZE, payload: { height: "tall" } }), "null");
+    expect(frame.style.height).toBe("300px");
+    expect(drops).toEqual(["origin not allowed", "wrong window", "invalid payload"]);
+  });
+
   it("renders nothing for a URL that is not http(s)", () => {
     const { container } = render(<MfFrame src="javascript:alert(1)" title="Evil" />);
     expect(container.innerHTML).toBe("");

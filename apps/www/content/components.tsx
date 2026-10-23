@@ -1583,6 +1583,7 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
       { name: "allow / referrerPolicy", type: "string", default: '"" / "strict-origin-when-cross-origin"', description: "Permissions policy (empty: no camera, mic, geolocation…) and referrer." },
       { name: "minHeight / maxHeight", type: "number", default: "120 / 4000", description: "Bounds for the height the embedded app reports." },
       { name: "onBridge / messages", type: "(bridge) => void / specs", description: "The mf-bridge to the embedded app, for its own messages." },
+      { name: "onDrop", type: "(reason: string) => void", description: "Every message the bridge drops, with the reason and never the payload: for a log or a counter." },
       { name: "useReportHeight(hostOrigins)", type: "hook", description: "In the embedded app: reports the document height to the host." },
       { name: "embeddedAppHeaders / hostAppHeaders", type: "lib", description: "securityHeaders with frame-ancestors (embedded) or frame-src (host) from configuration." },
     ],
@@ -1600,6 +1601,12 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
           text: "A required title, an empty permissions policy, a referrer policy, and nothing for a URL that is not http(s).",
           evidence: [["mf-frame.test.tsx", "renders a titled, sandboxed frame with an empty permissions policy and a referrer policy"], ["mf-frame.test.tsx", "renders nothing for a URL that is not http(s)"]],
           ids: ["CWE-79", "CWE-1021"],
+        },
+        {
+          title: "A same-origin frame stays sandboxed",
+          text: "A frame on the host's own origin never gets allow-same-origin, so it runs in an opaque origin; the bridge accepts its \"null\" origin from that frame's window only.",
+          evidence: [["mf-frame.test.tsx", "talks to a frame on its own origin, whose sandbox makes its origin opaque"], ["mf-bridge.test.ts", "talks to a frame sandboxed on the host's origin: the null origin only from that frame, and posts with *"]],
+          ids: ["CWE-346", "CWE-1021"],
         },
         {
           title: "Framing only where configured",

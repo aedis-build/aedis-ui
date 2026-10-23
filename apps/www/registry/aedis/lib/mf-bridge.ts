@@ -34,6 +34,13 @@ export type BridgeOptions<M extends Specs> = {
   maxBytes?: number;
   /** For requests and the handshake. */
   timeoutMs?: number;
+  /**
+   * The peer is a frame sandboxed without allow-same-origin (MfFrame does this for a frame on the host's own origin):
+   * its messages carry the origin "null", so they are accepted from `target` and nothing else. An opaque origin cannot
+   * be addressed, so messages to it leave with "*": the frame could have navigated away, so send it nothing you would
+   * not show any page (the bridge already refuses secrets).
+   */
+  sandboxedPeer?: boolean;
   /** Called for every dropped message, e.g. to count them; never with the payload. */
   onDrop?: (reason: string) => void;
   /** The window that receives messages (tests); the current window by default. */
@@ -70,7 +77,7 @@ const id = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? cryp
  * and an allowed origin, carry this protocol, be of an accepted type, fit the size limit and pass its validator;
  * anything else is dropped. Messages go out with an explicit targetOrigin, never "*".
  */
-export function createBridge<M extends Specs>({ target, origins, messages, maxBytes = 64 * 1024, timeoutMs = 5000, onDrop, self = window }: BridgeOptions<M>): Bridge<M> {
+export function createBridge<M extends Specs>({ target, origins, messages, maxBytes = 64 * 1024, timeoutMs = 5000, sandboxedPeer = false, onDrop, self = window }: BridgeOptions<M>): Bridge<M> {
   const allowed = allowedOrigins(origins);
   const peer = () => (typeof target === "function" ? target() : target);
   let peerOrigin: string | null = null;
@@ -85,7 +92,7 @@ export function createBridge<M extends Specs>({ target, origins, messages, maxBy
     if (!win) return;
     const message = { protocol: PROTOCOL, v: VERSION, ...envelope };
     // Before the handshake the peer's origin is unknown: try each allowed one; the browser delivers to the match only.
-    for (const origin of to ? [to] : peerOrigin ? [peerOrigin] : allowed) win.postMessage(message, origin);
+    for (const origin of sandboxedPeer ? ["*"] : to ? [to] : peerOrigin ? [peerOrigin] : allowed) win.postMessage(message, origin);
   };
 
   const drop = (reason: string) => onDrop?.(reason);
@@ -102,7 +109,7 @@ export function createBridge<M extends Specs>({ target, origins, messages, maxBy
   const onMessage = (event: MessageEvent) => {
     const win = peer();
     if (!win || event.source !== win) return drop("wrong window");
-    if (!allowed.includes(event.origin)) return drop("origin not allowed");
+    if (sandboxedPeer ? event.origin !== "null" : !allowed.includes(event.origin)) return drop("origin not allowed");
     if (peerOrigin && event.origin !== peerOrigin) return drop("origin changed");
     const data = event.data as Partial<Envelope> | null;
     if (!data || typeof data !== "object" || data.protocol !== PROTOCOL || data.v !== VERSION) return drop("not this protocol");

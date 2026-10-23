@@ -56,6 +56,25 @@ describe("createBridge", () => {
     bridge.close();
   });
 
+  it("talks to a frame sandboxed on the host's origin: the null origin only from that frame, and posts with *", async () => {
+    const child = frame();
+    const other = frame();
+    const post = vi.spyOn(child, "postMessage").mockImplementation(() => {});
+    const dropped: string[] = [];
+    const got: unknown[] = [];
+    const bridge = createBridge({ target: child, origins: [window.location.origin], messages, sandboxedPeer: true, onDrop: (r) => dropped.push(r) });
+    bridge.on("ping", (p) => got.push(p));
+    deliver(envelope("ready"), "null", child);
+    await bridge.ready;
+    expect(post.mock.calls.map((c) => c[1])).toEqual(["*", "*"]);
+    deliver(envelope("event", { type: "ping", payload: "from the frame" }), "null", child);
+    deliver(envelope("event", { type: "ping", payload: "forged" }), "null", other);
+    deliver(envelope("event", { type: "ping", payload: "real origin" }), window.location.origin, child);
+    expect(got).toEqual(["from the frame"]);
+    expect(dropped).toEqual(["wrong window", "origin not allowed"]);
+    bridge.close();
+  });
+
   it("answers the other side's ready with an ack", async () => {
     const child = frame();
     const post = vi.spyOn(child, "postMessage").mockImplementation(() => {});
