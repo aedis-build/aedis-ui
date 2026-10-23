@@ -1,0 +1,139 @@
+# Releases as features land. On every push to main, the next version is derived from the Conventional Commits since
+# the last tag (breaking → major, feat → minor, fix/perf/refactor/revert/deps → patch, anything else → no release)
+# and proposed as a release pull request, "chore(release): vX.Y.Z", that bumps the version everywhere it lives:
+# package.json (the registry), packages/cli/package.json and packages/cli/src/cli.ts, plus the `@aedis/cli@X.Y.Z`
+# pins in the docs. The PR goes through the same CI and gate as any change. When it merges, this workflow tags
+# vX.Y.Z and cli-vX.Y.Z on that commit, and release.yml (signed registry) and cli-release.yml (npm Trusted
+# Publishing) take over. The branch, the PR and the tags are made with the Aedis App's short-lived token: a tag
+# pushed with GITHUB_TOKEN starts no workflow, and no long-lived token exists. Nothing is proposed before the first
+# tag exists: v0.1.0 is cut on purpose, with the bump input of a manual run.
+name: release-cut
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Increment (auto = from the commits since the last tag; patch/minor/major also cut the first release)"
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+
+permissions: {}
+
+concurrency:
+  group: release-cut
+  cancel-in-progress: false
+
+jobs:
+  cut:
+    name: Tag a merged release, or propose the next one
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app
+        with:
+          app-id: ${{ secrets.AEDIS_APP_ID }}
+          private-key: ${{ secrets.AEDIS_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+          # The App token stays in the checkout for the pushes below; it expires within the hour.
+          persist-credentials: true
+      - name: Git identity (the App's bot user, so commits and tags carry who made them)
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          set -euo pipefail
+          id="$(gh api "users/${SLUG}[bot]" --jq .id)"
+          git config user.name "${SLUG}[bot]"
+          git config user.email "${id}+${SLUG}[bot]@users.noreply.github.com"
+
+      # A merged release PR lands on main as "chore(release): vX.Y.Z": tag that commit, once.
+      - name: Tag a merged release
+        id: tag
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          subject="$(git log -1 --format=%s)"
+          if [[ ! "$subject" =~ ^chore\(release\):\ (v[0-9]+\.[0-9]+\.[0-9]+)( |$) ]]; then exit 0; fi
+          tag="${BASH_REMATCH[1]}"
+          version="$(node -p "require('./package.json').version")"
+          test "v$version" = "$tag" || { echo "::error::$subject but package.json says $version"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then echo "$tag exists"; echo "done=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git tag -a "$tag" -m "release $tag"
+          git tag -a "cli-$tag" -m "release cli-$tag"
+          git push origin "refs/tags/$tag" "refs/tags/cli-$tag"
+          echo "tagged $tag and cli-$tag"
+          echo "done=true" >> "$GITHUB_OUTPUT"
+
+      - name: Propose the next release
+        if: steps.tag.outputs.done != 'true'
+        env:
+          BUMP: ${{ inputs.bump || 'auto' }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          set -euo pipefail
+          last="$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)"
+          if [ -z "$last" ] && [ "$BUMP" = auto ]; then
+            echo "no release yet: cut the first one with a manual run and an explicit bump"; exit 0
+          fi
+          current="$(node -p "require('./package.json').version")"
+          range="$([ -n "$last" ] && echo "$last..HEAD" || echo HEAD)"
+          log="$(git log --format='%s%n%b' $range)"
+          bump="$BUMP"
+          if [ "$bump" = auto ]; then
+            if echo "$log" | grep -qE '^[a-z]+(\([^)]*\))?!:|^BREAKING CHANGE'; then bump=major
+            elif echo "$log" | grep -qE '^feat(\([^)]*\))?:'; then bump=minor
+            elif echo "$log" | grep -qE '^(fix|perf|refactor|revert)(\([^)]*\))?:|^build\(deps'; then bump=patch
+            else echo "nothing releasable since $last"; exit 0; fi
+          fi
+          IFS=. read -r major minor patch <<< "${last:+${last#v}}"
+          : "${major:=0}" "${minor:=0}" "${patch:=0}"
+          case "$bump" in
+            major) major=$((major+1)); minor=0; patch=0 ;;
+            minor) minor=$((minor+1)); patch=0 ;;
+            patch) patch=$((patch+1)) ;;
+          esac
+          next="$major.$minor.$patch"
+          # The first release keeps the version the sources already declare when it is ahead of the computed one,
+          # and then needs no pull request: main already says v$next, so it is tagged right here.
+          if [ -z "$last" ] && [ "$(printf '%s\n%s\n' "$current" "$next" | sort -V | tail -1)" = "$current" ]; then next="$current"; fi
+          echo "${last:-no tag} → v$next ($bump)"
+          if [ "$next" = "$current" ]; then
+            git tag -a "v$next" -m "release v$next"
+            git tag -a "cli-v$next" -m "release cli-v$next"
+            git push origin "refs/tags/v$next" "refs/tags/cli-v$next"
+            echo "tagged v$next and cli-v$next on main"; exit 0
+          fi
+
+          node - "$current" "$next" <<'JS'
+          const fs = require("node:fs");
+          const [current, next] = process.argv.slice(2);
+          for (const file of ["package.json", "packages/cli/package.json"]) {
+            const json = JSON.parse(fs.readFileSync(file, "utf8"));
+            json.version = next;
+            fs.writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
+          }
+          const cli = "packages/cli/src/cli.ts";
+          fs.writeFileSync(cli, fs.readFileSync(cli, "utf8").replace(/export const VERSION = "[^"]+";/, `export const VERSION = "${next}";`));
+          JS
+          # The pinned install commands in the docs follow the release.
+          git grep -lz --fixed-strings "@aedis/cli@$current" -- ':!pnpm-lock.yaml' | xargs -0 -r sed -i "s/@aedis\/cli@$current/@aedis\/cli@$next/g"
+
+          branch="release/v$next"
+          git checkout -q -B "$branch"
+          git add -A
+          git commit -q -s -m "chore(release): v$next" -m "$(printf 'Commits since %s:\n\n%s' "${last:-the beginning}" "$(git log --format='- %s' $range)")"
+          git push -q --force origin "HEAD:refs/heads/$branch"
+          body="$(printf 'Release pull request made by release-cut.yml from the Conventional Commits since %s. Merging it tags `v%s` and `cli-v%s`, and release.yml and cli-release.yml publish the signed registry and `@aedis/cli` through the platform reusables.\n\n%s' "${last:-the beginning}" "$next" "$next" "$(git log --format='- %s' $range)")"
+          number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')"
+          if [ -n "$number" ]; then gh pr edit "$number" --title "chore(release): v$next" --body "$body"
+          else gh pr create --head "$branch" --base main --title "chore(release): v$next" --body "$body"; fi

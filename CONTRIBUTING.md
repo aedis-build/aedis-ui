@@ -36,6 +36,20 @@ The reasoning behind each rule is in [docs/SECURITY-BY-CONSTRUCTION.md](docs/SEC
 - **External links** get `rel="noopener noreferrer"`.
 - **Accessible by default:** keyboard reachable, labelled, and passing axe in the tests.
 
+## Releases
+
+Releases follow the commits. On every merge to `main`, `release-cut.yml` derives the next version from the Conventional
+Commits since the last tag (breaking → major, `feat` → minor, `fix`/`perf`/`refactor`/`revert`/dependency bumps →
+patch, anything else → nothing) and opens or updates a release pull request, `chore(release): vX.Y.Z`, that bumps
+`package.json` (the registry), `packages/cli/package.json`, `packages/cli/src/cli.ts` and the `@aedis/cli@X.Y.Z` pins
+in the docs. Merging it tags `vX.Y.Z` and `cli-vX.Y.Z`; `release.yml` then publishes the signed registry release and
+`cli-release.yml` publishes `@aedis/cli` to npm with Trusted Publishing and provenance, both through the aedis-platform
+reusables. The first release is cut on purpose: run `release-cut` by hand with an explicit bump.
+
+`pnpm smoke` (after `pnpm build`) proves the path without publishing: it packs the CLI as npm would, installs the
+tarball in a scratch project and runs `init`, `add` and `diff` against the registry built from the checkout. CI runs
+it on every pull request.
+
 ## Commits and pull requests
 
 [Conventional Commits](https://www.conventionalcommits.org/), signed off (`git commit -s`), one purpose per PR, linked to an issue that explains the need. Changes under `.github/`, `docs/`, `apps/www/lib/` and the Markdown component always need a human review (see `.github/aedis-merge-policy.yaml`). The gates (coverage, SAST rules, DAST, merge gate), the releases (registry, `@aedis/cli`) and the visual regression are the shared reusable workflows of [aedis-platform](https://github.com/aedis-build/aedis-platform); this repository carries no glue of its own.
