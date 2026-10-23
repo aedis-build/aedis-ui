@@ -19,6 +19,8 @@ const pages = [
   "/docs/navigation-menu",
   "/docs/tool-call",
   "/docs/prompt-input",
+  "/micro-frontends",
+  "/charts",
 ];
 
 for (const path of pages) {
@@ -32,8 +34,13 @@ for (const path of pages) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForFunction(() => document.querySelectorAll("[data-slot=code-block-line]:not([data-shown])").length === 0);
     await page.evaluate(() => document.fonts.ready);
+    // The live demo: wait for the remote's handshake; its log grows with timing, so it is masked.
+    const live = path === "/micro-frontends" ? [page.getByRole("list", { name: "Bridge events" })] : [];
+    if (live.length) await page.getByText("Handshake: the remote is ready").waitFor();
+    // Charts animate on enter: the baseline is the settled state. Endless animations (spinners) never settle.
+    await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getComputedTiming().endTime === Infinity));
     const name = path === "/" ? "home" : path.slice(1).replace(/\//g, "-");
-    await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
+    await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: true, mask: live });
   });
 }
 

@@ -53,19 +53,29 @@ describe("_headers", () => {
     expect(rule(file, "/docs/x")[0]).toContain(`script-src 'self' '${sha("c()")}';`);
   });
 
-  it("lets only the block previews be framed, and only by this site", () => {
-    const file = headersFile([["/blocks/view/agent-console", ""], ["/blocks/agent-console", ""], ["/", ""]]);
-    expect(rule(file, "/blocks/view/agent-console")[0]).toContain("frame-ancestors 'self';");
-    expect(rule(file, "/blocks/agent-console")[0]).toContain("frame-ancestors 'none';");
-    expect(rule(file, "/")[0]).toContain("frame-ancestors 'none';");
+  it("lets only the block previews and the demo remote be framed, only by this site, and only pages that show them frame", () => {
+    const paths = ["/blocks/view/agent-console", "/demo/remote/billing", "/blocks", "/blocks/agent-console", "/micro-frontends", "/", "/docs/mf-frame", "/blocks-x"];
+    const file = headersFile(paths.map((p) => [p, ""]));
+    const csp = (p: string) => rule(file, p)[0];
+    for (const p of ["/blocks/view/agent-console", "/demo/remote/billing"]) expect(csp(p)).toContain("frame-ancestors 'self';");
+    for (const p of ["/blocks", "/blocks/agent-console", "/micro-frontends", "/", "/docs/mf-frame", "/blocks-x"]) expect(csp(p)).toContain("frame-ancestors 'none';");
+    for (const p of ["/blocks", "/blocks/agent-console", "/micro-frontends"]) expect(csp(p)).toContain("frame-src 'self';");
+    for (const p of ["/blocks/view/agent-console", "/demo/remote/billing", "/", "/docs/mf-frame", "/blocks-x"]) expect(csp(p)).toContain("frame-src 'none';");
   });
 
   it("lets hashed build assets be cached for good", () => {
-    expect(rule(headersFile([]), "/_next/static/*")).toEqual(["  ! Cache-Control", "  Cache-Control: public, max-age=31536000, immutable"]);
+    expect(rule(headersFile([]), "/_next/static/*")).toEqual([
+      "  ! Cache-Control",
+      "  Cache-Control: public, max-age=31536000, immutable",
+      "  ! Cross-Origin-Resource-Policy",
+      "  Cross-Origin-Resource-Policy: cross-origin",
+    ]);
+    expect(rule(headersFile([]), "/color-scheme.js")).toEqual(["  ! Cross-Origin-Resource-Policy", "  Cross-Origin-Resource-Policy: cross-origin"]);
   });
 
   it("fails the build instead of shipping a file Cloudflare would reject", () => {
-    expect(() => headersFile(Array.from({ length: 99 }, (_, i): [string, string] => [`/p${i}`, ""]))).toThrow(/rules/);
+    expect(() => headersFile(Array.from({ length: 97 }, (_, i): [string, string] => [`/p${i}`, ""]))).not.toThrow();
+    expect(() => headersFile(Array.from({ length: 98 }, (_, i): [string, string] => [`/p${i}`, ""]))).toThrow("_headers: 101 rules, Cloudflare allows 100");
     const many = Array.from({ length: 40 }, (_, i) => `<script>${i}</script>`).join("");
     expect(() => headersFile([["/", many]])).toThrow(/characters/);
   });

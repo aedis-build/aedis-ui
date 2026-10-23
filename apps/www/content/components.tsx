@@ -1583,6 +1583,7 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
       { name: "allow / referrerPolicy", type: "string", default: '"" / "strict-origin-when-cross-origin"', description: "Permissions policy (empty: no camera, mic, geolocation…) and referrer." },
       { name: "minHeight / maxHeight", type: "number", default: "120 / 4000", description: "Bounds for the height the embedded app reports." },
       { name: "onBridge / messages", type: "(bridge) => void / specs", description: "The mf-bridge to the embedded app, for its own messages." },
+      { name: "onDrop", type: "(reason: string) => void", description: "Every message the bridge drops, with the reason and never the payload: for a log or a counter." },
       { name: "useReportHeight(hostOrigins)", type: "hook", description: "In the embedded app: reports the document height to the host." },
       { name: "embeddedAppHeaders / hostAppHeaders", type: "lib", description: "securityHeaders with frame-ancestors (embedded) or frame-src (host) from configuration." },
     ],
@@ -1600,6 +1601,12 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
           text: "A required title, an empty permissions policy, a referrer policy, and nothing for a URL that is not http(s).",
           evidence: [["mf-frame.test.tsx", "renders a titled, sandboxed frame with an empty permissions policy and a referrer policy"], ["mf-frame.test.tsx", "renders nothing for a URL that is not http(s)"]],
           ids: ["CWE-79", "CWE-1021"],
+        },
+        {
+          title: "A same-origin frame stays sandboxed",
+          text: "A frame on the host's own origin never gets allow-same-origin, so it runs in an opaque origin; the bridge accepts its \"null\" origin from that frame's window only.",
+          evidence: [["mf-frame.test.tsx", "talks to a frame on its own origin, whose sandbox makes its origin opaque"], ["mf-bridge.test.ts", "talks to a frame sandboxed on the host's origin: the null origin only from that frame, and posts with *"]],
+          ids: ["CWE-346", "CWE-1021"],
         },
         {
           title: "Framing only where configured",
@@ -2331,6 +2338,7 @@ function chartDocs(): ComponentDoc[] {
     { name: "format", type: "(value: number) => string", default: "useFormat().number", description: "How values read in the tooltip and the table." },
     { name: "legend", type: "boolean", default: "series.length > 1", description: "Shows the series names under the chart." },
     { name: "labels", type: "Partial<ChartLabels>", description: "Overrides the locale's words." },
+    { name: "animate", type: "boolean", default: "true", description: "Bars grow, lines draw and arcs sweep on enter; values move when data changes. Never under reduced motion." },
   ];
   const security: Security = {
     sinks: ["DOM"],
@@ -2358,7 +2366,7 @@ function chartDocs(): ComponentDoc[] {
   const accessibility: Accessibility = {
     keyboard: [["Tab", "Focuses the chart."], ["← → / ↑ ↓", "Moves the tooltip through the rows."], ["Home / End", "First or last row."], ["Escape", "Hides the tooltip."]],
     notes: ["The drawing is hidden from assistive technology; a table captioned with the title holds every value.", "The tooltip is text in a polite live region, so keyboard moves are read out."],
-    motion: "Nothing animates.",
+    motion: "On enter, bars grow from the baseline with a stagger, lines draw left to right and arcs sweep, on the theme's spring duration and cinematic easing; new values move to their place. With reduced motion, or animate={false}, the final state is drawn at once.",
   };
   const doc = (name: string, title: string, description: string, component: ComponentType, usage: string, props: Prop[] = cartesian): ComponentDoc => ({
     name,
@@ -2394,7 +2402,7 @@ function chartDocs(): ComponentDoc[] {
     doc("pie-chart", "Pie Chart", "A donut of shares, with the total in the middle.", PieChartDemo, `import { PieChart } from "@/components/ui/pie-chart";
 
 <PieChart title="Spend by model" data={spend} index="model" value={{ key: "usd", label: "Spend" }} center="$1,211" />`, [
-      ...cartesian.filter((p) => ["title", "data", "index", "format", "labels"].includes(p.name)),
+      ...cartesian.filter((p) => ["title", "data", "index", "format", "labels", "animate"].includes(p.name)),
       { name: "value", type: "{ key: string; label: string }", description: "The key that holds each slice's value, and its name in the tooltip and table." },
       { name: "center", type: "string", description: "Text in the hole, e.g. the total. Text only, cut to 12 characters." },
     ]),
@@ -2405,7 +2413,7 @@ function chartDocs(): ComponentDoc[] {
       { name: "value", type: "number", description: "Between 0 and max; anything else is dropped and the ring stays empty." },
       { name: "max", type: "number", description: "A finite number above 0." },
       { name: "caption", type: "string", description: "Under the percentage. Text only, cut to 24 characters." },
-      ...cartesian.filter((p) => ["format", "labels"].includes(p.name)),
+      ...cartesian.filter((p) => ["format", "labels", "animate"].includes(p.name)),
     ]),
   ];
 }

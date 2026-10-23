@@ -1,6 +1,6 @@
 "use client";
 
-import { CartesianGrid, ChartFrame, cleanRows, HitColumns, lineScale, linePath, lineX, plot, seriesColor, XTicks, type CartesianChartProps } from "@/registry/aedis/ui/chart";
+import { CartesianGrid, ChartFrame, cleanRows, HitColumns, lineScale, linePath, lineX, moveOn, plot, seriesColor, useChartMotion, XTicks, type CartesianChartProps } from "@/registry/aedis/ui/chart";
 
 type AreaChartProps = CartesianChartProps & {
   /** Stack the series on top of each other, so the top line is the total. */
@@ -8,8 +8,9 @@ type AreaChartProps = CartesianChartProps & {
 };
 
 /** Filled lines; a dropped value leaves a gap in its series instead of a made-up point. */
-function AreaChart({ title, data, index, series, indexLabel, format, legend = series.length > 1, labels, className, stacked = false }: AreaChartProps) {
+function AreaChart({ title, data, index, series, indexLabel, format, legend = series.length > 1, labels, className, stacked = false, animate = true }: AreaChartProps) {
   const { rows, dropped } = cleanRows(data, index, series);
+  const { ref, moves } = useChartMotion(animate, rows.length);
   const y = lineScale(rows, stacked);
   const x = (i: number) => lineX(i, rows.length);
   // Per series, the floor and the top of each point; stacked series start where the ones before them ended.
@@ -24,7 +25,7 @@ function AreaChart({ title, data, index, series, indexLabel, format, legend = se
     <ChartFrame title={title} series={series} rows={rows} dropped={dropped} indexLabel={indexLabel} format={format} legend={legend} labels={labels} className={className}>
       {({ active, hover }) => (
         <>
-          <svg viewBox={`0 0 ${plot.width} ${plot.height}`} width="100%" aria-hidden="true" className="block overflow-visible">
+          <svg ref={ref} viewBox={`0 0 ${plot.width} ${plot.height}`} width="100%" aria-hidden="true" className="block overflow-visible">
             <CartesianGrid />
             {/* Last series first, so the first one is drawn on top. */}
             {[...layers.keys()].reverse().map((j) => {
@@ -36,8 +37,8 @@ function AreaChart({ title, data, index, series, indexLabel, format, legend = se
               const fill = runs.map((run) => `${linePath(run.map((i) => tops[i]))}${linePath([...run].reverse().map((i) => [x(i), y(layers[j][i]![0])] as const)).replace(/^M/, "L")}Z`).join("");
               return (
                 <g key={s.key} stroke={seriesColor(s, j)} fill={seriesColor(s, j)}>
-                  <path d={fill} fillOpacity={0.18} stroke="none" />
-                  <path d={linePath(tops)} fill="none" strokeWidth={2} strokeLinejoin="round" />
+                  <path d={fill} fillOpacity={0.18} stroke="none" data-enter="fade" style={moveOn(moves, "d")} />
+                  <path d={linePath(tops)} fill="none" strokeWidth={2} strokeLinejoin="round" pathLength={1} strokeDasharray={1} data-enter="draw" style={moveOn(moves, "d")} />
                   {active !== null && tops[active] ? <circle cx={tops[active]![0]} cy={tops[active]![1]} r={4} fill="var(--surface)" strokeWidth={2} /> : null}
                 </g>
               );

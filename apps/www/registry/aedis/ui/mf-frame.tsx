@@ -48,11 +48,13 @@ export type MfFrameProps = {
   /** The bridge to the embedded app, for its own messages (add their specs in `messages`). */
   onBridge?: (bridge: Bridge<Record<string, MessageSpec>>) => void;
   messages?: Record<string, MessageSpec>;
+  /** Every message the bridge drops, with the reason (never the payload): for a log or a counter. */
+  onDrop?: (reason: string) => void;
   className?: string;
 };
 
 /** The host side of an embed: a sandboxed iframe sized by the embedded app over mf-bridge. */
-function MfFrame({ src, title, sandbox = ["allow-scripts", "allow-forms"], allow = "", referrerPolicy = "strict-origin-when-cross-origin", minHeight = 120, maxHeight = 4000, onBridge, messages, className }: MfFrameProps) {
+function MfFrame({ src, title, sandbox = ["allow-scripts", "allow-forms"], allow = "", referrerPolicy = "strict-origin-when-cross-origin", minHeight = 120, maxHeight = 4000, onBridge, messages, onDrop, className }: MfFrameProps) {
   const frame = React.useRef<HTMLIFrameElement>(null);
   // The host origin is only known in the browser, and the sandbox depends on it: render the frame after mount.
   const [host, setHost] = React.useState<string | null>(null);
@@ -70,12 +72,16 @@ function MfFrame({ src, title, sandbox = ["allow-scripts", "allow-forms"], allow
   }, [src]);
   const origin = url ? allowedOrigins([url.origin])[0] ?? null : null;
   const tokens = origin && host ? frameSandbox(sandbox, origin, host) : [];
+  // On the host's own origin the sandbox has no allow-same-origin, so the frame's origin is opaque ("null").
+  const sandboxedPeer = origin !== null && origin === host;
   const handler = React.useRef(onBridge);
   handler.current = onBridge;
+  const dropped = React.useRef(onDrop);
+  dropped.current = onDrop;
 
   React.useEffect(() => {
     if (!origin || !host) return;
-    const bridge = createBridge({ target: () => frame.current?.contentWindow ?? null, origins: [origin], messages: { ...extra.current, ...frameMessages } });
+    const bridge = createBridge({ target: () => frame.current?.contentWindow ?? null, origins: [origin], sandboxedPeer, onDrop: (r) => dropped.current?.(r), messages: { ...extra.current, ...frameMessages } });
     const off = bridge.on(RESIZE, ({ height: h }) => setHeight(Math.min(maxHeight, Math.max(minHeight, Math.round(h)))));
     void bridge.ready.then(() => setLoaded(true));
     handler.current?.(bridge as unknown as Bridge<Record<string, MessageSpec>>);
@@ -83,7 +89,7 @@ function MfFrame({ src, title, sandbox = ["allow-scripts", "allow-forms"], allow
       off();
       bridge.close();
     };
-  }, [origin, host, minHeight, maxHeight]);
+  }, [origin, host, sandboxedPeer, minHeight, maxHeight]);
 
   if (!url || !origin) return null;
   return (
