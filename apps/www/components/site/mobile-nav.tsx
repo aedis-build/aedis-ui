@@ -6,12 +6,12 @@ import { DocsNav, type NavGroup } from "@/components/site/docs-nav";
 import { Button } from "@/registry/aedis/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/registry/aedis/ui/sheet";
 
-/** The navigation below lg: the header links first, then the same groups as the sidebar, in a sheet. */
+/** The navigation below 1360 px, where the header links do not fit: the header links first, then the same groups as the sidebar, in a sheet. */
 export function MobileNav({ groups }: { groups: NavGroup[] }) {
   const [open, setOpen] = React.useState(false);
   return (
     <Sheet side="left" open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden" />}>
+      <SheetTrigger render={<Button variant="ghost" size="icon" className="min-[1360px]:hidden" />}>
         <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M2 4h12M2 8h12M2 12h12" />
         </svg>
