@@ -171,7 +171,8 @@ function Ceiling() {
   );
 }
 
-function Frame() {
+/** What a framed remote looks like; also on /micro-frontends. */
+export function FramePanel() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader className="flex-row items-center justify-between">
@@ -261,7 +262,7 @@ export function Showcase() {
     [<Controls key="c" />, <Sidebar key="s" label="Workspace (example)" className="w-full rounded-xl" groups={[{ label: "Workspace", items: [{ href: "#agents", label: "Agents" }, { href: "#approvals", label: "Approvals", active: true, count: 3, countLabel: "3 waiting" }, { href: "#usage", label: "Usage" }, { href: "#audit", label: "Audit log" }, { href: "#settings", label: "Settings" }] }]} />],
     [<Usage key="u" />, <Spend key="s" />],
     [<ApprovalCard key="a" requester="Reports agent" requestedAt="2 min ago" content={"**Send the Q3 report outside the company**\n\nEmail `q3-report.pdf` to finance@partner.example and audit@partner.example."} onApprove={done} onRequestChanges={done} />, <Ceiling key="c" />],
-    [<AgentConsole key="a" title="Support agent" turns={turns} onSend={async () => undefined} className="flex h-[34rem] w-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1" />, <Frame key="f" />],
+    [<AgentConsole key="a" title="Support agent" turns={turns} onSend={async () => undefined} className="flex h-[34rem] w-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1" />, <FramePanel key="f" />],
     [<Defended key="d" />, <Notifications key="n" />],
   ];
   return (
