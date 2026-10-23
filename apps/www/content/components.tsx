@@ -139,6 +139,7 @@ export const guides: { href: string; title: string; description: string; categor
   { href: "/docs#installation", title: "Installation", description: "init once, then add components with the CLI that verifies every release.", category: "Getting started" },
   { href: "/docs/theming", title: "Theming", description: "The color, type, depth, shape and motion tokens.", category: "Getting started" },
   { href: "/themes", title: "Themes", description: "Create your own theme, check its contrast and import it with the CLI.", category: "Getting started" },
+  { href: "/create", title: "Create", description: "Pick a theme, blocks and a security level; get one init command.", category: "Getting started" },
   { href: "/typeset", title: "Typeset", description: "Set the type scale on real content and import it as a theme.", category: "Getting started" },
   { href: "/blocks", title: "Blocks", description: "Whole screens for AI platforms, built only from registry items.", category: "Blocks" },
   { href: "/charts", title: "Charts", description: "Every chart type with sample data, and how charts stay safe.", category: "Charts" },

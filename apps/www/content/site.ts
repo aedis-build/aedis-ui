@@ -8,4 +8,5 @@ export const headerLinks: { href: string; label: string }[] = [
   { href: "/security", label: "Security" },
   { href: "/directory", label: "Directory" },
   { href: "/typeset", label: "Typeset" },
+  { href: "/create", label: "Create" },
 ];
