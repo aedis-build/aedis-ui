@@ -16,7 +16,12 @@ export function inlineScriptHashes(html: string): string[] {
   return [...html.matchAll(INLINE_SCRIPT)].map(([, body]) => `sha256-${createHash("sha256").update(body, "utf8").digest("base64")}`);
 }
 
-const csp = (html: string) => securityHeaders({ hashes: [...new Set(inlineScriptHashes(html))].sort() })["Content-Security-Policy"];
+/** Pages only this site may frame: the block previews of the Blocks pages. Every other page refuses all framing. */
+export const FRAMEABLE = /^\/blocks\/view\//;
+
+// Browsers ignore X-Frame-Options (DENY, set on /*) when the CSP has frame-ancestors, so the CSP alone decides.
+const csp = (path: string, html: string) =>
+  securityHeaders({ hashes: [...new Set(inlineScriptHashes(html))].sort(), frameAncestors: FRAMEABLE.test(path) ? ["'self'"] : [] })["Content-Security-Policy"];
 
 /**
  * The Cloudflare `_headers` file for the exported site: the aedis-ui security headers on every path, and a CSP per
@@ -34,7 +39,7 @@ export function headersFile(pages: [path: string, html: string][]): string {
     "/_next/static/*",
     "  ! Cache-Control",
     "  Cache-Control: public, max-age=31536000, immutable",
-    ...pages.flatMap(([path, html]) => [path, `  Content-Security-Policy: ${csp(html)}`]),
+    ...pages.flatMap(([path, html]) => [path, `  Content-Security-Policy: ${csp(path, html)}`]),
   ];
   // shortcut: one rule per page, fine up to ~98 pages; past that, move the inline scripts to files and drop the hashes.
   if (pages.length + 2 > MAX_RULES) throw new Error(`_headers: ${pages.length + 2} rules, Cloudflare allows ${MAX_RULES}`);

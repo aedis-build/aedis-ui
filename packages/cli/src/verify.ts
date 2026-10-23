@@ -23,13 +23,14 @@ export class ProvenanceError extends Error {
 }
 
 /**
- * Verifies a registry release before anything from it is written: the Sigstore bundle must be signed by this
+ * Verifies a registry release before anything from it is written: the Sigstore bundle must be signed by the
  * repository's release workflow for exactly this tag, and its SLSA provenance must name this archive (by sha256),
- * this repository, this workflow and this tag. Any mismatch throws.
+ * that repository, that workflow and this tag. Any mismatch throws. Aedis UI and third-party registries get the same
+ * checks; only the repository differs.
  */
-export async function verifyRelease({ archive, bundle, release, assetName, check }: { archive: Uint8Array; bundle: unknown; release: string; assetName: string; check: SignatureCheck }) {
+export async function verifyRelease({ archive, bundle, release, assetName, check, repository = REPOSITORY }: { archive: Uint8Array; bundle: unknown; release: string; assetName: string; check: SignatureCheck; repository?: string }) {
   if (!bundle || typeof bundle !== "object") throw new ProvenanceError("missing attestation bundle");
-  const identity = `https://github.com/${REPOSITORY}/${WORKFLOW}@refs/tags/${release}`;
+  const identity = `https://github.com/${repository}/${WORKFLOW}@refs/tags/${release}`;
   try {
     await check(bundle, { certificateIdentityURI: identity, certificateIssuer: ISSUER });
   } catch (error) {
@@ -53,7 +54,7 @@ export async function verifyRelease({ archive, bundle, release, assetName, check
   if (subject.digest?.sha256 !== digest) throw new ProvenanceError(`${assetName} does not match its attestation (tampered or replaced)`);
 
   const workflow = statement.predicate?.buildDefinition?.externalParameters?.workflow;
-  if (workflow?.repository !== `https://github.com/${REPOSITORY}`) throw new ProvenanceError(`built from ${workflow?.repository ?? "an unknown repository"}`);
+  if (workflow?.repository !== `https://github.com/${repository}`) throw new ProvenanceError(`built from ${workflow?.repository ?? "an unknown repository"}`);
   if (workflow.path !== WORKFLOW) throw new ProvenanceError(`built by ${workflow.path ?? "an unknown workflow"}, not ${WORKFLOW}`);
   if (workflow.ref !== `refs/tags/${release}`) throw new ProvenanceError(`built from ${workflow.ref ?? "an unknown ref"}, not ${release}`);
   return { digest };

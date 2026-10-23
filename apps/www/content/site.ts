@@ -3,6 +3,10 @@ export const headerLinks: { href: string; label: string }[] = [
   { href: "/docs", label: "Docs" },
   { href: "/components", label: "Components" },
   { href: "/blocks", label: "Blocks" },
-  { href: "/docs/micro-frontends", label: "Micro-frontends" },
+  { href: "/charts", label: "Charts" },
+  { href: "/micro-frontends", label: "Micro-frontends" },
   { href: "/security", label: "Security" },
+  { href: "/directory", label: "Directory" },
+  { href: "/typeset", label: "Typeset" },
+  { href: "/create", label: "Create" },
 ];
