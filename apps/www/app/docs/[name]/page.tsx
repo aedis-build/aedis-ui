@@ -4,9 +4,11 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ComponentPreview } from "@/components/site/component-preview";
+import { exampleSource } from "@/components/site/example-source";
 import { InstallCommand } from "@/components/site/install-command";
+import { SecurityPanel } from "@/components/site/security-panel";
 import { Toc } from "@/components/site/toc";
-import { components, type Prop } from "@/content/components";
+import { apiParts, components, type Prop } from "@/content/components";
 import registry from "@/registry.json";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
@@ -67,7 +69,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   const adds = (item?.registryDependencies ?? []).map((d) => d.replace("@aedis/", "")).filter((d) => !INIT.has(d));
   const [main, ...more] = doc.examples ?? [];
   const a11y = doc.accessibility;
-  const parts = [{ name: doc.title.replace(/\s/g, ""), props: doc.props }, ...(doc.parts ?? [])];
+  const parts = apiParts(doc);
   const badges = [
     npm.some((d) => d.startsWith("@base-ui/react@")) && "Base UI",
     a11y?.keyboard?.length && "Keyboard",
@@ -75,7 +77,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   ].filter((b): b is string => Boolean(b));
   const toc = [
     { id: "installation", title: "Installation" },
-    doc.usage && { id: "usage", title: "Usage" },
+    { id: "usage", title: "Usage" },
     more.length > 0 && { id: "examples", title: "Examples" },
     { id: "api", title: "API reference" },
     { id: "security", title: "Security" },
@@ -92,11 +94,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           {badges.length > 0 ? <div className="flex flex-wrap gap-1.5">{badges.map((b) => <Badge key={b} variant="secondary">{b}</Badge>)}</div> : null}
         </header>
 
-        {main ? (
-          <ComponentPreview file={main.file} component={main.component} label={`${doc.title} example`} />
-        ) : (
-          <section aria-label="Example" className="rounded-xl border border-hairline bg-surface p-8 shadow-elevation-1">{doc.example}</section>
-        )}
+        {main ? <ComponentPreview code={exampleSource(main.file)} component={main.component} label={`${doc.title} example`} /> : null}
 
         <Section id="installation" title="Installation">
           <InstallCommand name={doc.name} />
@@ -108,11 +106,9 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           </p>
         </Section>
 
-        {doc.usage ? (
-          <Section id="usage" title="Usage">
-            <CodeBlock lang="tsx" code={doc.usage} />
-          </Section>
-        ) : null}
+        <Section id="usage" title="Usage">
+          <CodeBlock lang="tsx" code={doc.usage} />
+        </Section>
 
         {more.length > 0 ? (
           <Section id="examples" title="Examples">
@@ -120,7 +116,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
               <div key={e.file} className="space-y-3 pt-2">
                 <h3 className="text-title-3">{e.title}</h3>
                 {e.description ? <p className="text-callout text-muted-foreground">{e.description}</p> : null}
-                <ComponentPreview file={e.file} component={e.component} label={`${e.title} example`} />
+                <ComponentPreview code={exampleSource(e.file)} component={e.component} label={`${e.title} example`} />
               </div>
             ))}
           </Section>
@@ -130,16 +126,14 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           {parts.map((p) => (
             <div key={p.name} className="space-y-2 pt-2">
               {parts.length > 1 ? <h3 className="font-mono text-headline">{p.name}</h3> : null}
-              {"description" in p && p.description ? <p className="text-callout text-muted-foreground">{p.description}</p> : null}
+              {p.description ? <p className="text-callout text-muted-foreground">{p.description}</p> : null}
               <PropsTable props={p.props} />
             </div>
           ))}
         </Section>
 
         <Section id="security" title="Security">
-          <ul className="list-disc space-y-1 pl-5 text-callout">
-            {doc.security.map((s) => <li key={s}>{s}</li>)}
-          </ul>
+          <SecurityPanel name={doc.name} security={doc.security} />
         </Section>
 
         {a11y ? (

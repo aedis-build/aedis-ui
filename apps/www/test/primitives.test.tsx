@@ -18,10 +18,7 @@ import { Textarea } from "@/registry/aedis/ui/textarea";
 import { violations } from "./a11y";
 
 describe("primitives", () => {
-  const examples = components.flatMap((c) => [
-    ...(c.examples ?? []).map((e) => [e.file, <e.component key={e.file} />] as const),
-    ...(c.example ? [[c.name, c.example] as const] : []),
-  ]);
+  const examples = components.flatMap((c) => (c.examples ?? []).map((e) => [e.file, <e.component key={e.file} />] as const));
 
   it.each(examples)("%s example has no accessibility violations", async (_name, example) => {
     const { container } = render(<>{example}</>);
