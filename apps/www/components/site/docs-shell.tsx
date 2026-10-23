@@ -8,7 +8,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:grid-cols-[220px_1fr] md:px-6">
       <aside className="hidden md:block">
-        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scroll-fade-y pb-8">
+        <div className="sticky top-20 -mx-2 max-h-[calc(100vh-6rem)] overflow-y-auto scroll-fade-y px-2 pt-1 pb-8">
           <DocsNav groups={navGroups} />
         </div>
       </aside>

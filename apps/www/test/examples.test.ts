@@ -1,10 +1,14 @@
 import { exampleSource } from "@/components/site/example-source";
+import { blocks } from "@/content/blocks";
 import { components } from "@/content/components";
 import registry from "@/registry.json";
 
 const modules = import.meta.glob("../examples/**/*.tsx", { eager: true }) as Record<string, { default: unknown }>;
 const files = Object.keys(modules).map((k) => k.replace("../examples/", "").replace(/\.tsx$/, ""));
-const examples = components.flatMap((c) => (c.examples ?? []).map((e) => ({ ...e, doc: c.name })));
+const examples = [
+  ...components.flatMap((c) => (c.examples ?? []).map((e) => ({ file: e.file, component: e.component }))),
+  ...blocks.map((b) => ({ file: b.demoFile, component: b.demo })),
+];
 
 describe("docs examples", () => {
   it("render the file whose source the Code tab shows", () => {

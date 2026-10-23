@@ -1,11 +1,10 @@
 import type { ComponentType } from "react";
 
-import { exampleSource } from "@/components/site/example-source";
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
 
-/** One example with Preview and Code tabs over the same file. */
-export function ComponentPreview({ file, component: Example, label }: { file: string; component: ComponentType; label: string }) {
+/** One example with Preview and Code tabs over the same file: `code` is that file's source. */
+export function ComponentPreview({ code, component: Example, label }: { code: string; component: ComponentType; label: string }) {
   return (
     <Tabs defaultValue="preview" className="gap-0 overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1">
       <div className="border-b border-hairline bg-background p-2">
@@ -20,7 +19,7 @@ export function ComponentPreview({ file, component: Example, label }: { file: st
         </div>
       </TabsContent>
       <TabsContent value="code">
-        <CodeBlock lang="tsx" code={exampleSource(file)} className="terminal max-h-[32rem] overflow-auto rounded-none border-0" />
+        <CodeBlock lang="tsx" code={code} className="terminal max-h-[32rem] overflow-auto rounded-none border-0" />
       </TabsContent>
     </Tabs>
   );
