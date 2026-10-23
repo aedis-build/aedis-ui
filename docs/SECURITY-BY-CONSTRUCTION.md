@@ -76,7 +76,7 @@ aedis-dotnet does this by default (`AedisApiHost`, `Aedis.Security`, `Aedis.AI`)
 
 - [ ] Session in an `HttpOnly; Secure; SameSite` cookie set by the backend; never a token in script, storage or URL.
 - [ ] Backend requires `X-Requested-With` (or a double-submit token) on every mutating route.
-- [ ] `securityHeaders({ nonce })` applied from the framework's middleware; the nonce is passed to the framework's scripts.
+- [ ] `securityHeaders({ nonce })` applied from the framework's middleware; the nonce is passed to the framework's scripts and to `ScrollArea`, whose scrollbar style is an inline `<style>` element.
 - [ ] `useIdleTimeout` wired to a sign-out that revokes the session on the server.
 - [ ] Every call to the backend goes through `api()`; every text field is an Aedis `Input` or `Textarea` with a limit that matches the server's.
 - [ ] Agent and user text rendered through `Markdown` or as plain text, never as markup.

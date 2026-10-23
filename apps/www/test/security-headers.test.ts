@@ -31,6 +31,16 @@ describe("securityHeaders", () => {
     expect(h["X-Frame-Options"]).toBe("SAMEORIGIN");
   });
 
+  it("refuses an injected <style> element but keeps the components' style attributes", () => {
+    expect(csp["style-src-elem"]).toBe("style-src-elem 'self' 'nonce-n0nce'");
+    expect(csp["style-src-attr"]).toBe("style-src-attr 'unsafe-inline'");
+    // No style-src: a browser without the split directives falls back to default-src 'self', never to 'unsafe-inline'.
+    expect(csp["style-src"]).toBeUndefined();
+    const h = securityHeaders({ hashes: [], styleHashes: ["sha256-AbC+/12="] });
+    expect(h["Content-Security-Policy"]).toContain("style-src-elem 'self' 'sha256-AbC+/12='; style-src-attr 'unsafe-inline';");
+    expect(() => securityHeaders({ nonce: "n", styleHashes: ["unsafe-inline"] })).toThrow("not a style hash: unsafe-inline");
+  });
+
   it("takes build-time script hashes for a static site", () => {
     const h = securityHeaders({ hashes: ["sha256-AbC+/12=", "sha384-xyz"] });
     // No 'strict-dynamic': it would make browsers ignore 'self' and block the site's own <script src>.
