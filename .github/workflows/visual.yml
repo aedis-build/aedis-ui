@@ -1,67 +1,32 @@
-# Visual regression of the theme (#40): light, dark, reduced motion, reduced transparency and high contrast.
-# Runs in the official Playwright container pinned to the version in apps/www/package.json, so fonts and rendering are
-# the same on every run. Baselines come only from here: add the label "update-visual-baselines" to a PR to regenerate
-# them, download the "visual-baselines" artifact and commit it under apps/www/visual/__screenshots__.
+# Visual regression of the theme (#40) through the Aedis Platform reusable: light, dark, reduced motion, reduced
+# transparency and high contrast, in the official Playwright image pinned to the version in apps/www/package.json, so
+# fonts and rendering are the same on every run. Baselines come only from here: add the label
+# "update-visual-baselines" to a PR to regenerate them, download the "visual-baselines" artifact and commit it under
+# apps/www/visual/__screenshots__ (a maintainer approves what it shows, #118).
 name: visual
 
 on:
   push:
     branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened, labeled, closed]
-
-# One run per pull request: a new push or closing the PR cancels the run in progress. Pushes to main and label
-# events never share a group (run_id): a label must not cancel a comparison it does not replace.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.action != 'labeled' && github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
+    types: [opened, synchronize, reopened, labeled]
 
 permissions: {}
 
 jobs:
   compare:
-    name: Compare with the baselines
-    if: github.event.action != 'labeled' && github.event.action != 'closed'
-    runs-on: ubuntu-latest
+    if: github.event.action != 'labeled'
+    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@3a42caac428d5581312a4a83cf1d7a6487a181f0 # feat/visual-regression
     permissions:
       contents: read
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.0-noble@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -C apps/www build
-      - run: pnpm -C apps/www test:visual
-      - if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: visual-report
-          path: |
-            apps/www/playwright-report
-            apps/www/test-results
-          retention-days: 7
+    with:
+      working-directory: apps/www
 
   baselines:
-    name: Regenerate the baselines
     if: github.event.action == 'labeled' && github.event.label.name == 'update-visual-baselines'
-    runs-on: ubuntu-latest
+    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@3a42caac428d5581312a4a83cf1d7a6487a181f0 # feat/visual-regression
     permissions:
       contents: read
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.0-noble@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -C apps/www build
-      - run: pnpm -C apps/www test:visual --update-snapshots=all
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: visual-baselines
-          path: apps/www/visual/__screenshots__
-          retention-days: 7
+    with:
+      working-directory: apps/www
+      mode: update
