@@ -4,7 +4,7 @@
 // tests). Run after `pnpm build`: `pnpm smoke`. In CI it is one of aedis-ci's check-scripts, so every PR proves
 // that what we would publish installs and works.
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -108,6 +108,22 @@ try {
     await run("node", [path.join(names, "node_modules", "create-aedis", "bin", "create-aedis.js"), ...from, "--yes"], names);
     if (!existsSync(path.join(names, "aedis.json"))) fail("create-aedis did not run init");
     console.log(`\nsmoke: aedis-cli, aedis-ui and create-aedis@${version} resolve @aedis/cli@${version} and run`);
+
+    // 5. The release packs each package once and publishes, attests and attaches that one file (#151). Packing has to
+    // be deterministic for that promise to mean anything: two npm packs of the same tree give the same name and sha512.
+    for (const dir of ["cli", "aedis-cli", "aedis-ui", "create-aedis"]) {
+      const packs = ["a", "b"].map((side) => {
+        const dest = path.join(names, "pack", dir, side);
+        mkdirSync(dest, { recursive: true });
+        const r = spawnSync("npm", ["pack", "--json", "--pack-destination", dest], { cwd: path.join(root, "packages", dir), encoding: "utf8", shell });
+        if (r.status !== 0) fail(`npm pack ${dir} exited with ${r.status}: ${r.stderr}`);
+        const [{ filename, integrity }] = JSON.parse(r.stdout.slice(r.stdout.indexOf("[")));
+        return { filename, integrity };
+      });
+      if (packs[0].filename !== packs[1].filename || packs[0].integrity !== packs[1].integrity) fail(`${dir} does not pack deterministically: ${JSON.stringify(packs)}`);
+      console.log(`${packs[0].filename} ${packs[0].integrity}`);
+    }
+    console.log("\nsmoke: every package packs to the same bytes twice (what npm receives is what the release attaches)");
   } finally {
     rmSync(names, { recursive: true, force: true, maxRetries: 3 });
   }
