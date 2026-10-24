@@ -45,6 +45,22 @@ in `components.json`), but that path verifies nothing: prefer `@aedis/cli`.
 
 Aedis items depend only on other Aedis items (including its own `@aedis/utils`), so an install never pulls a package that Aedis did not choose.
 
+### Verified offline install
+
+Every `cli-vX.Y.Z` [release](https://github.com/aedis-build/aedis-ui/releases) carries the four npm tarballs
+(`@aedis/cli`, `aedis-cli`, `aedis-ui`, `create-aedis`) exactly as npm received them, each with its Sigstore
+attestation bundle (`.tgz.sigstore`) and `integrity`. The scoped one is named `aedis__cli-X.Y.Z.tgz` there (npm
+would call it `aedis-cli-X.Y.Z.tgz`, the name the unscoped `aedis-cli` takes). Where npm is out of reach, or to
+audit what npm serves:
+
+```bash
+gh release download cli-v0.1.0 -R aedis-build/aedis-ui -p 'aedis__cli-0.1.0.tgz*'
+gh attestation verify aedis__cli-0.1.0.tgz --owner aedis-build
+npm install ./aedis__cli-0.1.0.tgz
+```
+
+The `integrity` in the release notes is the same `sha512-…` that `npm view @aedis/cli dist.integrity` shows.
+
 ## Security
 
 Every component defends its own sink: agent and user text is rendered as data, text fields are bounded by default, the backend is reached only same-origin, and hidden code points never travel between a person and an agent. The repository meets level L3 of the Aedis Platform conformance levels. How each attack is treated, what the UI leaves to the backend, and the checklist for an app built with these components are in [docs/SECURITY-BY-CONSTRUCTION.md](docs/SECURITY-BY-CONSTRUCTION.md).
