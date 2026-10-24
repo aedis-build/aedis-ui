@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import fc from "fast-check";
 
@@ -9,6 +10,7 @@ import { parseItem, releaseSource, resolveItems, urlSource } from "../src/regist
 import { readTarGz } from "../src/tar";
 import { themeImport } from "../src/theme";
 import { planFiles, rewriteImports, targetOf } from "../src/transform";
+import { VERSION } from "../src/cli";
 import { verifyRelease } from "../src/verify";
 import { bundleFor, fakeCheck, fakeFetch, ITEMS, NOW, PLATFORM, project, releaseArchive, releaseRoutes, REPO, tarGz } from "./fixtures";
 
@@ -54,6 +56,32 @@ describe("config", () => {
     expect(readConfig(root)).toBeNull();
     const bad = project({ "aedis.json": JSON.stringify({ release: "latest", paths: { ui: "../x", lib: "lib", hooks: "hooks", styles: "styles" }, aliases: { ui: "@/x", lib: "@/lib", hooks: "@/h y" } }) });
     expect(() => readConfig(bad)).toThrow(/release must look like v1.2.3; paths.ui must be a relative directory; aliases.hooks must be an import alias/);
+  });
+});
+
+describe("version", () => {
+  // The release workflows check the tag against package.json; the CLI prints and defaults to VERSION. One number.
+  it("is the same in the CLI, its package.json and the registry's package.json", () => {
+    const read = (file: string) => (JSON.parse(readFileSync(path.resolve(file), "utf8")) as { version: string }).version;
+    expect(read("package.json")).toBe(VERSION);
+    expect(read("../../package.json")).toBe(VERSION);
+  });
+
+  // aedis-cli, aedis-ui and create-aedis are published with @aedis/cli, pinned to it exactly, and run only its entry point.
+  it.each(["aedis-cli", "aedis-ui", "create-aedis"])("%s is a thin, pinned bin over @aedis/cli", (name) => {
+    const dir = path.resolve("..", name);
+    const pkg = JSON.parse(readFileSync(path.join(dir, "package.json"), "utf8")) as { version: string; dependencies: Record<string, string>; bin: Record<string, string>; files: string[]; scripts?: unknown; publishConfig: Record<string, unknown> };
+    expect(pkg.version).toBe(VERSION);
+    expect(pkg.dependencies).toEqual({ "@aedis/cli": VERSION });
+    expect(pkg.scripts).toBeUndefined();
+    expect(pkg.files).toEqual(["bin"]);
+    expect(pkg.publishConfig).toEqual({ access: "public", provenance: true });
+    const [command, file] = Object.entries(pkg.bin)[0];
+    expect(command).toBe(name === "create-aedis" ? "create-aedis" : "aedis");
+    const source = readFileSync(path.join(dir, file), "utf8");
+    expect(source.startsWith("#!/usr/bin/env node\n")).toBe(true);
+    expect(source).toContain('"@aedis/cli/dist/aedis.js"');
+    if (name === "create-aedis") expect(source).toContain('process.argv.splice(2, 0, "init")');
   });
 });
 

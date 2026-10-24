@@ -23,4 +23,5 @@ const code = await run(process.argv.slice(2), {
   stdin: () => createInterface({ input: process.stdin, crlfDelay: Infinity }),
   stdout: (text) => process.stdout.write(text),
 });
-process.exit(code);
+// Not process.exit(): on Windows it can abort inside libuv while a fetch socket is still closing; the loop drains on its own.
+process.exitCode = code;

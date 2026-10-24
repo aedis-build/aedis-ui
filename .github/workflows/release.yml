@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   release:
-    uses: aedis-build/aedis-platform/.github/workflows/release-registry-js.yml@72cd046204300231b85a59a562355f5e00881128 # feat/visual-regression
+    uses: aedis-build/aedis-platform/.github/workflows/release-registry-js.yml@9983ddbea56afa122becdefd901d487cfc1b54ad # feat/visual-regression
     permissions:
       contents: write
       id-token: write
