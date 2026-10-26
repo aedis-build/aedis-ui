@@ -13,12 +13,12 @@ this repository's release workflow by the Aedis platform) before writing any fil
 least 7 days old, and runs no install scripts:
 
 ```bash
-npx @aedis/cli@0.1.1 init
-npx @aedis/cli@0.1.1 add button approval-card
+npx @aedis/cli@0.1.2 init
+npx @aedis/cli@0.1.2 add button approval-card
 ```
 
-The same with other package managers: `pnpm dlx @aedis/cli@0.1.1 add button`, `yarn dlx @aedis/cli@0.1.1 add button`
-(Yarn 2+; on Yarn 1 use `npx`), `bunx @aedis/cli@0.1.1 add button`.
+The same with other package managers: `pnpm dlx @aedis/cli@0.1.2 add button`, `yarn dlx @aedis/cli@0.1.2 add button`
+(Yarn 2+; on Yarn 1 use `npx`), `bunx @aedis/cli@0.1.2 add button`.
 
 > Never run `npx aedis`: the unscoped `aedis` package on npm belongs to someone else. The CLI is `@aedis/cli`.
 > The unscoped `aedis-cli` and `aedis-ui` packages are ours and run the same command, pinned to the exact `@aedis/cli`
@@ -32,11 +32,11 @@ The same with other package managers: `pnpm dlx @aedis/cli@0.1.1 add button`, `y
 @import "./styles/aedis-theme.css";
 ```
 
-`npx @aedis/cli@0.1.1 diff` shows where your copies differ from the registry, and `theme import <file.json>` turns a
+`npx @aedis/cli@0.1.2 diff` shows where your copies differ from the registry, and `theme import <file.json>` turns a
 theme made in the editor on the [Themes](https://ui.aedis.build/themes) page into CSS after validating it.
 
 For coding agents, the site serves [llms.txt](https://ui.aedis.build/llms.txt) and
-[llms-full.txt](https://ui.aedis.build/llms-full.txt), and `npx @aedis/cli@0.1.1 mcp` is a read-only docs server over
+[llms-full.txt](https://ui.aedis.build/llms-full.txt), and `npx @aedis/cli@0.1.2 mcp` is a read-only docs server over
 the Model Context Protocol (stdio): list and search items, read one with its API and security rules, get its install
 command.
 
