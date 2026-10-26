@@ -140,6 +140,9 @@ export const es: Messages = {
     placeholder: "Buscar…",
     empty: "Sin resultados.",
   },
+  field: {
+    truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
+  },
   feedback: {
     label: "Valora esta respuesta",
     positive: "Buena respuesta",

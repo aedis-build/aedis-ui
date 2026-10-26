@@ -150,6 +150,11 @@ export type Messages = {
     placeholder: string;
     empty: string;
   };
+  /** Input and Textarea. */
+  field: {
+    /** A paste longer than the room left was cut; {max} is the limit. */
+    truncated: string;
+  };
   feedback: {
     label: string;
     positive: string;
@@ -303,6 +308,9 @@ export const en: Messages = {
     placeholder: "Search…",
     empty: "No results.",
   },
+  field: {
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
+  },
   feedback: {
     label: "Rate this answer",
     positive: "Good answer",
@@ -328,7 +336,10 @@ export type LocaleProviderProps = {
   children: React.ReactNode;
 };
 
-/** Active locale and dictionary for every Aedis UI component below it. */
+/**
+ * Active locale and dictionary for every Aedis UI component below it. It renders no element: put `lang={locale}` on
+ * the element that holds the localized region (or on <html>), so screen readers use that language's voice.
+ */
 function LocaleProvider({ locale, messages = en, children }: LocaleProviderProps) {
   const value = React.useMemo(() => ({ locale, messages }), [locale, messages]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

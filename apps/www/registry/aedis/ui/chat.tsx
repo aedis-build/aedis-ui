@@ -125,6 +125,8 @@ function Composer({ l, maxLength, onSend, onSending }: { l: ChatLabels; maxLengt
           maxLength={maxLength}
           placeholder={l.placeholder}
           className="max-h-60"
+          // This composer says so itself, in its status line.
+          pasteHint={false}
           onChange={(e) => setDraft(e.target.value)}
           onPaste={(e) => {
             const t = e.currentTarget;

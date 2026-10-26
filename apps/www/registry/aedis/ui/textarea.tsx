@@ -1,16 +1,29 @@
+"use client";
+
 import * as React from "react";
 
+import { guardTextField } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
+import { useMessages } from "@/registry/aedis/lib/locale";
+
+export type TextareaProps = React.ComponentProps<"textarea"> & {
+  /** Keep hidden code points (zero-width, bidi, tags) as typed. Off: they are removed, so the field shows what is sent. */
+  allowInvisible?: boolean;
+  /** Say so when a paste is cut to maxLength. Turn off when the caller shows its own notice. */
+  pasteHint?: boolean;
+};
 
 /**
  * Multi-line text input with a length limit by default; pass maxLength to change it. Without `rows` it grows with its
  * content (cap it with a max-h class); with `rows` it keeps that height. Its text is 16 px on phones, below which iOS
- * zooms into the field.
+ * zooms into the field. Hidden code points are removed as they are typed or pasted, and a paste that does not fit says so.
  */
-function Textarea({ className, maxLength = 4000, rows, ...props }: React.ComponentProps<"textarea">) {
+function Textarea({ className, maxLength = 4000, rows, allowInvisible, pasteHint = true, onChange, onPaste, ...props }: TextareaProps) {
+  const l = useMessages("field");
   return (
     <textarea
       maxLength={maxLength}
+      {...guardTextField<HTMLTextAreaElement>({ allowInvisible, maxLength, truncated: pasteHint ? l.truncated : null, onChange, onPaste })}
       rows={rows}
       data-slot="textarea"
       className={cn(

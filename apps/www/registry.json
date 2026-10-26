@@ -154,7 +154,9 @@
       "description": "Text input.",
       "registryDependencies": [
         "@aedis/theme",
-        "@aedis/utils"
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale"
       ],
       "files": [
         {
@@ -170,7 +172,9 @@
       "description": "Multi-line text input.",
       "registryDependencies": [
         "@aedis/theme",
-        "@aedis/utils"
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale"
       ],
       "files": [
         {
