@@ -156,7 +156,6 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
         id={textId}
         value={text}
         maxLength={maxLength}
-        rows={2}
         placeholder={l.placeholder}
         onChange={(e) => setText(e.target.value)}
         onPaste={(e) => {
