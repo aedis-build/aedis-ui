@@ -51,6 +51,12 @@ export function defineMfElement<P extends object>(tag: string, Component: React.
   if (typeof customElements === "undefined" || customElements.get(tag)) return;
   const names = Object.keys(attributes);
   const allowed = new Set(events);
+  // A constructed stylesheet is CSSOM, which a CSP without style-src 'unsafe-inline' allows; a <style> it blocks.
+  let sheet: CSSStyleSheet | null = null;
+  if (css && typeof CSSStyleSheet !== "undefined" && "replaceSync" in CSSStyleSheet.prototype) {
+    sheet = new CSSStyleSheet();
+    sheet.replaceSync(css);
+  }
 
   class MfElement extends HTMLElement {
     static observedAttributes = names;
@@ -61,7 +67,8 @@ export function defineMfElement<P extends object>(tag: string, Component: React.
     constructor() {
       super();
       const shadow = this.attachShadow({ mode: "open" });
-      if (css) {
+      if (sheet) shadow.adoptedStyleSheets = [sheet];
+      else if (css) {
         const style = document.createElement("style");
         style.textContent = css;
         shadow.append(style);

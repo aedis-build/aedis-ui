@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
+  DropdownMenuGroupLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
@@ -23,8 +23,8 @@ export default function ViewOptions() {
       <DropdownMenuContent>
         <DropdownMenuCheckboxItem checked={autopilot} onCheckedChange={setAutopilot}>Show autopilot runs</DropdownMenuCheckboxItem>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Sort by</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={sort} onValueChange={setSort}>
+          <DropdownMenuGroupLabel>Sort by</DropdownMenuGroupLabel>
           <DropdownMenuRadioItem value="newest">Newest first</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="waiting">Waiting longest</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>

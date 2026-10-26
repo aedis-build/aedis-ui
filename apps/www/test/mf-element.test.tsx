@@ -40,7 +40,9 @@ describe("defineMfElement", () => {
   it("renders into a shadow root with its own styles and maps typed attributes to props", async () => {
     const { el, q } = await mount(`<agent-panel agent-name="Avalo" count="3" compact config='{"tone":"warm"}'></agent-panel>`);
     await waitFor(() => expect(q("name")).toBe("Avalo"));
-    expect(el.shadowRoot!.querySelector("style")!.textContent).toBe(":host { display: block }");
+    // A constructed sheet, not a <style>: a CSP without style-src 'unsafe-inline' blocks the element, not the CSSOM (#162).
+    expect(el.shadowRoot!.querySelector("style")).toBeNull();
+    expect(el.shadowRoot!.adoptedStyleSheets.map((s) => [...s.cssRules].map((r) => r.cssText).join(""))).toEqual([":host { display: block; }"]);
     expect(document.body.querySelector("[data-testid=name]")).toBeNull();
     expect([q("count"), q("compact"), q("tone")]).toEqual(["3", "true", "warm"]);
   });
