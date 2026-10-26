@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 
-import type { Io } from "../src/cli";
+import { VERSION, type Io } from "../src/cli";
 import type { SignatureCheck } from "../src/verify";
 
 /** A minimal ustar archive, enough for readTarGz. */
@@ -127,7 +127,8 @@ export function io(root: string, routes: Record<string, () => Response>, extra: 
   const value: Io = {
     cwd: root,
     fetcher,
-    check: fakeCheck("v0.1.0"),
+    // The fake signer signs the release this CLI version pins, so a version bump never breaks these tests.
+    check: fakeCheck(`v${VERSION}`),
     spawn: (command, args, { env }) => (spawned.push({ command, args, env }), 0),
     confirm: async () => true,
     log: (l) => lines.push(l),
