@@ -34,12 +34,17 @@ for (const path of pages) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForFunction(() => document.querySelectorAll("[data-slot=code-block-line]:not([data-shown])").length === 0);
     await page.evaluate(() => document.fonts.ready);
-    // The live demo: wait for the remote's handshake; its log grows with timing, so it is masked.
+    // The live demo: wait for the remote's handshake and its height report, so the frame has its final size. The log
+    // grows with timing, so it is masked, at a fixed height: its length must not move the page around it.
     const live = path === "/micro-frontends" ? [page.getByRole("list", { name: "Bridge events" })] : [];
-    if (live.length) await page.getByText("Handshake: the remote is ready").waitFor();
+    if (live.length) {
+      await page.getByText("Handshake: the remote is ready").waitFor();
+      await page.getByText(/Height: the remote reports/).first().waitFor();
+    }
     // Charts animate on enter: the baseline is the settled state. Endless animations (spinners) never settle.
     await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getComputedTiming().endTime === Infinity));
     const name = path === "/" ? "home" : path.slice(1).replace(/\//g, "-");
+    for (const log of live) await log.evaluate((el: HTMLElement) => Object.assign(el.style, { height: "8rem", maxHeight: "8rem", overflow: "hidden" }));
     await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: true, mask: live });
   });
 }
