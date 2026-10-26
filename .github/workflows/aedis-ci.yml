@@ -24,7 +24,7 @@ permissions: {}
 jobs:
   aedis:
     if: github.event.action != 'closed'
-    uses: aedis-build/aedis-platform/.github/workflows/aedis-ci.yml@7bc8fa3ae92c8213db88b7191b30c3c6249f1efa # main
+    uses: aedis-build/aedis-platform/.github/workflows/aedis-ci.yml@840efbb78e50bb957729bf7b7554dba0721cd83b # main
     permissions:
       contents: read
       actions: read
