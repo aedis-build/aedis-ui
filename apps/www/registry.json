@@ -1578,7 +1578,8 @@
         "@aedis/use-idle-timeout",
         "@aedis/app-shell",
         "@aedis/button",
-        "@aedis/empty"
+        "@aedis/empty",
+        "@aedis/alert-dialog"
       ],
       "files": [
         {

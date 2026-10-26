@@ -7,7 +7,7 @@ import { applyTheme, type ThemeMode } from "@/registry/aedis/lib/custom-theme";
 import { createBridge } from "@/registry/aedis/lib/mf-bridge";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
-import { RESIZE } from "@/registry/aedis/ui/mf-frame";
+import { observeContentHeight, RESIZE } from "@/registry/aedis/ui/mf-frame";
 
 type Bridge = ReturnType<typeof createBridge<typeof remoteMessages>>;
 
@@ -30,6 +30,7 @@ export function MfDemoRemote() {
     bridge.current = b;
     let undo: (() => void) | undefined;
     let hang = false;
+    let signedOut = false;
     const offs = [
       b.on("context:theme", ({ mode: m, theme }) => {
         undo?.();
@@ -37,17 +38,24 @@ export function MfDemoRemote() {
         document.documentElement.dataset.theme = m;
         setMode(m);
       }),
-      b.on("session:end", () => setSession(false)),
+      b.on("session:end", () => ((signedOut = true), setSession(false))),
       b.on("demo:hang", () => ((hang = true), setHanging(true))),
       // A hanging remote never answers: the shell's request runs into the bridge's timeout.
-      b.handle("billing:status", () => (hang ? new Promise(() => {}) : { open: invoices.length })),
+      b.handle("billing:status", () => {
+        // After the shell ended the session, billing has nothing to say to anyone.
+        if (signedOut) throw new Error("signed out");
+        return hang ? new Promise(() => {}) : { open: invoices.length };
+      }),
     ];
-    const report = () => b.send(RESIZE, { height: document.documentElement.scrollHeight });
-    void b.ready.then(report);
-    const observer = new ResizeObserver(report);
-    observer.observe(document.documentElement);
+    // Content height, once per change: it can shrink, and the shell's log gets one entry per new height.
+    let stop: (() => void) | undefined;
+    let closed = false;
+    void b.ready.then(() => {
+      if (!closed) stop = observeContentHeight((height) => b.send(RESIZE, { height }));
+    });
     return () => {
-      observer.disconnect();
+      closed = true;
+      stop?.();
       offs.forEach((off) => off());
       undo?.();
       b.close();

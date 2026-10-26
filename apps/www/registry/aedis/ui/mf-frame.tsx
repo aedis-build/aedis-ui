@@ -117,8 +117,29 @@ function MfFrame({ src, title, sandbox = ["allow-scripts", "allow-forms"], allow
 }
 
 /**
- * The embedded side: reports the document's height to the host over mf-bridge, so the host frame fits the content
- * without scrollbars. Returns the bridge for the app's own messages.
+ * Calls back with the height of the page's content, once per change. Not the document's scrollHeight: that is never
+ * smaller than the frame's viewport, so a frame sized by it could grow but never shrink.
+ */
+export function observeContentHeight(callback: (height: number) => void) {
+  let last = -1;
+  const measure = () => {
+    const children = [...document.body.children].filter((el) => !(el instanceof HTMLScriptElement) && getComputedStyle(el).position !== "fixed");
+    const bottom = Math.max(0, ...children.map((el) => el.getBoundingClientRect().bottom + window.scrollY));
+    const height = Math.ceil(bottom + parseFloat(getComputedStyle(document.body).paddingBottom || "0"));
+    if (height === last) return;
+    last = height;
+    callback(height);
+  };
+  const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+  observer?.observe(document.body);
+  for (const el of document.body.children) observer?.observe(el);
+  measure();
+  return () => observer?.disconnect();
+}
+
+/**
+ * The embedded side: reports the content's height to the host over mf-bridge, so the host frame fits the content
+ * without scrollbars, growing and shrinking with it. Returns the bridge for the app's own messages.
  */
 function useReportHeight(hostOrigins: string[], enabled = true) {
   const key = hostOrigins.join(" ");
@@ -127,12 +148,14 @@ function useReportHeight(hostOrigins: string[], enabled = true) {
     if (!enabled || window.parent === window) return;
     const b = createBridge({ target: window.parent, origins: key.split(" "), messages: {} });
     setBridge(b as unknown as Bridge<Record<string, MessageSpec>>);
-    const report = () => b.send(RESIZE, { height: document.documentElement.scrollHeight });
-    void b.ready.then(report);
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(report);
-    observer?.observe(document.documentElement);
+    let stop: (() => void) | undefined;
+    let closed = false;
+    void b.ready.then(() => {
+      if (!closed) stop = observeContentHeight((height) => b.send(RESIZE, { height }));
+    });
     return () => {
-      observer?.disconnect();
+      closed = true;
+      stop?.();
       b.close();
     };
   }, [key, enabled]);

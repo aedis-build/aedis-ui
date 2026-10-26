@@ -50,6 +50,9 @@ export function MfDemoShell() {
   const [used, setUsed] = React.useState(72);
   const [log, setLog] = React.useState<Entry[]>([]);
   const [src, setSrc] = React.useState<string | null>(null);
+  // A new key loads a fresh remote: signing back in, or un-hanging it.
+  const [load, setLoad] = React.useState(0);
+  const [hanging, setHanging] = React.useState(false);
   const meter = React.useRef<HTMLElement>(null);
   const next = React.useRef(0);
 
@@ -57,6 +60,9 @@ export function MfDemoShell() {
 
   React.useEffect(() => {
     setSrc(`${window.location.origin}${REMOTE_PATH}`);
+    // Start from the site's theme, not from Light.
+    const site = document.documentElement.dataset.theme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setMode(site === "dark" ? "dark" : "light");
     defineMfElement("aedis-usage-meter", UsageMeter, { attributes: { used: "number", ceiling: "number" }, events: ["raise-ceiling"], css: meterCss });
   }, []);
 
@@ -101,8 +107,17 @@ export function MfDemoShell() {
 
   function hang() {
     bridge!.send("demo:hang", {});
+    setHanging(true);
     add("out", "Told the remote to hang; the next request waits for the timeout (5 s)");
     void status();
+  }
+
+  function reload(reason: string) {
+    setBridge(null);
+    setHanging(false);
+    setSignedIn(true);
+    setLoad((n) => n + 1);
+    add("out", reason);
   }
 
   return (
@@ -119,14 +134,21 @@ export function MfDemoShell() {
                 <TabsTrigger value="dark">Dark</TabsTrigger>
               </TabsList>
             </Tabs>
-            <Button size="sm" variant="secondary" disabled={!signedIn || !bridge} onClick={() => (endSession(), setSignedIn(false), add("out", "Session ended: sent session:end"))}>
-              Sign out
+            {/* One button that turns into Sign in, so a keyboard user keeps the focus. */}
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={signedIn && !bridge}
+              onClick={() => (signedIn ? (endSession(), setSignedIn(false), add("out", "Session ended: sent session:end")) : reload("Signed in again: a fresh remote loads"))}
+            >
+              {signedIn ? "Sign out" : "Sign in"}
             </Button>
           </span>
         </div>
         <div className="grid grid-cols-1 gap-4 bg-background p-4 text-foreground md:grid-cols-[minmax(0,1fr)_13rem]">
           {src ? (
             <MfFrame
+              key={load}
               src={src}
               title="Billing remote"
               messages={shellMessages}
@@ -145,7 +167,9 @@ export function MfDemoShell() {
         <div className="flex flex-wrap gap-2 border-t border-hairline bg-background px-4 py-3">
           <Button size="sm" variant="secondary" disabled={!bridge} onClick={() => void status()}>Ask the remote for its status</Button>
           <Button size="sm" variant="secondary" onClick={forge}>Send a forged message</Button>
-          <Button size="sm" variant="outline" className="text-destructive" disabled={!bridge} onClick={hang}>Make the remote hang</Button>
+          <Button size="sm" variant="outline" className={hanging ? undefined : "text-destructive"} disabled={!hanging && !bridge} onClick={() => (hanging ? reload("Reloaded the remote") : hang())}>
+            {hanging ? "Reload the remote" : "Make the remote hang"}
+          </Button>
         </div>
       </Card>
       <Card className="gap-2 p-4">
