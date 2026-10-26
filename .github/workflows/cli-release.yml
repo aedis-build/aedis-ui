@@ -71,8 +71,10 @@ jobs:
           for tgz in assets/*.tgz; do
             gh attestation verify "$tgz" -R "$REPO" \
               --signer-workflow aedis-build/aedis-platform/.github/workflows/release-npm.yml
-            # The bundle shipped next to it must be the one that verifies, not a stale copy.
-            gh attestation verify "$tgz" -R "$REPO" --bundle "$tgz.sigstore" \
+            # The bundle shipped next to it must be the one that verifies, not a stale copy. gh only reads bundles
+            # named .json/.jsonl, so it is checked through a copy; the asset keeps the .sigstore name.
+            cp "$tgz.sigstore" "$RUNNER_TEMP/bundle.json"
+            gh attestation verify "$tgz" -R "$REPO" --bundle "$RUNNER_TEMP/bundle.json" \
               --signer-workflow aedis-build/aedis-platform/.github/workflows/release-npm.yml
           done
       - name: Release notes with the integrity npm shows
