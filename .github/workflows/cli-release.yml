@@ -5,9 +5,10 @@
 # @aedis/cli version just published) go out the same way, one job each. On npmjs.com each package's trusted
 # publisher is this file (cli-release.yml) in the npm environment, with 2FA required and tokens disallowed.
 #
-# Each job packs once and publishes, attests and uploads that one file; the last job verifies the four attestations
-# and attaches the tarballs, their Sigstore bundles and their integrity to the GitHub release cli-vX.Y.Z, so the
-# same bytes npm received can be installed offline and audited (#151, "Verified offline install" in the README).
+# Each job packs once and publishes, attests and uploads that one file; the last job (the platform's release-attach)
+# verifies the four attestations and attaches the tarballs, their Sigstore bundles and their integrity to the GitHub
+# release cli-vX.Y.Z, so the same bytes npm received can be installed offline and audited (#151, "Verified offline
+# install" in the README). This file only holds the triggers, the permissions and this repository's parameters.
 name: cli-release
 
 on:
@@ -18,7 +19,7 @@ permissions: {}
 
 jobs:
   publish:
-    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@68aa25ef6864d961e993404c262b658a2fffc570 # main
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@1c1cc77f25ebafc85ee7a683e5e6fd58b65c0312 # aedis-platform#75 (repin to the v1.0.0 tag once released)
     permissions:
       contents: read
       id-token: write
@@ -35,7 +36,7 @@ jobs:
       fail-fast: false
       matrix:
         package: [aedis-cli, aedis-ui, create-aedis]
-    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@68aa25ef6864d961e993404c262b658a2fffc570 # main
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@1c1cc77f25ebafc85ee7a683e5e6fd58b65c0312 # aedis-platform#75 (repin to the v1.0.0 tag once released)
     permissions:
       contents: read
       id-token: write
@@ -48,53 +49,9 @@ jobs:
       node-version: "24"
 
   release:
-    name: Attach the tarballs and attestations to the GitHub release
     needs: [publish, names]
-    runs-on: ubuntu-latest
+    uses: aedis-build/aedis-platform/.github/workflows/release-attach.yml@1c1cc77f25ebafc85ee7a683e5e6fd58b65c0312 # aedis-platform#75 (repin to the v1.0.0 tag once released)
     permissions:
       contents: write
-    env:
-      TAG: ${{ github.ref_name }}
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          pattern: npm-*
-          merge-multiple: true
-          path: assets
-      - name: Verify every tarball against its attestation from the platform's publish workflow
-        env:
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          ls -l assets
-          for tgz in assets/*.tgz; do
-            gh attestation verify "$tgz" -R "$REPO" \
-              --signer-workflow aedis-build/aedis-platform/.github/workflows/release-npm.yml
-            # The bundle shipped next to it must be the one that verifies, not a stale copy. gh only reads bundles
-            # named .json/.jsonl, so it is checked through a copy; the asset keeps the .sigstore name.
-            cp "$tgz.sigstore" "$RUNNER_TEMP/bundle.json"
-            gh attestation verify "$tgz" -R "$REPO" --bundle "$RUNNER_TEMP/bundle.json" \
-              --signer-workflow aedis-build/aedis-platform/.github/workflows/release-npm.yml
-          done
-      - name: Release notes with the integrity npm shows
-        run: |
-          set -euo pipefail
-          {
-            echo "The npm tarballs of this release, byte for byte what npm received, with their Sigstore attestation (\`<tgz>.sigstore\`)."
-            echo "Verify and install offline: \`gh attestation verify <tgz> --owner aedis-build && npm install ./<tgz>\`. The integrity is the \`sha512-…\` that \`npm view <package> dist.integrity\` shows."
-            echo
-            echo "| Tarball | integrity |"
-            echo "|---|---|"
-            for tgz in assets/*.tgz; do echo "| \`$(basename "$tgz")\` | \`$(cat "$tgz.integrity")\` |"; done
-          } > notes.md
-          cat notes.md
-      - name: GitHub release cli-vX.Y.Z with the tarballs and bundles
-        run: |
-          set -euo pipefail
-          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "@aedis/cli $TAG" --notes-file notes.md --verify-tag
-          else
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
-          fi
-          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber assets/*.tgz assets/*.tgz.sigstore
+    with:
+      title: "@aedis/cli ${{ github.ref_name }}"
