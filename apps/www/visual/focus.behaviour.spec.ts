@@ -24,7 +24,8 @@ const ringContrast = (page: Page, on: string) =>
     return (Math.max(ring, back) + 0.05) / (Math.min(ring, back) + 0.05);
   }, on);
 
-const ringSpread = (page: Page) => page.evaluate(() => Math.max(0, ...(getComputedStyle(document.activeElement!).boxShadow.match(/(\d+(?:\.\d+)?)px(?=\s*(?:,|$))/g) ?? []).map(parseFloat)));
+const ringSpread = (page: Page) =>
+  page.evaluate(() => Math.max(0, ...(getComputedStyle(document.activeElement!).boxShadow.replace(/\s*inset/g, "").match(/(\d+(?:\.\d+)?)px(?=\s*(?:,|$))/g) ?? []).map(parseFloat)));
 
 for (const scheme of ["light", "dark"] as const) {
   test(`the focus ring has 3:1 contrast on surface and background in ${scheme}`, async ({ page }) => {

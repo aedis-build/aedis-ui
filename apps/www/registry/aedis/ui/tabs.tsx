@@ -27,8 +27,9 @@ function TabsTrigger({ className, ...props }: WithClassName<TabsPrimitive.Tab.Pr
 }
 
 function TabsContent({ className, ...props }: WithClassName<TabsPrimitive.Panel.Props>) {
-  // Focusable (a panel without focusable content is a tab stop): the ring shows where the focus went.
-  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("focus-ring rounded-sm", className)} {...props} />;
+  // Focusable (a panel without focusable content is a tab stop): the ring shows where the focus went. Inset, because a
+  // panel usually fills a box that clips (a card, a preview), which would cut a ring drawn outside it.
+  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset", className)} {...props} />;
 }
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };
