@@ -53,7 +53,11 @@ test("the demo shell follows the site's theme, keeps the focus through sign-out,
 test("the secure shell warns before signing out, Escape stays, and the sign-out is announced with the focus on Sign in", async ({ page }) => {
   await page.clock.install();
   await page.goto("/blocks/view/secure-shell");
-  await page.getByRole("button", { name: "Simulate a revoked session" }).waitFor();
+  // The button is in the server's HTML: wait for React to own it, or the idle timers are not armed yet.
+  await page.waitForFunction(() => {
+    const button = [...document.querySelectorAll("button")].find((b) => b.textContent === "Simulate a revoked session");
+    return !!button && Object.keys(button).some((k) => k.startsWith("__reactFiber"));
+  });
   await page.clock.fastForward("14:01");
   const warning = page.getByRole("alertdialog", { name: "Still there?" });
   await expect(warning).toBeVisible();

@@ -92,6 +92,8 @@ export function MfDemoShell() {
   async function status() {
     add("out", "Request: billing:status");
     try {
+      // A freshly loaded remote listens only after its handshake.
+      await bridge!.ready;
       const answer = await bridge!.request<{ open: number }>("billing:status", {});
       add("in", `Response: ${answer.open} open invoices`);
     } catch (error) {
