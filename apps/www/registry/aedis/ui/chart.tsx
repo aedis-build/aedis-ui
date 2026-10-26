@@ -111,6 +111,7 @@ function ChartFrame({ title, series, rows, dropped, indexLabel, format, legend =
         className="focus-ring relative rounded-md"
       >
         {children({ active, hover: setActive })}
+        {rows.length === 0 ? <p className="absolute inset-0 m-0 grid place-items-center text-callout text-muted-foreground">{l.noData}</p> : null}
         {row ? (
           <div
             data-slot="chart-tooltip"
@@ -129,7 +130,7 @@ function ChartFrame({ title, series, rows, dropped, indexLabel, format, legend =
           </div>
         ) : null}
       </div>
-      {legend ? <ChartLegend series={series} /> : null}
+      {legend && rows.length ? <ChartLegend series={series} /> : null}
       {dropped > 0 ? <p className="text-caption text-muted-foreground">{l.notShown.replace("{count}", fmt(dropped))}</p> : null}
       <table className="sr-only">
         <caption>{title}</caption>
@@ -166,7 +167,18 @@ function ChartLegend({ series, className }: { series: readonly ChartSeries[]; cl
   );
 }
 
-const token = (css: CSSStyleDeclaration, name: string, fallback: number) => parseFloat(css.getPropertyValue(name)) || fallback;
+/** A duration token in ms: the theme writes "560ms", a minifier may write ".56s". 0 (reduced motion) stays 0. */
+export function durationMs(value: string, fallback: number) {
+  const n = parseFloat(value);
+  if (!Number.isFinite(n)) return fallback;
+  const unit = value.trim().toLowerCase();
+  return unit.endsWith("ms") ? n : unit.endsWith("s") ? n * 1000 : n;
+}
+
+const token = (css: CSSStyleDeclaration, name: string, fallback: number) => durationMs(css.getPropertyValue(name), fallback);
+
+/** Longest the whole stagger may take, however many rows: 60 bars must not take 3 s to arrive. */
+const MAX_STAGGER = 600;
 
 /**
  * Chart motion from the theme's tokens. On enter (and when the number of rows changes) marks that carry data-enter
@@ -181,12 +193,15 @@ export function useChartMotion(animate: boolean, replayOn: unknown) {
   const ref = React.useRef<SVGSVGElement>(null);
   React.useEffect(() => {
     const svg = ref.current;
-    if (!on || !svg || typeof svg.animate !== "function") return;
+    // Asked here too: during hydration the hook still has the server's answer (no preference), and starting dozens of
+    // animations only to cancel them a frame later is the motion reduced motion asked to avoid.
+    if (!on || !svg || typeof svg.animate !== "function" || matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const css = getComputedStyle(svg);
     const duration = token(css, "--duration-spring", 560);
-    const stagger = token(css, "--duration-stagger", 50);
+    const marks = [...svg.querySelectorAll<SVGElement>("[data-enter]")];
+    const stagger = Math.min(token(css, "--duration-stagger", 50), MAX_STAGGER / Math.max(1, marks.length));
     const easing = css.getPropertyValue("--ease-cinematic").trim() || "ease-out";
-    const played = [...svg.querySelectorAll<SVGElement>("[data-enter]")].map((el, i) => {
+    const played = marks.map((el, i) => {
       const kind = el.dataset.enter;
       const dash = el.getAttribute("stroke-dasharray") ?? "0 0";
       const frames =
@@ -260,15 +275,44 @@ function CartesianGrid() {
   );
 }
 
-/** The x labels as HTML text under the drawing, so they keep their size however narrow the chart gets. */
+/**
+ * The x labels as HTML text under the drawing, so they keep their size however narrow the chart gets. Once laid out,
+ * each label is kept inside the chart and a label that would touch the one before it is hidden, so many or long labels
+ * thin out instead of overlapping. Every label is still in the data table and the tooltip.
+ */
 function XTicks({ rows, x }: { rows: CleanRow[]; x: (i: number) => number }) {
+  const box = React.useRef<HTMLDivElement>(null);
+  const anchors = rows.map((_, i) => (x(i) / plot.width) * 100);
+  const key = `${anchors.join()}|${rows.map((r) => r.label).join("|")}`;
+  React.useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const fit = () => {
+      const width = el.clientWidth;
+      let end = -Infinity;
+      for (const span of el.children as HTMLCollectionOf<HTMLElement>) {
+        const w = span.offsetWidth;
+        const left = Math.min(Math.max((Number(span.dataset.at) / 100) * width - w / 2, 0), Math.max(0, width - w));
+        span.style.left = `${left}px`;
+        span.style.transform = "none";
+        const fits = left >= end + 8;
+        span.style.visibility = fits ? "" : "hidden";
+        if (fits) end = left + w;
+      }
+    };
+    fit();
+    if (typeof ResizeObserver === "undefined") return;
+    const sizes = new ResizeObserver(fit);
+    sizes.observe(el);
+    return () => sizes.disconnect();
+  }, [key]);
   return (
-    <div data-slot="chart-ticks" aria-hidden="true" className="relative h-4 text-caption text-muted-foreground">
+    <div ref={box} data-slot="chart-ticks" aria-hidden="true" className="relative h-4 overflow-hidden text-caption text-muted-foreground">
       {rows.map((r, i) => {
-        const left = (x(i) / plot.width) * 100;
+        const left = anchors[i];
         return (
-          <span key={i} className="absolute top-0 whitespace-nowrap" style={{ left: `${left}%`, transform: `translateX(${left <= 0 ? 0 : left >= 100 ? -100 : -50}%)` }}>
-            {tick(r.label, Math.max(3, Math.floor(64 / rows.length)))}
+          <span key={i} data-at={left} className="absolute top-0 whitespace-nowrap" style={{ left: `${left}%`, transform: `translateX(${left <= 0 ? 0 : left >= 100 ? -100 : -50}%)` }}>
+            {tick(r.label, 32)}
           </span>
         );
       })}

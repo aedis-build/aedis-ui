@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/registry/aedis/ui/alert-dialog";
+import { Avatar, AvatarFallback } from "@/registry/aedis/ui/avatar";
 import { Button } from "@/registry/aedis/ui/button";
 import { Input } from "@/registry/aedis/ui/input";
 import { Progress } from "@/registry/aedis/ui/progress";
@@ -18,6 +19,16 @@ import { Textarea } from "@/registry/aedis/ui/textarea";
 import { violations } from "./a11y";
 
 describe("primitives", () => {
+  it("an avatar fallback shows two characters, which fit, and keeps the rest for screen readers (#159)", () => {
+    render(
+      <Avatar>
+        <AvatarFallback>Ops team</AvatarFallback>
+      </Avatar>,
+    );
+    expect(screen.getByText("Op")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("Ops team")).toHaveClass("sr-only");
+  });
+
   const examples = components.flatMap((c) => (c.examples ?? []).map((e) => [e.file, <e.component key={e.file} />] as const));
 
   it.each(examples)("%s example has no accessibility violations", async (_name, example) => {

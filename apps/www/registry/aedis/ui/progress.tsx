@@ -12,9 +12,13 @@ function Progress({ className, value, ...props }: WithClassName<ProgressPrimitiv
       <ProgressPrimitive.Track data-slot="progress-track" className="h-full">
         <ProgressPrimitive.Indicator
           data-slot="progress-indicator"
-          className="h-full w-full flex-1 bg-primary transition-transform duration-(--duration-spring) ease-spring-critical motion-reduce:transition-none"
+          className={cn(
+            "h-full w-full flex-1 bg-primary transition-transform duration-(--duration-spring) ease-spring-critical motion-reduce:transition-none",
+            // Unknown progress must not look like 0 %: stripes across the track, pulsing unless motion is reduced.
+            clamped === null && "animate-pulse bg-[repeating-linear-gradient(-45deg,var(--primary)_0_6px,transparent_6px_12px)] motion-reduce:animate-none",
+          )}
           // Base UI sizes the indicator by width; a transform keeps the animation off layout.
-          style={{ width: "100%", transform: `translateX(-${100 - (clamped ?? 0)}%)` }}
+          style={{ width: "100%", transform: clamped === null ? undefined : `translateX(-${100 - clamped}%)` }}
         />
       </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>

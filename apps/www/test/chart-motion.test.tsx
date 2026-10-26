@@ -1,7 +1,8 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 
 import { AreaChart } from "@/registry/aedis/ui/area-chart";
 import { BarChart } from "@/registry/aedis/ui/bar-chart";
+import { durationMs } from "@/registry/aedis/ui/chart";
 import { LineChart } from "@/registry/aedis/ui/line-chart";
 import { PieChart } from "@/registry/aedis/ui/pie-chart";
 import { RadialChart } from "@/registry/aedis/ui/radial-chart";
@@ -73,5 +74,28 @@ describe("chart motion", () => {
     expect(animate.mock.calls.length).toBe(first);
     rerender(<BarChart title="Bars" data={[...week, { day: "Thu", a: 1, b: 1 }]} index="day" series={series} />);
     expect(animate.mock.calls.length).toBeGreaterThan(first);
+  });
+
+  it("reads duration tokens in ms whatever unit the stylesheet uses (#159)", () => {
+    expect(durationMs("560ms", 1)).toBe(560);
+    expect(durationMs(".56s", 1)).toBe(560);
+    expect(durationMs(" 0.56S ", 1)).toBe(560);
+    expect(durationMs("0ms", 560)).toBe(0);
+    expect(durationMs("", 560)).toBe(560);
+  });
+
+  it("caps the stagger, however many rows arrive", () => {
+    const rows = Array.from({ length: 60 }, (_, i) => ({ day: `D${i}`, a: i + 1, b: 1 }));
+    render(<BarChart title="Bars" data={rows} index="day" series={series} />);
+    const delays = animate.mock.calls.map(([, options]) => (options as KeyframeAnimationOptions).delay ?? 0);
+    expect(Math.max(...delays)).toBeLessThanOrEqual(600);
+  });
+
+  it("keeps the pie's slices where they are across hovers", () => {
+    const { container } = render(<PieChart title="Pie" data={week} index="day" value={{ key: "a", label: "A" }} />);
+    const offsets = () => [...container.querySelectorAll("circle[data-enter]")].map((c) => c.getAttribute("stroke-dashoffset"));
+    const before = offsets();
+    for (const slice of container.querySelectorAll("circle[data-enter]")) fireEvent.pointerEnter(slice);
+    expect(offsets()).toEqual(before);
   });
 });

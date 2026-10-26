@@ -106,6 +106,7 @@ export const es: Messages = {
     chart: "gráfico",
     item: "Elemento",
     notShown: "{count} valores no mostrados: no son números en el rango.",
+    noData: "No hay datos para mostrar.",
   },
   reasoning: {
     thinking: "Pensando…",

@@ -106,6 +106,7 @@ export const ptBR: Messages = {
     chart: "gráfico",
     item: "Item",
     notShown: "{count} valores não mostrados: não são números no intervalo.",
+    noData: "Não há dados para mostrar.",
   },
   reasoning: {
     thinking: "Pensando…",

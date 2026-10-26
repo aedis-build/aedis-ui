@@ -9,6 +9,7 @@ import ApprovalCardDemo from "@/examples/approval-card/demo";
 import AvatarDemo from "@/examples/avatar/demo";
 import BadgeDemo from "@/examples/badge/demo";
 import BarChartDemo from "@/examples/bar-chart/demo";
+import BarChartMonth from "@/examples/bar-chart/month";
 import BreadcrumbDemo from "@/examples/breadcrumb/demo";
 import ButtonGroupDemo from "@/examples/button-group/demo";
 import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
@@ -2477,12 +2478,12 @@ function chartDocs(): ComponentDoc[] {
     notes: ["The drawing is hidden from assistive technology; a table captioned with the title holds every value.", "The tooltip is text in a polite live region, so keyboard moves are read out."],
     motion: "On enter, bars grow from the baseline with a stagger, lines draw left to right and arcs sweep, on the theme's spring duration and cinematic easing; new values move to their place. With reduced motion, or animate={false}, the final state is drawn at once.",
   };
-  const doc = (name: string, title: string, description: string, component: ComponentType, usage: string, props: Prop[] = cartesian): ComponentDoc => ({
+  const doc = (name: string, title: string, description: string, component: ComponentType, usage: string, props: Prop[] = cartesian, more: ComponentDoc["examples"] = []): ComponentDoc => ({
     name,
     title,
     category: "Charts",
     description,
-    examples: [{ title, file: `${name}/demo`, component }],
+    examples: [{ title, file: `${name}/demo`, component }, ...more],
     usage,
     props,
     security,
@@ -2504,7 +2505,9 @@ function chartDocs(): ComponentDoc[] {
 />`, [...cartesian, { name: "stacked", type: "boolean", default: "false", description: "Stacks the series, so the top line is the total." }]),
     doc("bar-chart", "Bar Chart", "Bars per row, grouped when there are several series.", BarChartDemo, `import { BarChart } from "@/components/ui/bar-chart";
 
-<BarChart title="Approvals per day" data={approvals} index="day" series={[{ key: "approved", label: "Approved" }]} />`),
+<BarChart title="Approvals per day" data={approvals} index="day" series={[{ key: "approved", label: "Approved" }]} />`, cartesian, [
+      { title: "Many rows", description: "Thirty labels do not fit: the ones that would touch the label before them are left out. Every day is still in the tooltip and the data table.", file: "bar-chart/month", component: BarChartMonth },
+    ]),
     doc("line-chart", "Line Chart", "Lines with a dot per value, for latency and trends.", LineChartDemo, `import { LineChart } from "@/components/ui/line-chart";
 
 <LineChart title="Agent latency p95" data={latency} index="day" series={[{ key: "p95", label: "p95" }]} format={(s) => \`\${s.toFixed(1)} s\`} />`),

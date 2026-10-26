@@ -115,6 +115,8 @@ export type Messages = {
     item: string;
     /** {count} is the number of values that were not drawn. */
     notShown: string;
+    /** Shown over an empty chart. */
+    noData: string;
   };
   reasoning: {
     thinking: string;
@@ -267,6 +269,7 @@ export const en: Messages = {
     chart: "chart",
     item: "Item",
     notShown: "{count} values not shown: not a number in range.",
+    noData: "No data to show.",
   },
   reasoning: {
     thinking: "Thinking…",
