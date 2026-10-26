@@ -136,6 +136,17 @@ describe("Base UI primitives", () => {
     expect(await screen.findByText("Most this agent can cost per day.")).toBeInTheDocument();
   });
 
+  it("tooltip text describes its trigger even while hidden, and is a tooltip (#158)", () => {
+    render(
+      <Tooltip>
+        <TooltipTrigger render={<Button />}>Ceiling</TooltipTrigger>
+        <TooltipContent>Most this agent can cost per day.</TooltipContent>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Ceiling" })).toHaveAccessibleDescription("Most this agent can cost per day.");
+    expect(screen.getByRole("tooltip", { hidden: true })).toHaveTextContent("Most this agent can cost per day.");
+  });
+
   it("separator is decorative by default and semantic on request", () => {
     render(
       <>

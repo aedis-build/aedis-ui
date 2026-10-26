@@ -26,6 +26,9 @@ function AlertDialogContent({ className, initialFocus, ...props }: WithClassName
     <AlertDialogPrimitive.Portal>
       <AlertDialogPrimitive.Backdrop
         data-slot="alert-dialog-overlay"
+        // A press outside does not close an alert dialog; it must not take the focus from it either (to <body>, from
+        // where the next Tab would reach the confirming action instead of Cancel).
+        onMouseDown={(e) => e.preventDefault()}
         className="fade fixed inset-0 z-50 bg-scrim"
       />
       <AlertDialogPrimitive.Popup
@@ -33,7 +36,7 @@ function AlertDialogContent({ className, initialFocus, ...props }: WithClassName
         data-slot="alert-dialog-content"
         initialFocus={initialFocus ?? focusCancel}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-hairline bg-surface-raised p-6 shadow-elevation-4 outline-none materialize sm:max-w-lg",
+          "fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto overscroll-contain rounded-lg border border-hairline bg-surface-raised p-6 shadow-elevation-4 outline-none materialize sm:max-w-lg",
           className,
         )}
         {...props}

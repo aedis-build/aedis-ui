@@ -4,7 +4,6 @@ import * as React from "react";
 
 import { Button } from "@/registry/aedis/ui/button";
 import { CommandDialog, type CommandItem } from "@/registry/aedis/ui/command";
-import { Kbd } from "@/registry/aedis/ui/kbd";
 
 const agents: CommandItem[] = [
   { value: "sales", label: "Sales agent", description: "Pipeline follow-ups and proposals", group: "Agents" },
@@ -19,7 +18,7 @@ export default function CommandDemo() {
   return (
     <div className="flex flex-col items-start gap-3">
       <Button variant="outline" onClick={() => setOpen(true)}>
-        Go to… <Kbd>⌘K</Kbd>
+        Go to…
       </Button>
       <p className="text-callout text-muted-foreground" aria-live="polite">{chosen ? `Opened ${chosen}` : "Nothing chosen yet."}</p>
       <CommandDialog
