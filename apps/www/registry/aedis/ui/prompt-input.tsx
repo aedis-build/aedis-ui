@@ -169,7 +169,7 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
             void send();
           }
         }}
-        className="max-h-60 min-h-15 resize-none border-0 bg-transparent px-2 py-1.5 text-body shadow-none sm:text-body focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="max-h-60 min-h-15 resize-none border-0 bg-transparent px-2 py-1.5 text-body shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <div className="flex items-center gap-2">
         {rules ? (

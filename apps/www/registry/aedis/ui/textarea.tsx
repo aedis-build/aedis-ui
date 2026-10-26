@@ -14,7 +14,7 @@ function Textarea({ className, maxLength = 4000, rows, ...props }: React.Compone
       rows={rows}
       data-slot="textarea"
       className={cn(
-        "flex min-h-16 w-full rounded-sm border border-border-control bg-surface px-3 py-2 text-body sm:text-callout transition-colors duration-(--duration-fast) ease-out placeholder:text-muted-foreground focus-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive",
+        "flex min-h-16 w-full rounded-sm border border-border-control bg-surface px-3 py-2 text-callout max-sm:text-body transition-colors duration-(--duration-fast) ease-out placeholder:text-muted-foreground focus-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive",
         rows === undefined && "field-sizing-content",
         className,
       )}
