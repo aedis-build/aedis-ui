@@ -9,7 +9,7 @@ function TooltipProvider({ delay = 300, ...props }: TooltipPrimitive.Provider.Pr
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
-const TooltipContext = React.createContext<{ id: string; toggle: () => void } | null>(null);
+const TooltipContext = React.createContext<{ id: string; press: () => void; release: () => void } | null>(null);
 
 /**
  * The text is the trigger's description for assistive tech at all times (the popup stays mounted, hidden), not only
@@ -28,13 +28,19 @@ function Tooltip({ open: openProp, onOpenChange, defaultOpen = false, ...props }
     },
     [onOpenChange],
   );
-  // After the press settles: Base UI closes a tooltip on press, which would undo a toggle made during it.
+  // A tap flips what was shown when the finger went down. It is applied after the click, because during the tap Base UI
+  // opens on focus and closes on press, and the click of a tap can come a task after the pointer is lifted.
+  const tapped = React.useRef<boolean | null>(null);
   const context = React.useMemo(
     () => ({
       id,
-      toggle: () => {
-        const next = !openNow.current;
-        setTimeout(() => setOwnOpen(next));
+      press: () => {
+        tapped.current = !openNow.current;
+      },
+      release: () => {
+        const next = tapped.current;
+        tapped.current = null;
+        if (next !== null) setTimeout(() => setOwnOpen(next));
       },
     }),
     [id],
@@ -48,15 +54,19 @@ function Tooltip({ open: openProp, onOpenChange, defaultOpen = false, ...props }
   );
 }
 
-function TooltipTrigger({ onPointerUp, ...props }: TooltipPrimitive.Trigger.Props) {
+function TooltipTrigger({ onPointerDown, onClick, ...props }: TooltipPrimitive.Trigger.Props) {
   const context = React.useContext(TooltipContext);
   return (
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
       aria-describedby={context?.id}
-      onPointerUp={(event) => {
-        onPointerUp?.(event);
-        if (event.pointerType === "touch") context?.toggle();
+      onPointerDown={(event) => {
+        onPointerDown?.(event);
+        if (event.pointerType === "touch") context?.press();
+      }}
+      onClick={(event) => {
+        onClick?.(event);
+        context?.release();
       }}
       {...props}
     />
