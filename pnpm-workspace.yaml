@@ -7,6 +7,10 @@ packages:
 blockExoticSubdeps: true
 minimumReleaseAge: 10080
 trustPolicy: no-downgrade
+# semver 6.x is still required by @babel/core (via shadcn); its last publish (2023) predates provenance, which
+# no-downgrade reads as a takeover. Excluded by name; every other package keeps the policy.
+trustPolicyExclude:
+  - semver
 # aedis-cli, aedis-ui and create-aedis depend on the exact @aedis/cli version of the same checkout: linked here,
 # published as a plain version (no workspace: protocol, so npm publish ships it as is).
 linkWorkspacePackages: true
