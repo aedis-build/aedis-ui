@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   publish:
-    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@840efbb78e50bb957729bf7b7554dba0721cd83b # main
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@68aa25ef6864d961e993404c262b658a2fffc570 # main
     permissions:
       contents: read
       id-token: write
@@ -35,7 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         package: [aedis-cli, aedis-ui, create-aedis]
-    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@840efbb78e50bb957729bf7b7554dba0721cd83b # main
+    uses: aedis-build/aedis-platform/.github/workflows/release-npm.yml@68aa25ef6864d961e993404c262b658a2fffc570 # main
     permissions:
       contents: read
       id-token: write
