@@ -68,7 +68,8 @@ function ToolCall({ name, args, result, status, external = false, approval, reda
           <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M9.5 2.5a3 3 0 0 0-3.9 3.9L2.5 9.5v2.5h2.5l3.1-3.1a3 3 0 0 0 3.9-3.9l-1.8 1.8-1.5-.4-.4-1.5Z" />
           </svg>
-          <span className="min-w-0 flex-1 truncate font-mono text-footnote">{tool}</span>
+          {/* Wraps instead of truncating: a cut name could hide which tool ran, and title never shows on touch. */}
+          <span className="min-w-0 flex-1 font-mono text-footnote break-all">{tool}</span>
           {external ? <span className="rounded-xs border border-border-control px-1.5 text-caption text-muted-foreground">{l.external}</span> : null}
           <StatusIcon status={status} l={l} />
           <AccordionChevron />

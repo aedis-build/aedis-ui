@@ -2,7 +2,7 @@ import { act, render } from "@testing-library/react";
 import fc from "fast-check";
 
 import { themeCss } from "@/registry/aedis/lib/theme-css";
-import { settledMarkdown, StreamingMarkdown } from "@/registry/aedis/ui/streaming-markdown";
+import { settledMarkdown, splitSettled, StreamingMarkdown } from "@/registry/aedis/ui/streaming-markdown";
 
 describe("settledMarkdown", () => {
   it("holds back links, bare URLs and dangling markers until they complete", () => {
@@ -67,6 +67,13 @@ describe("StreamingMarkdown", () => {
     const css = themeCss();
     const caret = css.slice(css.indexOf("@utility stream-caret"), css.indexOf("@keyframes caret"));
     expect(caret).toMatch(/prefers-reduced-motion: reduce\)[\s\S]*content: none/);
+  });
+
+  it("parses only the paragraph being written, never splitting a code fence (#155)", () => {
+    expect(splitSettled("One.\n\nTwo")).toEqual(["One.", "Two"]);
+    expect(splitSettled("Short")).toEqual(["", "Short"]);
+    expect(splitSettled("A\n\n```\nx\n\ny")).toEqual(["A", "```\nx\n\ny"]);
+    expect(splitSettled("A\n\nB\n\n")).toEqual(["A", "B\n\n"]);
   });
 
   it("renders straight away without requestAnimationFrame", () => {

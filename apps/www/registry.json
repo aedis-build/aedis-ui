@@ -596,7 +596,8 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
-        "@aedis/untrusted"
+        "@aedis/untrusted",
+        "@aedis/code-block"
       ],
       "files": [
         {
@@ -617,7 +618,8 @@
         "@aedis/button",
         "@aedis/textarea",
         "@aedis/markdown",
-        "@aedis/locale"
+        "@aedis/locale",
+        "@aedis/use-stick-to-bottom"
       ],
       "files": [
         {
@@ -767,6 +769,18 @@
       "files": [
         {
           "path": "registry/aedis/hooks/use-reduced-motion.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-stick-to-bottom",
+      "type": "registry:hook",
+      "title": "useStickToBottom",
+      "description": "Keeps a scrolling log at its end while the reader is there, never scrolls the page, and offers a way back.",
+      "files": [
+        {
+          "path": "registry/aedis/hooks/use-stick-to-bottom.ts",
           "type": "registry:hook"
         }
       ]
@@ -1491,6 +1505,9 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
+        "@aedis/use-stick-to-bottom",
+        "@aedis/locale",
+        "@aedis/chat",
         "@aedis/prompt-input",
         "@aedis/sources",
         "@aedis/streaming-markdown",

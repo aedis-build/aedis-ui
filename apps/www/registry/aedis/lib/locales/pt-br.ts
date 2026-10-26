@@ -34,6 +34,8 @@ export const ptBR: Messages = {
     message: "Mensagem",
     log: "Conversa",
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
+    truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
+    jumpToLatest: "Ir para o mais recente",
   },
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Navegação principal" },
@@ -126,6 +128,7 @@ export const ptBR: Messages = {
     tooMany: "Anexe no máximo {count} arquivos.",
     uploadFailed: "Não deu para enviar {name}. Tente de novo.",
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
+    truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     model: "Modelo",
   },
   command: {

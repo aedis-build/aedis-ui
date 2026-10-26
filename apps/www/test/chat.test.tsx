@@ -15,6 +15,14 @@ describe("Markdown", () => {
     expect(screen.getByRole("link", { name: "ok" })).toHaveAttribute("rel", "noopener noreferrer");
   });
 
+  it("shows a fence as a code block with a copy button, inside its own scroller", () => {
+    const { container } = render(<Markdown>{"Run:\n\n```bash\ncurl https://example.com/a/very/long/path\n```"}</Markdown>);
+    const block = container.querySelector("[data-slot=code-block]")!;
+    expect(block).toHaveTextContent("curl https://example.com/a/very/long/path");
+    expect(screen.getByRole("button", { name: "Copy code" })).toBeInTheDocument();
+    expect(block.querySelector("pre")!.className).toContain("overflow-x-auto");
+  });
+
   it("blocks images unless allowed", () => {
     const { container, rerender } = render(<Markdown>{"![chart](https://example.com/c.png)"}</Markdown>);
     expect(container.querySelector("img")).toBeNull();
@@ -46,6 +54,32 @@ describe("Chat", () => {
 
     await user.type(box, "{Enter}");
     expect(box).toHaveValue("");
+  });
+
+  it("clears on send, keeps what is typed meanwhile, and puts the text back ahead of it on failure (#155)", async () => {
+    const user = userEvent.setup();
+    let fail = (_e: Error) => {};
+    render(<Chat messages={[]} onSend={() => new Promise<void>((_r, reject) => (fail = reject))} />);
+    const box = screen.getByRole("textbox", { name: "Message" });
+    await user.type(box, "first");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+    expect(box).toHaveValue("");
+    // The Send button disables once the draft is empty: the focus goes to the input, not to the page.
+    expect(box).toHaveFocus();
+    await user.type(box, "second");
+    await act(async () => fail(new Error("offline")));
+    expect(box).toHaveValue("first\nsecond");
+    expect(screen.getByRole("alert")).toHaveTextContent("could not be sent");
+  });
+
+  it("says when a paste was cut to the limit, and counts near it", async () => {
+    const user = userEvent.setup();
+    render(<Chat messages={[]} maxLength={10} onSend={vi.fn()} />);
+    await user.click(screen.getByRole("textbox", { name: "Message" }));
+    await user.paste("0123456789abc");
+    expect(screen.getByRole("textbox", { name: "Message" })).toHaveValue("0123456789");
+    expect(screen.getByRole("status")).toHaveTextContent("Only the first 10 characters fit");
+    expect(screen.getByText("10/10")).toBeVisible();
   });
 
   it("strips hidden code points from what is sent and from what is shown", async () => {

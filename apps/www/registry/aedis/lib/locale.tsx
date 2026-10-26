@@ -36,6 +36,9 @@ export type Messages = {
     message: string;
     log: string;
     sendError: string;
+    /** Says that a paste did not fit; {max} is the limit. */
+    truncated: string;
+    jumpToLatest: string;
   };
   appShell: { menuLabel: string };
   /** Sidebar stays a Server Component, so it does not read the provider: pass `label={messages.sidebar.label}`. */
@@ -132,6 +135,7 @@ export type Messages = {
     tooMany: string;
     uploadFailed: string;
     sendError: string;
+    truncated: string;
     model: string;
   };
   command: {
@@ -186,6 +190,8 @@ export const en: Messages = {
     message: "Message",
     log: "Conversation",
     sendError: "The message could not be sent. Try again.",
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
+    jumpToLatest: "Jump to latest",
   },
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Main navigation" },
@@ -278,6 +284,7 @@ export const en: Messages = {
     tooMany: "Attach at most {count} files.",
     uploadFailed: "{name} could not be uploaded. Try again.",
     sendError: "The message could not be sent. Try again.",
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
     model: "Model",
   },
   command: {

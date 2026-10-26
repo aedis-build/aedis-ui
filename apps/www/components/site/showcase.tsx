@@ -43,6 +43,28 @@ const turns: ConsoleTurn[] = [
   },
 ];
 
+/** The console answers what you send with a canned reply, streamed, so trying it shows what it does. */
+function SupportConsole() {
+  const [log, setLog] = React.useState(turns);
+  return (
+    <AgentConsole
+      title="Support agent"
+      turns={log}
+      className="flex h-[34rem] w-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1"
+      onSend={async (message, { signal }) => {
+        const id = String(Date.now());
+        const answer = "This is a demo, so nothing was looked up. In your app, the agent's answer streams in here.";
+        setLog((t) => [...t, { id, role: "person", text: message.text }, { id: `${id}a`, role: "agent", text: "", streaming: true }]);
+        for (let i = 1; i <= answer.length && !signal.aborted; i += 4) {
+          await new Promise((r) => setTimeout(r, 30));
+          setLog((t) => t.map((x) => (x.id === `${id}a` ? { ...x, text: answer.slice(0, i) } : x)));
+        }
+        setLog((t) => t.map((x) => (x.id === `${id}a` ? { ...x, text: signal.aborted ? x.text : answer, streaming: false } : x)));
+      }}
+    />
+  );
+}
+
 const done = () => new Promise<null>((r) => setTimeout(() => r(null), 400));
 
 function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
@@ -262,7 +284,7 @@ export function Showcase() {
     [<Controls key="c" />, <Sidebar key="s" label="Workspace (example)" className="w-full rounded-xl" groups={[{ label: "Workspace", items: [{ href: "#agents", label: "Agents" }, { href: "#approvals", label: "Approvals", active: true, count: 3, countLabel: "3 waiting" }, { href: "#usage", label: "Usage" }, { href: "#audit", label: "Audit log" }, { href: "#settings", label: "Settings" }] }]} />],
     [<Usage key="u" />, <Spend key="s" />],
     [<ApprovalCard key="a" requester="Reports agent" requestedAt="2 min ago" content={"**Send the Q3 report outside the company**\n\nEmail `q3-report.pdf` to finance@partner.example and audit@partner.example."} onApprove={done} onRequestChanges={done} />, <Ceiling key="c" />],
-    [<AgentConsole key="a" title="Support agent" turns={turns} onSend={async () => undefined} className="flex h-[34rem] w-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-elevation-1" />, <FramePanel key="f" />],
+    [<SupportConsole key="a" />, <FramePanel key="f" />],
     [<Defended key="d" />, <Notifications key="n" />],
   ];
   return (

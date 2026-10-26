@@ -9,7 +9,7 @@ export default function PromptInputDemo() {
   const [last, setLast] = React.useState<string | null>(null);
   const [model, setModel] = React.useState("fast");
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-3">
       <PromptInput
         models={[{ value: "fast", label: "Fast" }, { value: "deep", label: "Deep research" }]}
         model={model}

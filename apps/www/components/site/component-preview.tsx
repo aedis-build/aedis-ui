@@ -14,7 +14,8 @@ export function ComponentPreview({ code, component: Example, label }: { code: st
         </TabsList>
       </div>
       <TabsContent value="preview" className="flex min-h-64 items-center justify-center p-8">
-        <div className="grid w-full place-items-center">
+        {/* One track no wider than the preview: an auto track would grow to fit an example's longest line. */}
+        <div className="grid w-full grid-cols-1 place-items-center">
           <Example />
         </div>
       </TabsContent>

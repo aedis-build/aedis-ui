@@ -30,7 +30,8 @@ export default function AgentConsoleDemo() {
       turns={turns}
       onSend={async (message, { signal }) => {
         const id = String(turns.length + 1);
-        const answer = "Sent the draft to **Rafael** for approval before it goes to the client.";
+        const answer =
+          "Sent the draft to **Rafael** for approval before it goes to the client. Check where it stands with:\n\n```bash\ncurl -s https://api.example.com/v1/proposals/acme-bistro/status?include=approvals,history\n```";
         setTurns((t) => [...t, { id, role: "person", text: message.text }, { id: `${id}a`, role: "agent", text: "", streaming: true }]);
         for (let i = 1; i <= answer.length && !signal.aborted; i += 4) {
           await new Promise((r) => setTimeout(r, 40));

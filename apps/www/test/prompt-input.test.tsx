@@ -129,11 +129,37 @@ describe("PromptInput", () => {
     await user.type(screen.getByRole("textbox"), "Draft the proposal");
     await user.click(screen.getByRole("button", { name: "Send" }));
     const stop = await screen.findByRole("button", { name: "Stop" });
-    expect(stop.className).toContain("motion-reduce:transition-none");
+    // The same button, so the focus it had stays on it (#155).
+    expect(stop).toHaveFocus();
+    expect(screen.getByRole("textbox")).toHaveValue("");
+    expect(stop.querySelector("svg")!.getAttribute("class")).toContain("motion-reduce:transition-none");
     await user.click(stop);
     expect(signal?.aborted).toBe(true);
     expect(await screen.findByRole("button", { name: "Send" })).toBeInTheDocument();
     expect(screen.queryByRole("alert")).toBeNull();
+    // Stopped: the prompt is back to be edited, and the focus is in it, not lost to the page.
+    expect(screen.getByRole("textbox")).toHaveValue("Draft the proposal");
+    expect(screen.getByRole("textbox")).toHaveFocus();
+  });
+
+  it("clears on send, keeps what is typed while the answer streams, and says when a paste was cut", async () => {
+    const user = userEvent.setup();
+    let finish = () => {};
+    render(<PromptInput maxLength={10} onSend={() => new Promise<void>((resolve) => (finish = resolve))} />);
+    const box = screen.getByRole("textbox");
+    await user.type(box, "first{Enter}");
+    expect(box).toHaveValue("");
+    await user.type(box, "next");
+    act(() => finish());
+    await screen.findByRole("button", { name: "Send" });
+    expect(box).toHaveValue("next");
+
+    await user.clear(box);
+    await user.click(box);
+    await user.paste("0123456789abc");
+    expect(box).toHaveValue("0123456789");
+    expect(screen.getByRole("status")).toHaveTextContent("Only the first 10 characters fit");
+    expect(screen.getByText("10/10")).toBeVisible();
   });
 
   it("keeps the draft and says so when sending fails", async () => {
