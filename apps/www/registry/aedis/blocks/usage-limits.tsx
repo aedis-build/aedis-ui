@@ -56,7 +56,12 @@ export function UsageLimits({ agents, currency, period, warnAt = 0.8, className 
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Progress value={Math.round(share(a) * 100)} aria-label={`${a.name}: share of the ceiling used`} />
+              {/* The bar says the state too, not only the badge: amber near the limit, red once paused. */}
+              <Progress
+                value={Math.round(share(a) * 100)}
+                aria-label={`${a.name}: share of the ceiling used`}
+                className={share(a) >= 1 ? "[&_[data-slot=progress-indicator]]:bg-destructive-solid" : share(a) >= warnAt ? "[&_[data-slot=progress-indicator]]:bg-warning" : undefined}
+              />
             </CardContent>
           </Card>
         ))}

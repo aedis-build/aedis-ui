@@ -4,6 +4,17 @@ import * as React from "react";
 import Link from "next/link";
 
 import { AgentConsole, type ConsoleTurn } from "@/registry/aedis/blocks/agent-console";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/registry/aedis/ui/alert-dialog";
 import { ApprovalCard } from "@/registry/aedis/ui/approval-card";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { BarChart } from "@/registry/aedis/ui/bar-chart";
@@ -90,13 +101,15 @@ function Check({ children }: { children: React.ReactNode }) {
 
 function Controls() {
   const [message, setMessage] = React.useState("");
+  // Every control answers: a showcase where buttons do nothing reads as broken.
+  const [said, say] = React.useState("");
   return (
     <Card className="gap-3.5 p-4.5">
       <CardContent className="flex flex-col gap-3.5">
         <div className="flex flex-wrap gap-2">
-          <Button size="sm">Approve →</Button>
-          <Button size="sm" variant="secondary">Secondary</Button>
-          <Button size="sm" variant="ghost">Ghost</Button>
+          <Button size="sm" onClick={() => say("Approved. In your app, this sends it on.")}>Approve →</Button>
+          <Button size="sm" variant="secondary" onClick={() => say("Secondary pressed.")}>Secondary</Button>
+          <Button size="sm" variant="ghost" onClick={() => say("Ghost pressed.")}>Ghost</Button>
         </div>
         <div className="relative">
           <Input aria-label="Search agents" placeholder="Search agents" className="pr-9" />
@@ -121,14 +134,54 @@ function Controls() {
           <Checkbox aria-label="Notify my team" />
         </div>
         <div className="flex items-center justify-between gap-2">
-          <Button size="sm" variant="outline" className="text-destructive">Revoke…</Button>
+          <AlertDialog>
+            <AlertDialogTrigger render={<Button size="sm" variant="outline" className="text-destructive" />}>Revoke…</AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke the support agent&apos;s access?</AlertDialogTitle>
+                <AlertDialogDescription>It stops at once and asks before it runs again.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => say("Access revoked (a demo: nothing was changed).")}>Revoke</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <label className="flex items-center gap-2 text-footnote text-muted-foreground">
             Autopilot <Switch defaultChecked />
           </label>
         </div>
+        <p role="status" className="min-h-[1lh] text-caption text-muted-foreground">{said}</p>
       </CardContent>
     </Card>
   );
+}
+
+const workspace = [
+  { href: "#agents", label: "Agents" },
+  { href: "#approvals", label: "Approvals", count: 3, countLabel: "3 waiting" },
+  { href: "#usage", label: "Usage" },
+  { href: "#audit", label: "Audit log" },
+  { href: "#settings", label: "Settings" },
+];
+
+/** The sidebar marks what was clicked, without leaving the page. */
+function WorkspaceNav() {
+  const [active, setActive] = React.useState("#approvals");
+  const Item = React.useCallback(
+    ({ href, ...props }: React.ComponentProps<"a"> & { href: string }) => (
+      <a
+        href={href}
+        {...props}
+        onClick={(e) => {
+          e.preventDefault();
+          setActive(href);
+        }}
+      />
+    ),
+    [],
+  );
+  return <Sidebar label="Workspace (example)" className="w-full rounded-xl" linkComponent={Item} groups={[{ label: "Workspace", items: workspace.map((i) => ({ ...i, active: i.href === active })) }]} />;
 }
 
 function Usage() {
@@ -172,6 +225,11 @@ function Spend() {
 }
 
 function Ceiling() {
+  const id = React.useId();
+  const [value, setValue] = React.useState("1500");
+  const [saved, setSaved] = React.useState("");
+  const amount = Number(value);
+  const invalid = value.trim() === "" || !Number.isFinite(amount) || amount < 100 || amount > 10000;
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader>
@@ -180,14 +238,28 @@ function Ceiling() {
       </CardHeader>
       <CardContent className="flex flex-col gap-3.5">
         <div className="space-y-1.5">
-          <Label htmlFor="showcase-ceiling">Monthly ceiling (USD)</Label>
-          <Input id="showcase-ceiling" type="number" inputMode="numeric" min={100} max={10000} defaultValue={1500} />
+          <Label htmlFor={`${id}-amount`}>Monthly ceiling (USD)</Label>
+          <Input
+            id={`${id}-amount`}
+            type="number"
+            inputMode="numeric"
+            min={100}
+            max={10000}
+            value={value}
+            aria-invalid={invalid || undefined}
+            aria-describedby={invalid ? `${id}-error` : undefined}
+            onChange={(e) => (setValue(e.target.value), setSaved(""))}
+          />
+          {invalid ? <p id={`${id}-error`} className="text-caption text-destructive">Enter an amount from $100 to $10,000.</p> : null}
         </div>
         <Progress value={30} aria-label="Spent of the ceiling" />
         <label className="flex items-center gap-2 text-footnote">
           <Switch defaultChecked /> Pause agents at the ceiling
         </label>
-        <Button size="sm" className="w-full">Save ceiling</Button>
+        <Button size="sm" className="w-full" onClick={() => setSaved(invalid ? "" : `Ceiling saved: $${amount.toLocaleString("en-US")} a month.`)}>
+          Save ceiling
+        </Button>
+        <p role="status" className="min-h-[1lh] text-caption text-success">{saved}</p>
       </CardContent>
     </Card>
   );
@@ -281,7 +353,7 @@ function Ghost({ height }: { height: number }) {
  */
 export function Showcase() {
   const columns: React.ReactNode[][] = [
-    [<Controls key="c" />, <Sidebar key="s" label="Workspace (example)" className="w-full rounded-xl" groups={[{ label: "Workspace", items: [{ href: "#agents", label: "Agents" }, { href: "#approvals", label: "Approvals", active: true, count: 3, countLabel: "3 waiting" }, { href: "#usage", label: "Usage" }, { href: "#audit", label: "Audit log" }, { href: "#settings", label: "Settings" }] }]} />],
+    [<Controls key="c" />, <WorkspaceNav key="s" />],
     [<Usage key="u" />, <Spend key="s" />],
     [<ApprovalCard key="a" requester="Reports agent" requestedAt="2 min ago" content={"**Send the Q3 report outside the company**\n\nEmail `q3-report.pdf` to finance@partner.example and audit@partner.example."} onApprove={done} onRequestChanges={done} />, <Ceiling key="c" />],
     [<SupportConsole key="a" />, <FramePanel key="f" />],

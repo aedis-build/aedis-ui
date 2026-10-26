@@ -14,7 +14,7 @@ describe("ThemeEditor", () => {
     render(<ThemeEditor />);
     fireEvent.change(screen.getByLabelText("primary"), { target: { value: "#0b6e4f" } });
     await waitFor(() => expect(preview().style.getPropertyValue("--primary")).toBe("#0b6e4f"));
-    expect(screen.getByRole("status")).toHaveTextContent("Passes contrast AA");
+    expect(screen.getAllByRole("status")[0]).toHaveTextContent("Passes contrast AA");
     expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY)!).colors.light.primary).toBe("#0b6e4f");
   });
 
@@ -30,7 +30,7 @@ describe("ThemeEditor", () => {
     render(<ThemeEditor />);
     await user.click(screen.getByRole("button", { name: "Brand" }));
     await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.brand));
-    expect(screen.getByRole("status")).toHaveTextContent("Passes contrast AA");
+    expect(screen.getAllByRole("status")[0]).toHaveTextContent("Passes contrast AA");
     await user.click(screen.getByRole("button", { name: "Light and dark" }));
     await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.light));
   });

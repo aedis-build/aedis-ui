@@ -69,12 +69,10 @@ test("chat keeps its width when a message is sent, and the focus stays in the co
   expect(await page.getByRole("log", { name: "Conversation" }).first().evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
 });
 
-test("the components page does not scroll itself on load", async ({ page, pageErrors }) => {
+test("the components page does not scroll itself on load", async ({ page }) => {
   await page.goto("/components");
   await page.waitForTimeout(1000);
   expect(await page.evaluate(() => scrollY)).toBe(0);
-  // shortcut: the gallery's nested links fail hydration (React #418), which is #163's to fix; drop this line with it.
-  pageErrors.splice(0, pageErrors.length, ...pageErrors.filter((e) => !e.includes("React error #418")));
 });
 
 test("prompt input keeps the focus through Send and Stop, gives the prompt back on Stop, and grows", async ({ page }) => {

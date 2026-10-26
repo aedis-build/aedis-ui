@@ -110,8 +110,9 @@ function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 1
         )}
       </Button>
       <span role="status" className="sr-only">{copy === "copied" ? l.copied : copy === "failed" ? l.copyFailed : ""}</span>
-      <pre className="overflow-x-auto py-3 pr-12 pl-4 font-mono text-code">
-        <code>
+      <pre className="overflow-x-auto py-3 pl-4 font-mono text-code">
+        {/* The room for the copy button is on the code, not the pre: a scroller's end padding is lost when it overflows. */}
+        <code className="block w-max min-w-full pr-12">
           {lines.map((line, i) => {
             const shown = done || i < revealed;
             return (

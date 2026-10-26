@@ -6,7 +6,7 @@ import { CLI } from "@/components/site/install-command";
 import { installable, type DirectoryEntry } from "@/content/directory";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Input } from "@/registry/aedis/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/registry/aedis/ui/tabs";
+import { Filter } from "@/components/site/filter";
 
 const Check = ({ ok, label }: { ok: boolean; label: string }) => (
   <Badge variant="secondary" className={ok ? "text-success" : "text-destructive"}>
@@ -24,14 +24,12 @@ export function DirectoryTable({ entries }: { entries: DirectoryEntry[] }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs value={kind} onValueChange={(v) => setKind(String(v))}>
-          <TabsList aria-label="Registries">
-            {["All", "Verified", "Community"].map((k) => <TabsTrigger key={k} value={k}>{k}</TabsTrigger>)}
-          </TabsList>
-        </Tabs>
+        <Filter label="Registries" options={["All", "Verified", "Community"]} value={kind} onChange={setKind} />
         <Input type="search" aria-label="Search registries" placeholder="Search registries" value={query} onChange={(e) => setQuery(e.target.value)} className="w-full sm:w-64" />
       </div>
-      <div className="overflow-x-auto rounded-lg border border-hairline bg-surface">
+      <p className="sr-only" aria-live="polite">{rows.length} {rows.length === 1 ? "registry" : "registries"} shown</p>
+      {/* relative: the sr-only labels in the rows are positioned, and would otherwise widen the page. */}
+      <div className="relative overflow-x-auto rounded-lg border border-hairline bg-surface">
         <table className="w-full min-w-[52rem] text-left text-callout">
           <thead className="text-footnote text-muted-foreground">
             <tr>

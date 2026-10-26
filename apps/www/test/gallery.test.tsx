@@ -16,9 +16,12 @@ describe("components gallery", () => {
     const { container } = render(<Gallery items={items} categories={["Actions", "Forms"]} />);
     expect(screen.getAllByRole("link")).toHaveLength(3);
 
+    // Toggle buttons, not tabs: there is no tab panel per category (#163).
     await user.tab();
-    await user.keyboard("{ArrowRight}{ArrowRight}{Enter}");
-    expect(screen.getByRole("tab", { name: "Forms" })).toHaveAttribute("aria-selected", "true");
+    await user.tab();
+    await user.tab();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "Forms" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.queryByRole("heading", { name: "Actions" })).toBeNull();
     expect(screen.getAllByRole("link")).toHaveLength(2);
 
@@ -32,8 +35,11 @@ describe("components gallery", () => {
 
   it("shows each card's category and sinks, with the preview inert", () => {
     render(<Gallery items={items} categories={["Actions", "Forms"]} />);
-    const input = screen.getByRole("link", { name: /Input/ });
+    // The title is the link and stretches over the card; the live preview is not inside it (#163).
+    const input = screen.getByRole("link", { name: "Input" }).closest("li")!;
     expect(within(input).getByText("Input", { selector: "[data-slot=badge]" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Button/ }).querySelector("[inert]")).not.toBeNull();
+    const button = screen.getByRole("link", { name: "Button" });
+    expect(button.querySelector("[inert]")).toBeNull();
+    expect(button.closest("li")!.querySelector("[inert]")).not.toBeNull();
   });
 });

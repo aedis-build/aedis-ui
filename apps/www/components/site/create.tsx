@@ -33,6 +33,16 @@ function Segmented<K extends Key>({ name, label, value, onChange }: { name: K; l
   );
 }
 
+/** Where each block shows up in the preview's navigation. */
+const blockNav: Record<Block, { href: string; label: string; count?: number; countLabel?: string }> = {
+  "agent-console": { href: "#agents", label: "Agents" },
+  "approval-inbox": { href: "#approvals", label: "Approvals", count: 3, countLabel: "3 waiting" },
+  "usage-limits": { href: "#usage", label: "Usage" },
+  "secure-shell": { href: "#account", label: "Account" },
+  charts: { href: "#reports", label: "Reports" },
+  "mf-frame": { href: "#billing", label: "Billing (remote)" },
+};
+
 const week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => ({ day, tokens: [59, 77, 68, 100, 90, 42, 31][i] * 1000 }));
 const done = () => new Promise<null>((r) => setTimeout(() => r(null), 300));
 
@@ -44,6 +54,11 @@ export function Create() {
   const id = encodePreset(p);
   const theme = presetTheme(p);
   const vars = theme ? themeVariables(theme, "light") : {};
+  // Every choice shows in the preview, not only in the command: the navigation follows the blocks, the cards follow
+  // what those blocks and the level install, and the top bar names the framework and the level.
+  const nav = p.blocks.map((b) => blockNav[b]);
+  const showUsage = p.blocks.includes("usage-limits") || p.blocks.includes("charts");
+  const showApproval = p.blocks.includes("approval-inbox") || p.level === "3";
 
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -86,24 +101,39 @@ export function Create() {
       <div className="min-w-0 space-y-4">
         <div className="overflow-hidden rounded-xl border border-hairline bg-background shadow-elevation-1" style={vars as React.CSSProperties}>
           {/* A preview of the app shell this preset starts from, in its theme: real components, sample data. */}
-          <div inert className="grid grid-cols-1 bg-background text-foreground sm:grid-cols-[13rem_minmax(0,1fr)]">
+          <div inert data-slot="create-preview" className="grid grid-cols-1 bg-background text-foreground sm:grid-cols-[13rem_minmax(0,1fr)]">
+            <div className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-2 text-caption text-muted-foreground sm:col-span-2">
+              <span>{presetChoices.framework[p.framework]} app</span>
+              <Badge variant="secondary">{presetChoices.level[p.level]}</Badge>
+            </div>
             <Sidebar
               className="hidden border-r border-hairline sm:block"
               label="Preview navigation"
               header={<span className="px-2 font-semibold">My platform</span>}
-              groups={[{ label: "Work", items: [{ href: "#agents", label: "Agents", active: true }, { href: "#approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }, { href: "#usage", label: "Usage" }] }]}
+              groups={[{ label: "Work", items: [{ href: "#home", label: "Home", active: true }, ...nav] }]}
+              footer={p.level !== "1" ? <span className="px-2 text-caption text-muted-foreground">Signs out after 15 idle minutes</span> : undefined}
             />
             <div className="grid min-w-0 grid-cols-1 gap-4 p-5 xl:grid-cols-2">
               <h2 className="text-title-2 xl:col-span-2">Good morning</h2>
-              <Card className="gap-3 p-4">
-                <CardHeader>
-                  <CardTitle>Tokens this week</CardTitle>
-                  <CardDescription>Every agent, all models</CardDescription>
-                </CardHeader>
-                <BarChart title="Tokens this week" data={week} index="day" series={[{ key: "tokens", label: "Tokens" }]} />
-                <Button size="sm" className="w-full">View usage</Button>
-              </Card>
-              <ApprovalCard requester="Reports agent" requestedAt="2 min ago" content={"**Send the Q3 report outside the company**\n\nEmail `q3-report.pdf` to two recipients."} onApprove={done} onRequestChanges={done} />
+              {showUsage ? (
+                <Card className="gap-3 p-4">
+                  <CardHeader>
+                    <CardTitle>Tokens this week</CardTitle>
+                    <CardDescription>Every agent, all models</CardDescription>
+                  </CardHeader>
+                  <BarChart title="Tokens this week" data={week} index="day" series={[{ key: "tokens", label: "Tokens" }]} />
+                  <Button size="sm" className="w-full">View usage</Button>
+                </Card>
+              ) : null}
+              {showApproval ? (
+                <ApprovalCard requester="Reports agent" requestedAt="2 min ago" content={"**Send the Q3 report outside the company**\n\nEmail `q3-report.pdf` to two recipients."} onApprove={done} onRequestChanges={done} />
+              ) : null}
+              {!showUsage && !showApproval ? (
+                <Card className="gap-1 p-4 xl:col-span-2">
+                  <CardTitle>Your pages go here</CardTitle>
+                  <CardDescription>Pick blocks to start from, or build on the shell alone.</CardDescription>
+                </Card>
+              ) : null}
             </div>
           </div>
         </div>
