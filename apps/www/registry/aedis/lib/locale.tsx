@@ -17,6 +17,9 @@ export type Messages = {
     sendRequest: string;
     back: string;
     error: string;
+    /** Shown instead of the actions once approved. */
+    approved: string;
+    changesRequested: string;
   };
   handRaise: {
     raised: string;
@@ -29,6 +32,8 @@ export type Messages = {
     alwaysHint: string;
     submit: string;
     error: string;
+    /** Shown instead of the form once answered, before the scope. */
+    answered: string;
   };
   chat: {
     placeholder: string;
@@ -171,6 +176,8 @@ export const en: Messages = {
     sendRequest: "Request changes",
     back: "Back",
     error: "Something went wrong. Try again.",
+    approved: "Approved by you",
+    changesRequested: "Changes requested by you:",
   },
   handRaise: {
     raised: "raised a hand",
@@ -183,6 +190,7 @@ export const en: Messages = {
     alwaysHint: "Becomes a lasting rule the agent follows in every conversation.",
     submit: "Answer",
     error: "Something went wrong. Try again.",
+    answered: "Answered by you",
   },
   chat: {
     placeholder: "Write a message",

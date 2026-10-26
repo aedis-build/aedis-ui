@@ -15,6 +15,8 @@ export const ptBR: Messages = {
     sendRequest: "Pedir ajustes",
     back: "Voltar",
     error: "Algo deu errado. Tente de novo.",
+    approved: "Aprovado por você",
+    changesRequested: "Ajustes pedidos por você:",
   },
   handRaise: {
     raised: "levantou a mão",
@@ -27,6 +29,7 @@ export const ptBR: Messages = {
     alwaysHint: "Vira uma regra fixa que o agente segue em todas as conversas.",
     submit: "Responder",
     error: "Algo deu errado. Tente de novo.",
+    answered: "Respondido por você",
   },
   chat: {
     placeholder: "Escreva uma mensagem",

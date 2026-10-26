@@ -35,22 +35,38 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
   const [scope, setScope] = React.useState<HandRaiseScope>("once");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [answered, setAnswered] = React.useState<{ text: string; scope: HandRaiseScope } | null>(null);
+  const inFlight = React.useRef(false);
+  const card = React.useRef<HTMLElement>(null);
+  const result = React.useRef<HTMLParagraphElement>(null);
 
   async function submit() {
+    if (inFlight.current || answered) return;
+    inFlight.current = true;
     setBusy(true);
     setError(null);
+    // The answer may become a lasting rule for the agent; nothing hidden travels with it.
+    const text = stripInvisible(answer).trim();
     try {
-      // The answer may become a lasting rule for the agent; nothing hidden travels with it.
-      setError(await onAnswer(stripInvisible(answer).trim(), scope));
+      const problem = await onAnswer(text, scope);
+      setError(problem);
+      if (problem === null) setAnswered({ text, scope });
     } catch {
       setError(l.error);
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
 
+  // The form goes away once answered: the focus moves to what was sent instead of falling to the page.
+  React.useEffect(() => {
+    const active = document.activeElement;
+    if (answered && (active === document.body || card.current?.contains(active))) result.current?.focus();
+  }, [answered]);
+
   return (
-    <article data-slot="hand-raise" className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-primary bg-surface p-4 shadow-elevation-1", className)}>
+    <article ref={card} data-slot="hand-raise" aria-busy={busy || undefined} className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-primary bg-surface p-4 shadow-elevation-1", className)}>
       <header className="text-callout">
         <strong>{agent}</strong> {l.raised}
       </header>
@@ -60,27 +76,36 @@ function HandRaise({ agent, question, tried, onAnswer, labels, className }: Hand
           {l.tried} {stripInvisible(tried)}
         </p>
       ) : null}
-      <Textarea aria-label={l.answer} placeholder={l.answerPlaceholder} maxLength={4000} value={answer} onChange={(e) => setAnswer(e.target.value)} />
-      <RadioGroup aria-label={l.scope} value={scope} onValueChange={(v) => setScope(v as HandRaiseScope)} className="flex flex-wrap gap-4">
-        <div className="flex items-center gap-2">
-          <RadioGroupItem value="once" id={`${id}-once`} />
-          <Label htmlFor={`${id}-once`}>{l.once}</Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <RadioGroupItem value="always" id={`${id}-always`} aria-describedby={`${id}-hint`} />
-          <Label htmlFor={`${id}-always`}>{l.always}</Label>
-        </div>
-      </RadioGroup>
-      {scope === "always" ? (
-        <p id={`${id}-hint`} className="text-footnote text-muted-foreground">
-          {l.alwaysHint}
+      {answered ? (
+        <p ref={result} role="status" tabIndex={-1} className="rounded-xs text-callout font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {l.answered} ({answered.scope === "always" ? l.always : l.once})
+          <span className="block font-normal whitespace-pre-wrap break-words text-muted-foreground">{answered.text}</span>
         </p>
-      ) : null}
-      <div>
-        <Button disabled={busy || !answer.trim()} onClick={submit}>
-          {l.submit}
-        </Button>
-      </div>
+      ) : (
+        <>
+          <Textarea aria-label={l.answer} placeholder={l.answerPlaceholder} maxLength={4000} value={answer} onChange={(e) => setAnswer(e.target.value)} />
+          <RadioGroup aria-label={l.scope} value={scope} onValueChange={(v) => setScope(v as HandRaiseScope)} className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="once" id={`${id}-once`} />
+              <Label htmlFor={`${id}-once`}>{l.once}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="always" id={`${id}-always`} aria-describedby={`${id}-hint`} />
+              <Label htmlFor={`${id}-always`}>{l.always}</Label>
+            </div>
+          </RadioGroup>
+          {scope === "always" ? (
+            <p id={`${id}-hint`} className="text-footnote text-muted-foreground">
+              {l.alwaysHint}
+            </p>
+          ) : null}
+          <div>
+            <Button pending={busy} disabled={!answer.trim()} onClick={submit}>
+              {l.submit}
+            </Button>
+          </div>
+        </>
+      )}
       {error ? (
         <p role="alert" className="text-callout text-destructive">
           {error}

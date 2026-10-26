@@ -15,6 +15,8 @@ export const es: Messages = {
     sendRequest: "Pedir cambios",
     back: "Volver",
     error: "Algo salió mal. Inténtalo de nuevo.",
+    approved: "Aprobado por ti",
+    changesRequested: "Cambios pedidos por ti:",
   },
   handRaise: {
     raised: "levantó la mano",
@@ -27,6 +29,7 @@ export const es: Messages = {
     alwaysHint: "Se convierte en una regla permanente que el agente sigue en todas las conversaciones.",
     submit: "Responder",
     error: "Algo salió mal. Inténtalo de nuevo.",
+    answered: "Respondido por ti",
   },
   chat: {
     placeholder: "Escribe un mensaje",

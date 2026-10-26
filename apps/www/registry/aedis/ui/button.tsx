@@ -32,17 +32,22 @@ export type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     /** Another element to render with the button styles, e.g. `<a href="/docs" />`. */
     render?: useRender.RenderProp;
+    /**
+     * Work started by this button is still running: presses are ignored and it reads as busy, but it stays focusable,
+     * so the focus is not lost to the page as it would be with `disabled`.
+     */
+    pending?: boolean;
   };
 
 /**
  * Pass `render` to give another element the button styles, e.g. `render={<a href="/docs" />}`.
  * It keeps its own role: a link stays a link.
  */
-function Button({ className, variant, size, type, render, ...props }: ButtonProps) {
+function Button({ className, variant, size, type, render, pending, ...props }: ButtonProps) {
   return useRender({
     // A bare <button> inside a form submits it; default to "button" so submitting is always explicit.
     render: render ?? <ButtonPrimitive type={type ?? "button"} />,
-    props: { "data-slot": "button", className: cn(buttonVariants({ variant, size }), className), ...(render ? { type } : {}), ...props },
+    props: { "data-slot": "button", className: cn(buttonVariants({ variant, size }), className), ...(render ? { type } : {}), ...props, ...(pending ? { disabled: true, "aria-busy": true, ...(render ? {} : { focusableWhenDisabled: true }) } : {}) },
   });
 }
 

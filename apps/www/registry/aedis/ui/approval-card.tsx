@@ -29,7 +29,7 @@ export type ApprovalCardProps = {
   content: string;
   /** When it was requested, already formatted. */
   requestedAt?: string;
-  /** Approve. Resolve with an error message to show it, or null on success. */
+  /** Approve. Called at most once at a time. Resolve with an error message to show it, or null on success. */
   onApprove: () => Promise<string | null>;
   /** Request changes with a required reason. Resolve with an error message or null. */
   onRequestChanges: (reason: string) => Promise<string | null>;
@@ -37,39 +37,78 @@ export type ApprovalCardProps = {
   className?: string;
 };
 
-/** A request from an agent that waits for a human. Approving always goes through a confirmation. */
+type Outcome = { kind: "approved" } | { kind: "changes"; reason: string };
+
+/**
+ * A request from an agent that waits for a human. Approving always goes through a confirmation, runs once however
+ * often it is pressed, and the card then shows what was decided instead of its actions.
+ */
 function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestChanges, labels, className }: ApprovalCardProps) {
   const l = useMessages("approvalCard", labels);
   const [mode, setMode] = React.useState<"idle" | "changes">("idle");
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [outcome, setOutcome] = React.useState<Outcome | null>(null);
+  const [confirming, setConfirming] = React.useState(false);
+  // A ref, not state: a second click in the same frame (or during the dialog's exit) sees it at once.
+  const inFlight = React.useRef(false);
+  const card = React.useRef<HTMLElement>(null);
+  const result = React.useRef<HTMLParagraphElement>(null);
+  const reasonBox = React.useRef<HTMLTextAreaElement>(null);
+  const changesButton = React.useRef<HTMLButtonElement>(null);
+  const modeChanged = React.useRef(false);
 
-  async function run(action: () => Promise<string | null>) {
+  async function run(action: () => Promise<string | null>, done: Outcome) {
+    if (inFlight.current || outcome) return;
+    inFlight.current = true;
     setBusy(true);
     setError(null);
     try {
-      setError(await action());
+      const problem = await action();
+      setError(problem);
+      if (problem === null) setOutcome(done);
     } catch {
       setError(l.error);
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
 
+  // Each step puts the focus where the next action is, never on the page: the reason field, back on the button
+  // that opened it, or the outcome once the actions are gone.
+  React.useEffect(() => {
+    if (!modeChanged.current) return;
+    (mode === "changes" ? reasonBox : changesButton).current?.focus();
+  }, [mode]);
+  React.useEffect(() => {
+    const active = document.activeElement;
+    if (outcome && (active === document.body || card.current?.contains(active))) result.current?.focus();
+  }, [outcome]);
+
+  const switchMode = (next: "idle" | "changes") => {
+    modeChanged.current = true;
+    setMode(next);
+  };
+
   return (
-    <article data-slot="approval-card" className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-accent bg-surface p-4 shadow-elevation-1", className)}>
+    <article ref={card} data-slot="approval-card" data-outcome={outcome?.kind} aria-busy={busy || undefined} className={cn("flex flex-col gap-3 rounded-md border border-hairline border-l-4 border-l-accent bg-surface p-4 shadow-elevation-1 data-[outcome=approved]:border-l-success", className)}>
       <header className="text-callout">
         <strong>{requester}</strong> {l.requests}
         {requestedAt ? <span className="ml-2 text-muted-foreground">{requestedAt}</span> : null}
       </header>
       <Markdown className="text-callout">{content}</Markdown>
-      {mode === "idle" ? (
+      {outcome ? (
+        <p ref={result} role="status" tabIndex={-1} className="rounded-xs text-callout font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {outcome.kind === "approved" ? l.approved : l.changesRequested}
+          {outcome.kind === "changes" ? <span className="block font-normal whitespace-pre-wrap break-words text-muted-foreground">{outcome.reason}</span> : null}
+        </p>
+      ) : mode === "idle" ? (
         <div className="flex flex-wrap gap-2">
-          <AlertDialog>
-            <AlertDialogTrigger render={<Button />} disabled={busy}>
-              {l.approve}
-            </AlertDialogTrigger>
+          {/* While an approval runs the dialog stays shut, so a third press cannot confirm it again. */}
+          <AlertDialog open={confirming} onOpenChange={(open) => setConfirming(open && !inFlight.current)}>
+            <AlertDialogTrigger render={<Button pending={busy} />}>{l.approve}</AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{l.confirmTitle}</AlertDialogTitle>
@@ -77,22 +116,29 @@ function ApprovalCard({ requester, content, requestedAt, onApprove, onRequestCha
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>{l.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={() => run(onApprove)}>{l.confirm}</AlertDialogAction>
+                <AlertDialogAction onClick={() => run(onApprove, { kind: "approved" })}>{l.confirm}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Button variant="outline" disabled={busy} onClick={() => setMode("changes")}>
+          <Button ref={changesButton} variant="outline" pending={busy} onClick={() => switchMode("changes")}>
             {l.requestChanges}
           </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <Textarea aria-label={l.reason} placeholder={l.reasonPlaceholder} maxLength={4000} value={reason} onChange={(e) => setReason(e.target.value)} />
+          <Textarea ref={reasonBox} aria-label={l.reason} placeholder={l.reasonPlaceholder} maxLength={4000} value={reason} onChange={(e) => setReason(e.target.value)} />
           <div className="flex flex-wrap gap-2">
-            <Button disabled={busy || !reason.trim()} onClick={() => run(() => onRequestChanges(stripInvisible(reason).trim()))}>
+            <Button
+              pending={busy}
+              disabled={!reason.trim()}
+              onClick={() => {
+                const clean = stripInvisible(reason).trim();
+                void run(() => onRequestChanges(clean), { kind: "changes", reason: clean });
+              }}
+            >
               {l.sendRequest}
             </Button>
-            <Button variant="outline" disabled={busy} onClick={() => setMode("idle")}>
+            <Button variant="outline" pending={busy} onClick={() => switchMode("idle")}>
               {l.back}
             </Button>
           </div>
