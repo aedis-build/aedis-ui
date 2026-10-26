@@ -22,7 +22,7 @@ function Preview({ component: Example }: { component: ComponentType }) {
 
 export default function Components() {
   return (
-    <main className="mx-auto max-w-7xl space-y-9 px-4 pt-12 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-9 px-4 pt-12 pb-24 md:px-6">
       <JsonLd path="/components" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Components</h1>

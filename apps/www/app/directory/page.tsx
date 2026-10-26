@@ -28,7 +28,7 @@ added button`;
 
 export default function Directory() {
   return (
-    <main className="mx-auto max-w-7xl space-y-8 px-4 pt-12 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-8 px-4 pt-12 pb-24 md:px-6">
       <JsonLd path="/directory" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Directory</h1>

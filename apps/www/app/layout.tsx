@@ -28,6 +28,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script src="/color-scheme.js" />
       </head>
       <body className="min-h-screen antialiased">
+        {/* First stop for the keyboard: past the header and, on docs pages, past the sidebar's hundred links. */}
+        <a href="#main" className="focus-ring sr-only z-50 rounded-sm bg-surface px-3 py-2 text-callout font-medium shadow-elevation-2 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:px-3 focus:py-2">
+          Skip to content
+        </a>
         <header className="material-regular scroll-edge sticky top-0 z-40">
           <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 md:gap-6 md:px-6">
             <MobileNav groups={[{ title: "Site", items: headerLinks.map((h) => ({ href: h.href, title: h.label })) }, ...navGroups]} />

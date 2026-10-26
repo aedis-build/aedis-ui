@@ -27,7 +27,7 @@ export const colors = {
   accent: { light: "#2457d6", dark: "#7aa2ff", brand: "#c8a24c" },
   "accent-foreground": { light: "#ffffff", dark: "#0d1015", brand: "#1a2740" },
   "accent-soft": { light: "#e8eefc", dark: "#1b2742", brand: "#f3ebd6" },
-  ring: { light: "rgba(36,87,214,0.45)", dark: "rgba(122,162,255,0.50)", brand: "rgba(26,39,64,0.45)" },
+  ring: { light: "#2457d6", dark: "#7aa2ff", brand: "#1a2740" },
   success: { light: "#18794e", dark: "#3dd68c", brand: "#18794e" },
   warning: { light: "#a35200", dark: "#f5a524", brand: "#a35200" },
   destructive: { light: "#c9302c", dark: "#ff6369", brand: "#c9302c" },
@@ -177,6 +177,10 @@ export const contrastPairs: [ColorName, ColorName, number][] = [
   ["success", "surface", 4.5],
   ["warning", "surface", 4.5],
   ["border-control", "surface", 3],
+  // The focus ring is how a keyboard user finds their place: 3:1 on what it is drawn on (WCAG 1.4.11, #157).
+  ["ring", "surface", 3],
+  ["ring", "background", 3],
+  ["ring", "muted", 3],
   ["foreground", "material-thick", 4.5],
   // Chart marks are graphics: 3:1 on what they are drawn on (WCAG 1.4.11).
   ...(["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"] as const).flatMap((c): [ColorName, ColorName, number][] => [

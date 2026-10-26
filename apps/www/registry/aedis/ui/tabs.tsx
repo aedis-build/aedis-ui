@@ -27,7 +27,8 @@ function TabsTrigger({ className, ...props }: WithClassName<TabsPrimitive.Tab.Pr
 }
 
 function TabsContent({ className, ...props }: WithClassName<TabsPrimitive.Panel.Props>) {
-  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("outline-none", className)} {...props} />;
+  // Focusable (a panel without focusable content is a tab stop): the ring shows where the focus went.
+  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn("focus-ring rounded-sm", className)} {...props} />;
 }
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };

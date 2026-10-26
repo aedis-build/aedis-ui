@@ -2,6 +2,11 @@
 /* The Aedis UI theme (published as the `@aedis/theme` registry item). Theme by data, never by editing components. */
 @import "../registry/aedis/styles/theme.css";
 
+/* The sticky header is 3.5rem tall: what the keyboard or an anchor scrolls to lands below it, never under it (WCAG 2.4.11). */
+html {
+  scroll-padding-top: 4.5rem;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

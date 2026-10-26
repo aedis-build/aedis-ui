@@ -26,7 +26,7 @@ useReportHeight(["https://app.example"]);`;
 
 export default function MicroFrontends() {
   return (
-    <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
       <JsonLd path="/micro-frontends" />
       <section className="enter grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div className="flex flex-col gap-4">

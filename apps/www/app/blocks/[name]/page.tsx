@@ -30,7 +30,7 @@ export default async function BlockPage({ params }: { params: Promise<{ name: st
   const { parts, security } = blockSecurity(block);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-10 px-4 pt-12 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-6xl space-y-10 px-4 pt-12 pb-24 md:px-6">
       <JsonLd path={`/blocks/${name}`} />
       <header className="space-y-3">
         <p className="text-footnote text-muted-foreground"><Link href="/blocks" className="focus-ring rounded-xs hover:text-foreground">Blocks</Link> › {block.title}</p>
