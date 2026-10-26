@@ -26,7 +26,7 @@ function SiteFooter({ links, children, labels, className }: SiteFooterProps) {
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
               {links.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="focus-ring rounded-xs text-muted-foreground no-underline hover:text-foreground">
+                  <Link href={link.href} className="focus-ring inline-flex min-h-6 items-center rounded-xs text-muted-foreground no-underline hover:text-foreground">
                     {link.label}
                   </Link>
                 </li>

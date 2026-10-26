@@ -6,6 +6,8 @@ export default function AppShellDemo() {
     <div className="h-80 w-full overflow-hidden rounded-xl border border-border">
       <AppShell
         className="h-full min-h-0"
+        // The docs page already has a <main>.
+        main={false}
         title="Approvals"
         sidebar={
           <Sidebar

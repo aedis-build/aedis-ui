@@ -152,6 +152,22 @@ describe("Pagination", () => {
   });
 });
 
+describe("Pagination ends", () => {
+  it("renders a disabled end that is not a link but keeps its name (#160)", () => {
+    render(
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="?page=0" disabled />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText("Go to previous page").closest("[aria-disabled]")).toHaveAttribute("aria-disabled", "true");
+  });
+});
+
 describe("Item", () => {
   it("is a listitem in a group, and a safe link when it has an href", async () => {
     const { container } = render(

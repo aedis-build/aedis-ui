@@ -83,7 +83,14 @@ export const categories = ["Getting started", "Security", "Micro-frontends", "Fo
 export type Category = (typeof categories)[number];
 
 /** A file in examples/: rendered in Preview, its source shown in Code. A test checks `component` is that file's export. */
-export type Example = { title: string; description?: string; file: string; component: ComponentType };
+export type Example = {
+  title: string;
+  description?: string;
+  file: string;
+  component: ComponentType;
+  /** "start" for an example that grows when used (an accordion): centred, it would move under the pointer as it opens. */
+  align?: "center" | "start";
+};
 
 /** One exported part, e.g. DropdownMenuItem, with its own props. */
 export type ApiPart = { name: string; description?: string; props: Prop[] };
@@ -863,7 +870,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
     title: "Accordion",
     category: "Data display",
     description: "FAQ and docs sections that expand.",
-    examples: [{ title: "Accordion", file: "accordion/demo", component: AccordionDemo }],
+    examples: [{ title: "Accordion", file: "accordion/demo", component: AccordionDemo, align: "start" }],
     usage: `import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 <Accordion>
@@ -889,7 +896,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
     title: "Collapsible",
     category: "Data display",
     description: "Shows and hides one area.",
-    examples: [{ title: "Collapsible", file: "collapsible/demo", component: CollapsibleDemo }],
+    examples: [{ title: "Collapsible", file: "collapsible/demo", component: CollapsibleDemo, align: "start" }],
     usage: `import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 

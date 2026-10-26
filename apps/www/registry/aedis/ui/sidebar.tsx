@@ -13,7 +13,7 @@ export type SidebarItem = {
   icon?: React.ReactNode;
   /** Visible but not navigable, e.g. an area that opens after the first hire. */
   disabled?: boolean;
-  /** Why the item is disabled; shown as a hint. */
+  /** Why the item is disabled; shown under its label. */
   disabledReason?: string;
 };
 
@@ -47,14 +47,13 @@ function Sidebar({ groups, header, footer, linkComponent: Link = DefaultLink, la
             {group.items.map((item) => (
               <li key={item.href}>
                 {item.disabled ? (
-                  <span
-                    aria-disabled="true"
-                    title={item.disabledReason}
-                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-callout text-muted-foreground opacity-60"
-                  >
+                  // The reason is written out under the label: a title only shows on hover, never on touch.
+                  <span aria-disabled="true" className="flex items-start gap-2 rounded-sm px-2 py-1.5 text-callout text-muted-foreground">
                     {item.icon}
-                    <span className="flex-1">{item.label}</span>
-                    {item.disabledReason ? <span className="sr-only">({item.disabledReason})</span> : null}
+                    <span className="flex flex-1 flex-col">
+                      <span className="opacity-60">{item.label}</span>
+                      {item.disabledReason ? <span className="text-caption">{item.disabledReason}</span> : null}
+                    </span>
                   </span>
                 ) : (
                   <Link

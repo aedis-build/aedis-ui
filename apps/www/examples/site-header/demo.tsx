@@ -4,7 +4,7 @@ import { SiteHeader } from "@/registry/aedis/ui/site-header";
 export default function SiteHeaderDemo() {
   return (
     <SiteHeader
-      className="static"
+      className="static w-full"
       brand="Aedis"
       items={[
         { label: "Docs", href: "/docs/site-header", active: true },

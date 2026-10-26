@@ -15,23 +15,31 @@ function Pagination({ className, labels, "aria-label": ariaLabel, ...props }: Re
 }
 
 function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) {
-  return <ul data-slot="pagination-content" className={cn("flex items-center gap-1", className)} {...props} />;
+  return <ul data-slot="pagination-content" className={cn("flex flex-wrap items-center justify-center gap-1", className)} {...props} />;
 }
 
 function PaginationItem(props: React.ComponentProps<"li">) {
   return <li data-slot="pagination-item" {...props} />;
 }
 
-type PaginationLinkProps = Omit<React.ComponentProps<"a">, "href"> & { href: string; isActive?: boolean; size?: "default" | "icon" };
+type PaginationLinkProps = Omit<React.ComponentProps<"a">, "href"> & {
+  href: string;
+  isActive?: boolean;
+  size?: "default" | "icon";
+  /** Shown but not a link, e.g. Previous on the first page. */
+  disabled?: boolean;
+};
 
-/** The href goes through safeUrl; a refused URL renders a disabled page. */
-function PaginationLink({ className, href, isActive, size = "icon", children, ...props }: PaginationLinkProps) {
+/** The href goes through safeUrl; a refused URL, or `disabled`, renders a disabled page. */
+function PaginationLink({ className, href, isActive, size = "icon", disabled, children, ...props }: PaginationLinkProps) {
   const link = linkProps(href);
   const classes = cn(buttonVariants({ variant: isActive ? "outline" : "ghost", size }), "min-w-9 tabular-nums", className);
-  if (!link.href) {
+  if (disabled || !link.href) {
     return (
       <span data-slot="pagination-link" aria-disabled="true" className={cn(classes, "pointer-events-none opacity-50")}>
         {children}
+        {/* Previous and Next hide their text on phones; a disabled end keeps its name as text. */}
+        {props["aria-label"] ? <span className="sr-only">{props["aria-label"]}</span> : null}
       </span>
     );
   }

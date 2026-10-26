@@ -5,9 +5,39 @@ import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 
 import { cn, type WithClassName } from "@/lib/utils";
 
-/** Sections that expand. Collapsed content stays findable with the browser's in-page search. */
-function Accordion({ className, hiddenUntilFound = true, ...props }: WithClassName<AccordionPrimitive.Root.Props>) {
-  return <AccordionPrimitive.Root data-slot="accordion" hiddenUntilFound={hiddenUntilFound} className={cn("flex w-full flex-col", className)} {...props} />;
+const moves: Record<string, (i: number, last: number) => number> = {
+  ArrowDown: (i, last) => (i >= last ? 0 : i + 1),
+  ArrowUp: (i, last) => (i <= 0 ? last : i - 1),
+  Home: () => 0,
+  End: (_i, last) => last,
+};
+
+/**
+ * Sections that expand. Collapsed content stays findable with the browser's in-page search. ↑ ↓ Home End move between
+ * the headers (WAI-ARIA accordion pattern).
+ */
+function Accordion({ className, hiddenUntilFound = true, onKeyDown, ...props }: WithClassName<AccordionPrimitive.Root.Props>) {
+  return (
+    <AccordionPrimitive.Root
+      data-slot="accordion"
+      hiddenUntilFound={hiddenUntilFound}
+      className={cn("flex w-full flex-col", className)}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        const move = moves[event.key];
+        const root = event.currentTarget as HTMLElement;
+        const trigger = (event.target as HTMLElement).closest("[data-slot=accordion-trigger]");
+        // Only this accordion's own headers: a nested one handles its own keys.
+        if (!move || !trigger || trigger.closest("[data-slot=accordion]") !== root) return;
+        const triggers = [...root.querySelectorAll<HTMLElement>("[data-slot=accordion-trigger]:not([data-disabled])")].filter((t) => t.closest("[data-slot=accordion]") === root);
+        const next = triggers[move(triggers.indexOf(trigger as HTMLElement), triggers.length - 1)];
+        if (!next) return;
+        event.preventDefault();
+        next.focus();
+      }}
+      {...props}
+    />
+  );
 }
 
 function AccordionItem({ className, ...props }: WithClassName<AccordionPrimitive.Item.Props>) {

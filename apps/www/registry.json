@@ -575,7 +575,8 @@
         "@aedis/theme",
         "@aedis/utils",
         "@aedis/sidebar",
-        "@aedis/locale"
+        "@aedis/locale",
+        "@aedis/sheet"
       ],
       "files": [
         {
