@@ -11,6 +11,9 @@ test("the frame shrinks with the remote, and mf-element is styled with no CSP vi
   const frame = page.locator("iframe[title='Billing remote']");
   const log = page.getByRole("list", { name: "Bridge events" });
   await expect(log).toContainText(/Height: the remote reports \d+ px/);
+  // The frame animates its height: measure once it has reached the last height the remote reported.
+  const reported = async () => Number((await log.locator("li", { hasText: "Height:" }).last().innerText()).match(/(\d+) px/)![1]);
+  await expect.poll(async () => Math.abs((await frame.boundingBox())!.height - (await reported()))).toBeLessThan(1);
   const tall = (await frame.boundingBox())!.height;
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect.poll(async () => (await frame.boundingBox())!.height).toBeLessThan(tall - 10);
