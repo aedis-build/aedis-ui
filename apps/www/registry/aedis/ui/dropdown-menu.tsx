@@ -173,8 +173,15 @@ function DropdownMenuGroup(props: MenuPrimitive.Group.Props) {
   return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
-function DropdownMenuLabel({ className, inset, ...props }: WithClassName<MenuPrimitive.GroupLabel.Props> & { inset?: boolean }) {
-  return <MenuPrimitive.GroupLabel data-slot="dropdown-menu-label" data-inset={inset || undefined} className={cn("px-2 py-1.5 text-caption text-muted-foreground data-inset:pl-8", className)} {...props} />;
+const label = "px-2 py-1.5 text-caption text-muted-foreground data-inset:pl-8";
+
+/** A heading anywhere in the menu. Inside a Group or RadioGroup, DropdownMenuGroupLabel also names the group. */
+function DropdownMenuLabel({ className, inset, ...props }: React.ComponentProps<"div"> & { inset?: boolean }) {
+  return <div data-slot="dropdown-menu-label" data-inset={inset || undefined} className={cn(label, className)} {...props} />;
+}
+
+function DropdownMenuGroupLabel({ className, inset, ...props }: WithClassName<MenuPrimitive.GroupLabel.Props> & { inset?: boolean }) {
+  return <MenuPrimitive.GroupLabel data-slot="dropdown-menu-group-label" data-inset={inset || undefined} className={cn(label, className)} {...props} />;
 }
 
 function DropdownMenuSeparator({ className, ...props }: WithClassName<MenuPrimitive.Separator.Props>) {
@@ -207,6 +214,7 @@ export {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuGroupLabel,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuLinkItem,

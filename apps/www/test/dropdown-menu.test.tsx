@@ -10,6 +10,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuGroupLabel,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuLinkItem,
@@ -29,8 +30,9 @@ function Example({ onRename = () => {}, onRevoke = () => {} }) {
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="outline" />}>Session</DropdownMenuTrigger>
       <DropdownMenuContent>
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Session</DropdownMenuLabel>
+          <DropdownMenuGroupLabel>Session</DropdownMenuGroupLabel>
           <DropdownMenuItem onClick={onRename}>
             Rename <DropdownMenuShortcut>⌘R</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -130,6 +132,13 @@ describe("DropdownMenu", () => {
     const evil = screen.getByRole("menuitem", { name: "Evil" });
     expect(evil).not.toHaveAttribute("href");
     expect(evil).toHaveAttribute("aria-disabled", "true");
+  });
+
+  it("shows a label outside any group, and a group label names its group (#154)", async () => {
+    render(<Example />);
+    await open();
+    expect(screen.getByText("Actions")).toBeVisible();
+    expect(screen.getByRole("group", { name: "Session" })).toContainElement(screen.getByRole("menuitem", { name: /Rename/ }));
   });
 
   it("toggles checkbox and radio items and opens submenus", async () => {

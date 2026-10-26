@@ -820,7 +820,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
       { name: "DropdownMenuCheckboxItem", props: baseProps("@base-ui/react Menu.CheckboxItem (checked, onCheckedChange)") },
       { name: "DropdownMenuRadioGroup / DropdownMenuRadioItem", props: baseProps("@base-ui/react Menu.RadioGroup (value, onValueChange) and Menu.RadioItem (value)") },
       { name: "DropdownMenuSub / SubTrigger / SubContent", description: "A nested menu; SubContent opens to the right (start in RTL).", props: baseProps("@base-ui/react Menu.SubmenuRoot and Menu.SubmenuTrigger") },
-      { name: "DropdownMenuLabel, Separator, Group, Shortcut", description: "Structure: a group heading, a hairline, a group and a key hint shown at the end of an item.", props: [] },
+      { name: "DropdownMenuLabel, Separator, Group, Shortcut", description: "Structure: a heading that works anywhere in the menu, a hairline, a group and a key hint shown at the end of an item.", props: [] },
+      { name: "DropdownMenuGroupLabel", description: "The heading of a Group or RadioGroup, which it also names for screen readers. Only inside one of them.", props: [] },
     ],
     accessibility: {
       keyboard: [
