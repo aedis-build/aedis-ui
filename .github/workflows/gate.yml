@@ -13,7 +13,7 @@ permissions: {}
 jobs:
   gate:
     if: github.event.workflow_run.event == 'pull_request'
-    uses: aedis-build/aedis-platform/.github/workflows/merge-gate.yml@e4ced17a596571eb2dc8b6862a66fe4279ffa314 # v1
+    uses: aedis-build/aedis-platform/.github/workflows/merge-gate.yml@ca3b4d1e7ce0f73244e62c18b0fcea99f163b2ac # v1.0.0
     permissions:
       contents: read
       pull-requests: read
@@ -21,7 +21,6 @@ jobs:
       actions: read
     with:
       head-sha: ${{ github.event.workflow_run.head_sha }}
-      platform-ref: e4ced17a596571eb2dc8b6862a66fe4279ffa314
     secrets:
       app-id: ${{ secrets.AEDIS_APP_ID }}
       app-private-key: ${{ secrets.AEDIS_APP_PRIVATE_KEY }}

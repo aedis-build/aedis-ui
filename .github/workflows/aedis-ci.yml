@@ -24,7 +24,7 @@ permissions: {}
 jobs:
   aedis:
     if: github.event.action != 'closed'
-    uses: aedis-build/aedis-platform/.github/workflows/aedis-ci.yml@7bc8fa3ae92c8213db88b7191b30c3c6249f1efa # main
+    uses: aedis-build/aedis-platform/.github/workflows/aedis-ci.yml@ca3b4d1e7ce0f73244e62c18b0fcea99f163b2ac # v1.0.0
     permissions:
       contents: read
       actions: read
@@ -47,4 +47,3 @@ jobs:
       # Served by the repo's pinned wrangler with the real _headers, as Cloudflare serves it; local mode needs no login.
       dast-start: "pnpm site:build && (WRANGLER_SEND_METRICS=false pnpm exec wrangler dev --ip 127.0.0.1 --port 8080 > dast-server.log 2>&1 &)"
       dast-fail-on: Medium
-      platform-ref: 7bc8fa3ae92c8213db88b7191b30c3c6249f1efa
