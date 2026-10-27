@@ -23,16 +23,23 @@ function fail(message) {
 }
 
 /**
- * Runs a command, streaming its output; a non-zero exit fails the smoke test (unless `allowFailure`). Asynchronous
- * on purpose: the registry server below lives in this process, and a blocking spawn would never let it answer.
+ * Runs a command, streaming its output; a non-zero exit fails the smoke test (unless `allowFailure`), and so does any
+ * Node DeprecationWarning our own code prints (#174; npm's stderr is not ours to judge). Asynchronous on purpose: the
+ * registry server below lives in this process, and a blocking spawn would never let it answer.
  */
 function run(command, args, cwd, { allowFailure = false, capture = false } = {}) {
   console.log(`\n$ ${command} ${args.join(" ")}`);
   return new Promise((resolve) => {
     let out = "";
-    const child = spawn(command, args, { cwd, stdio: capture ? ["ignore", "pipe", "inherit"] : "inherit", shell });
+    let err = "";
+    const child = spawn(command, args, { cwd, stdio: capture ? ["ignore", "pipe", "pipe"] : ["inherit", "inherit", "pipe"], shell });
     child.stdout?.on("data", (d) => (out += d));
+    child.stderr.on("data", (d) => {
+      err += d;
+      process.stderr.write(d);
+    });
     child.on("close", (status) => {
+      if (command !== "npm" && err.includes("DeprecationWarning")) fail(`${command} ${args[0]} printed a DeprecationWarning`);
       if (status !== 0 && !allowFailure) fail(`${command} ${args[0]} exited with ${status}`);
       resolve(capture ? out.trim() : status);
     });
