@@ -96,7 +96,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
           {badges.length > 0 ? <div className="flex flex-wrap gap-1.5">{badges.map((b) => <Badge key={b} variant="secondary">{b}</Badge>)}</div> : null}
         </header>
 
-        {main ? <ComponentPreview code={exampleSource(main.file)} component={main.component} label={`${doc.title} example`} /> : null}
+        {main ? <ComponentPreview code={exampleSource(main.file)} component={main.component} label={`${doc.title} example`} align={main.align} /> : null}
 
         <Section id="installation" title="Installation">
           <InstallCommand name={doc.name} />
@@ -118,7 +118,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
               <div key={e.file} className="space-y-3 pt-2">
                 <h3 className="text-title-3">{e.title}</h3>
                 {e.description ? <p className="text-callout text-muted-foreground">{e.description}</p> : null}
-                <ComponentPreview code={exampleSource(e.file)} component={e.component} label={`${e.title} example`} />
+                <ComponentPreview code={exampleSource(e.file)} component={e.component} label={`${e.title} example`} align={e.align} />
               </div>
             ))}
           </Section>

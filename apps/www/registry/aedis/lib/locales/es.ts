@@ -15,6 +15,8 @@ export const es: Messages = {
     sendRequest: "Pedir cambios",
     back: "Volver",
     error: "Algo salió mal. Inténtalo de nuevo.",
+    approved: "Aprobado por ti",
+    changesRequested: "Cambios pedidos por ti:",
   },
   handRaise: {
     raised: "levantó la mano",
@@ -27,6 +29,7 @@ export const es: Messages = {
     alwaysHint: "Se convierte en una regla permanente que el agente sigue en todas las conversaciones.",
     submit: "Responder",
     error: "Algo salió mal. Inténtalo de nuevo.",
+    answered: "Respondido por ti",
   },
   chat: {
     placeholder: "Escribe un mensaje",
@@ -34,6 +37,8 @@ export const es: Messages = {
     message: "Mensaje",
     log: "Conversación",
     sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+    truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
+    jumpToLatest: "Ir a lo más reciente",
   },
   appShell: { menuLabel: "Menú" },
   sidebar: { label: "Navegación principal" },
@@ -101,6 +106,7 @@ export const es: Messages = {
     chart: "gráfico",
     item: "Elemento",
     notShown: "{count} valores no mostrados: no son números en el rango.",
+    noData: "No hay datos para mostrar.",
   },
   reasoning: {
     thinking: "Pensando…",
@@ -126,12 +132,16 @@ export const es: Messages = {
     tooMany: "Adjunta como máximo {count} archivos.",
     uploadFailed: "No se pudo subir {name}. Inténtalo de nuevo.",
     sendError: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+    truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     model: "Modelo",
   },
   command: {
     label: "Buscar",
     placeholder: "Buscar…",
     empty: "Sin resultados.",
+  },
+  field: {
+    truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
   },
   feedback: {
     label: "Valora esta respuesta",

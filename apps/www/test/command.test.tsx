@@ -61,7 +61,11 @@ describe("Command", () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(<Command items={items} onSelect={onSelect} />);
+    // The live region exists before it has anything to say, so the change is announced (#158).
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("");
     await user.type(screen.getByRole("combobox"), "zzz{Enter}{ArrowDown}");
+    expect(screen.getByRole("status")).toBe(status);
     expect(screen.getByRole("status")).toHaveTextContent("No results.");
     expect(onSelect).not.toHaveBeenCalled();
     expect(screen.getByRole("combobox")).toHaveAttribute("maxLength", "256");

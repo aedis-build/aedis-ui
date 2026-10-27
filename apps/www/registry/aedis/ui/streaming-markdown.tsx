@@ -33,6 +33,19 @@ export function settledMarkdown(text: string): string {
   return out;
 }
 
+/**
+ * Splits text that is still arriving at its last blank line outside a code fence: the head is complete and is parsed
+ * once, only the tail is parsed again as tokens arrive.
+ * shortcut: a block that spans a blank line (a loose list's indented continuation) can render apart until the stream
+ * ends, when the whole text is parsed as one; parse incrementally if that ever shows.
+ */
+export function splitSettled(text: string): [string, string] {
+  const end = text.trimEnd();
+  let cut = end.lastIndexOf("\n\n");
+  while (cut > 0 && (end.slice(0, cut).match(/^ {0,3}(```|~~~)/gm)?.length ?? 0) % 2) cut = end.lastIndexOf("\n\n", cut - 1);
+  return cut > 0 ? [text.slice(0, cut), text.slice(cut + 2)] : ["", text];
+}
+
 export type StreamingMarkdownProps = {
   /** The answer so far, as untrusted markdown. Grows while `streaming`. */
   children: string;
@@ -43,7 +56,10 @@ export type StreamingMarkdownProps = {
   className?: string;
 };
 
-/** Markdown for an answer that arrives token by token, rendered at most once per animation frame. */
+/**
+ * Markdown for an answer that arrives token by token, rendered at most once per animation frame. Only the paragraph
+ * being written is parsed again; the ones before it are parsed once.
+ */
 function StreamingMarkdown({ children, streaming = false, allowImages, maxLength = MAX_STREAMING_LENGTH, className }: StreamingMarkdownProps) {
   const [frame, setFrame] = React.useState(children);
 
@@ -54,11 +70,12 @@ function StreamingMarkdown({ children, streaming = false, allowImages, maxLength
   }, [children]);
 
   const capped = frame.slice(0, maxLength);
-  const text = streaming ? settledMarkdown(capped) : capped;
+  const [head, tail] = streaming ? splitSettled(capped) : ["", capped];
 
   return (
-    <div data-slot="streaming-markdown" aria-busy={streaming || undefined} className={cn(streaming && "stream-caret", className)}>
-      <Markdown allowImages={allowImages}>{text}</Markdown>
+    <div data-slot="streaming-markdown" aria-busy={streaming || undefined} className={cn("space-y-2", streaming && "stream-caret", className)}>
+      {head ? <Markdown allowImages={allowImages}>{head}</Markdown> : null}
+      <Markdown allowImages={allowImages}>{streaming ? settledMarkdown(tail) : tail}</Markdown>
     </div>
   );
 }

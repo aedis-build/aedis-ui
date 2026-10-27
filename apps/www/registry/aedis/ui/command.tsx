@@ -46,8 +46,18 @@ function Command({ items, onSelect, labels, className }: CommandProps) {
   const current = ordered[Math.min(active, ordered.length - 1)];
   const optionId = (i: CommandItem) => `${id}-${ordered.indexOf(i)}`;
 
+  const list = React.useRef<HTMLDivElement>(null);
+  // Scrolls the list itself, never the page around it. The first option of a group brings its heading along, so
+  // wrapping from the last option to the first shows where it landed.
   React.useEffect(() => {
-    if (current) document.getElementById(optionId(current))?.scrollIntoView?.({ block: "nearest" });
+    const box = list.current;
+    const option = current && document.getElementById(optionId(current));
+    if (!box || !option) return;
+    const target = option.previousElementSibling?.getAttribute("role") === "option" ? option : option.parentElement!;
+    const top = target.offsetTop;
+    const bottom = option.offsetTop + option.offsetHeight;
+    if (top < box.scrollTop) box.scrollTop = Math.max(0, top - 8);
+    else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight;
   });
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -79,7 +89,7 @@ function Command({ items, onSelect, labels, className }: CommandProps) {
         onKeyDown={onKeyDown}
         className="h-12 rounded-none border-0 border-b border-hairline bg-transparent px-4 text-body"
       />
-      <div id={`${id}-list`} role="listbox" aria-label={l.label} className="max-h-80 overflow-y-auto scroll-fade-y p-2">
+      <div ref={list} id={`${id}-list`} role="listbox" aria-label={l.label} className="relative max-h-80 overflow-y-auto scroll-fade-y p-2">
         {groups.map((g) => (
           <div key={g} role="group" aria-labelledby={g ? `${id}-g-${groups.indexOf(g)}` : undefined}>
             {g ? <div id={`${id}-g-${groups.indexOf(g)}`} className="px-2 pt-2 pb-1 text-caption font-medium text-muted-foreground">{g}</div> : null}
@@ -100,7 +110,10 @@ function Command({ items, onSelect, labels, className }: CommandProps) {
           </div>
         ))}
       </div>
-      {ordered.length === 0 ? <p role="status" className="px-4 pb-6 text-center text-callout text-muted-foreground">{l.empty}</p> : null}
+      {/* Mounted from the start: a live region that appears together with its text may not be announced. */}
+      <p role="status" className={ordered.length === 0 ? "px-4 pb-6 text-center text-callout text-muted-foreground" : "sr-only"}>
+        {ordered.length === 0 ? l.empty : ""}
+      </p>
     </div>
   );
 }

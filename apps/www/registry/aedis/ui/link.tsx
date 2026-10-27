@@ -39,7 +39,7 @@ function Link({ href, children, className, labels, ...props }: LinkProps) {
   const link = linkProps(href);
   if (!link.href) return <span className={className}>{children}</span>;
   return (
-    <a data-slot="link" href={link.href} rel={link.rel} className={cn("text-link underline underline-offset-4", className)} {...props}>
+    <a data-slot="link" href={link.href} rel={link.rel} className={cn("focus-ring rounded-xs text-link underline underline-offset-4", className)} {...props}>
       {children}
       {link.external ? <ExternalMark labels={labels} /> : null}
     </a>

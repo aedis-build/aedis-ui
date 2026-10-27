@@ -28,7 +28,8 @@ function show(type: ToastType | undefined, title: string, options: ToastOptions 
     title: stripInvisible(title),
     description: options.description === undefined ? undefined : stripInvisible(options.description),
     timeout: options.timeout,
-    // Errors interrupt (an assertive live region, like role="alert"); everything else is announced politely.
+    // Errors interrupt: Base UI repeats a "high" toast in a visually hidden role="alert". The visible toast also sits in
+    // the viewport's polite region, so a screen reader may read an error twice; the alert is the one that interrupts.
     priority: type === "error" ? "high" : "low",
     actionProps: options.action ? { children: options.action.label, onClick: options.action.onClick } : undefined,
   });

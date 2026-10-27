@@ -26,8 +26,9 @@ describe("Sidebar", () => {
   it("keeps disabled areas visible but not navigable, with the reason", () => {
     render(nav);
     expect(screen.queryByRole("link", { name: /Social media/ })).toBeNull();
-    expect(screen.getByText("Social media").parentElement).toHaveAttribute("aria-disabled", "true");
-    expect(screen.getByText("(opens after the first hire)")).toBeInTheDocument();
+    expect(screen.getByText("Social media").closest("[aria-disabled]")).toHaveAttribute("aria-disabled", "true");
+    // Written out, not only in a title: touch screens never show a title (#160).
+    expect(screen.getByText("opens after the first hire")).toBeVisible();
   });
 
   it("uses the router link component when given", () => {

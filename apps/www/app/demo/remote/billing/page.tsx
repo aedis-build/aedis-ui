@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Billing remote", robots: { index: fa
 /** The remote of the /micro-frontends demo, alone: only the site's own pages may frame it (scripts/headers.ts). */
 export default function BillingRemote() {
   return (
-    <main data-bare>
+    <main id="main" data-bare>
       <MfDemoRemote />
     </main>
   );

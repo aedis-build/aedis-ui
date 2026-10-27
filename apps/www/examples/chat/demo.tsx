@@ -20,7 +20,7 @@ export default function ChatDemo() {
   const [working, setWorking] = React.useState(false);
 
   return (
-    <div className="flex h-96 flex-col">
+    <div className="flex h-96 w-full flex-col">
       <Chat
         messages={messages}
         working={working ? "Rafael is working on it…" : undefined}

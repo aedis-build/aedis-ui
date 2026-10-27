@@ -62,8 +62,10 @@ function Feedback({ messageId, endpoint, maxLength = 1000, labels, className }: 
             size="icon"
             aria-label={r === "positive" ? l.positive : l.negative}
             aria-pressed={rating === r}
-            disabled={state === "sending" || done}
-            onClick={() => choose(r)}
+            // Not disabled: the thumb that was pressed keeps the focus while it sends and after.
+            pending={state === "sending"}
+            aria-disabled={done || undefined}
+            onClick={() => !done && choose(r)}
             className="size-8 text-muted-foreground aria-pressed:bg-accent-soft aria-pressed:text-foreground"
           >
             <svg viewBox="0 0 16 16" aria-hidden="true" className={cn(r === "negative" && "rotate-180")} fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -86,8 +88,8 @@ function Feedback({ messageId, endpoint, maxLength = 1000, labels, className }: 
           <label htmlFor={commentId} className="text-muted-foreground">{l.comment}</label>
           <Textarea id={commentId} value={comment} maxLength={maxLength} rows={2} onChange={(e) => setComment(e.target.value)} placeholder={l.placeholder} />
           <div className="flex gap-2">
-            <Button type="submit" size="sm" disabled={state === "sending"}>{l.send}</Button>
-            <Button type="button" size="sm" variant="ghost" onClick={() => void send("negative")} disabled={state === "sending"}>{l.skip}</Button>
+            <Button type="submit" size="sm" pending={state === "sending"}>{l.send}</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => void send("negative")} pending={state === "sending"}>{l.skip}</Button>
           </div>
         </form>
       ) : null}

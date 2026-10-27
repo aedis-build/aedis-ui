@@ -31,6 +31,7 @@ export function ThemeEditor() {
   const [mode, setMode] = React.useState<ThemeMode>("light");
   const [imported, setImported] = React.useState("");
   const [importErrors, setImportErrors] = React.useState<string[]>([]);
+  const [importedName, setImportedName] = React.useState<string | null>(null);
   const preview = React.useRef<HTMLDivElement>(null);
   const lastValid = React.useRef<CustomTheme>(initial);
   const result = React.useMemo(() => validateTheme(draft), [draft]);
@@ -77,6 +78,7 @@ export function ThemeEditor() {
   function importTheme() {
     const parsed = parseThemeJson(imported);
     setImportErrors(parsed.ok ? [] : parsed.errors);
+    setImportedName(parsed.ok ? parsed.theme.name : null);
     if (parsed.ok) setDraft(parsed.theme);
   }
 
@@ -183,6 +185,7 @@ export function ThemeEditor() {
             <Label htmlFor="theme-import">Import</Label>
             <Textarea id="theme-import" rows={8} className="font-mono text-footnote" maxLength={16384} value={imported} onChange={(e) => setImported(e.target.value)} placeholder='{ "version": 1, ... }' />
             <Button variant="secondary" onClick={importTheme}>Import theme</Button>
+            <p role="status" className="text-footnote text-success">{importedName === null ? "" : `Imported “${importedName}”: the editor and the preview now use it.`}</p>
             {importErrors.length ? (
               <ul role="alert" className="list-disc pl-5 text-footnote text-destructive">
                 {importErrors.map((e) => <li key={e}>{e}</li>)}

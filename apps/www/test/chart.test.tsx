@@ -16,6 +16,12 @@ const series = [{ key: "a", label: "Approved" }, { key: "b", label: XSS }];
 const week = ["Mon", "Tue", "Wed"].map((day, i) => ({ day, a: 10 + i, b: 4 + i }));
 
 describe("charts", () => {
+  it("says when there is nothing to draw, and drops the legend (#159)", () => {
+    render(<BarChart title="Bars" data={[]} index="day" series={series} />);
+    expect(screen.getByText("No data to show.")).toBeVisible();
+    expect(document.querySelector("[data-slot=chart-legend]")).toBeNull();
+  });
+
   it("render names, ticks, tooltips and the center as text, never as markup", () => {
     const data = [{ day: XSS, a: 3, b: 1 }];
     const { container } = render(

@@ -26,7 +26,7 @@ export default function Security() {
   const doc = securityDoc();
   const supply = doc.attacks.find((a) => a.attack.includes("Supply chain"));
   return (
-    <main className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-14 px-4 pt-14 pb-24 md:px-6">
       <JsonLd path="/security" />
       <section className="enter max-w-3xl space-y-4">
         <Badge className="bg-success/12 text-success">L3 Regulated · OWASP · MITRE ATT&amp;CK and ATLAS</Badge>

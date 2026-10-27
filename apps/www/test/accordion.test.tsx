@@ -22,6 +22,23 @@ function Faq(props: { multiple?: boolean }) {
 }
 
 describe("Accordion", () => {
+  it("moves between headers with the arrows, Home and End, wrapping at the ends (#160)", async () => {
+    const user = userEvent.setup();
+    render(<Faq />);
+    const [who, where] = [screen.getByRole("button", { name: "Who approves?" }), screen.getByRole("button", { name: "Where does data go?" })];
+    await user.tab();
+    await user.keyboard("{ArrowDown}");
+    expect(where).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
+    expect(who).toHaveFocus();
+    await user.keyboard("{End}");
+    expect(where).toHaveFocus();
+    await user.keyboard("{Home}");
+    expect(who).toHaveFocus();
+    await user.keyboard("{ArrowUp}");
+    expect(where).toHaveFocus();
+  });
+
   it("expands from the keyboard; Tab moves between headers (APG, no roving focus)", async () => {
     const user = userEvent.setup();
     render(<Faq />);

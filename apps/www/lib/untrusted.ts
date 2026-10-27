@@ -1,3 +1,5 @@
+import type * as React from "react";
+
 /**
  * Invisible code points that carry no visible text but can hide instructions from the person reading while an
  * agent still reads them (ASCII smuggling with Unicode tags, zero-width text, bidi overrides that reorder what is
@@ -15,6 +17,54 @@ export function stripInvisible(text: string): string {
 export function hasInvisible(text: string): boolean {
   INVISIBLE.lastIndex = 0;
   return INVISIBLE.test(text);
+}
+
+type TextField = HTMLInputElement | HTMLTextAreaElement;
+
+/**
+ * Change and paste handlers for a text field. Hidden code points are removed as they are typed or pasted, caret kept
+ * in place, so the field shows what will be sent (a typed RLO would otherwise show reversed text). A paste longer than
+ * the room left is cut by the browser; `truncated` is then shown as the field's own validation message.
+ */
+export function guardTextField<T extends TextField>(options: {
+  allowInvisible?: boolean;
+  maxLength?: number;
+  /** Shown when a paste is cut; null to say nothing (the caller has its own notice). */
+  truncated: string | null;
+  onChange?: (event: React.ChangeEvent<T>) => void;
+  onPaste?: (event: React.ClipboardEvent<T>) => void;
+}) {
+  return {
+    onChange(event: React.ChangeEvent<T>) {
+      const field = event.currentTarget;
+      // The change a cut paste causes keeps its message; the next one clears it.
+      if (field.dataset.pasteCut) delete field.dataset.pasteCut;
+      else field.setCustomValidity("");
+      if (!options.allowInvisible) {
+        const text = field.value;
+        const clean = stripInvisible(text);
+        if (clean !== text) {
+          const caret = stripInvisible(text.slice(0, field.selectionStart ?? text.length)).length;
+          field.value = clean;
+          // Email and number inputs have no selection API: there the caret simply goes to the end.
+          try {
+            field.setSelectionRange(caret, caret);
+          } catch {}
+        }
+      }
+      options.onChange?.(event);
+    },
+    onPaste(event: React.ClipboardEvent<T>) {
+      options.onPaste?.(event);
+      const field = event.currentTarget;
+      if (options.truncated === null || options.maxLength === undefined || options.maxLength < 0) return;
+      const room = options.maxLength - field.value.length + ((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
+      if (event.clipboardData.getData("text").length <= room) return;
+      field.dataset.pasteCut = "true";
+      field.setCustomValidity(options.truncated.replace("{max}", String(options.maxLength)));
+      field.reportValidity();
+    },
+  };
 }
 
 const SAFE_PROTOCOLS = ["http:", "https:", "mailto:"];

@@ -31,7 +31,11 @@ describe("Feedback", () => {
     expect(calls[0].init).toMatchObject({ method: "POST", credentials: "same-origin", redirect: "error" });
     expect(JSON.parse(calls[0].init.body as string)).toEqual({ messageId: "msg-42", rating: "positive" });
     expect(screen.getByRole("button", { name: "Good answer" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Good answer" })).toBeDisabled();
+    // Done, but still focusable: the focus stays on the thumb that was pressed (#156).
+    expect(screen.getByRole("button", { name: "Good answer" })).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: "Good answer" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Bad answer" }));
+    expect(calls).toHaveLength(1);
   });
 
   it("asks what went wrong after a thumbs down, bounded and without hidden characters", async () => {

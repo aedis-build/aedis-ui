@@ -18,7 +18,7 @@ const rules = [
 
 export default function Charts() {
   return (
-    <main className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
       <JsonLd path="/charts" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Charts</h1>

@@ -369,7 +369,7 @@ const utilities = String.raw`
 }
 /* Caret after the last block of streaming text; never under reduced motion. */
 @utility stream-caret {
-  & [data-slot="markdown"] > :last-child::after {
+  & [data-slot="markdown"]:last-child > :last-child::after {
     content: "";
     display: inline-block;
     width: 0.5em;
@@ -380,7 +380,7 @@ const utilities = String.raw`
     animation: caret 1s steps(1) infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    & [data-slot="markdown"] > :last-child::after {
+    & [data-slot="markdown"]:last-child > :last-child::after {
       content: none;
     }
   }

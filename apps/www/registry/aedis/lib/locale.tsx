@@ -17,6 +17,9 @@ export type Messages = {
     sendRequest: string;
     back: string;
     error: string;
+    /** Shown instead of the actions once approved. */
+    approved: string;
+    changesRequested: string;
   };
   handRaise: {
     raised: string;
@@ -29,6 +32,8 @@ export type Messages = {
     alwaysHint: string;
     submit: string;
     error: string;
+    /** Shown instead of the form once answered, before the scope. */
+    answered: string;
   };
   chat: {
     placeholder: string;
@@ -36,6 +41,9 @@ export type Messages = {
     message: string;
     log: string;
     sendError: string;
+    /** Says that a paste did not fit; {max} is the limit. */
+    truncated: string;
+    jumpToLatest: string;
   };
   appShell: { menuLabel: string };
   /** Sidebar stays a Server Component, so it does not read the provider: pass `label={messages.sidebar.label}`. */
@@ -107,6 +115,8 @@ export type Messages = {
     item: string;
     /** {count} is the number of values that were not drawn. */
     notShown: string;
+    /** Shown over an empty chart. */
+    noData: string;
   };
   reasoning: {
     thinking: string;
@@ -132,12 +142,18 @@ export type Messages = {
     tooMany: string;
     uploadFailed: string;
     sendError: string;
+    truncated: string;
     model: string;
   };
   command: {
     label: string;
     placeholder: string;
     empty: string;
+  };
+  /** Input and Textarea. */
+  field: {
+    /** A paste longer than the room left was cut; {max} is the limit. */
+    truncated: string;
   };
   feedback: {
     label: string;
@@ -167,6 +183,8 @@ export const en: Messages = {
     sendRequest: "Request changes",
     back: "Back",
     error: "Something went wrong. Try again.",
+    approved: "Approved by you",
+    changesRequested: "Changes requested by you:",
   },
   handRaise: {
     raised: "raised a hand",
@@ -179,6 +197,7 @@ export const en: Messages = {
     alwaysHint: "Becomes a lasting rule the agent follows in every conversation.",
     submit: "Answer",
     error: "Something went wrong. Try again.",
+    answered: "Answered by you",
   },
   chat: {
     placeholder: "Write a message",
@@ -186,6 +205,8 @@ export const en: Messages = {
     message: "Message",
     log: "Conversation",
     sendError: "The message could not be sent. Try again.",
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
+    jumpToLatest: "Jump to latest",
   },
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Main navigation" },
@@ -253,6 +274,7 @@ export const en: Messages = {
     chart: "chart",
     item: "Item",
     notShown: "{count} values not shown: not a number in range.",
+    noData: "No data to show.",
   },
   reasoning: {
     thinking: "Thinking…",
@@ -278,12 +300,16 @@ export const en: Messages = {
     tooMany: "Attach at most {count} files.",
     uploadFailed: "{name} could not be uploaded. Try again.",
     sendError: "The message could not be sent. Try again.",
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
     model: "Model",
   },
   command: {
     label: "Search",
     placeholder: "Search…",
     empty: "No results.",
+  },
+  field: {
+    truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
   },
   feedback: {
     label: "Rate this answer",
@@ -310,7 +336,10 @@ export type LocaleProviderProps = {
   children: React.ReactNode;
 };
 
-/** Active locale and dictionary for every Aedis UI component below it. */
+/**
+ * Active locale and dictionary for every Aedis UI component below it. It renders no element: put `lang={locale}` on
+ * the element that holds the localized region (or on <html>), so screen readers use that language's voice.
+ */
 function LocaleProvider({ locale, messages = en, children }: LocaleProviderProps) {
   const value = React.useMemo(() => ({ locale, messages }), [locale, messages]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

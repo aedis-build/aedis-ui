@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type * as React from "react";
+import * as React from "react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -11,8 +11,20 @@ export type NavGroup = { title: string; items: { href: string; title: string }[]
 /** The docs navigation by category, with the current page marked. Shared by the sidebar and the phone sheet. */
 export function DocsNav({ groups, onNavigate }: { groups: NavGroup[]; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const nav = React.useRef<HTMLElement>(null);
+
+  // The current page can sit far down a long list: bring it into the list's own view, never scrolling the page.
+  React.useEffect(() => {
+    const current = nav.current?.querySelector<HTMLElement>("[aria-current=page]");
+    let box = nav.current?.parentElement;
+    while (box && !(box.scrollHeight > box.clientHeight && /auto|scroll/.test(getComputedStyle(box).overflowY))) box = box.parentElement;
+    if (!current || !box || box === document.documentElement || box === document.body) return;
+    const offset = current.getBoundingClientRect().top - box.getBoundingClientRect().top;
+    if (offset < 0 || offset > box.clientHeight - current.offsetHeight) box.scrollTop += offset - box.clientHeight / 3;
+  }, [pathname]);
+
   return (
-    <nav aria-label="Docs" className="space-y-5 text-callout">
+    <nav ref={nav} aria-label="Docs" className="space-y-5 text-callout">
       {groups.map((g) => (
         <div key={g.title}>
           <p className="mb-1 px-2.5 text-caption font-medium text-muted-foreground">{g.title}</p>

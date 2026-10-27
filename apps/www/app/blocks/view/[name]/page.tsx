@@ -21,7 +21,7 @@ export default async function BlockView({ params }: { params: Promise<{ name: st
   if (!block) notFound();
   const Demo = block.demo;
   return (
-    <main data-bare className="p-4 sm:p-6">
+    <main id="main" data-bare className="p-4 sm:p-6">
       <Demo />
     </main>
   );

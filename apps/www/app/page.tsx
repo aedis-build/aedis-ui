@@ -36,7 +36,7 @@ function More({ href, children }: { href: string; children: string }) {
 
 export default function Home() {
   return (
-    <main>
+    <main id="main">
       <JsonLd path="/" />
       <section className="enter mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 pt-16 pb-10 text-center md:px-6 md:pt-20">
         <Link href="/blocks" className="focus-ring rounded-full">

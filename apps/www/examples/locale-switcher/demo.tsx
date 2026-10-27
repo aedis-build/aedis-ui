@@ -34,7 +34,8 @@ export default function LocaleSwitcherDemo() {
   const [locale, setLocale] = React.useState("pt-BR");
   return (
     <LocaleProvider locale={locale} messages={dictionaries[locale]}>
-      <div className="flex max-w-md flex-col gap-3">
+      {/* lang: screen readers read this region in its own language's voice. */}
+      <div lang={locale} className="flex max-w-md flex-col gap-3">
         <LocaleSwitcher locales={locales} onChange={setLocale} />
         <ApprovalCard requester="Rafael" content="**Proposal for Acme Bistro**" onApprove={wait} onRequestChanges={wait} />
         <Formatted />

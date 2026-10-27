@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, renderHook } from "@testing-library/react";
 
 import { useIdleTimeout } from "@/registry/aedis/hooks/use-idle-timeout";
 
@@ -20,6 +20,23 @@ describe("useIdleTimeout", () => {
     expect(onIdle).not.toHaveBeenCalled();
     act(() => void vi.advanceTimersByTime(200));
     expect(onIdle).toHaveBeenCalledOnce();
+  });
+
+  it("warns before the end, and Escape or stay() keeps the session (#162)", () => {
+    const onIdle = vi.fn();
+    const { result } = renderHook(() => useIdleTimeout(1000, onIdle, true, 300));
+    act(() => void vi.advanceTimersByTime(700));
+    expect(result.current.warning).toBe(true);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(result.current.warning).toBe(false);
+    act(() => void vi.advanceTimersByTime(700));
+    expect(result.current.warning).toBe(true);
+    act(() => result.current.stay());
+    act(() => void vi.advanceTimersByTime(900));
+    expect(onIdle).not.toHaveBeenCalled();
+    act(() => void vi.advanceTimersByTime(100));
+    expect(onIdle).toHaveBeenCalledOnce();
+    expect(result.current.warning).toBe(false);
   });
 
   it("fires at once when the tab comes back past the limit", () => {

@@ -24,7 +24,8 @@ export type PromptMessage = {
 export type PromptInputProps = {
   /**
    * Sends the message and streams the answer. Resolve when the answer is complete; while it runs the button is Stop,
-   * which aborts `signal` (cancel the request and the server's work with it). Throw to keep the draft.
+   * which aborts `signal` (cancel the request and the server's work with it). The input clears on send; when it throws
+   * or is stopped, the text and attachments come back so they can be edited and sent again.
    */
   onSend: (message: PromptMessage, context: { signal: AbortSignal }) => Promise<void>;
   /** Match your server limit. */
@@ -41,6 +42,8 @@ export type PromptInputProps = {
 
 type Attachment = { key: number; name: string; status: "uploading" | "done" | "error"; progress: number; id?: string; abort: AbortController };
 
+const swap = "transition-[opacity,scale] duration-(--duration-fast) ease-out starting:scale-75 starting:opacity-0 motion-reduce:transition-none";
+
 const fill = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (_m, k: string) => String(values[k] ?? ""));
 
 /** The composer for an agent chat: bounded text, attachments with checks and progress, send that turns into stop. */
@@ -51,6 +54,9 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
   const [files, setFiles] = React.useState<Attachment[]>([]);
   const [problem, setProblem] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState<AbortController | null>(null);
+  const [notice, setNotice] = React.useState("");
+  const box = React.useRef<HTMLTextAreaElement>(null);
+  const button = React.useRef<HTMLButtonElement>(null);
   const counter = React.useRef(0);
   const picker = React.useRef<HTMLInputElement>(null);
   const textId = React.useId();
@@ -103,16 +109,28 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
     e?.preventDefault();
     if (!canSend) return;
     const controller = new AbortController();
+    const sent = { text: clean, files: ready };
+    // Cleared on send, so what is typed while the answer streams is kept.
+    setText("");
+    setFiles([]);
+    setNotice("");
     setPending(controller);
     setProblem(null);
+    let failed = false;
     try {
       await onSend({ text: clean, attachments: ready.map((f) => ({ id: f.id!, name: f.name })), model }, { signal: controller.signal });
-      setText("");
-      setFiles([]);
-    } catch (error) {
-      if (!controller.signal.aborted) setProblem(l.sendError);
+    } catch {
+      failed = !controller.signal.aborted;
+      if (failed) setProblem(l.sendError);
     } finally {
       setPending(null);
+      // Failed or stopped: the prompt comes back to be edited, ahead of anything typed meanwhile.
+      if (failed || controller.signal.aborted) {
+        setText((typed) => (typed ? `${sent.text}\n${typed}` : sent.text));
+        setFiles((now) => [...sent.files, ...now]);
+      }
+      // Send disables once the input is empty: keep focus in the composer instead of losing it to the page.
+      if (document.activeElement === button.current) box.current?.focus();
     }
   }
 
@@ -134,19 +152,26 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
       ) : null}
       <label htmlFor={textId} className="sr-only">{l.message}</label>
       <Textarea
+        ref={box}
         id={textId}
         value={text}
         maxLength={maxLength}
-        rows={2}
+        // This composer says so itself, in its status line.
+        pasteHint={false}
         placeholder={l.placeholder}
         onChange={(e) => setText(e.target.value)}
+        onPaste={(e) => {
+          const t = e.currentTarget;
+          const room = maxLength - t.value.length + (t.selectionEnd - t.selectionStart);
+          setNotice(e.clipboardData.getData("text").length > room ? fill(l.truncated, { max: maxLength }) : "");
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
             e.preventDefault();
             void send();
           }
         }}
-        className="max-h-60 min-h-12 resize-none border-0 bg-transparent px-2 py-1.5 text-body shadow-none focus-visible:ring-0"
+        className="max-h-60 min-h-15 resize-none border-0 bg-transparent px-2 py-1.5 text-body shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <div className="flex items-center gap-2">
         {rules ? (
@@ -169,18 +194,34 @@ function PromptInput({ onSend, maxLength = 8000, attachments: rules, models, mod
             {models.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
         ) : null}
-        <span className="ml-auto text-caption text-muted-foreground tabular-nums" aria-hidden="true">
+        <span role="status" className="ml-auto min-w-0 text-right text-caption text-muted-foreground">{notice}</span>
+        <span className="shrink-0 text-caption text-muted-foreground tabular-nums">
           {text.length > maxLength * 0.9 ? `${text.length}/${maxLength}` : null}
         </span>
-        {pending ? (
-          <Button key="stop" type="button" size="icon" aria-label={l.stop} onClick={() => pending.abort()} className="size-8 rounded-full transition-[opacity,scale] duration-(--duration-fast) ease-out starting:scale-75 starting:opacity-0 motion-reduce:transition-none">
-            <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><rect x="4.5" y="4.5" width="7" height="7" rx="1.5" /></svg>
-          </Button>
-        ) : (
-          <Button key="send" type="submit" size="icon" aria-label={l.send} disabled={!canSend} className="size-8 rounded-full transition-[opacity,scale] duration-(--duration-fast) ease-out starting:scale-75 starting:opacity-0 motion-reduce:transition-none">
-            <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
-          </Button>
-        )}
+        {/* One button that turns into Stop and back, so the focus it holds survives the switch. */}
+        <Button
+          ref={button}
+          type={pending ? "button" : "submit"}
+          size="icon"
+          aria-label={pending ? l.stop : l.send}
+          disabled={!pending && !canSend}
+          onClick={
+            pending
+              ? (e) => {
+                  // The abort settles before the click's default action, by which time this is a submit button again.
+                  e.preventDefault();
+                  pending.abort();
+                }
+              : undefined
+          }
+          className="size-8 rounded-full"
+        >
+          {pending ? (
+            <svg key="stop" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" className={swap}><rect x="4.5" y="4.5" width="7" height="7" rx="1.5" /></svg>
+          ) : (
+            <svg key="send" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.75" className={swap}><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
+          )}
+        </Button>
       </div>
       {problem ? <p role="alert" className="px-2 text-footnote text-destructive">{problem}</p> : null}
     </form>

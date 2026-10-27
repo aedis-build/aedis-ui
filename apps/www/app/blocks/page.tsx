@@ -39,7 +39,7 @@ function Block({ block }: { block: BlockDoc }) {
 
 export default function Blocks() {
   return (
-    <main className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
+    <main id="main" className="mx-auto max-w-7xl space-y-7 px-4 pt-12 pb-24 md:px-6">
       <JsonLd path="/blocks" />
       <header className="enter max-w-3xl space-y-2.5">
         <h1 className="text-display">Blocks</h1>

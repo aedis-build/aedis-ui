@@ -15,6 +15,8 @@ export const ptBR: Messages = {
     sendRequest: "Pedir ajustes",
     back: "Voltar",
     error: "Algo deu errado. Tente de novo.",
+    approved: "Aprovado por você",
+    changesRequested: "Ajustes pedidos por você:",
   },
   handRaise: {
     raised: "levantou a mão",
@@ -27,6 +29,7 @@ export const ptBR: Messages = {
     alwaysHint: "Vira uma regra fixa que o agente segue em todas as conversas.",
     submit: "Responder",
     error: "Algo deu errado. Tente de novo.",
+    answered: "Respondido por você",
   },
   chat: {
     placeholder: "Escreva uma mensagem",
@@ -34,6 +37,8 @@ export const ptBR: Messages = {
     message: "Mensagem",
     log: "Conversa",
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
+    truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
+    jumpToLatest: "Ir para o mais recente",
   },
   appShell: { menuLabel: "Menu" },
   sidebar: { label: "Navegação principal" },
@@ -101,6 +106,7 @@ export const ptBR: Messages = {
     chart: "gráfico",
     item: "Item",
     notShown: "{count} valores não mostrados: não são números no intervalo.",
+    noData: "Não há dados para mostrar.",
   },
   reasoning: {
     thinking: "Pensando…",
@@ -126,12 +132,16 @@ export const ptBR: Messages = {
     tooMany: "Anexe no máximo {count} arquivos.",
     uploadFailed: "Não deu para enviar {name}. Tente de novo.",
     sendError: "Não deu para enviar a mensagem. Tente de novo.",
+    truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     model: "Modelo",
   },
   command: {
     label: "Buscar",
     placeholder: "Buscar…",
     empty: "Nenhum resultado.",
+  },
+  field: {
+    truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
   },
   feedback: {
     label: "Avalie esta resposta",

@@ -13,8 +13,11 @@ type RootProps = WithClassName<NavigationMenuPrimitive.Root.Props> &
   Pick<NavigationMenuPrimitive.Positioner.Props, "align"> & { labels?: Partial<NavigationMenuLabels> };
 
 /** Top navigation for a site, with panels of grouped links. An indicator slides under the open or current item. */
-function NavigationMenu({ className, children, align = "start", labels, onValueChange, "aria-label": ariaLabel, ...props }: RootProps) {
+function NavigationMenu({ className, children, align = "start", labels, value: valueProp, defaultValue = null, onValueChange, "aria-label": ariaLabel, ...props }: RootProps) {
   const l = useMessages("navigationMenu", labels);
+  const [ownValue, setOwnValue] = React.useState<unknown>(defaultValue);
+  // How the open panel was opened: a press on a trigger whose panel hover already opened must keep it open.
+  const openedBy = React.useRef<string | null>(null);
   const root = React.useRef<HTMLElement>(null);
   const [bar, setBar] = React.useState<{ x: number; width: number } | null>(null);
 
@@ -40,7 +43,15 @@ function NavigationMenu({ className, children, align = "start", labels, onValueC
       ref={root}
       data-slot="navigation-menu"
       aria-label={ariaLabel ?? l.label}
+      value={valueProp === undefined ? ownValue : valueProp}
       onValueChange={(value, details) => {
+        if (value === null && details.reason === "trigger-press" && openedBy.current === "trigger-hover") {
+          // The pointer rested, the panel opened, then the click came: the person wants it open. A second click closes.
+          openedBy.current = "trigger-press";
+          return;
+        }
+        openedBy.current = value === null ? null : details.reason;
+        setOwnValue(value);
         onValueChange?.(value, details);
         requestAnimationFrame(measure);
       }}
@@ -80,9 +91,22 @@ function NavigationMenuItem({ className, active, ...props }: WithClassName<Navig
 const triggerStyle =
   "press focus-ring inline-flex h-9 w-max items-center justify-center gap-1 rounded-sm px-3 text-callout font-medium hover:bg-muted data-popup-open:bg-muted";
 
-function NavigationMenuTrigger({ className, children, ...props }: WithClassName<NavigationMenuPrimitive.Trigger.Props>) {
+function NavigationMenuTrigger({ className, children, onKeyDown, ...props }: WithClassName<NavigationMenuPrimitive.Trigger.Props>) {
   return (
-    <NavigationMenuPrimitive.Trigger data-slot="navigation-menu-trigger" className={cn(triggerStyle, "group", className)} {...props}>
+    <NavigationMenuPrimitive.Trigger
+      data-slot="navigation-menu-trigger"
+      className={cn(triggerStyle, "group", className)}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        // ↓ on the trigger of an open panel moves into the panel, to its first link.
+        if (event.key !== "ArrowDown" || !event.currentTarget.hasAttribute("data-popup-open")) return;
+        const first = document.querySelector<HTMLElement>("[data-slot=navigation-menu-popup] a[href], [data-slot=navigation-menu-popup] [data-slot=navigation-menu-link]");
+        if (!first) return;
+        event.preventDefault();
+        first.focus();
+      }}
+      {...props}
+    >
       {children}
       <NavigationMenuPrimitive.Icon className="transition-transform duration-(--duration-fast) ease-out group-data-popup-open:rotate-180 motion-reduce:transition-none">
         <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3" fill="none" stroke="currentColor" strokeWidth="1.5">

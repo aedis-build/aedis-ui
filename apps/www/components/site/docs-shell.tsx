@@ -12,7 +12,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
           <DocsNav groups={navGroups} />
         </div>
       </aside>
-      <main className="min-w-0">{children}</main>
+      <main id="main" className="min-w-0">{children}</main>
     </div>
   );
 }
