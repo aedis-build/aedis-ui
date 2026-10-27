@@ -13,3 +13,6 @@ apps/www/test-results/
 apps/www/visual/captures/
 # wrangler dev state
 .wrangler/
+
+# Checkout aninhado que o release-cut do aedis-platform faz no workspace; nunca versionado.
+.aedis-platform/
