@@ -6,9 +6,9 @@ before any file is written, npm dependencies are pinned to exact versions at lea
 script runs.
 
 ```bash
-npx @aedis/cli@0.1.3 init
-npx @aedis/cli@0.1.3 add button approval-card
-npx @aedis/cli@0.1.3 diff
+npx @aedis/cli@0.1.4 init
+npx @aedis/cli@0.1.4 add button approval-card
+npx @aedis/cli@0.1.4 diff
 ```
 
 Always pin the version, as above. Never run `npx aedis`: the unscoped `aedis` package on npm is not this one.

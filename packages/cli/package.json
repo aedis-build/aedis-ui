@@ -1,6 +1,6 @@
 {
   "name": "@aedis/cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Add Aedis UI components to your app with verified provenance: signed releases, exact and aged dependencies, no install scripts.",
   "keywords": [
     "aedis",
