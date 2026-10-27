@@ -22,6 +22,27 @@ pnpm build          # registry + static site in apps/www/out
 3. If it shows text, add its strings to `Messages` and to the three dictionaries.
 4. Add its docs entry in `apps/www/content/components.tsx`: description, example, props and security notes.
 5. Add a test in `apps/www/test/` covering behavior and accessibility (axe). Parsers and anything that handles untrusted text also get a property-based test with fast-check.
+6. Add a **live demo** on the site and a **Playwright spec** that proves it works. See the next section.
+
+## Every feature ships with a live demo and a Playwright test
+
+This applies to every item in the registry: components, blocks, hooks and libraries.
+
+- **The demo lives on the site.** It is an example in `apps/www/examples/` that people can use, shown on the item's
+  docs page (`/docs/<name>`) or, for a block, at `/blocks/<name>`.
+  - For a hook or a library, the demo shows it working in the browser: an inspector, a builder or a simulator with
+    real inputs and outputs. Text is not enough.
+  - If the item needs a backend, the demo simulates one in the browser and says so.
+- **A Playwright spec opens that page and uses the demo the way a person would.** It lives in `apps/www/visual/`, is
+  named `*.behaviour.spec.ts`, and runs in CI against the built site with the real `_headers`. It drives the mouse
+  and keyboard, and checks focus, results, a 390 px viewport and reduced motion where they matter. A screenshot alone
+  is not a test.
+- **The pull request carries the evidence:**
+  - the new or changed spec, passing in CI;
+  - light and dark screenshots at 1440 and 390 px;
+  - for anything that moves or talks to something (motion, chat, streaming, frames), a short recording.
+- `apps/www/test/demo-rule.test.ts` fails the build when an item has no demo or no spec. Items older than the rule
+  are listed there, and that list only shrinks: remove a name when its demo or spec lands, and never add one.
 
 ## Rules for components
 
