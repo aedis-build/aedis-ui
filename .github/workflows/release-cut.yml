@@ -45,5 +45,5 @@ jobs:
       # Without this the release PR fails pnpm install --frozen-lockfile: the lockfile still says the old @aedis/cli.
       lockfile-command: pnpm install --lockfile-only
     secrets:
-      app-id: ${{ secrets.AEDIS_APP_ID }}
-      app-private-key: ${{ secrets.AEDIS_APP_PRIVATE_KEY }}
+      app-id: ${{ secrets.AEDIS_CODER_APP_ID }}
+      app-private-key: ${{ secrets.AEDIS_CODER_APP_PRIVATE_KEY }}
