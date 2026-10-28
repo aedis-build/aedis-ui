@@ -1,0 +1,9 @@
+# Accepted dependency advisories, read by the Aedis SCA deps-summary (platform coverage-js gate). Each entry has an
+# id, a reason that says what removes it, and an expiry date; an expired acceptance blocks again.
+accept:
+  - id: GHSA-27r3-jxmh-p828
+    until: 2026-11-05
+    reason: "body-parser 2.4.0 (via express, dev tooling) was published 2026-10-22 and is still inside the 7-day release-age policy; bump it when it clears."
+  - id: GHSA-mrhx-c7xc-m3w5
+    until: 2027-01-26
+    reason: "zod 3.25.76 is pulled by shadcn, @modelcontextprotocol/sdk and zod-to-json-schema, which require zod 3; the fix exists only in zod 4.6.6. Dev tooling, nothing ships to the site; remove when those dependants move to zod 4."
