@@ -140,8 +140,18 @@ export const ptBR: Messages = {
     placeholder: "Buscar…",
     empty: "Nenhum resultado.",
   },
+  combobox: {
+    empty: "Nenhum resultado.",
+    toggle: "Mostrar opções",
+  },
+  copyButton: {
+    copy: "Copiar",
+    copied: "Copiado",
+    fallback: "Não foi possível copiar aqui. O texto está selecionado: pressione Ctrl+C ou ⌘C.",
+  },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
+    honeypot: "Deixe este campo vazio",
   },
   feedback: {
     label: "Avalie esta resposta",

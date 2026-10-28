@@ -140,8 +140,18 @@ export const es: Messages = {
     placeholder: "Buscar…",
     empty: "Sin resultados.",
   },
+  combobox: {
+    empty: "Sin resultados.",
+    toggle: "Mostrar opciones",
+  },
+  copyButton: {
+    copy: "Copiar",
+    copied: "Copiado",
+    fallback: "Aquí no se puede copiar. El texto está seleccionado: pulsa Ctrl+C o ⌘C.",
+  },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
+    honeypot: "Deja este campo vacío",
   },
   feedback: {
     label: "Valora esta respuesta",

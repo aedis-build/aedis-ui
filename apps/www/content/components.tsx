@@ -64,6 +64,15 @@ import TextareaDemo from "@/examples/textarea/demo";
 import ToastDemo from "@/examples/toast/demo";
 import ToolCallDemo from "@/examples/tool-call/demo";
 import TooltipDemo from "@/examples/tooltip/demo";
+import FieldDemo from "@/examples/field/demo";
+import FieldServerErrors from "@/examples/field/server-errors";
+import FieldsetDemo from "@/examples/fieldset/demo";
+import SelectDemo from "@/examples/select/demo";
+import ComboboxDemo from "@/examples/combobox/demo";
+import ToggleDemo from "@/examples/toggle/demo";
+import ToggleGroupDemo from "@/examples/toggle-group/demo";
+import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
+import CopyButtonDemo from "@/examples/copy-button/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2440,6 +2449,249 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
       keyboard: [["Tab", "Focusing the trigger shows the tooltip."], ["Esc", "Hides it."]],
       notes: ["The tooltip describes its trigger; it is not shown on touch, so never put the only copy of information in it."],
       motion: "It materializes after a 300 ms delay and fades out in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "field",
+    title: "Field",
+    category: "Forms",
+    description: "A form field: label, control, hint and an error that shows inline, plus a honeypot spam trap.",
+    examples: [
+      { title: "Field", description: "Type a wrong email and move on: the error shows at once. Send checks every field, empty ones too.", file: "field/demo", component: FieldDemo },
+      { title: "Errors from the server", description: "A failed secureAction result names its invalid fields; pass them as errors.", file: "field/server-errors", component: FieldServerErrors },
+    ],
+    usage: `import { Field, FieldControl, FieldDescription, FieldError, FieldLabel, Form, Honeypot } from "@/components/ui/field";
+
+<Form onFormSubmit={send}>
+  <Field name="email" errors={result?.fields}>
+    <FieldLabel>Email</FieldLabel>
+    <FieldControl type="email" required maxLength={254} />
+    <FieldDescription>We answer within one working day.</FieldDescription>
+    <FieldError>Enter an email like name@studio.com.</FieldError>
+  </Field>
+  <Honeypot />
+</Form>`,
+    props: [
+      { name: "name", type: "string", description: "The field's name in the form, and the key looked up in errors." },
+      { name: "errors", type: "readonly string[]", description: "The fields of a failed secureAction result. The field is invalid while its name is in the list." },
+      { name: "invalid", type: "boolean", description: "Marks the field invalid from outside; its FieldError shows." },
+      { name: "validationMode", type: "\"onBlur\" | \"onChange\" | \"onSubmit\"", default: "\"onBlur\"", description: "When the field checks itself. On blur, a mistake shows before the form is sent." },
+      { name: "...props", type: "@base-ui/react Field.Root props", description: "Every prop of the Base UI part, including validate for custom rules." },
+    ],
+    parts: [
+      { name: "FieldControl", description: "The control, labelled and described by the field. An Input unless render says otherwise.", props: [{ name: "render", type: "ReactElement", default: "<Input />", description: "Another control, e.g. <Textarea />." }] },
+      { name: "FieldError", description: "Shown while the field is invalid, inside a polite live region.", props: [{ name: "children", type: "ReactNode", description: "The message. Without it, the browser's own message shows." }] },
+      { name: "Form", description: "Checks every field on submit and focuses the first invalid one.", props: [{ name: "onFormSubmit", type: "(values) => void", description: "Runs only when every field is valid, with the values by name." }] },
+      { name: "Honeypot", description: "A text field people never see, hear or reach; bots fill it in.", props: [{ name: "name", type: "string", default: "\"website\"", description: "Reject the submit on the server when this field is not empty." }] },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "A trap only bots fall into",
+          text: "Honeypot is hidden from assistive technology, out of the tab order and off screen, and is sent empty by people.",
+          evidence: [["field.test.tsx", "keeps the honeypot away from people: hidden from assistive tech, out of the tab order, sent empty"]],
+          ids: ["CWE-799", "OWASP A04:2021"],
+        },
+      ],
+      backend: "reject a submit whose honeypot is not empty and validate every field again; client checks are a convenience.",
+    },
+    accessibility: {
+      keyboard: [["Tab", "Leaving a field you typed in checks it and shows its error."], ["Enter", "In a text field, sends the form; the first invalid field takes the focus."]],
+      notes: [
+        "The label names the control; the description and the error describe it (aria-describedby), and aria-invalid marks it.",
+        "Errors render in a polite live region that is always present, so they are announced when they appear.",
+        "Honeypot is aria-hidden with tabindex=-1, so no person reaches it.",
+      ],
+      motion: "Nothing moves.",
+    },
+  },
+  {
+    name: "fieldset",
+    title: "Fieldset",
+    category: "Forms",
+    description: "A group of fields or choices named by its legend.",
+    examples: [{ title: "Fieldset", file: "fieldset/demo", component: FieldsetDemo }],
+    usage: `import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+
+<Fieldset>
+  <FieldsetLegend>What do you need?</FieldsetLegend>
+  <Field>
+    <FieldLabel><Checkbox name="needs" value="web" /> Website</FieldLabel>
+  </Field>
+</Fieldset>`,
+    props: [
+      { name: "disabled", type: "boolean", description: "Disables every control in the group." },
+      { name: "...props", type: "@base-ui/react Fieldset.Root props", description: "Every prop of the Base UI part." },
+    ],
+    security: { sinks: [], notes: ["Structure only: it renders what it is given as children."] },
+    accessibility: {
+      notes: ["A group named by its legend, so a screen reader says the group's name before each choice in it."],
+      motion: "Nothing moves.",
+    },
+  },
+  {
+    name: "select",
+    title: "Select",
+    category: "Forms",
+    description: "Chooses one option from a short list, with groups and disabled options.",
+    examples: [{ title: "Select", file: "select/demo", component: SelectDemo }],
+    usage: `import { Field, FieldLabel } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
+
+<Field name="proposal">
+  <FieldLabel>Proposal</FieldLabel>
+  <Select
+    placeholder="Choose a proposal"
+    options={[{ label: "Open", options: [{ value: "p-12", label: "Ceramics studio identity" }] }]}
+  />
+</Field>`,
+    props: [
+      { name: "options", type: "(SelectOption | SelectOptionGroup)[]", description: "{ value, label, disabled? } or { label, options } for a group. Labels are strings, so they always render as text." },
+      { name: "placeholder", type: "string", description: "Shown while nothing is chosen." },
+      { name: "value / defaultValue", type: "string | null", description: "The chosen option's value." },
+      { name: "onValueChange", type: "(value: string | null) => void", description: "Runs when a person picks an option." },
+      { name: "aria-label", type: "string", description: "Names the trigger when it is not in a Field with a FieldLabel." },
+      { name: "...props", type: "@base-ui/react Select.Root props", description: "name, required, disabled and the rest of the Base UI root." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "Labels are text",
+          text: "Options take their label as a string, so a label holding markup shows the characters and never becomes elements.",
+          evidence: [["select.test.tsx", "renders any label as text, never as markup (property)"]],
+          ids: ["CWE-79"],
+        },
+      ],
+      backend: "accept only the values you offered; the submitted value is a string the client chose.",
+    },
+    accessibility: {
+      keyboard: [["Enter / Space / ↓", "Opens the list."], ["↑ ↓", "Moves between options, skipping disabled ones."], ["Enter", "Picks the option."], ["Esc", "Closes without changing."]],
+      notes: ["The trigger is named by the FieldLabel and marked aria-invalid when the field is invalid.", "Groups are named by their label."],
+      motion: "The list materializes in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "combobox",
+    title: "Combobox",
+    category: "Forms",
+    description: "Chooses one option from a longer list by typing to filter it.",
+    examples: [{ title: "Combobox", file: "combobox/demo", component: ComboboxDemo }],
+    usage: `import { Combobox } from "@/components/ui/combobox";
+import { Field, FieldLabel } from "@/components/ui/field";
+
+<Field name="sector">
+  <FieldLabel>Sector</FieldLabel>
+  <Combobox name="sector" options={[{ value: "bakery", label: "Bakery" }]} />
+</Field>`,
+    props: [
+      { name: "options", type: "ComboboxOption[]", description: "{ value, label, disabled? }. Labels are strings, so they always render as text." },
+      { name: "value / defaultValue", type: "string | null", description: "The chosen option's value." },
+      { name: "onValueChange", type: "(value: string | null) => void", description: "Runs when a person picks an option." },
+      { name: "name", type: "string", description: "Sends the chosen option's value, never the typed text." },
+      { name: "placeholder", type: "string", description: "Shown in the empty input." },
+      { name: "labels", type: "Partial<ComboboxLabels>", description: "Overrides the locale's words (No results, Show options)." },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "The typed text is never sent",
+          text: "The query is limited to 256 characters and only filters the list; the form sends the chosen option's value.",
+          evidence: [["select.test.tsx", "filters as you type, says when nothing matches, and sends the chosen value"]],
+          ids: ["CWE-20", "CWE-770"],
+        },
+      ],
+      backend: "accept only the values you offered.",
+    },
+    accessibility: {
+      keyboard: [["Type", "Filters the list."], ["↑ ↓", "Moves between matches."], ["Enter", "Picks the highlighted option."], ["Esc", "Closes the list."]],
+      notes: ["The input has role=\"combobox\" and is named by the FieldLabel; the list says No results when nothing matches.", "The button that opens the list is named Show options."],
+      motion: "The list materializes in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "toggle",
+    title: "Toggle",
+    category: "Actions",
+    description: "A button that stays pressed, e.g. to pin an item.",
+    examples: [{ title: "Toggle", file: "toggle/demo", component: ToggleDemo }],
+    usage: `import { Toggle } from "@/components/ui/toggle";
+
+<Toggle variant="outline" pressed={pinned} onPressedChange={setPinned}>
+  Pin to profile
+</Toggle>`,
+    props: [
+      { name: "pressed / defaultPressed", type: "boolean", description: "Controlled or uncontrolled pressed state." },
+      { name: "onPressedChange", type: "(pressed: boolean) => void", description: "Runs when a person presses it." },
+      { name: "variant", type: "\"default\" | \"outline\" | \"segmented\"", default: "\"default\"", description: "How it is drawn." },
+      { name: "size", type: "\"default\" | \"sm\"", default: "\"default\"", description: "36 or 32 px tall; the target is 44 px either way." },
+      { name: "...props", type: "@base-ui/react Toggle props", description: "Every prop of the Base UI part." },
+    ],
+    security: { sinks: [], notes: ["A button with a state; it renders what it is given as children."] },
+    accessibility: {
+      keyboard: [["Space / Enter", "Presses or releases it."]],
+      notes: ["A button with aria-pressed; give an icon-only toggle an aria-label.", "Pressed is drawn by a heavier outline and a fill, not by color alone.", "The press target is at least 44 × 44 px, even at the small size."],
+      motion: "Its fill changes in 200 ms. Nothing moves.",
+    },
+  },
+  {
+    name: "toggle-group",
+    title: "Toggle Group",
+    category: "Actions",
+    description: "Pressed buttons that act as one control: chips that choose many, filters that choose one, and a segmented control.",
+    examples: [
+      { title: "Toggle Group", description: "Choose several with multiple.", file: "toggle-group/demo", component: ToggleGroupDemo },
+      { title: "Segmented", description: "Two to six options, one always pressed.", file: "toggle-group/segmented", component: ToggleGroupSegmented },
+    ],
+    usage: `import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+<ToggleGroup variant="segmented" aria-label="Show" defaultValue={["photos"]}>
+  <ToggleGroupItem value="photos">Photos</ToggleGroupItem>
+  <ToggleGroupItem value="videos">Videos</ToggleGroupItem>
+</ToggleGroup>`,
+    props: [
+      { name: "multiple", type: "boolean", default: "false", description: "Lets several items be pressed." },
+      { name: "value / defaultValue", type: "string[]", description: "The pressed items' values." },
+      { name: "onValueChange", type: "(value: string[]) => void", description: "Runs when a person presses or releases an item." },
+      { name: "variant", type: "\"default\" | \"outline\" | \"segmented\"", default: "\"default\"", description: "Segmented draws a track and always keeps one item pressed." },
+      { name: "orientation", type: "\"horizontal\" | \"vertical\"", default: "\"horizontal\"", description: "Which arrows move between items." },
+      { name: "...props", type: "@base-ui/react ToggleGroup props", description: "disabled, loopFocus and the rest of the Base UI part." },
+    ],
+    parts: [{ name: "ToggleGroupItem", description: "One item; a Toggle with the group's variant and size.", props: [{ name: "value", type: "string", description: "What the group reports when this item is pressed." }] }],
+    security: { sinks: [], notes: ["Buttons with a state; they render what they are given as children."] },
+    accessibility: {
+      keyboard: [["Tab", "Enters the group once, on the pressed or first item."], ["← → (↑ ↓ when vertical)", "Moves between items."], ["Space / Enter", "Presses or releases the item."]],
+      notes: ["role=\"group\": name it with aria-label or aria-labelledby. Each item is a button with aria-pressed.", "Pressed is drawn by a heavier outline as well as a fill; every item has a 44 px target."],
+      motion: "The pressed fill changes in 200 ms. Nothing moves.",
+    },
+  },
+  {
+    name: "copy-button",
+    title: "Copy Button",
+    category: "Actions",
+    description: "Copies a string, e.g. a share link, and confirms it.",
+    examples: [{ title: "Copy Button", description: "Where the browser refuses to copy, the link shows selected beside the button.", file: "copy-button/demo", component: CopyButtonDemo }],
+    usage: `import { CopyButton } from "@/components/ui/copy-button";
+
+<CopyButton value={portfolioUrl}>Copy link</CopyButton>`,
+    props: [
+      { name: "value", type: "string", description: "The exact text to copy." },
+      { name: "onCopied", type: "() => void", description: "Runs after the text is on the clipboard." },
+      { name: "labels", type: "Partial<CopyButtonLabels>", description: "Overrides the locale's words (Copy, Copied, the fallback hint)." },
+      { name: "...props", type: "ButtonProps", default: "variant=\"outline\"", description: "Every Button prop. size=\"icon\" shows the icon only and is named Copy." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["It only writes the given string with navigator.clipboard.writeText; it never reads the clipboard."],
+    },
+    accessibility: {
+      keyboard: [["Enter / Space", "Copies."], ["Ctrl+C / ⌘C", "Where copying is blocked, copies the selected text that takes the focus."]],
+      notes: ["Copied is announced politely by a status region and shown on the button for 2 s.", "Where the browser refuses, the text shows in a read-only field, selected and focused, and the status says so."],
+      motion: "The icon changes to a check for 2 s. Nothing moves.",
     },
   },
 ];
