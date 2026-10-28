@@ -64,3 +64,38 @@ test("fits a 390 px screen in dark", async ({ page }) => {
   await page.goto("/docs/scroll-motion");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+// #225: a pin gated by a media query, driven by the page.
+const exhibition = (page: import("@playwright/test").Page) => page.getByRole("main").locator("[data-slot=pin]").filter({ has: page.getByRole("list", { name: "Exhibition" }) });
+
+test("on a narrow screen the gated pin is a plain section", async ({ page }) => {
+  await page.setViewportSize({ width: 600, height: 800 });
+  await page.goto("/docs/scroll-motion");
+  await expect(page.getByRole("main").getByText(/^A plain section/)).toBeVisible();
+  await expect(exhibition(page)).not.toHaveAttribute("data-pinned");
+  expect(await exhibition(page).evaluate((el) => el.style.height)).toBe("");
+});
+
+test("on a wide screen it pins, and scrollTo(0.5) lands halfway through its run", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/docs/scroll-motion");
+  const pin = exhibition(page);
+  await expect(pin).toHaveAttribute("data-pinned", "true");
+  await expect(page.getByRole("main").getByText(/^Pinned:/)).toBeVisible();
+  await page.getByRole("navigation", { name: "Rooms" }).getByRole("button", { name: "Posters" }).click();
+  await expect(pin.getByText(/^(49|50|51)% through$/)).toBeVisible();
+  const { top, run, y } = await pin.evaluate((el: HTMLElement) => ({ top: el.getBoundingClientRect().top + window.scrollY, run: el.offsetHeight - window.innerHeight, y: window.scrollY }));
+  expect(Math.abs(y - (top + run / 2))).toBeLessThan(4);
+  await expect(pin.getByRole("listitem").filter({ hasText: "Posters" })).toHaveAttribute("data-current", "true");
+});
+
+test("without JavaScript the gated pin is a plain section with every room", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1280, height: 800 } });
+  const page = await context.newPage();
+  await page.goto("/docs/scroll-motion");
+  const pin = exhibition(page);
+  await expect(pin).not.toHaveAttribute("data-pinned");
+  expect(await pin.evaluate((el) => el.getAttribute("style"))).toBeNull();
+  await expect(pin.getByRole("listitem").filter({ hasText: "Shop" })).toBeAttached();
+  await context.close();
+});

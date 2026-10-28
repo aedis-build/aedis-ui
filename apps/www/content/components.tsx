@@ -82,6 +82,7 @@ import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
+import ScrollMotionPinMedia from "@/examples/scroll-motion/pin-media";
 import CustomThemeFonts from "@/examples/custom-theme/fonts";
 import AbuseGateSimulator from "@/examples/abuse-gate/simulator";
 import BruteForceGuardSimulator from "@/examples/brute-force-guard/simulator";
@@ -2894,6 +2895,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
     examples: [
       { title: "Reveal and parallax", description: "Scroll the page: the steps fade in as they enter, and the poster drifts against the scroll.", file: "scroll-motion/demo", component: ScrollMotionDemo, align: "start" },
       { title: "Pin", description: "The section holds while the page scrolls past it; its children get the progress from 0 to 1.", file: "scroll-motion/pin", component: ScrollMotionPin, align: "start" },
+      { title: "Pin on wide screens, with scrollTo", description: "Pinned only at 768 px and wider; the room buttons scroll the page to that progress of the pin.", file: "scroll-motion/pin-media", component: ScrollMotionPinMedia, align: "start" },
     ],
     usage: `import { Parallax, Pin, Reveal } from "@/components/ui/scroll-motion";
 
@@ -2909,6 +2911,9 @@ import { Field, FieldLabel } from "@/components/ui/field";
         props: [
           { name: "length", type: "number", default: "1.5", description: "How long it stays pinned, in viewport heights." },
           { name: "children", type: "ReactNode | (progress: number) => ReactNode", description: "The content, or a function of the progress from 0 to 1. usePinProgress() reads it deeper down." },
+          { name: "media", type: "string", description: "Pins only where this media query matches; elsewhere a plain section. Reduced motion still wins." },
+          { name: "onPinnedChange", type: "(pinned: boolean) => void", description: "Runs when it starts or stops pinning; usePinned() reads the same deeper down." },
+          { name: "ref", type: "Ref<PinHandle>", description: "scrollTo(progress, { behavior }) scrolls the page to that progress of the pin; always instant under reduced motion." },
         ],
       },
     ],
@@ -2916,6 +2921,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
     accessibility: {
       notes: [
         "The content is in the HTML and visible without JavaScript; motion only reveals it. Content already in view never moves.",
+        "Pin renders a plain section on the server and pins after mount, so a page without JavaScript reads it in full.",
         "Under reduced motion nothing moves: Reveal shows at once, Parallax stays put, Pin is a plain section at progress 1.",
       ],
       motion: "Reveal fades and lifts 24 px in 900 ms. Parallax drifts by its distance across the viewport. Only transform and opacity animate, and will-change is set only while they move.",
