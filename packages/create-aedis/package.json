@@ -1,6 +1,6 @@
 {
   "name": "create-aedis",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "`npm create aedis`: runs `aedis init` from the exact @aedis/cli version it was released with.",
   "keywords": [
     "aedis",
@@ -31,6 +31,6 @@
     "provenance": true
   },
   "dependencies": {
-    "@aedis/cli": "0.1.4"
+    "@aedis/cli": "0.2.0"
   }
 }
