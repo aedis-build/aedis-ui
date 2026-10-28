@@ -3,6 +3,7 @@
 @theme static {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --font-display: var(--font-sans);
   --text-display: 3rem;
   --text-display--line-height: 1.05;
   --text-display--letter-spacing: -0.025em;
@@ -245,6 +246,13 @@
   --elevation-2: 0 2px 6px rgba(0,0,0,0.45), 0 6px 16px rgba(0,0,0,0.35);
   --elevation-3: 0 4px 10px rgba(0,0,0,0.5), 0 14px 32px rgba(0,0,0,0.45);
   --elevation-4: 0 8px 20px rgba(0,0,0,0.55), 0 28px 64px rgba(0,0,0,0.55);
+}
+
+/* Headings take the display family; a font-* class on one still wins. */
+@layer base {
+  :where(h1, h2, h3) {
+    font-family: var(--font-display);
+  }
 }
 
 /* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */

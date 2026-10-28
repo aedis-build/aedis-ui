@@ -110,6 +110,8 @@ export type ShadowName = keyof typeof shadows;
 export const fonts = {
   sans: '-apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif',
   mono: 'ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace',
+  /** Headings; the sans unless a theme gives the display its own family. */
+  display: "var(--font-sans)",
 };
 
 type TypeStyle = { size: string; lineHeight: number; tracking: string; weight: number };

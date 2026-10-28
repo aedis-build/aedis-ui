@@ -45,11 +45,36 @@ describe("validateTheme", () => {
     expect(errors({ ...base, blur: { thin: "12px" } })).toContain("blur.thin must be a number from 0 to 40");
     expect(errors({ ...base, blur: [] })).toContain("blur must be an object");
     expect(errors({ ...base, shadow: Number.NaN })).toContain("shadow must be a number from 0 to 2");
-    expect(errors({ ...base, font: "https://fonts.example/tracker.woff2" })).toContain("font must be one of system, rounded, serif");
+    expect(errors({ ...base, font: "https://fonts.example/tracker.woff2" })).toContain("font must be one of system, rounded, serif, mono");
     expect(errors({ ...base, version: 2, name: "" })).toEqual(["version must be 1", "name must be 1–64 characters"]);
     expect(errors({ ...base, colors: { light: [], dark: {} } })).toContain("colors.light must be an object");
     expect(errors({ ...base, colors: "x" })).toContain("colors must be an object with light and dark");
     expect(errors("theme")).toEqual(["theme must be an object"]);
+  });
+
+  it("declares sans, display and mono fonts as presets or self-hosted families (#202)", () => {
+    const result = validateTheme({ ...base, fonts: { sans: "Brand Sans", display: "serif", mono: "JetBrains Mono" } });
+    expect(result.ok).toBe(true);
+    const vars = themeVariables((result as { theme: CustomTheme }).theme, "light");
+    expect(vars["--font-sans"]).toMatch(/^"Brand Sans", -apple-system/);
+    expect(vars["--font-display"]).toMatch(/^ui-serif/);
+    expect(vars["--font-mono"]).toMatch(/^"JetBrains Mono", ui-monospace/);
+    expect(themeToCss({ ...base, fonts: { display: "Fraunces" } })).toContain('--font-display: "Fraunces", -apple-system');
+    expect(errors({ ...base, fonts: { body: "Inter" } })).toContain("fonts.body is not part of the theme schema");
+    expect(errors({ ...base, fonts: { display: "url(https://fonts.example/x.woff2)" } })[0]).toMatch(/^fonts\.display must be one of/);
+    expect(errors({ ...base, fonts: "Inter" })).toContain("fonts must be an object with sans, display or mono");
+  });
+
+  it("never lets a font name close the quotes, the rule or reach a url (property, #202)", () => {
+    fc.assert(
+      fc.property(fc.string({ maxLength: 60 }), (name) => {
+        const result = validateTheme({ ...base, fonts: { display: name } });
+        if (!result.ok) return;
+        const stack = themeVariables(result.theme, "light")["--font-display"];
+        expect(stack.split(",")[0]).toMatch(/^("[A-Za-z][A-Za-z0-9 -]*"|ui-\w+|-apple-system)/);
+        expect(stack).not.toMatch(/[;{}\\]|url\(|@import/i);
+      }),
+    );
   });
 
   it("takes type settings only within the bounds that keep text readable", () => {

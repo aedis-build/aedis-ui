@@ -12,6 +12,7 @@ const themeVars = (theme: ThemeName) => [
 const shared = [
   `--font-sans: ${fonts.sans};`,
   `--font-mono: ${fonts.mono};`,
+  `--font-display: ${fonts.display};`,
   ...Object.entries(typeScale).flatMap(([name, s]) => [
     `--text-${name}: ${s.size};`,
     `--text-${name}--line-height: ${s.lineHeight};`,
@@ -432,6 +433,11 @@ export function themeCss() {
     `@media (prefers-color-scheme: dark) {\n${block(":root:not([data-theme])", themeVars("dark"), "  ")}\n}`,
     "",
     block(':root[data-theme="dark"]', themeVars("dark")),
+    "",
+    "/* Headings take the display family; a font-* class on one still wins. */",
+    `@layer base {
+${block(":where(h1, h2, h3)", ["font-family: var(--font-display);"], "  ")}
+}`,
     "",
     "/* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */",
     block(':root[data-theme="brand"]', themeVars("brand")),
