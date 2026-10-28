@@ -83,6 +83,9 @@ import LightboxDemo from "@/examples/lightbox/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
 import CustomThemeFonts from "@/examples/custom-theme/fonts";
+import AbuseGateSimulator from "@/examples/abuse-gate/simulator";
+import BruteForceGuardSimulator from "@/examples/brute-force-guard/simulator";
+import FormTokenSimulator from "@/examples/form-token/simulator";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2918,6 +2921,117 @@ import { Field, FieldLabel } from "@/components/ui/field";
     },
     accessibility: {
       notes: ["Fonts change families only: the contrast and type size checks of the theme are unchanged.", "Use font-display: swap so text shows in the fallback while the font loads."],
+    },
+  },
+  {
+    name: "abuse-gate",
+    title: "abuseGate",
+    category: "Security",
+    description: "A sliding-window limit per target (an HMAC of the contact) and per IP, for public forms. Stores no personal data.",
+    examples: [{ title: "Simulator", description: "The real gate in your browser, with a clock you can move: 3 submits per contact in 10 minutes, 5 per IP.", file: "abuse-gate/simulator", component: AbuseGateSimulator }],
+    usage: `import { abuseGate } from "@/lib/abuse-gate";
+
+const gate = abuseGate({ secret: process.env.ABUSE_SECRET!, limit: 5, windowMs: 3_600_000, ipLimit: 20, cache: redisCache });
+
+// In the contact Server Action or route handler, before sending:
+const verdict = await gate.check({ target: [input.email, input.company], ip: clientIp(request) });
+if (!verdict.ok) return { ok: false, code: "rate-limited" };`,
+    props: [
+      { name: "secret", type: "string", description: "At least 32 characters, from the server's secrets. Keys are HMAC-SHA-256 of the normalized target." },
+      { name: "limit / windowMs", type: "number", default: "5 / 1 h", description: "Submits per target in the sliding window." },
+      { name: "ipLimit / ipWindowMs", type: "number", default: "20 / windowMs", description: "Submits per IP, whatever the target." },
+      { name: "cache", type: "AbuseCache", default: "memoryCache()", description: "get, set with a TTL, delete. Back it with Redis, KV or a table in production." },
+      { name: "now", type: "() => number", default: "Date.now", description: "The clock; tests pass a fake one." },
+      { name: "check({ target, ip })", type: "Promise<{ ok: true } | { ok: false; reason; retryAfterMs }>", description: "Counts the submit when it is allowed; a refused one is not counted." },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "No personal data in the store",
+          text: "The email, company and IP become an HMAC-SHA-256 with the server's secret before anything is stored; the in-memory cache is bounded.",
+          evidence: [["abuse.test.ts", "stores only HMACs, never the email, company or IP"], ["abuse.test.ts", "keeps the in-memory cache bounded and expires entries"]],
+          ids: ["CWE-359", "CWE-770"],
+        },
+        {
+          title: "A limit per target and per IP",
+          text: "Rotating IPs does not reset a contact's window, and one IP cannot spray many contacts.",
+          evidence: [["abuse.test.ts", "allows `limit` submits per target in a sliding window, and does not count refused ones"], ["abuse.test.ts", "caps an IP across targets"]],
+          ids: ["CWE-799", "OWASP A04:2021"],
+        },
+      ],
+      backend: "it runs on the server only; keep the secret there, use a shared cache across instances, and take the IP from your trusted proxy header.",
+    },
+  },
+  {
+    name: "brute-force-guard",
+    title: "bruteForceGuard",
+    category: "Security",
+    description: "Progressive lockouts after repeated failures: 1 minute, then 15 minutes, then 1 hour.",
+    examples: [{ title: "Simulator", description: "Three wrong passwords lock the account; move the clock to see the next lockout grow.", file: "brute-force-guard/simulator", component: BruteForceGuardSimulator }],
+    usage: `import { bruteForceGuard } from "@/lib/brute-force-guard";
+
+const guard = bruteForceGuard({ secret: process.env.ABUSE_SECRET!, cache: redisCache });
+
+const locked = await guard.check([email]);
+if (!locked.ok) return { ok: false, code: "rate-limited" };
+if (await passwordMatches(email, password)) await guard.succeed([email]);
+else await guard.fail([email]);`,
+    props: [
+      { name: "secret", type: "string", description: "At least 32 characters; the subject is stored as an HMAC." },
+      { name: "maxFailures", type: "number", default: "5", description: "Failures before the next lockout." },
+      { name: "steps", type: "number[]", default: "[1 min, 15 min, 1 h]", description: "One lockout per step; the last repeats." },
+      { name: "resetMs", type: "number", default: "24 h", description: "A subject with no failure for this long starts over." },
+      { name: "check / fail / succeed", type: "(subject: string[]) => Promise", description: "Check before trying, then report the outcome." },
+    ],
+    security: {
+      sinks: ["Session"],
+      defenses: [
+        {
+          title: "Lockouts that grow",
+          text: "Each run of failures locks longer: 1 minute, 15 minutes, then 1 hour; a success clears the record.",
+          evidence: [["abuse.test.ts", "locks for 1 min, then 15 min, then 1 h, and a success starts over"]],
+          ids: ["CWE-307", "OWASP A07:2021", "ATT&CK T1110"],
+        },
+      ],
+      backend: "say the same thing for a wrong password and an unknown account, and key the subject by account (and IP if you want both).",
+    },
+  },
+  {
+    name: "form-token",
+    title: "Form token",
+    category: "Security",
+    description: "An HMAC-signed issued-at in a hidden field: refuses submits faster than 3 seconds, older than 1 hour, or forged.",
+    examples: [{ title: "Simulator", description: "Render the form, then send it at once, after 5 seconds, after an hour, or with a forged time.", file: "form-token/simulator", component: FormTokenSimulator }],
+    usage: `import { issueFormToken, verifyFormToken } from "@/lib/form-token";
+
+// When the form renders (a Server Component):
+<input type="hidden" name="token" value={await issueFormToken(process.env.ABUSE_SECRET!, { form: "contact" })} />
+
+// When it is sent:
+const token = await verifyFormToken(process.env.ABUSE_SECRET!, formData.get("token"), { form: "contact" });
+if (!token.ok) return { ok: false, code: "invalid" };`,
+    props: [
+      { name: "issueFormToken(secret, { form, now })", type: "Promise<string>", description: "v1.<issuedAt>.<HMAC>: no personal data." },
+      { name: "verifyFormToken(secret, token, { form, now, minAgeMs, maxAgeMs })", type: "Promise<FormTokenResult>", description: "ok with its age, or malformed, signature, too-fast or expired. 3 s and 1 h by default." },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "A time the client cannot forge",
+          text: "The issued-at is signed with the server's secret and the form's name and checked with crypto.subtle.verify; any changed character is refused.",
+          evidence: [["abuse.test.ts", "never accepts a token with any character changed (property)"], ["abuse.test.ts", "refuses another form's token, another secret's, and anything malformed"]],
+          ids: ["CWE-345", "CWE-799"],
+        },
+        {
+          title: "Too fast or too old",
+          text: "A submit under 3 seconds after rendering is a bot; one over an hour old is a replay.",
+          evidence: [["abuse.test.ts", "accepts a submit between 3 s and 1 h after the form was signed"]],
+          ids: ["CWE-294"],
+        },
+      ],
+      backend: "sign and verify on the server only, and pair it with the Honeypot field and abuseGate.",
     },
   },
 ];
