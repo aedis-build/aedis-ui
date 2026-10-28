@@ -73,6 +73,7 @@ import ToggleDemo from "@/examples/toggle/demo";
 import ToggleGroupDemo from "@/examples/toggle-group/demo";
 import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 import CopyButtonDemo from "@/examples/copy-button/demo";
+import SecurityHeadersBuilder from "@/examples/security-headers/builder";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -1805,6 +1806,7 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
     title: "securityHeaders",
     category: "Security",
     description: "Response headers for an app built with these components: strict CSP for scripts and styles, HSTS, no framing, no sniffing.",
+    examples: [{ title: "Builder", description: "Type origins one per line and see the policy the server would send. Wildcards and paths are dropped.", file: "security-headers/builder", component: SecurityHeadersBuilder }],
     usage: `import { securityHeaders } from "@/lib/security-headers";
 
 // proxy.ts (Next.js) or any edge/middleware
@@ -1817,6 +1819,9 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       { name: "connectSrc", type: "string[]", default: "[]", description: "Extra origins for fetch and SSE." },
       { name: "imgSrc", type: "string[]", default: "[]", description: "Extra origins for images." },
       { name: "frameAncestors", type: "string[]", default: "[]", description: "Who may frame the page; nobody by default." },
+      { name: "mediaSrc", type: "string[]", description: "Origins for video and audio, e.g. a media CDN. Unset, media follows default-src 'self'. Exact origins only." },
+      { name: "fontSrc", type: "string[]", default: "[]", description: "Extra origins for fonts, e.g. self-hosted fonts on a CDN. Exact origins only." },
+      { name: "upgradeInsecureRequests", type: "boolean", default: "true", description: "Upgrades http: requests to https:. Turn it off only for a plain-HTTP origin (a local run, e2e)." },
     ],
     security: {
       sinks: ["Session", "DOM"],
@@ -1838,6 +1843,12 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
           text: "frame-ancestors 'none' and X-Frame-Options DENY stop clickjacking; form-action 'self' stops form hijacking.",
           evidence: [["security-headers.test.ts", "allows no inline script, eval, plugin, framing or foreign form target"]],
           ids: ["CWE-1021", "OWASP A05:2021"],
+        },
+        {
+          title: "Media and fonts from exact origins",
+          text: "mediaSrc and fontSrc keep only exact http(s) origins: a wildcard, a path or garbage is dropped, never widened.",
+          evidence: [["security-headers.test.ts", "allows media and fonts only from the exact origins named (#201)"]],
+          ids: ["CWE-693", "CWE-829"],
         },
         {
           title: "Transport, sniffing and caching",

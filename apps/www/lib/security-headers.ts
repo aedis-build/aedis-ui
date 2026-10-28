@@ -20,6 +20,12 @@ export type SecurityHeadersOptions = {
   connectSrc?: string[];
   /** Extra origins for images, e.g. an avatar CDN. Same-origin and data: are always allowed. */
   imgSrc?: string[];
+  /** Origins for video and audio, e.g. a media CDN. Unset, media falls back to default-src ('self'). Exact origins only. */
+  mediaSrc?: string[];
+  /** Extra origins for fonts, e.g. self-hosted fonts on a CDN. Same-origin is always allowed. Exact origins only. */
+  fontSrc?: string[];
+  /** Upgrades the page's http: requests to https:. On by default; turn it off only for a plain-HTTP origin (a local run, e2e). */
+  upgradeInsecureRequests?: boolean;
   /** Origins allowed to frame this page. Empty by default: nobody may frame it (clickjacking). */
   frameAncestors?: string[];
   /** Origins this page may frame. Unset, frames fall back to default-src ('self'). */
@@ -55,7 +61,18 @@ const sources = (list: string[]) => [...(list.includes("'self'") ? ["'self'"] : 
  * no caching of pages that may hold personal data. Apply them from the framework's middleware or the edge; the
  * static docs site ships them as a Cloudflare `_headers` file (scripts/headers.ts).
  */
-export function securityHeaders({ nonce, hashes, styleHashes = [], connectSrc = [], imgSrc = [], frameAncestors: ancestors = [], frameSrc }: SecurityHeadersOptions): Record<string, string> {
+export function securityHeaders({
+  nonce,
+  hashes,
+  styleHashes = [],
+  connectSrc = [],
+  imgSrc = [],
+  mediaSrc,
+  fontSrc = [],
+  upgradeInsecureRequests = true,
+  frameAncestors: ancestors = [],
+  frameSrc,
+}: SecurityHeadersOptions): Record<string, string> {
   const frameAncestors = sources(ancestors);
   const csp = [
     "default-src 'self'",
@@ -68,13 +85,14 @@ export function securityHeaders({ nonce, hashes, styleHashes = [], connectSrc = 
     "style-src-attr 'unsafe-inline'",
     ["img-src 'self' data:", ...imgSrc].join(" "),
     ["connect-src 'self'", ...connectSrc].join(" "),
-    "font-src 'self'",
+    ...(mediaSrc ? [["media-src 'self'", ...allowedOrigins(mediaSrc)].join(" ")] : []),
+    ["font-src 'self'", ...allowedOrigins(fontSrc)].join(" "),
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'self'",
     frameAncestors.length ? `frame-ancestors ${frameAncestors.join(" ")}` : "frame-ancestors 'none'",
     ...(frameSrc ? [sources(frameSrc).length ? `frame-src ${sources(frameSrc).join(" ")}` : "frame-src 'none'"] : []),
-    "upgrade-insecure-requests",
+    ...(upgradeInsecureRequests ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
   return {
     "Content-Security-Policy": csp,
