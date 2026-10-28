@@ -69,6 +69,9 @@ import FieldServerErrors from "@/examples/field/server-errors";
 import FieldsetDemo from "@/examples/fieldset/demo";
 import SelectDemo from "@/examples/select/demo";
 import ComboboxDemo from "@/examples/combobox/demo";
+import ToggleDemo from "@/examples/toggle/demo";
+import ToggleGroupDemo from "@/examples/toggle-group/demo";
+import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2607,6 +2610,62 @@ import { Field, FieldLabel } from "@/components/ui/field";
       keyboard: [["Type", "Filters the list."], ["↑ ↓", "Moves between matches."], ["Enter", "Picks the highlighted option."], ["Esc", "Closes the list."]],
       notes: ["The input has role=\"combobox\" and is named by the FieldLabel; the list says No results when nothing matches.", "The button that opens the list is named Show options."],
       motion: "The list materializes in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "toggle",
+    title: "Toggle",
+    category: "Actions",
+    description: "A button that stays pressed, e.g. to pin an item.",
+    examples: [{ title: "Toggle", file: "toggle/demo", component: ToggleDemo }],
+    usage: `import { Toggle } from "@/components/ui/toggle";
+
+<Toggle variant="outline" pressed={pinned} onPressedChange={setPinned}>
+  Pin to profile
+</Toggle>`,
+    props: [
+      { name: "pressed / defaultPressed", type: "boolean", description: "Controlled or uncontrolled pressed state." },
+      { name: "onPressedChange", type: "(pressed: boolean) => void", description: "Runs when a person presses it." },
+      { name: "variant", type: "\"default\" | \"outline\" | \"segmented\"", default: "\"default\"", description: "How it is drawn." },
+      { name: "size", type: "\"default\" | \"sm\"", default: "\"default\"", description: "36 or 32 px tall; the target is 44 px either way." },
+      { name: "...props", type: "@base-ui/react Toggle props", description: "Every prop of the Base UI part." },
+    ],
+    security: { sinks: [], notes: ["A button with a state; it renders what it is given as children."] },
+    accessibility: {
+      keyboard: [["Space / Enter", "Presses or releases it."]],
+      notes: ["A button with aria-pressed; give an icon-only toggle an aria-label.", "Pressed is drawn by a heavier outline and a fill, not by color alone.", "The press target is at least 44 × 44 px, even at the small size."],
+      motion: "Its fill changes in 200 ms. Nothing moves.",
+    },
+  },
+  {
+    name: "toggle-group",
+    title: "Toggle Group",
+    category: "Actions",
+    description: "Pressed buttons that act as one control: chips that choose many, filters that choose one, and a segmented control.",
+    examples: [
+      { title: "Toggle Group", description: "Choose several with multiple.", file: "toggle-group/demo", component: ToggleGroupDemo },
+      { title: "Segmented", description: "Two to six options, one always pressed.", file: "toggle-group/segmented", component: ToggleGroupSegmented },
+    ],
+    usage: `import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+<ToggleGroup variant="segmented" aria-label="Show" defaultValue={["photos"]}>
+  <ToggleGroupItem value="photos">Photos</ToggleGroupItem>
+  <ToggleGroupItem value="videos">Videos</ToggleGroupItem>
+</ToggleGroup>`,
+    props: [
+      { name: "multiple", type: "boolean", default: "false", description: "Lets several items be pressed." },
+      { name: "value / defaultValue", type: "string[]", description: "The pressed items' values." },
+      { name: "onValueChange", type: "(value: string[]) => void", description: "Runs when a person presses or releases an item." },
+      { name: "variant", type: "\"default\" | \"outline\" | \"segmented\"", default: "\"default\"", description: "Segmented draws a track and always keeps one item pressed." },
+      { name: "orientation", type: "\"horizontal\" | \"vertical\"", default: "\"horizontal\"", description: "Which arrows move between items." },
+      { name: "...props", type: "@base-ui/react ToggleGroup props", description: "disabled, loopFocus and the rest of the Base UI part." },
+    ],
+    parts: [{ name: "ToggleGroupItem", description: "One item; a Toggle with the group's variant and size.", props: [{ name: "value", type: "string", description: "What the group reports when this item is pressed." }] }],
+    security: { sinks: [], notes: ["Buttons with a state; they render what they are given as children."] },
+    accessibility: {
+      keyboard: [["Tab", "Enters the group once, on the pressed or first item."], ["← → (↑ ↓ when vertical)", "Moves between items."], ["Space / Enter", "Presses or releases the item."]],
+      notes: ["role=\"group\": name it with aria-label or aria-labelledby. Each item is a button with aria-pressed.", "Pressed is drawn by a heavier outline as well as a fill; every item has a 44 px target."],
+      motion: "The pressed fill changes in 200 ms. Nothing moves.",
     },
   },
 ];

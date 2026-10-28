@@ -1582,6 +1582,47 @@
       ]
     },
     {
+      "name": "toggle",
+      "type": "registry:ui",
+      "title": "Toggle",
+      "description": "A button that stays pressed, e.g. to pin an item.",
+      "dependencies": [
+        "@base-ui/react@1.9.0",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/toggle.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "title": "Toggle Group",
+      "description": "Pressed buttons that act as one control: chips that choose many, filters that choose one, and a segmented control.",
+      "dependencies": [
+        "@base-ui/react@1.9.0",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/toggle"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/toggle-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
