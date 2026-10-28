@@ -22,6 +22,8 @@ export type CustomTheme = {
   /** Multiplies every motion duration, 0–1.5; 0 turns motion off. Reduced motion still wins. */
   motion?: number;
   font?: FontName;
+  /** Per role: a preset name, or the family of a font the app self-hosts (see `fontStack`). Wins over `font`. */
+  fonts?: Partial<Record<FontSlot, string>>;
   /** The type scale, within bounds that keep text readable (see `typeRanges`). */
   type?: Partial<Record<TypeKey, number>>;
 };
@@ -43,8 +45,20 @@ export const themeFonts = {
   system: fonts.sans,
   rounded: `ui-rounded, "SF Pro Rounded", ${fonts.sans}`,
   serif: 'ui-serif, "New York", Georgia, "Times New Roman", serif',
+  mono: fonts.mono,
 };
 export type FontName = keyof typeof themeFonts;
+export type FontSlot = "sans" | "display" | "mono";
+const fontSlots: FontSlot[] = ["sans", "display", "mono"];
+
+/** A family name a theme may name: letters, digits, spaces and hyphens, so it can never close the quotes or the rule. */
+const FAMILY = /^[A-Za-z][A-Za-z0-9 -]{0,47}$/;
+
+/** The CSS stack for a font choice: a preset, or a self-hosted family quoted ahead of the system fallback. */
+export function fontStack(slot: FontSlot, choice: string) {
+  if (has(themeFonts, choice)) return themeFonts[choice as FontName];
+  return `"${choice}", ${slot === "mono" ? fonts.mono : fonts.sans}`;
+}
 
 export type ThemeResult = { ok: true; theme: CustomTheme } | { ok: false; errors: string[] };
 
@@ -84,7 +98,7 @@ function unknownKeys(o: Record<string, unknown>, allowed: readonly string[], pat
 /** Validates untrusted input (a parsed JSON value) and returns a normalized theme, or every reason it is refused. */
 export function validateTheme(input: unknown): ThemeResult {
   if (!isRecord(input)) return { ok: false, errors: ["theme must be an object"] };
-  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "motion", "font", "type"], "");
+  const errors = unknownKeys(input, ["version", "name", "colors", "radius", "blur", "shadow", "motion", "font", "fonts", "type"], "");
   if (input.version !== 1) errors.push("version must be 1");
 
   const name = typeof input.name === "string" ? stripInvisible(input.name).trim() : "";
@@ -148,6 +162,20 @@ export function validateTheme(input: unknown): ThemeResult {
     else errors.push(`font must be one of ${Object.keys(themeFonts).join(", ")}`);
   }
 
+  if (input.fonts !== undefined) {
+    if (!isRecord(input.fonts)) errors.push("fonts must be an object with sans, display or mono");
+    else {
+      errors.push(...unknownKeys(input.fonts, fontSlots, "fonts."));
+      theme.fonts = {};
+      for (const slot of fontSlots) {
+        const v = input.fonts[slot];
+        if (v === undefined) continue;
+        if (typeof v === "string" && (has(themeFonts, v.trim()) || FAMILY.test(v.trim()))) theme.fonts[slot] = v.trim();
+        else errors.push(`fonts.${slot} must be one of ${Object.keys(themeFonts).join(", ")} or a family name of letters, digits, spaces and hyphens`);
+      }
+    }
+  }
+
   if (input.type !== undefined) {
     if (!isRecord(input.type)) errors.push("type must be an object");
     else {
@@ -206,6 +234,7 @@ export function themeVariables(theme: CustomTheme, mode: ThemeMode): Record<stri
   for (const [k, v] of Object.entries(theme.blur ?? {})) vars[`--blur-${k}`] = `${v}px`;
   if (theme.motion !== undefined) for (const [k, v] of Object.entries(durations)) vars[`--duration-${k}`] = `${num(parseFloat(v) * theme.motion)}ms`;
   if (theme.font) vars["--font-sans"] = themeFonts[theme.font];
+  for (const [slot, choice] of Object.entries(theme.fonts ?? {})) vars[`--font-${slot}`] = fontStack(slot as FontSlot, choice);
   if (theme.type) Object.assign(vars, typeVariables(theme.type));
   return vars;
 }
@@ -263,6 +292,8 @@ export const themeVariableNames = new Set([
   ...Object.keys(blurs).filter((k) => k !== "materialize").map((k) => `--blur-${k}`),
   ...Object.keys(durations).map((k) => `--duration-${k}`),
   "--font-sans",
+  "--font-display",
+  "--font-mono",
   ...Object.keys(typeScale).map((k) => `--text-${k}`),
   "--text-body--line-height",
   "color-scheme",

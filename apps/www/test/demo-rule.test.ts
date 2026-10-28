@@ -13,12 +13,12 @@ const EXEMPT = ["utils", "locale-pt-br", "locale-es"];
 
 // Items older than the rule. These lists only shrink: remove a name when its demo or spec lands, never add one.
 const LEGACY_NO_DEMO = [
-  "api", "attachment", "bff-stream", "custom-theme", "event-stream", "locale", "mf-bridge", "mf-context", "mf-element",
+  "api", "attachment", "bff-stream", "event-stream", "locale", "mf-bridge", "mf-context", "mf-element",
   "mf-embed-headers", "mf-frame", "reasoning", "redact", "secure-action", "share-metadata", "untrusted",
   "use-event-stream", "use-format", "use-idle-timeout", "use-reduced-motion", "use-stick-to-bottom",
 ];
 const LEGACY_NO_SPEC = [
-  "api", "area-chart", "attachment", "avatar", "badge", "bff-stream", "breadcrumb", "chart", "collapsible", "custom-theme",
+  "api", "area-chart", "attachment", "avatar", "badge", "bff-stream", "breadcrumb", "chart", "collapsible",
   "empty", "event-stream", "hand-raise", "item", "kbd", "label", "line-chart", "locale", "markdown", "mf-bridge", "mf-context",
   "mf-element", "mf-embed-headers", "mf-frame", "radial-chart", "reasoning", "redact", "scroll-area", "secure-action",
   "separator", "share-card", "share-metadata", "sheet", "sources", "spinner", "streaming-markdown",

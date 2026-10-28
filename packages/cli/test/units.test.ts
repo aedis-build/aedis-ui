@@ -235,4 +235,11 @@ describe("themeImport", () => {
     expect(themeImport(JSON.stringify({ version: 1, name: "x", colors: { light: { primary: "url(x)" }, dark: {} } }), "x.json")).toMatchObject({ ok: false });
     expect(themeImport("{", "x.json")).toEqual({ ok: false, errors: ["theme is not valid JSON"] });
   });
+
+  it("accepts the font tokens and refuses a family that is not a plain name (#202)", () => {
+    const ok = themeImport(JSON.stringify({ version: 1, name: "RLFN", colors: { light: {}, dark: {} }, fonts: { sans: "Brand Sans", display: "serif", mono: "mono" } }), "rlfn.json");
+    expect(ok.ok && ok.css).toContain('--font-sans: "Brand Sans", -apple-system');
+    expect(ok.ok && ok.css).toContain("--font-display: ui-serif");
+    expect(themeImport(JSON.stringify({ version: 1, name: "x", colors: { light: {}, dark: {} }, fonts: { display: 'X"; } body { color: red' } }), "x.json")).toMatchObject({ ok: false });
+  });
 });
