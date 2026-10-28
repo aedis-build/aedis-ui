@@ -82,6 +82,7 @@ import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
+import CustomThemeFonts from "@/examples/custom-theme/fonts";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2879,6 +2880,44 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "Under reduced motion nothing moves: Reveal shows at once, Parallax stays put, Pin is a plain section at progress 1.",
       ],
       motion: "Reveal fades and lifts 24 px in 900 ms. Parallax drifts by its distance across the viewport. Only transform and opacity animate, and will-change is set only while they move.",
+    },
+  },
+  {
+    name: "custom-theme",
+    title: "Custom theme",
+    category: "Foundations",
+    description: "A theme as typed data: colors, radius, blur, shadow, motion, type and the sans, display and mono fonts.",
+    examples: [{ title: "Theme fonts", description: "Pick a preset or name a self-hosted family; the same validator as aedis theme import writes the variables, or says why it refused.", file: "custom-theme/fonts", component: CustomThemeFonts }],
+    usage: `// rlfn-theme.json, then: npx @aedis/cli theme import rlfn-theme.json
+{
+  "version": 1,
+  "name": "RLFN Studio",
+  "colors": { "light": {}, "dark": {} },
+  "fonts": { "sans": "Brand Sans", "display": "Fraunces", "mono": "mono" }
+}
+
+/* Your CSS: self-host every family the theme names (font-src 'self'). */
+@font-face { font-family: "Fraunces"; src: url("/fonts/fraunces.woff2") format("woff2"); font-display: swap; }`,
+    props: [
+      { name: "fonts.sans", type: "string", description: "Body text. A preset (system, rounded, serif, mono) or a self-hosted family name." },
+      { name: "fonts.display", type: "string", description: "h1–h3 and the font-display class. Defaults to the sans." },
+      { name: "fonts.mono", type: "string", description: "Code. A preset or a self-hosted family name." },
+      { name: "font", type: "\"system\" | \"rounded\" | \"serif\" | \"mono\"", description: "The sans alone, as before; fonts.sans wins over it." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "A font name cannot become CSS",
+          text: "A family is letters, digits, spaces and hyphens, quoted ahead of the system fallback: it cannot close the rule, import a stylesheet or reach a url().",
+          evidence: [["custom-theme.test.ts", "never lets a font name close the quotes, the rule or reach a url (property, #202)"]],
+          ids: ["CWE-79", "CWE-94"],
+        },
+      ],
+      backend: "self-host the font files and declare them with @font-face in your CSS: font-src 'self' allows them. A font CDN needs securityHeaders({ fontSrc }); never link remote font CSS.",
+    },
+    accessibility: {
+      notes: ["Fonts change families only: the contrast and type size checks of the theme are unchanged.", "Use font-display: swap so text shows in the fallback while the font loads."],
     },
   },
 ];
