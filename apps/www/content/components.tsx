@@ -72,6 +72,7 @@ import ComboboxDemo from "@/examples/combobox/demo";
 import ToggleDemo from "@/examples/toggle/demo";
 import ToggleGroupDemo from "@/examples/toggle-group/demo";
 import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
+import CopyButtonDemo from "@/examples/copy-button/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2666,6 +2667,31 @@ import { Field, FieldLabel } from "@/components/ui/field";
       keyboard: [["Tab", "Enters the group once, on the pressed or first item."], ["← → (↑ ↓ when vertical)", "Moves between items."], ["Space / Enter", "Presses or releases the item."]],
       notes: ["role=\"group\": name it with aria-label or aria-labelledby. Each item is a button with aria-pressed.", "Pressed is drawn by a heavier outline as well as a fill; every item has a 44 px target."],
       motion: "The pressed fill changes in 200 ms. Nothing moves.",
+    },
+  },
+  {
+    name: "copy-button",
+    title: "Copy Button",
+    category: "Actions",
+    description: "Copies a string, e.g. a share link, and confirms it.",
+    examples: [{ title: "Copy Button", description: "Where the browser refuses to copy, the link shows selected beside the button.", file: "copy-button/demo", component: CopyButtonDemo }],
+    usage: `import { CopyButton } from "@/components/ui/copy-button";
+
+<CopyButton value={portfolioUrl}>Copy link</CopyButton>`,
+    props: [
+      { name: "value", type: "string", description: "The exact text to copy." },
+      { name: "onCopied", type: "() => void", description: "Runs after the text is on the clipboard." },
+      { name: "labels", type: "Partial<CopyButtonLabels>", description: "Overrides the locale's words (Copy, Copied, the fallback hint)." },
+      { name: "...props", type: "ButtonProps", default: "variant=\"outline\"", description: "Every Button prop. size=\"icon\" shows the icon only and is named Copy." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["It only writes the given string with navigator.clipboard.writeText; it never reads the clipboard."],
+    },
+    accessibility: {
+      keyboard: [["Enter / Space", "Copies."], ["Ctrl+C / ⌘C", "Where copying is blocked, copies the selected text that takes the focus."]],
+      notes: ["Copied is announced politely by a status region and shown on the button for 2 s.", "Where the browser refuses, the text shows in a read-only field, selected and focused, and the status says so."],
+      motion: "The icon changes to a check for 2 s. Nothing moves.",
     },
   },
 ];

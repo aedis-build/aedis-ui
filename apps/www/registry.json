@@ -1623,6 +1623,24 @@
       ]
     },
     {
+      "name": "copy-button",
+      "type": "registry:ui",
+      "title": "Copy Button",
+      "description": "Copies a string, e.g. a share link, and confirms it.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/copy-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

@@ -155,6 +155,12 @@ export type Messages = {
     /** Names the button that opens the list. */
     toggle: string;
   };
+  copyButton: {
+    copy: string;
+    copied: string;
+    /** When the browser refuses to copy: the text is selected for the person to copy. */
+    fallback: string;
+  };
   /** Input and Textarea. */
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
@@ -318,6 +324,11 @@ export const en: Messages = {
   combobox: {
     empty: "No results.",
     toggle: "Show options",
+  },
+  copyButton: {
+    copy: "Copy",
+    copied: "Copied",
+    fallback: "Copying is blocked here. The text is selected: press Ctrl+C or ⌘C.",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
