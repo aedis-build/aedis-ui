@@ -154,6 +154,8 @@ export type Messages = {
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
     truncated: string;
+    /** The label of the Honeypot field, which only bots read. */
+    honeypot: string;
   };
   feedback: {
     label: string;
@@ -310,6 +312,7 @@ export const en: Messages = {
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
+    honeypot: "Leave this field empty",
   },
   feedback: {
     label: "Rate this answer",

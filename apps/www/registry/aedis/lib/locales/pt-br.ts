@@ -142,6 +142,7 @@ export const ptBR: Messages = {
   },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
+    honeypot: "Deixe este campo vazio",
   },
   feedback: {
     label: "Avalie esta resposta",

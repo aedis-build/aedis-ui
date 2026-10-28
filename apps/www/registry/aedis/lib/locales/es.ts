@@ -142,6 +142,7 @@ export const es: Messages = {
   },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
+    honeypot: "Deja este campo vacío",
   },
   feedback: {
     label: "Valora esta respuesta",

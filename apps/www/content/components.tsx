@@ -64,6 +64,9 @@ import TextareaDemo from "@/examples/textarea/demo";
 import ToastDemo from "@/examples/toast/demo";
 import ToolCallDemo from "@/examples/tool-call/demo";
 import TooltipDemo from "@/examples/tooltip/demo";
+import FieldDemo from "@/examples/field/demo";
+import FieldServerErrors from "@/examples/field/server-errors";
+import FieldsetDemo from "@/examples/fieldset/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2440,6 +2443,87 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
       keyboard: [["Tab", "Focusing the trigger shows the tooltip."], ["Esc", "Hides it."]],
       notes: ["The tooltip describes its trigger; it is not shown on touch, so never put the only copy of information in it."],
       motion: "It materializes after a 300 ms delay and fades out in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "field",
+    title: "Field",
+    category: "Forms",
+    description: "A form field: label, control, hint and an error that shows inline, plus a honeypot spam trap.",
+    examples: [
+      { title: "Field", description: "Type a wrong email and move on: the error shows at once. Send checks every field, empty ones too.", file: "field/demo", component: FieldDemo },
+      { title: "Errors from the server", description: "A failed secureAction result names its invalid fields; pass them as errors.", file: "field/server-errors", component: FieldServerErrors },
+    ],
+    usage: `import { Field, FieldControl, FieldDescription, FieldError, FieldLabel, Form, Honeypot } from "@/components/ui/field";
+
+<Form onFormSubmit={send}>
+  <Field name="email" errors={result?.fields}>
+    <FieldLabel>Email</FieldLabel>
+    <FieldControl type="email" required maxLength={254} />
+    <FieldDescription>We answer within one working day.</FieldDescription>
+    <FieldError>Enter an email like name@studio.com.</FieldError>
+  </Field>
+  <Honeypot />
+</Form>`,
+    props: [
+      { name: "name", type: "string", description: "The field's name in the form, and the key looked up in errors." },
+      { name: "errors", type: "readonly string[]", description: "The fields of a failed secureAction result. The field is invalid while its name is in the list." },
+      { name: "invalid", type: "boolean", description: "Marks the field invalid from outside; its FieldError shows." },
+      { name: "validationMode", type: "\"onBlur\" | \"onChange\" | \"onSubmit\"", default: "\"onBlur\"", description: "When the field checks itself. On blur, a mistake shows before the form is sent." },
+      { name: "...props", type: "@base-ui/react Field.Root props", description: "Every prop of the Base UI part, including validate for custom rules." },
+    ],
+    parts: [
+      { name: "FieldControl", description: "The control, labelled and described by the field. An Input unless render says otherwise.", props: [{ name: "render", type: "ReactElement", default: "<Input />", description: "Another control, e.g. <Textarea />." }] },
+      { name: "FieldError", description: "Shown while the field is invalid, inside a polite live region.", props: [{ name: "children", type: "ReactNode", description: "The message. Without it, the browser's own message shows." }] },
+      { name: "Form", description: "Checks every field on submit and focuses the first invalid one.", props: [{ name: "onFormSubmit", type: "(values) => void", description: "Runs only when every field is valid, with the values by name." }] },
+      { name: "Honeypot", description: "A text field people never see, hear or reach; bots fill it in.", props: [{ name: "name", type: "string", default: "\"website\"", description: "Reject the submit on the server when this field is not empty." }] },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "A trap only bots fall into",
+          text: "Honeypot is hidden from assistive technology, out of the tab order and off screen, and is sent empty by people.",
+          evidence: [["field.test.tsx", "keeps the honeypot away from people: hidden from assistive tech, out of the tab order, sent empty"]],
+          ids: ["CWE-799", "OWASP A04:2021"],
+        },
+      ],
+      backend: "reject a submit whose honeypot is not empty and validate every field again; client checks are a convenience.",
+    },
+    accessibility: {
+      keyboard: [["Tab", "Leaving a field you typed in checks it and shows its error."], ["Enter", "In a text field, sends the form; the first invalid field takes the focus."]],
+      notes: [
+        "The label names the control; the description and the error describe it (aria-describedby), and aria-invalid marks it.",
+        "Errors render in a polite live region that is always present, so they are announced when they appear.",
+        "Honeypot is aria-hidden with tabindex=-1, so no person reaches it.",
+      ],
+      motion: "Nothing moves.",
+    },
+  },
+  {
+    name: "fieldset",
+    title: "Fieldset",
+    category: "Forms",
+    description: "A group of fields or choices named by its legend.",
+    examples: [{ title: "Fieldset", file: "fieldset/demo", component: FieldsetDemo }],
+    usage: `import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+
+<Fieldset>
+  <FieldsetLegend>What do you need?</FieldsetLegend>
+  <Field>
+    <FieldLabel><Checkbox name="needs" value="web" /> Website</FieldLabel>
+  </Field>
+</Fieldset>`,
+    props: [
+      { name: "disabled", type: "boolean", description: "Disables every control in the group." },
+      { name: "...props", type: "@base-ui/react Fieldset.Root props", description: "Every prop of the Base UI part." },
+    ],
+    security: { sinks: [], notes: ["Structure only: it renders what it is given as children."] },
+    accessibility: {
+      notes: ["A group named by its legend, so a screen reader says the group's name before each choice in it."],
+      motion: "Nothing moves.",
     },
   },
 ];
