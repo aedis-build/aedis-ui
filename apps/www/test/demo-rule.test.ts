@@ -13,11 +13,7 @@ const EXEMPT = ["utils", "locale-pt-br", "locale-es"];
 
 // Items older than the rule. These lists only shrink: remove a name when its demo or spec lands, never add one.
 const LEGACY_NO_DEMO: string[] = [];
-const LEGACY_NO_SPEC = [
-  "area-chart", "avatar", "badge", "breadcrumb", "chart", "collapsible", "empty", "hand-raise", "item", "kbd", "label",
-  "line-chart", "markdown", "radial-chart", "scroll-area", "separator", "share-card", "sheet", "sources", "spinner",
-  "streaming-markdown", "table",
-];
+const LEGACY_NO_SPEC: string[] = [];
 
 const items = registry.items.filter((i) => i.type !== "registry:file" && !EXEMPT.includes(i.name));
 const isBlock = (name: string) => blocks.some((b) => b.name === name);
