@@ -30,7 +30,34 @@ export type SecurityHeadersOptions = {
   frameAncestors?: string[];
   /** Origins this page may frame. Unset, frames fall back to default-src ('self'). */
   frameSrc?: string[];
+  /**
+   * Who may keep a copy of the response. "private" (the default): nobody, for pages with a nonce or personal data.
+   * "public": the CDN for an hour, then stale for a day while it refetches. "immutable": a year, for hashed assets.
+   * A cacheable response cannot carry a nonce, and needs neither a nonce nor hashes when it runs no script.
+   */
+  cacheControl?: CachePolicy | undefined;
 };
+
+export type CachePolicy = "private" | "public" | "immutable";
+
+/** Every preset keeps no-transform, so a proxy still cannot rewrite the response. */
+const CACHE: Record<CachePolicy, string> = {
+  private: "no-store, no-transform",
+  public: "public, max-age=3600, stale-while-revalidate=86400, no-transform",
+  immutable: "public, max-age=31536000, immutable, no-transform",
+};
+
+/**
+ * The cache policy for a path: "public" or "immutable" when it matches one of the lists (a string compares exactly,
+ * a RegExp tests the path), "private" otherwise, so the safe default never needs remembering. A path in both lists
+ * gets "public", the shorter of the two.
+ */
+export function cachePolicyFor(pathname: string, { public: open = [], immutable = [] }: { public?: (string | RegExp)[]; immutable?: (string | RegExp)[] } = {}): CachePolicy {
+  const hit = (list: (string | RegExp)[]) => list.some((m) => (typeof m === "string" ? m === pathname : ((m.lastIndex = 0), m.test(pathname))));
+  if (hit(open)) return "public";
+  if (hit(immutable)) return "immutable";
+  return "private";
+}
 
 const HASH = /^sha(256|384|512)-[A-Za-z0-9+/]+={0,2}$/;
 const NONCE = /^[A-Za-z0-9+/_-]+={0,2}$/;
@@ -42,8 +69,9 @@ function hashSources(hashes: string[], what: string) {
   return hashes.map((h) => `'${h}'`);
 }
 
-/** The script sources that replace 'unsafe-inline'. */
-function scriptSources(nonce: string | undefined, hashes: string[] | undefined) {
+/** The script sources that replace 'unsafe-inline'; null for a cacheable response that runs no script. */
+function scriptSources(nonce: string | undefined, hashes: string[] | undefined, cacheable: boolean) {
+  if (cacheable && nonce === undefined && hashes === undefined) return null;
   if ((nonce === undefined) === (hashes === undefined)) throw new Error("securityHeaders: give either nonce or hashes");
   if (nonce !== undefined) {
     if (!NONCE.test(nonce)) throw new Error("securityHeaders: the nonce must be base64");
@@ -72,11 +100,17 @@ export function securityHeaders({
   upgradeInsecureRequests = true,
   frameAncestors: ancestors = [],
   frameSrc,
+  cacheControl = "private",
 }: SecurityHeadersOptions): Record<string, string> {
+  // Checked at runtime too: a call from plain JavaScript must not reach the CDN with a typo.
+  if (!Object.hasOwn(CACHE, cacheControl)) throw new Error("securityHeaders: cacheControl must be private, public or immutable");
+  const cacheable = cacheControl !== "private";
+  if (cacheable && nonce !== undefined) throw new Error("securityHeaders: a response with a nonce is never cached; use cacheControl \"private\"");
+  const scripts = scriptSources(nonce, hashes, cacheable);
   const frameAncestors = sources(ancestors);
   const csp = [
     "default-src 'self'",
-    ["script-src 'self'", ...scriptSources(nonce, hashes)].join(" "),
+    scripts ? ["script-src 'self'", ...scripts].join(" ") : "script-src 'none'",
     // CSP 3 splits styles: elements (<style>, <link>) only from this origin, the nonce or a build-time hash, so an
     // injected <style> is refused; attributes stay allowed, since the components set them and an attribute runs no
     // script and loads only what img-src and font-src let through. No style-src: a browser without the split
@@ -104,6 +138,6 @@ export function securityHeaders({
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
     // no-transform: a proxy (Cloudflare's analytics or bot scripts) must not rewrite the page.
-    "Cache-Control": "no-store, no-transform",
+    "Cache-Control": CACHE[cacheControl],
   };
 }

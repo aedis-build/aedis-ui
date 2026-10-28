@@ -74,6 +74,7 @@ import ToggleGroupDemo from "@/examples/toggle-group/demo";
 import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 import CopyButtonDemo from "@/examples/copy-button/demo";
 import SecurityHeadersBuilder from "@/examples/security-headers/builder";
+import SecurityHeadersCache from "@/examples/security-headers/cache";
 import MediaFrameDemo from "@/examples/media-frame/demo";
 import CarouselDemo from "@/examples/carousel/demo";
 import CarouselSlideshow from "@/examples/carousel/slideshow";
@@ -1853,12 +1854,18 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
     title: "securityHeaders",
     category: "Security",
     description: "Response headers for an app built with these components: strict CSP for scripts and styles, HSTS, no framing, no sniffing.",
-    examples: [{ title: "Builder", description: "Type origins one per line and see the policy the server would send. Wildcards and paths are dropped.", file: "security-headers/builder", component: SecurityHeadersBuilder }],
-    usage: `import { securityHeaders } from "@/lib/security-headers";
+    examples: [{ title: "Builder", description: "Type origins one per line and see the policy the server would send. Wildcards and paths are dropped.", file: "security-headers/builder", component: SecurityHeadersBuilder },
+      { title: "Cache policy", description: "Pick a preset or let cachePolicyFor decide from the path; a nonce on a cacheable response is refused.", file: "security-headers/cache", component: SecurityHeadersCache },
+    ],
+    usage: `import { cachePolicyFor, securityHeaders } from "@/lib/security-headers";
 
 // proxy.ts (Next.js) or any edge/middleware
 const nonce = crypto.randomUUID();
-for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response.headers.set(name, value);`,
+for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response.headers.set(name, value);
+
+// One middleware for every route: public files may be cached, pages with a nonce never.
+const policy = cachePolicyFor(pathname, { public: ["/sitemap.xml", "/robots.txt", /^\/llms/], immutable: [/^\/_next\/static\//] });
+const headers = policy === "private" ? securityHeaders({ nonce }) : securityHeaders({ cacheControl: policy });`,
     props: [
       { name: "nonce", type: "string", description: "Per-request nonce; the framework must put it on its scripts." },
       { name: "hashes", type: "string[]", description: "Static sites: sha256-/sha384-/sha512- hashes of the inline scripts, computed at build time. Use instead of nonce; the policy is then 'self' plus the hashes." },
@@ -1869,6 +1876,8 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       { name: "mediaSrc", type: "string[]", description: "Origins for video and audio, e.g. a media CDN. Unset, media follows default-src 'self'. Exact origins only." },
       { name: "fontSrc", type: "string[]", default: "[]", description: "Extra origins for fonts, e.g. self-hosted fonts on a CDN. Exact origins only." },
       { name: "upgradeInsecureRequests", type: "boolean", default: "true", description: "Upgrades http: requests to https:. Turn it off only for a plain-HTTP origin (a local run, e2e)." },
+      { name: "cacheControl", type: "\"private\" | \"public\" | \"immutable\"", default: "\"private\"", description: "private: no-store. public: an hour, then stale for a day. immutable: a year, for hashed assets. Every preset keeps no-transform; any other value throws." },
+      { name: "cachePolicyFor(path, { public, immutable })", type: "CachePolicy", description: "The policy for a path from lists of exact strings and RegExps; private when nothing matches, public when both do." },
     ],
     security: {
       sinks: ["Session", "DOM"],
@@ -1896,6 +1905,12 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
           text: "mediaSrc and fontSrc keep only exact http(s) origins: a wildcard, a path or garbage is dropped, never widened.",
           evidence: [["security-headers.test.ts", "allows media and fonts only from the exact origins named (#201)"]],
           ids: ["CWE-693", "CWE-829"],
+        },
+        {
+          title: "Cached only when asked, never with a nonce",
+          text: "no-store unless the response opts into a preset; a nonce together with a cacheable preset, or any value that is not a preset, throws; a cacheable response without scripts gets script-src 'none'.",
+          evidence: [["security-headers.test.ts", "refuses a nonce on a cacheable response, and any value that is not a preset"], ["security-headers.test.ts", "is no-store by default, so forgetting the option never makes a page cacheable"]],
+          ids: ["CWE-524", "CWE-525"],
         },
         {
           title: "Transport, sniffing and caching",
