@@ -1,4 +1,4 @@
-import { securityHeaders } from "@/lib/security-headers";
+import { cachePolicyFor, securityHeaders, type CachePolicy } from "@/lib/security-headers";
 
 describe("securityHeaders", () => {
   const headers = securityHeaders({ nonce: "n0nce" });
@@ -67,5 +67,51 @@ describe("securityHeaders", () => {
   it("upgrades insecure requests unless the origin is plain HTTP (#201)", () => {
     expect(csp["upgrade-insecure-requests"]).toBe("upgrade-insecure-requests");
     expect(securityHeaders({ nonce: "n", upgradeInsecureRequests: false })["Content-Security-Policy"]).not.toContain("upgrade-insecure-requests");
+  });
+});
+
+describe("cache policy per response (#231)", () => {
+  const csp = (h: Record<string, string>) => Object.fromEntries(h["Content-Security-Policy"]!.split("; ").map((d) => [d.split(" ")[0], d]));
+
+  it("is no-store by default, so forgetting the option never makes a page cacheable", () => {
+    expect(securityHeaders({ nonce: "n" })["Cache-Control"]).toBe("no-store, no-transform");
+    expect(securityHeaders({ nonce: "n", cacheControl: "private" })["Cache-Control"]).toBe("no-store, no-transform");
+  });
+
+  it("writes each preset, every one with no-transform", () => {
+    expect(securityHeaders({ cacheControl: "public" })["Cache-Control"]).toBe("public, max-age=3600, stale-while-revalidate=86400, no-transform");
+    expect(securityHeaders({ cacheControl: "immutable" })["Cache-Control"]).toBe("public, max-age=31536000, immutable, no-transform");
+  });
+
+  it("refuses a nonce on a cacheable response, and any value that is not a preset", () => {
+    expect(() => securityHeaders({ nonce: "n", cacheControl: "public" })).toThrow(/never cached/);
+    expect(() => securityHeaders({ nonce: "n", cacheControl: "immutable" })).toThrow(/never cached/);
+    for (const bad of ["no-cache", "public\r\nSet-Cookie: x=1", "", "PUBLIC"]) {
+      expect(() => securityHeaders({ hashes: [], cacheControl: bad as CachePolicy }), bad).toThrow(/must be private, public or immutable/);
+    }
+  });
+
+  it("runs no script on a cacheable response without nonce or hashes, and keeps hashes when given", () => {
+    expect(csp(securityHeaders({ cacheControl: "public" }))["script-src"]).toBe("script-src 'none'");
+    const hash = "sha256-" + "A".repeat(43) + "=";
+    expect(csp(securityHeaders({ cacheControl: "public", hashes: [hash] }))["script-src"]).toBe(`script-src 'self' '${hash}'`);
+  });
+
+  it("still asks a private response for a nonce or hashes", () => {
+    expect(() => securityHeaders({})).toThrow(/give either nonce or hashes/);
+    expect(() => securityHeaders({ cacheControl: "private" })).toThrow(/give either nonce or hashes/);
+  });
+
+  it("picks the policy per path: exact strings, RegExps, private otherwise, public when both match", () => {
+    const lists = { public: ["/sitemap.xml", "/robots.txt", /^\/llms/], immutable: [/^\/_next\/static\//, "/llms-full.txt"] };
+    expect(cachePolicyFor("/sitemap.xml", lists)).toBe("public");
+    expect(cachePolicyFor("/sitemap.xml/x", lists)).toBe("private");
+    expect(cachePolicyFor("/llms.txt", lists)).toBe("public");
+    expect(cachePolicyFor("/_next/static/chunks/a.js", lists)).toBe("immutable");
+    expect(cachePolicyFor("/llms-full.txt", lists)).toBe("public");
+    expect(cachePolicyFor("/account", lists)).toBe("private");
+    expect(cachePolicyFor("/sitemap.xml")).toBe("private");
+    const sticky = /^\/feed/g;
+    expect([cachePolicyFor("/feed", { public: [sticky] }), cachePolicyFor("/feed", { public: [sticky] })]).toEqual(["public", "public"]);
   });
 });
