@@ -140,6 +140,10 @@ export const es: Messages = {
     placeholder: "Buscar…",
     empty: "Sin resultados.",
   },
+  combobox: {
+    empty: "Sin resultados.",
+    toggle: "Mostrar opciones",
+  },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     honeypot: "Deja este campo vacío",

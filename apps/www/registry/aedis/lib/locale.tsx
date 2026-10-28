@@ -150,6 +150,11 @@ export type Messages = {
     placeholder: string;
     empty: string;
   };
+  combobox: {
+    empty: string;
+    /** Names the button that opens the list. */
+    toggle: string;
+  };
   /** Input and Textarea. */
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
@@ -309,6 +314,10 @@ export const en: Messages = {
     label: "Search",
     placeholder: "Search…",
     empty: "No results.",
+  },
+  combobox: {
+    empty: "No results.",
+    toggle: "Show options",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",

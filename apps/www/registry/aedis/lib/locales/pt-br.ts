@@ -140,6 +140,10 @@ export const ptBR: Messages = {
     placeholder: "Buscar…",
     empty: "Nenhum resultado.",
   },
+  combobox: {
+    empty: "Nenhum resultado.",
+    toggle: "Mostrar opções",
+  },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     honeypot: "Deixe este campo vazio",

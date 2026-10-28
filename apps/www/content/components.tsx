@@ -67,6 +67,8 @@ import TooltipDemo from "@/examples/tooltip/demo";
 import FieldDemo from "@/examples/field/demo";
 import FieldServerErrors from "@/examples/field/server-errors";
 import FieldsetDemo from "@/examples/fieldset/demo";
+import SelectDemo from "@/examples/select/demo";
+import ComboboxDemo from "@/examples/combobox/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2524,6 +2526,87 @@ import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
     accessibility: {
       notes: ["A group named by its legend, so a screen reader says the group's name before each choice in it."],
       motion: "Nothing moves.",
+    },
+  },
+  {
+    name: "select",
+    title: "Select",
+    category: "Forms",
+    description: "Chooses one option from a short list, with groups and disabled options.",
+    examples: [{ title: "Select", file: "select/demo", component: SelectDemo }],
+    usage: `import { Field, FieldLabel } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
+
+<Field name="proposal">
+  <FieldLabel>Proposal</FieldLabel>
+  <Select
+    placeholder="Choose a proposal"
+    options={[{ label: "Open", options: [{ value: "p-12", label: "Ceramics studio identity" }] }]}
+  />
+</Field>`,
+    props: [
+      { name: "options", type: "(SelectOption | SelectOptionGroup)[]", description: "{ value, label, disabled? } or { label, options } for a group. Labels are strings, so they always render as text." },
+      { name: "placeholder", type: "string", description: "Shown while nothing is chosen." },
+      { name: "value / defaultValue", type: "string | null", description: "The chosen option's value." },
+      { name: "onValueChange", type: "(value: string | null) => void", description: "Runs when a person picks an option." },
+      { name: "aria-label", type: "string", description: "Names the trigger when it is not in a Field with a FieldLabel." },
+      { name: "...props", type: "@base-ui/react Select.Root props", description: "name, required, disabled and the rest of the Base UI root." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "Labels are text",
+          text: "Options take their label as a string, so a label holding markup shows the characters and never becomes elements.",
+          evidence: [["select.test.tsx", "renders any label as text, never as markup (property)"]],
+          ids: ["CWE-79"],
+        },
+      ],
+      backend: "accept only the values you offered; the submitted value is a string the client chose.",
+    },
+    accessibility: {
+      keyboard: [["Enter / Space / ↓", "Opens the list."], ["↑ ↓", "Moves between options, skipping disabled ones."], ["Enter", "Picks the option."], ["Esc", "Closes without changing."]],
+      notes: ["The trigger is named by the FieldLabel and marked aria-invalid when the field is invalid.", "Groups are named by their label."],
+      motion: "The list materializes in 200 ms. With reduced motion it only fades.",
+    },
+  },
+  {
+    name: "combobox",
+    title: "Combobox",
+    category: "Forms",
+    description: "Chooses one option from a longer list by typing to filter it.",
+    examples: [{ title: "Combobox", file: "combobox/demo", component: ComboboxDemo }],
+    usage: `import { Combobox } from "@/components/ui/combobox";
+import { Field, FieldLabel } from "@/components/ui/field";
+
+<Field name="sector">
+  <FieldLabel>Sector</FieldLabel>
+  <Combobox name="sector" options={[{ value: "bakery", label: "Bakery" }]} />
+</Field>`,
+    props: [
+      { name: "options", type: "ComboboxOption[]", description: "{ value, label, disabled? }. Labels are strings, so they always render as text." },
+      { name: "value / defaultValue", type: "string | null", description: "The chosen option's value." },
+      { name: "onValueChange", type: "(value: string | null) => void", description: "Runs when a person picks an option." },
+      { name: "name", type: "string", description: "Sends the chosen option's value, never the typed text." },
+      { name: "placeholder", type: "string", description: "Shown in the empty input." },
+      { name: "labels", type: "Partial<ComboboxLabels>", description: "Overrides the locale's words (No results, Show options)." },
+    ],
+    security: {
+      sinks: ["Input"],
+      defenses: [
+        {
+          title: "The typed text is never sent",
+          text: "The query is limited to 256 characters and only filters the list; the form sends the chosen option's value.",
+          evidence: [["select.test.tsx", "filters as you type, says when nothing matches, and sends the chosen value"]],
+          ids: ["CWE-20", "CWE-770"],
+        },
+      ],
+      backend: "accept only the values you offered.",
+    },
+    accessibility: {
+      keyboard: [["Type", "Filters the list."], ["↑ ↓", "Moves between matches."], ["Enter", "Picks the highlighted option."], ["Esc", "Closes the list."]],
+      notes: ["The input has role=\"combobox\" and is named by the FieldLabel; the list says No results when nothing matches.", "The button that opens the list is named Show options."],
+      motion: "The list materializes in 200 ms. With reduced motion it only fades.",
     },
   },
 ];
