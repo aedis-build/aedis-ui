@@ -1733,6 +1733,48 @@
       ]
     },
     {
+      "name": "abuse-gate",
+      "type": "registry:lib",
+      "title": "abuseGate",
+      "description": "A sliding-window limit per target (an HMAC of the contact) and per IP, for public forms. Stores no personal data.",
+      "files": [
+        {
+          "path": "registry/aedis/lib/abuse-gate.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "brute-force-guard",
+      "type": "registry:lib",
+      "title": "bruteForceGuard",
+      "description": "Progressive lockouts after repeated failures: 1 minute, then 15 minutes, then 1 hour.",
+      "registryDependencies": [
+        "@aedis/abuse-gate"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/brute-force-guard.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "form-token",
+      "type": "registry:lib",
+      "title": "Form token",
+      "description": "An HMAC-signed issued-at in a hidden field: refuses submits faster than 3 seconds, older than 1 hour, or forged.",
+      "registryDependencies": [
+        "@aedis/abuse-gate"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/lib/form-token.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

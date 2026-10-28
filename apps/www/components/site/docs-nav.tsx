@@ -38,8 +38,9 @@ export function DocsNav({ groups, onNavigate }: { groups: NavGroup[]; onNavigate
                   href={i.href}
                   onClick={onNavigate}
                   aria-current={pathname === i.href ? "page" : undefined}
+                  // An inset ring: the sidebar scrolls, and an outside ring on a link at its edge would be cut.
                   className={cn(
-                    "focus-ring block rounded-sm px-2.5 py-1 text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground",
+                    "block rounded-sm px-2.5 outline-none focus-visible:inset-ring-2 focus-visible:inset-ring-ring py-1 text-muted-foreground transition-colors duration-(--duration-fast) ease-out hover:text-foreground",
                     "aria-[current=page]:bg-accent-soft aria-[current=page]:font-medium aria-[current=page]:text-foreground",
                   )}
                 >
