@@ -160,6 +160,12 @@ export const ptBR: Messages = {
     play: "Reproduzir vídeo",
     pause: "Pausar vídeo",
   },
+  lightbox: {
+    previous: "Anterior",
+    next: "Próximo",
+    close: "Fechar",
+    counter: "{index} de {count}",
+  },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     honeypot: "Deixe este campo vazio",

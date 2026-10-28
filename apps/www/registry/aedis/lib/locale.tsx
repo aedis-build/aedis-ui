@@ -173,6 +173,13 @@ export type Messages = {
     play: string;
     pause: string;
   };
+  lightbox: {
+    previous: string;
+    next: string;
+    close: string;
+    /** {index} and {count} are numbers. */
+    counter: string;
+  };
   /** Input and Textarea. */
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
@@ -352,6 +359,12 @@ export const en: Messages = {
   video: {
     play: "Play video",
     pause: "Pause video",
+  },
+  lightbox: {
+    previous: "Previous",
+    next: "Next",
+    close: "Close",
+    counter: "{index} of {count}",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",

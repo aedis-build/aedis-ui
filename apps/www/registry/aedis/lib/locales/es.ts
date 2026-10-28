@@ -160,6 +160,12 @@ export const es: Messages = {
     play: "Reproducir vídeo",
     pause: "Pausar vídeo",
   },
+  lightbox: {
+    previous: "Anterior",
+    next: "Siguiente",
+    close: "Cerrar",
+    counter: "{index} de {count}",
+  },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     honeypot: "Deja este campo vacío",

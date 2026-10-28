@@ -79,6 +79,7 @@ import CarouselDemo from "@/examples/carousel/demo";
 import CarouselSlideshow from "@/examples/carousel/slideshow";
 import VideoDemo from "@/examples/video/demo";
 import VideoBackground from "@/examples/video/background";
+import LightboxDemo from "@/examples/lightbox/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2816,6 +2817,31 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "Autoplay is off by default, always muted, and never runs with reduced motion.",
       ],
       motion: "The video moves only when the person plays it, or when autoplay is asked for and reduced motion is off.",
+    },
+  },
+  {
+    name: "lightbox",
+    title: "Lightbox",
+    category: "Overlays",
+    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
+    examples: [{ title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo }],
+    usage: `import { Lightbox } from "@/components/ui/lightbox";
+
+<Lightbox
+  items={[{ src: "/work/shop-sign.jpg", alt: "Shop sign in terracotta", title: "Ceramics studio", caption: "Identity, 2026" }]}
+/>`,
+    props: [
+      { name: "items", type: "{ src, alt, title, caption? }[]", description: "The works; title names the open dialog." },
+      { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each)." },
+      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened image grows from its thumbnail. Never with reduced motion." },
+      { name: "className", type: "string", description: "Classes for the grid of thumbnails." },
+      { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m)." },
+    ],
+    security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows; titles and captions are text."] },
+    accessibility: {
+      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
+      notes: ["A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".", "Each thumbnail is a button named by its image's alt."],
+      motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
     },
   },
 ];

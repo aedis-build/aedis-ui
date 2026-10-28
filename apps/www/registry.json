@@ -1695,6 +1695,27 @@
       ]
     },
     {
+      "name": "lightbox",
+      "type": "registry:ui",
+      "title": "Lightbox",
+      "description": "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion",
+        "@aedis/button",
+        "@aedis/dialog",
+        "@aedis/media-frame"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/lightbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
