@@ -88,9 +88,11 @@ export function abuseGate({ secret, limit = 5, windowMs = 60 * 60_000, ipLimit =
       const targetKey = await hmacKey(secret, "target", target);
       const ipKey = ip ? await hmacKey(secret, "ip", [ip]) : null;
       const byTarget = await recent(targetKey, windowMs, t);
-      if (byTarget.length >= limit) return { ok: false, reason: "target", retryAfterMs: byTarget[0] + windowMs - t };
+      // A full window frees a place when its oldest submit leaves it; a limit of 0 never does, so it waits a whole window.
+      const wait = (list: number[], window: number) => (list[0] === undefined ? window : list[0] + window - t);
+      if (byTarget.length >= limit) return { ok: false, reason: "target", retryAfterMs: wait(byTarget, windowMs) };
       const byIp = ipKey ? await recent(ipKey, ipWindowMs, t) : [];
-      if (ipKey && byIp.length >= ipLimit) return { ok: false, reason: "ip", retryAfterMs: byIp[0] + ipWindowMs - t };
+      if (ipKey && byIp.length >= ipLimit) return { ok: false, reason: "ip", retryAfterMs: wait(byIp, ipWindowMs) };
       await cache.set(targetKey, JSON.stringify([...byTarget, t]), windowMs);
       if (ipKey) await cache.set(ipKey, JSON.stringify([...byIp, t]), ipWindowMs);
       return { ok: true };
