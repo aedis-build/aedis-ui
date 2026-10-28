@@ -65,7 +65,7 @@ aedis-dotnet does this by default (`AedisApiHost`, `Aedis.Security`, `Aedis.AI`)
 |---|---|
 | Scorecard checks under the process at 10 | `permissions: {}` at the top of every workflow, actions pinned by SHA, no binaries, Dependabot, `SECURITY.md`, `LICENSE` + REUSE, SAST and CodeQL on every PR, branch ruleset as code (`.github/rulesets/main.json`), attested release (`release.yml`, through the platform's `release-registry-js.yml`, SLSA Build L3), property-based tests with **fast-check** (Fuzzing) |
 | Best Practices gold | criteria tracked by `aedis org audit`; this repository ships the files and workflows the audit checks |
-| Coverage ≥ 85 % lines, ≥ 70 % branches, no regression | the platform's `coverage-js.yml` gate at **95 / 85** (the same bar as the .NET framework), `coverage-summary` artifact in the platform contract, no-regression against the last green run |
+| Coverage ≥ 85 % lines, ≥ 70 % branches, no regression | the platform's `coverage-js.yml` gate at **85 / 85** (lines / branches; the .NET framework keeps 95 / 85), `coverage-summary` artifact in the platform contract, no-regression against the last green run |
 | PLT-13 SAST gate | the platform's `sast.yml`: Semgrep public rulesets for JS/TS/React/Next plus the shared Aedis rules (`aedis.dangerously-set-inner-html`, `aedis.rehype-raw`, `aedis.secret-in-web-storage`, `aedis.fetch-credentials-include`, `aedis.raw-text-field`); CodeQL `security-extended` |
 | PLT-14 DAST gate | OWASP ZAP baseline against the built site and registry on every PR (`aedis-ci.yml`), `dast-summary` artifact |
 | PLT-10 production only by PR with review | `main` ruleset: linear history, 1 approval, code owners, required checks, squash; Pages deploys from `main` only |
