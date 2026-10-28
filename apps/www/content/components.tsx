@@ -73,6 +73,13 @@ import ToggleDemo from "@/examples/toggle/demo";
 import ToggleGroupDemo from "@/examples/toggle-group/demo";
 import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 import CopyButtonDemo from "@/examples/copy-button/demo";
+import SecurityHeadersBuilder from "@/examples/security-headers/builder";
+import MediaFrameDemo from "@/examples/media-frame/demo";
+import CarouselDemo from "@/examples/carousel/demo";
+import CarouselSlideshow from "@/examples/carousel/slideshow";
+import VideoDemo from "@/examples/video/demo";
+import VideoBackground from "@/examples/video/background";
+import LightboxDemo from "@/examples/lightbox/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -1805,6 +1812,7 @@ await api("/api/approvals/42/approve", { body: {}, csrfCookie: "XSRF-TOKEN" });`
     title: "securityHeaders",
     category: "Security",
     description: "Response headers for an app built with these components: strict CSP for scripts and styles, HSTS, no framing, no sniffing.",
+    examples: [{ title: "Builder", description: "Type origins one per line and see the policy the server would send. Wildcards and paths are dropped.", file: "security-headers/builder", component: SecurityHeadersBuilder }],
     usage: `import { securityHeaders } from "@/lib/security-headers";
 
 // proxy.ts (Next.js) or any edge/middleware
@@ -1817,6 +1825,9 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
       { name: "connectSrc", type: "string[]", default: "[]", description: "Extra origins for fetch and SSE." },
       { name: "imgSrc", type: "string[]", default: "[]", description: "Extra origins for images." },
       { name: "frameAncestors", type: "string[]", default: "[]", description: "Who may frame the page; nobody by default." },
+      { name: "mediaSrc", type: "string[]", description: "Origins for video and audio, e.g. a media CDN. Unset, media follows default-src 'self'. Exact origins only." },
+      { name: "fontSrc", type: "string[]", default: "[]", description: "Extra origins for fonts, e.g. self-hosted fonts on a CDN. Exact origins only." },
+      { name: "upgradeInsecureRequests", type: "boolean", default: "true", description: "Upgrades http: requests to https:. Turn it off only for a plain-HTTP origin (a local run, e2e)." },
     ],
     security: {
       sinks: ["Session", "DOM"],
@@ -1838,6 +1849,12 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
           text: "frame-ancestors 'none' and X-Frame-Options DENY stop clickjacking; form-action 'self' stops form hijacking.",
           evidence: [["security-headers.test.ts", "allows no inline script, eval, plugin, framing or foreign form target"]],
           ids: ["CWE-1021", "OWASP A05:2021"],
+        },
+        {
+          title: "Media and fonts from exact origins",
+          text: "mediaSrc and fontSrc keep only exact http(s) origins: a wildcard, a path or garbage is dropped, never widened.",
+          evidence: [["security-headers.test.ts", "allows media and fonts only from the exact origins named (#201)"]],
+          ids: ["CWE-693", "CWE-829"],
         },
         {
           title: "Transport, sniffing and caching",
@@ -2692,6 +2709,139 @@ import { Field, FieldLabel } from "@/components/ui/field";
       keyboard: [["Enter / Space", "Copies."], ["Ctrl+C / ⌘C", "Where copying is blocked, copies the selected text that takes the focus."]],
       notes: ["Copied is announced politely by a status region and shown on the button for 2 s.", "Where the browser refuses, the text shows in a read-only field, selected and focused, and the status says so."],
       motion: "The icon changes to a check for 2 s. Nothing moves.",
+    },
+  },
+  {
+    name: "media-frame",
+    title: "Media Frame",
+    category: "Data display",
+    description: "A frame with a fixed aspect ratio for work thumbnails, with a labelled placeholder while media is missing.",
+    examples: [{ title: "Media Frame", description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder.", file: "media-frame/demo", component: MediaFrameDemo }],
+    usage: `import { MediaFrame } from "@/components/ui/media-frame";
+
+<MediaFrame ratio="4:5" src="/work/shop-sign.jpg" alt="Ceramics studio identity, the shop sign" />
+<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />`,
+    props: [
+      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"3:2\" | \"16:9\" | \"21:9\"", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves." },
+      { name: "fit", type: "\"cover\" | \"contain\"", default: "\"cover\"", description: "How the media fills the frame." },
+      { name: "alt", type: "string", description: "Required, unless decorative is set; then the image gets an empty alt." },
+      { name: "decorative", type: "true", description: "Marks the media as decoration: empty alt, placeholder hidden from assistive technology." },
+      { name: "src", type: "string", description: "Without it, or when it fails, the placeholder shows. Same-origin, or an origin the CSP img-src allows." },
+      { name: "caption", type: "string", description: "Shown in the placeholder." },
+      { name: "image", type: "(props: MediaImageProps) => ReactNode", default: "a plain img", description: "Renders the image with a framework component, e.g. next/image with fill." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Remote images load only from origins the CSP img-src (securityHeaders imgSrc) and the framework's image allowlist name; the frame adds none."],
+    },
+    accessibility: {
+      notes: [
+        "alt is required by the type; an empty alt only with decorative.",
+        "The placeholder is role=\"img\" named by the alt and the caption, so a missing picture is still announced.",
+      ],
+      motion: "Nothing moves; the reserved ratio keeps the layout still while the image loads.",
+    },
+  },
+  {
+    name: "carousel",
+    title: "Carousel",
+    category: "Data display",
+    description: "A gallery that moves one slide at a time, and a cross-fading Slideshow. Autoplay is off unless asked for.",
+    examples: [
+      { title: "Carousel", description: "Previous and next, or swipe on touch. Two slides at a time from the small breakpoint.", file: "carousel/demo", component: CarouselDemo },
+      { title: "Slideshow with autoplay", description: "One frame at a time. Autoplay holds while the pointer or the focus is on it, and never runs with reduced motion.", file: "carousel/slideshow", component: CarouselSlideshow },
+    ],
+    usage: `import { Carousel, Slideshow } from "@/components/ui/carousel";
+
+<Carousel label="Selected work">
+  {works.map((w) => <MediaFrame key={w.id} ratio="4:5" src={w.src} alt={w.alt} />)}
+</Carousel>
+
+<Slideshow label="Showreel" autoplay interval={6000} className="h-screen">
+  {frames}
+</Slideshow>`,
+    props: [
+      { name: "label", type: "string", description: "Names the carousel for assistive technology." },
+      { name: "children", type: "ReactNode", description: "One child per slide." },
+      { name: "autoplay", type: "boolean", default: "false", description: "Advances on its own, with a pause button first in the tab order and a progress bar." },
+      { name: "interval", type: "number", default: "5000 (Slideshow 6000)", description: "Milliseconds per slide while autoplay runs." },
+      { name: "slideClassName", type: "string", description: "Classes for each slide, e.g. a basis to show two at a time." },
+      { name: "labels", type: "Partial<CarouselLabels>", description: "Overrides the locale's words (Previous slide, Next slide, Pause, Play, n of m)." },
+    ],
+    parts: [{ name: "Slideshow", description: "One slide at a time, cross-faded; fills its container. Same props.", props: [{ name: "className", type: "string", description: "Give it a height, e.g. h-screen for a background." }] }],
+    security: { sinks: [], notes: ["Renders the slides it is given; it loads nothing by itself."] },
+    accessibility: {
+      keyboard: [["Tab", "Reaches Pause (with autoplay), then Previous and Next, then the visible slide."], ["Enter / Space", "On a button: pauses, plays or moves."]],
+      notes: [
+        "A region with aria-roledescription=\"carousel\" and its label; each slide is a group named \"n of m\". Slides out of view are inert.",
+        "Moves are announced politely while autoplay is off or paused, and not while it runs.",
+        "With autoplay, the pause button is visible and first (WCAG 2.2.2). Autoplay holds on hover and focus, stops while the tab is hidden, and never runs with reduced motion.",
+      ],
+      motion: "Carousel scrolls smoothly and Slideshow cross-fades in 900 ms. With reduced motion the scroll jumps, the fade takes 200 ms and nothing plays on its own.",
+    },
+  },
+  {
+    name: "video",
+    title: "Video",
+    category: "Data display",
+    description: "A video player with captions, and a muted background video. Nothing loads until it is near, and nothing plays on its own unless asked.",
+    examples: [
+      { title: "Video", description: "Poster, the browser's controls and English captions. The file loads only when the player is near the viewport.", file: "video/demo", component: VideoDemo },
+      { title: "Background video", description: "Muted and looped behind content, with a pause button while it moves. Autoplay is on here; with reduced motion it stays on the poster.", file: "video/background", component: VideoBackground },
+    ],
+    usage: `import { Video } from "@/components/ui/video";
+
+<Video src="/films/showreel.mp4" type="video/mp4" poster="/films/showreel.jpg" title="Showreel 2026"
+  captions={[{ src: "/films/showreel.en.vtt", srclang: "en", label: "English", default: true }]} />
+
+<Video variant="background" autoplay src="/films/loop.mp4" title="Studio loop" />`,
+    props: [
+      { name: "src", type: "string", description: "A file on this origin or one the CSP media-src allows (securityHeaders mediaSrc). No third-party embeds." },
+      { name: "type", type: "string", description: "The file's type, e.g. \"video/mp4\"." },
+      { name: "poster", type: "string", description: "Shown before it plays." },
+      { name: "title", type: "string", description: "Names the player. A background video is hidden from assistive technology." },
+      { name: "captions", type: "{ src, srclang, label, default? }[]", description: "Caption tracks (WebVTT)." },
+      { name: "variant", type: "\"player\" | \"background\"", default: "\"player\"", description: "Background: muted, looped, inline, no controls, a pause button; fills its container." },
+      { name: "autoplay", type: "boolean", default: "false", description: "Starts muted once in view. Never under reduced motion." },
+      { name: "labels", type: "Partial<VideoLabels>", description: "Overrides the locale's words (Play video, Pause video)." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Plays files from origins the CSP media-src allows; pass mediaSrc to securityHeaders for a media CDN. It never embeds a third-party player."],
+    },
+    accessibility: {
+      keyboard: [["Tab", "Reaches the player's controls, or the background video's pause button."], ["Space / Enter", "Plays or pauses."]],
+      notes: [
+        "The player is named by title and carries caption tracks.",
+        "A background video is aria-hidden; its pause button is always there while it moves (WCAG 2.2.2).",
+        "Autoplay is off by default, always muted, and never runs with reduced motion.",
+      ],
+      motion: "The video moves only when the person plays it, or when autoplay is asked for and reduced motion is off.",
+    },
+  },
+  {
+    name: "lightbox",
+    title: "Lightbox",
+    category: "Overlays",
+    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
+    examples: [{ title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo }],
+    usage: `import { Lightbox } from "@/components/ui/lightbox";
+
+<Lightbox
+  items={[{ src: "/work/shop-sign.jpg", alt: "Shop sign in terracotta", title: "Ceramics studio", caption: "Identity, 2026" }]}
+/>`,
+    props: [
+      { name: "items", type: "{ src, alt, title, caption? }[]", description: "The works; title names the open dialog." },
+      { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each)." },
+      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened image grows from its thumbnail. Never with reduced motion." },
+      { name: "className", type: "string", description: "Classes for the grid of thumbnails." },
+      { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m)." },
+    ],
+    security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows; titles and captions are text."] },
+    accessibility: {
+      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
+      notes: ["A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".", "Each thumbnail is a button named by its image's alt."],
+      motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
     },
   },
 ];

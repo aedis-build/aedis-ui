@@ -53,4 +53,19 @@ describe("securityHeaders", () => {
     expect(() => securityHeaders({ nonce: "n' 'unsafe-inline" })).toThrow("base64");
     expect(() => securityHeaders({ hashes: ["sha256-ok=", "unsafe-inline"] })).toThrow("not a script hash: unsafe-inline");
   });
+
+  it("allows media and fonts only from the exact origins named (#201)", () => {
+    expect(csp["media-src"]).toBeUndefined();
+    expect(csp["font-src"]).toBe("font-src 'self'");
+    const h = securityHeaders({ nonce: "n", mediaSrc: ["https://media.example.com/", "*", "https://*.example.com", "http://x.test/path"], fontSrc: ["https://fonts.example.com", "*.cdn.com"] });
+    const d = Object.fromEntries(h["Content-Security-Policy"].split("; ").map((x) => [x.split(" ")[0], x]));
+    expect(d["media-src"]).toBe("media-src 'self' https://media.example.com");
+    expect(d["font-src"]).toBe("font-src 'self' https://fonts.example.com");
+    expect(securityHeaders({ nonce: "n", mediaSrc: [] })["Content-Security-Policy"]).toContain("media-src 'self';");
+  });
+
+  it("upgrades insecure requests unless the origin is plain HTTP (#201)", () => {
+    expect(csp["upgrade-insecure-requests"]).toBe("upgrade-insecure-requests");
+    expect(securityHeaders({ nonce: "n", upgradeInsecureRequests: false })["Content-Security-Policy"]).not.toContain("upgrade-insecure-requests");
+  });
 });

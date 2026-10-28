@@ -150,6 +150,14 @@ export type Messages = {
     placeholder: string;
     empty: string;
   };
+  carousel: {
+    previous: string;
+    next: string;
+    pause: string;
+    play: string;
+    /** Names each slide; {index} and {count} are numbers. */
+    slide: string;
+  };
   combobox: {
     empty: string;
     /** Names the button that opens the list. */
@@ -160,6 +168,17 @@ export type Messages = {
     copied: string;
     /** When the browser refuses to copy: the text is selected for the person to copy. */
     fallback: string;
+  };
+  video: {
+    play: string;
+    pause: string;
+  };
+  lightbox: {
+    previous: string;
+    next: string;
+    close: string;
+    /** {index} and {count} are numbers. */
+    counter: string;
   };
   /** Input and Textarea. */
   field: {
@@ -321,6 +340,13 @@ export const en: Messages = {
     placeholder: "Search…",
     empty: "No results.",
   },
+  carousel: {
+    previous: "Previous slide",
+    next: "Next slide",
+    pause: "Pause",
+    play: "Play",
+    slide: "{index} of {count}",
+  },
   combobox: {
     empty: "No results.",
     toggle: "Show options",
@@ -329,6 +355,16 @@ export const en: Messages = {
     copy: "Copy",
     copied: "Copied",
     fallback: "Copying is blocked here. The text is selected: press Ctrl+C or ⌘C.",
+  },
+  video: {
+    play: "Play video",
+    pause: "Pause video",
+  },
+  lightbox: {
+    previous: "Previous",
+    next: "Next",
+    close: "Close",
+    counter: "{index} of {count}",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",

@@ -140,6 +140,13 @@ export const ptBR: Messages = {
     placeholder: "Buscar…",
     empty: "Nenhum resultado.",
   },
+  carousel: {
+    previous: "Slide anterior",
+    next: "Próximo slide",
+    pause: "Pausar",
+    play: "Reproduzir",
+    slide: "{index} de {count}",
+  },
   combobox: {
     empty: "Nenhum resultado.",
     toggle: "Mostrar opções",
@@ -148,6 +155,16 @@ export const ptBR: Messages = {
     copy: "Copiar",
     copied: "Copiado",
     fallback: "Não foi possível copiar aqui. O texto está selecionado: pressione Ctrl+C ou ⌘C.",
+  },
+  video: {
+    play: "Reproduzir vídeo",
+    pause: "Pausar vídeo",
+  },
+  lightbox: {
+    previous: "Anterior",
+    next: "Próximo",
+    close: "Fechar",
+    counter: "{index} de {count}",
   },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
