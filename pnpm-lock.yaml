@@ -112,13 +112,13 @@ importers:
   packages/aedis-cli:
     dependencies:
       '@aedis/cli':
-        specifier: 0.4.2
+        specifier: 0.5.0
         version: link:../cli
 
   packages/aedis-ui:
     dependencies:
       '@aedis/cli':
-        specifier: 0.4.2
+        specifier: 0.5.0
         version: link:../cli
 
   packages/cli:
@@ -149,7 +149,7 @@ importers:
   packages/create-aedis:
     dependencies:
       '@aedis/cli':
-        specifier: 0.4.2
+        specifier: 0.5.0
         version: link:../cli
 
 packages:
