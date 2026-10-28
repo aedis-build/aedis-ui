@@ -21,7 +21,7 @@ export type MessageSpec<P = unknown> = {
 type Specs = Record<string, MessageSpec>;
 type PayloadOf<M extends Specs, T extends keyof M> = M[T] extends MessageSpec<infer P> ? P : never;
 
-type Envelope = { protocol: typeof PROTOCOL; v: typeof VERSION; kind: "ready" | "ack" | "event" | "request" | "response" | "error"; type?: string; id?: string; payload?: unknown };
+type Envelope = { protocol: typeof PROTOCOL; v: typeof VERSION; kind: "ready" | "ack" | "event" | "request" | "response" | "error"; type?: string | undefined; id?: string | undefined; payload?: unknown };
 
 export type BridgeOptions<M extends Specs> = {
   /** The other window: the iframe's contentWindow on the host, window.parent in the embedded app. */

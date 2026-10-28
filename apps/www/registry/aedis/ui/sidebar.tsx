@@ -19,7 +19,7 @@ export type SidebarItem = {
 
 export type SidebarGroup = { label: string; items: SidebarItem[] };
 
-type LinkProps = { href: string; className?: string; children: React.ReactNode; "aria-current"?: "page" };
+type LinkProps = { href: string; className?: string; children: React.ReactNode; "aria-current"?: "page" | undefined };
 
 export type SidebarProps = {
   groups: SidebarGroup[];

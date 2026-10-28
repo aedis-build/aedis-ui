@@ -13,7 +13,7 @@ export type MarkdownProps = {
   /** Markdown written by an agent or a user. Treated as untrusted. */
   children: string;
   /** Render images. Off by default: an image URL can leak the reader's IP and read receipts to a third party. */
-  allowImages?: boolean;
+  allowImages?: boolean | undefined;
   className?: string;
 };
 

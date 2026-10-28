@@ -15,7 +15,7 @@ export type CodeBlockProps = {
   /** The code, shown as text. Copy always copies exactly this. */
   code: string;
   /** Language for highlighting, e.g. "ts", "bash". Unknown languages are shown as plain text. */
-  lang?: string;
+  lang?: string | undefined;
   /** Shown above the code, e.g. a file name. */
   title?: string;
   /** Quickstart effect: lines are revealed one by one when the block scrolls into view, once. */

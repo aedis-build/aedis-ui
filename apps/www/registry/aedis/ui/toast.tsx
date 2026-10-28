@@ -63,7 +63,7 @@ const icons: Record<ToastType, React.ReactNode> = {
 
 const tone: Record<ToastType, string> = { success: "text-success", info: "text-link", warning: "text-warning", error: "text-destructive" };
 
-function ToastList({ labels }: { labels?: Partial<ToastLabels> }) {
+function ToastList({ labels }: { labels?: Partial<ToastLabels> | undefined }) {
   const l = useMessages("toast", labels);
   const { toasts } = ToastPrimitive.useToastManager();
   return toasts.map((t) => {

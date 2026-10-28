@@ -27,12 +27,12 @@ type TextField = HTMLInputElement | HTMLTextAreaElement;
  * the room left is cut by the browser; `truncated` is then shown as the field's own validation message.
  */
 export function guardTextField<T extends TextField>(options: {
-  allowInvisible?: boolean;
-  maxLength?: number;
+  allowInvisible?: boolean | undefined;
+  maxLength?: number | undefined;
   /** Shown when a paste is cut; null to say nothing (the caller has its own notice). */
   truncated: string | null;
-  onChange?: (event: React.ChangeEvent<T>) => void;
-  onPaste?: (event: React.ClipboardEvent<T>) => void;
+  onChange?: ((event: React.ChangeEvent<T>) => void) | undefined;
+  onPaste?: ((event: React.ClipboardEvent<T>) => void) | undefined;
 }) {
   return {
     onChange(event: React.ChangeEvent<T>) {

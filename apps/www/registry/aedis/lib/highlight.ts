@@ -1,6 +1,6 @@
 import type { HighlighterCore } from "shiki/core";
 
-export type CodeToken = { content: string; color?: string };
+export type CodeToken = { content: string; color?: string | undefined };
 
 // Token colors are theme variables (--syntax-*) set by the Aedis theme; anything else is dropped.
 const SYNTAX_COLOR = /^var\(--syntax-[a-z-]+\)$/;

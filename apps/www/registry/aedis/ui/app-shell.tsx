@@ -15,8 +15,8 @@ export type AppShellProps = {
   /** Accessible name of the menu toggle on small screens. Defaults to the dictionary. */
   menuLabel?: string;
   /** The content is the page's <main>. Pass false when the shell sits inside a page that already has one. */
-  main?: boolean;
-  className?: string;
+  main?: boolean | undefined;
+  className?: string | undefined;
 };
 
 /**
