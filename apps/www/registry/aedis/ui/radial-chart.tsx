@@ -28,7 +28,7 @@ function RadialChart({ title, value, max, caption, format, labels, className, an
   const okMax = Number.isFinite(max) && max > 0 ? max : 0;
   const series = [{ key: "value", label: title }];
   const { rows, dropped } = cleanRows([{ label: title, value }], "label", series, 0, okMax || -1);
-  const v = rows[0].values[0];
+  const v = rows[0]?.values[0] ?? null;
   const share = v === null || !okMax ? 0 : v / okMax;
   const { ref, moves } = useChartMotion(animate, share > 0);
   return (

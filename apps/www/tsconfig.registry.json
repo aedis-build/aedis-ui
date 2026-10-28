@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "exactOptionalPropertyTypes": true, "noEmit": true },
+  "compilerOptions": { "exactOptionalPropertyTypes": true, "noUncheckedIndexedAccess": true, "noEmit": true },
   "include": ["registry/**/*.ts", "registry/**/*.tsx", "lib/**/*.ts", "next-env.d.ts"]
 }

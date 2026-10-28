@@ -25,9 +25,10 @@ export async function verifyFormToken(
 ): Promise<FormTokenResult> {
   const key = await hmacCryptoKey(secret);
   const match = typeof token === "string" ? TOKEN.exec(token) : null;
-  if (!match) return { ok: false, reason: "malformed" };
-  const issuedAt = Number(match[1]);
-  const sig = Uint8Array.from(atob(match[2].replace(/-/g, "+").replace(/_/g, "/") + "="), (c) => c.charCodeAt(0));
+  const [, issued, signature] = match ?? [];
+  if (issued === undefined || signature === undefined) return { ok: false, reason: "malformed" };
+  const issuedAt = Number(issued);
+  const sig = Uint8Array.from(atob(signature.replace(/-/g, "+").replace(/_/g, "/") + "="), (c) => c.charCodeAt(0));
   if (!(await crypto.subtle.verify("HMAC", key, sig, signed(form, issuedAt)))) return { ok: false, reason: "signature" };
   const ageMs = now - issuedAt;
   if (ageMs < minAgeMs) return { ok: false, reason: "too-fast" };

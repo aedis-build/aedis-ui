@@ -18,8 +18,9 @@ function BarChart({ title, data, index, series, indexLabel, format, legend = ser
           <svg ref={ref} viewBox={`0 0 ${plot.width} ${plot.height}`} width="100%" aria-hidden="true" className="block overflow-visible">
             <CartesianGrid />
             {rows.map((r, i) =>
-              r.values.map((v, j) =>
-                v === null ? null : (
+              r.values.map((v, j) => {
+                const s = series[j];
+                return v == null || !s ? null : (
                   <rect
                     key={`${i}-${j}`}
                     x={band * i + (band - group) / 2 + j * (group / series.length)}
@@ -27,14 +28,14 @@ function BarChart({ title, data, index, series, indexLabel, format, legend = ser
                     width={bar}
                     height={Math.max(0, plot.bottom - y(v))}
                     rx={Math.min(6, bar / 4)}
-                    fill={seriesColor(series[j], j)}
+                    fill={seriesColor(s, j)}
                     opacity={active === null || active === i ? 1 : 0.55}
                     data-enter="grow"
                     data-order={i}
                     style={{ transformBox: "fill-box", transformOrigin: "center bottom", ...moveOn(moves, "x y width height") }}
                   />
-                ),
-              ),
+                );
+              }),
             )}
             <HitColumns count={rows.length} hover={hover} />
           </svg>

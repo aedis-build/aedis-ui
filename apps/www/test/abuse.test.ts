@@ -28,6 +28,12 @@ describe("abuse gate (#200)", () => {
     expect(await gate.check({ target: ["bruno@bakery.com", "Bakery"] })).toEqual({ ok: true });
   });
 
+  it("with a limit of 0 refuses every submit and asks to wait a whole window (#228)", async () => {
+    const c = clock();
+    const gate = abuseGate({ secret: SECRET, limit: 0, windowMs: 10 * MIN, now: c.now, cache: memoryCache({ now: c.now }) });
+    expect(await gate.check({ target: ["a@x.com"] })).toEqual({ ok: false, reason: "target", retryAfterMs: 10 * MIN });
+  });
+
   it("caps an IP across targets", async () => {
     const c = clock();
     const gate = abuseGate({ secret: SECRET, limit: 10, ipLimit: 2, windowMs: MIN, now: c.now, cache: memoryCache({ now: c.now }) });
@@ -69,6 +75,17 @@ describe("abuse gate (#200)", () => {
 });
 
 describe("brute-force guard (#200)", () => {
+  it("refuses an empty ladder of lockouts, which would never lock anyone (#228)", () => {
+    expect(() => bruteForceGuard({ secret: SECRET, steps: [] })).toThrow(/steps must be one or more positive durations/);
+  });
+
+  it("refuses a lockout step that is not a positive, finite duration (#228)", () => {
+    for (const bad of [[0], [-60_000], [Number.NaN], [Number.POSITIVE_INFINITY], [60_000, 0]]) {
+      expect(() => bruteForceGuard({ secret: SECRET, steps: bad }), String(bad)).toThrow(/steps must be one or more positive durations/);
+    }
+  });
+
+
   it("locks for 1 min, then 15 min, then 1 h, and a success starts over", async () => {
     const c = clock();
     const guard = bruteForceGuard({ secret: SECRET, maxFailures: 3, now: c.now, cache: memoryCache({ now: c.now }) });

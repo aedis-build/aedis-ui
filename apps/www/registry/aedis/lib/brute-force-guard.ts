@@ -21,6 +21,8 @@ type State = { failures: number; lockouts: number; lockedUntil: number };
  */
 export function bruteForceGuard({ secret, maxFailures = 5, steps = [60_000, 15 * 60_000, 60 * 60_000], resetMs = 24 * 60 * 60_000, cache = memoryCache(), now = Date.now }: BruteForceGuardOptions) {
   hmacCryptoKey(secret);
+  // An empty ladder or a step that is not a positive number would never lock anyone (lockedUntil NaN), so it throws.
+  if (!steps.length || steps.some((ms) => !Number.isFinite(ms) || ms <= 0)) throw new Error("bruteForceGuard: steps must be one or more positive durations in ms");
   const key = (subject: string[]) => hmacKey(secret, "login", subject);
   const read = async (k: string): Promise<State> => {
     const raw = await cache.get(k);
@@ -39,7 +41,9 @@ export function bruteForceGuard({ secret, maxFailures = 5, steps = [60_000, 15 *
       s.failures += 1;
       let lockedForMs = 0;
       if (s.failures >= maxFailures) {
-        lockedForMs = steps[Math.min(s.lockouts, steps.length - 1)];
+        const step = steps[Math.min(s.lockouts, steps.length - 1)];
+        if (step === undefined) throw new Error("bruteForceGuard: no lockout step");
+        lockedForMs = step;
         s.lockouts += 1;
         s.failures = 0;
         s.lockedUntil = now() + lockedForMs;

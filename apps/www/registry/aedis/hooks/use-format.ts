@@ -33,7 +33,8 @@ function useFormat() {
       /** "2 minutes ago", "in 3 days", "yesterday". */
       relative: (value: DateInput, now: DateInput = Date.now()) => {
         const seconds = (toDate(value).getTime() - toDate(now).getTime()) / 1000;
-        const [unit, size] = units.find(([, s]) => Math.abs(seconds) >= s) ?? units[units.length - 1];
+        // Under a second still reads in seconds ("now").
+        const [unit, size] = units.find(([, s]) => Math.abs(seconds) >= s) ?? (["second", 1] as const);
         return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(Math.round(seconds / size), unit);
       },
     }),
