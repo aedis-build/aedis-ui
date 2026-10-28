@@ -50,8 +50,8 @@ export type StreamingMarkdownProps = {
   /** The answer so far, as untrusted markdown. Grows while `streaming`. */
   children: string;
   /** True while tokens are still arriving: shows the caret and holds back incomplete links. */
-  streaming?: boolean;
-  allowImages?: boolean;
+  streaming?: boolean | undefined;
+  allowImages?: boolean | undefined;
   maxLength?: number;
   className?: string;
 };

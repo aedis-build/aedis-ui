@@ -97,35 +97,67 @@ function Parallax({ distance = 40, className, ...props }: ParallaxProps) {
 }
 
 const Progress = React.createContext(1);
+const Pinned = React.createContext(false);
 
-/** How far the reader has scrolled through the enclosing Pin, from 0 to 1. 1 outside a Pin and under reduced motion. */
+/** How far the reader has scrolled through the enclosing Pin, from 0 to 1. 1 outside a Pin and when not pinned. */
 function usePinProgress() {
   return React.useContext(Progress);
 }
 
-type PinProps = Omit<React.ComponentProps<"div">, "children"> & {
+/** Whether the enclosing Pin is pinned now: false on the server, under reduced motion and where its media does not match. */
+function usePinned() {
+  return React.useContext(Pinned);
+}
+
+export type PinHandle = {
+  /** Scrolls the page to this progress of the pin (0–1), by its own geometry. Always instant under reduced motion. */
+  scrollTo(progress: number, options?: { behavior?: ScrollBehavior }): void;
+};
+
+type PinProps = Omit<React.ComponentProps<"div">, "children" | "ref"> & {
   /** How long the section stays pinned, in viewport heights of scrolling. */
   length?: number;
+  /** Pins only where this media query matches, e.g. "(min-width: 1000px)"; elsewhere it is a plain section. */
+  media?: string;
+  onPinnedChange?: (pinned: boolean) => void;
+  ref?: React.Ref<PinHandle>;
   children: React.ReactNode | ((progress: number) => React.ReactNode);
 };
 
+const noop = () => () => {};
+function useMedia(query: string | undefined) {
+  return React.useSyncExternalStore(
+    (onChange) => {
+      const m = query ? window.matchMedia?.(query) : undefined;
+      m?.addEventListener("change", onChange);
+      return () => m?.removeEventListener("change", onChange);
+    },
+    () => (query ? (window.matchMedia?.(query).matches ?? false) : true),
+    () => false,
+  );
+}
+
 /**
  * Holds its content in the viewport while the page scrolls past it, and gives the children their progress (0–1) as
- * a render prop or through usePinProgress. Without JavaScript and under reduced motion, it is a plain section at
- * progress 1: everything in its final state.
+ * a render prop or through usePinProgress. The server, a page without JavaScript, reduced motion and a `media` that
+ * does not match all get a plain section at progress 1; it pins after mount. Its ref scrolls the page to a progress.
  */
-function Pin({ length = 1.5, className, children, ...props }: PinProps) {
+function Pin({ length = 1.5, media, onPinnedChange, ref, className, children, ...props }: PinProps) {
   const reduced = useReducedMotion();
-  const ref = React.useRef<HTMLDivElement>(null);
+  const mounted = React.useSyncExternalStore(noop, () => true, () => false);
+  const matches = useMedia(media);
+  const pinned = mounted && !reduced && matches;
+  const el = React.useRef<HTMLDivElement>(null);
   const [progress, setProgress] = React.useState(1);
 
-  React.useEffect(() => {
-    const el = ref.current;
-    if (!el || reduced) return setProgress(1);
+  // Measured before paint, so the first progress the children draw is the real one, not 1.
+  React.useLayoutEffect(() => {
+    const node = el.current;
+    if (!node || !pinned) return setProgress(1);
     let frame = 0;
     const update = () => {
       frame = 0;
-      const r = el.getBoundingClientRect();
+      const r = node.getBoundingClientRect();
       const run = r.height - window.innerHeight;
       setProgress(run > 0 ? Math.min(1, Math.max(0, -r.top / run)) : 1);
     };
@@ -138,16 +170,38 @@ function Pin({ length = 1.5, className, children, ...props }: PinProps) {
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [reduced]);
+  }, [pinned]);
+
+  const changed = React.useRef(onPinnedChange);
+  changed.current = onPinnedChange;
+  React.useEffect(() => {
+    changed.current?.(pinned);
+  }, [pinned]);
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      scrollTo(to, { behavior = "smooth" } = {}) {
+        const node = el.current;
+        if (!node) return;
+        const top = node.getBoundingClientRect().top + window.scrollY;
+        const run = pinned ? Math.max(0, node.offsetHeight - window.innerHeight) : 0;
+        window.scrollTo({ top: top + run * Math.min(1, Math.max(0, to)), behavior: reduced ? "auto" : behavior });
+      },
+    }),
+    [pinned, reduced],
+  );
 
   const content = typeof children === "function" ? children(progress) : children;
   return (
-    <Progress.Provider value={progress}>
-      <div ref={ref} data-slot="pin" className={className} style={reduced ? undefined : { height: `${100 * (1 + length)}svh` }} {...props}>
-        <div className={cn(!reduced && "sticky top-0 h-svh overflow-hidden")}>{content}</div>
-      </div>
-    </Progress.Provider>
+    <Pinned.Provider value={pinned}>
+      <Progress.Provider value={progress}>
+        <div ref={el} data-slot="pin" data-pinned={pinned || undefined} className={className} style={pinned ? { height: `${100 * (1 + length)}svh` } : undefined} {...props}>
+          <div className={cn(pinned && "sticky top-0 h-svh overflow-hidden")}>{content}</div>
+        </div>
+      </Progress.Provider>
+    </Pinned.Provider>
   );
 }
 
-export { Parallax, Pin, Reveal, usePinProgress };
+export { Parallax, Pin, Reveal, usePinned, usePinProgress };

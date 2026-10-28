@@ -20,7 +20,7 @@ export type HandRaiseProps = {
   /** The question, as plain text. */
   question: string;
   /** What the agent already tried (knowledge base, colleagues). */
-  tried?: string | null;
+  tried?: string | null | undefined;
   /** Answer. Resolve with an error message to show it, or null on success. */
   onAnswer: (answer: string, scope: HandRaiseScope) => Promise<string | null>;
   labels?: Partial<HandRaiseLabels>;

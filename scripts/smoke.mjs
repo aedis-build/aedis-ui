@@ -90,6 +90,27 @@ try {
   if (Object.values(deps).some((v) => !/^\d+\.\d+\.\d+$/.test(v))) fail(`a dependency is not pinned to an exact version: ${JSON.stringify(deps)}`);
   console.log(`\nsmoke: @aedis/cli@${version} installs from its tarball; init, add and diff work against ${readdirSync(registry).length} registry items; dependencies: ${Object.entries(deps).map(([k, v]) => `${k}@${v}`).join(" ")}`);
 
+  // 3b. An app inside a pnpm workspace (#223): add, run from the app folder, installs with pnpm into the app, not npm.
+  const workspace = mkdtempSync(path.join(tmpdir(), "aedis-smoke-ws-"));
+  try {
+    const app = path.join(workspace, "apps", "web");
+    mkdirSync(path.join(workspace, ".git"));
+    mkdirSync(path.join(workspace, "apps", "shared"), { recursive: true });
+    mkdirSync(app, { recursive: true });
+    writeFileSync(path.join(workspace, "package.json"), JSON.stringify({ name: "ws", private: true }));
+    writeFileSync(path.join(workspace, "pnpm-workspace.yaml"), "packages:\n  - apps/*\n");
+    writeFileSync(path.join(workspace, "apps", "shared", "package.json"), JSON.stringify({ name: "shared", version: "0.0.0" }));
+    writeFileSync(path.join(app, "package.json"), JSON.stringify({ name: "web", private: true, dependencies: { shared: "workspace:*" } }));
+    await run(aedis, ["init", ...from, "--yes"], app);
+    await run(aedis, ["add", "button", ...from, "--yes"], app);
+    const web = JSON.parse(readFileSync(path.join(app, "package.json"), "utf8")).dependencies ?? {};
+    if (!web["@base-ui/react"] || web.shared !== "workspace:*") fail(`the app's dependencies after add in a pnpm workspace: ${JSON.stringify(web)}`);
+    if (!existsSync(path.join(workspace, "pnpm-lock.yaml")) || existsSync(path.join(app, "package-lock.json"))) fail("add in a pnpm workspace did not install with pnpm");
+    console.log("\nsmoke: in a pnpm workspace, add from the app folder installs with pnpm into the app");
+  } finally {
+    rmSync(workspace, { recursive: true, force: true, maxRetries: 3 });
+  }
+
   // 4. The thin unscoped packages (aedis-cli, aedis-ui, create-aedis): packed as npm would publish them, installed
   // next to the @aedis/cli tarball they pin, and run through their bin files (no bin links: the three share `aedis`).
   const names = mkdtempSync(path.join(tmpdir(), "aedis-smoke-names-"));

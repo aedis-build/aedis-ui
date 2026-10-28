@@ -84,7 +84,7 @@ function NavigationMenuList({ className, ...props }: WithClassName<NavigationMen
 }
 
 /** `active` marks the item of the current section, where the indicator rests when no panel is open. */
-function NavigationMenuItem({ className, active, ...props }: WithClassName<NavigationMenuPrimitive.Item.Props> & { active?: boolean }) {
+function NavigationMenuItem({ className, active, ...props }: WithClassName<NavigationMenuPrimitive.Item.Props> & { active?: boolean | undefined }) {
   return <NavigationMenuPrimitive.Item data-slot="navigation-menu-item" data-active={active || undefined} className={cn("relative", className)} {...props} />;
 }
 

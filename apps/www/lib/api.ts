@@ -51,7 +51,7 @@ export async function api<T>(path: string, { body, timeoutMs = 30_000, csrfCooki
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...headers,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? null : JSON.stringify(body),
   });
   if (!response.ok) throw new ApiError(response.status);
   if (response.status === 204) return undefined as T;

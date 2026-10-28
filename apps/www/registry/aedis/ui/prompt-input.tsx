@@ -18,7 +18,7 @@ export type PromptMessage = {
   text: string;
   /** Server ids of the uploaded attachments. */
   attachments: { id: string; name: string }[];
-  model?: string;
+  model?: string | undefined;
 };
 
 export type PromptInputProps = {
@@ -34,7 +34,7 @@ export type PromptInputProps = {
   attachments?: AttachmentRules & { uploadPath: string; maxFiles?: number };
   /** Optional agent or model picker. */
   models?: { value: string; label: string }[];
-  model?: string;
+  model?: string | undefined;
   onModelChange?: (value: string) => void;
   labels?: Partial<PromptInputLabels>;
   className?: string;

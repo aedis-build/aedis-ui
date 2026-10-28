@@ -64,11 +64,11 @@ type ChartFrameProps = {
   rows: CleanRow[];
   dropped: number;
   /** Header of the first column of the data table, e.g. "Day". */
-  indexLabel?: string;
-  format?: (value: number) => string;
-  legend?: boolean;
-  labels?: Partial<ChartLabels>;
-  className?: string;
+  indexLabel?: string | undefined;
+  format?: ((value: number) => string) | undefined;
+  legend?: boolean | undefined;
+  labels?: Partial<ChartLabels> | undefined;
+  className?: string | undefined;
   /** The drawing. `active` is the row under the pointer or the keyboard; `hover` sets it. */
   children: (state: { active: number | null; hover: (i: number | null) => void }) => React.ReactNode;
 };

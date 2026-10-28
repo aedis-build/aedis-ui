@@ -20,7 +20,7 @@ import { ExternalMark, linkProps, type LinkLabels } from "@/registry/aedis/ui/li
 export type DropdownMenuLabels = Messages["dropdownMenu"];
 
 /** What the confirmation of a destructive item says. Missing fields come from the dictionary. */
-export type DropdownMenuConfirm = { title?: string; description?: string; action?: string };
+export type DropdownMenuConfirm = { title?: string | undefined; description?: string | undefined; action?: string | undefined };
 
 type Request = DropdownMenuConfirm & { run: () => void };
 type MenuContext = { confirm: (request: Request) => void; trigger: React.RefObject<HTMLElement | null> };

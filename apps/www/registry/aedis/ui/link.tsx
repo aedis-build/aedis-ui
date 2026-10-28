@@ -19,7 +19,7 @@ export function linkProps(href: string) {
 }
 
 /** Visible arrow plus screen-reader text, so people know a link leaves the site before they follow it. */
-function ExternalMark({ labels }: { labels?: Partial<LinkLabels> }) {
+function ExternalMark({ labels }: { labels?: Partial<LinkLabels> | undefined }) {
   const l = useMessages("link", labels);
   return (
     <>

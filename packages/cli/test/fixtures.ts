@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
@@ -115,6 +115,8 @@ export function releaseRoutes(release: string, archive = releaseArchive(), bundl
 
 export function project(files: Record<string, string> = {}) {
   const root = mkdtempSync(path.join(tmpdir(), "aedis-cli-"));
+  // A repository boundary, so package-manager detection never looks above the fixture.
+  mkdirSync(path.join(root, ".git"));
   writeFileSync(path.join(root, "package.json"), "{}");
   for (const [f, c] of Object.entries(files)) writeFileSync(path.join(root, f), c);
   return root;

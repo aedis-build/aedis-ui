@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { INIT_ITEMS, run, VERSION } from "../src/cli";
@@ -46,6 +46,18 @@ describe("aedis add", () => {
     expect(t.lines.some((l) => l.includes("unchanged lib/utils.ts"))).toBe(true);
     expect(t.lines.some((l) => l.includes("create    components/ui/button.tsx"))).toBe(true);
     expect(t.spawned.at(-1)!.args).toEqual(["install", "--save-exact", "--ignore-scripts", "clsx@2.1.1", "tailwind-merge@3.6.0", "@base-ui/react@1.9.0", "class-variance-authority@0.7.1"]);
+  });
+
+  it("installs with the workspace's pnpm, in the app folder, when run from an app inside a pnpm workspace (#223)", async () => {
+    const workspace = project({ "pnpm-workspace.yaml": "packages:\n  - apps/*\n" });
+    const app = path.join(workspace, "apps", "web");
+    mkdirSync(app, { recursive: true });
+    writeFileSync(path.join(app, "package.json"), '{"dependencies":{"shared":"workspace:*"}}');
+    await run(["init", "--yes"], io(app, releaseRoutes(RELEASE)).io);
+    const installs: { command: string; cwd: string }[] = [];
+    const t = io(app, releaseRoutes(RELEASE), { spawn: (command, _args, { cwd }) => (installs.push({ command, cwd }), 0) });
+    expect(await run(["add", "button", "--yes"], t.io)).toBe(0);
+    expect(installs).toEqual([{ command: "pnpm", cwd: app }]);
   });
 
   it("shows the files and writes nothing when the person says no", async () => {
