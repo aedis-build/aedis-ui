@@ -27,7 +27,7 @@ function headersFor(pathname) {
   return Object.fromEntries(headers);
 }
 
-const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".txt": "text/plain" };
+const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".webm": "video/webm", ".vtt": "text/vtt", ".txt": "text/plain" };
 
 createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname);

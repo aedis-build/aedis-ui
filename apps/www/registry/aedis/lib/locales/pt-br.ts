@@ -156,6 +156,10 @@ export const ptBR: Messages = {
     copied: "Copiado",
     fallback: "Não foi possível copiar aqui. O texto está selecionado: pressione Ctrl+C ou ⌘C.",
   },
+  video: {
+    play: "Reproduzir vídeo",
+    pause: "Pausar vídeo",
+  },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     honeypot: "Deixe este campo vazio",

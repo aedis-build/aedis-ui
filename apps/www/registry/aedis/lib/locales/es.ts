@@ -156,6 +156,10 @@ export const es: Messages = {
     copied: "Copiado",
     fallback: "Aquí no se puede copiar. El texto está seleccionado: pulsa Ctrl+C o ⌘C.",
   },
+  video: {
+    play: "Reproducir vídeo",
+    pause: "Pausar vídeo",
+  },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     honeypot: "Deja este campo vacío",

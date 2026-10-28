@@ -1676,6 +1676,25 @@
       ]
     },
     {
+      "name": "video",
+      "type": "registry:ui",
+      "title": "Video",
+      "description": "A video player with captions, and a muted background video. Nothing loads until it is near, and nothing plays on its own unless asked.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/video.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

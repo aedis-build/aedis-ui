@@ -77,6 +77,8 @@ import SecurityHeadersBuilder from "@/examples/security-headers/builder";
 import MediaFrameDemo from "@/examples/media-frame/demo";
 import CarouselDemo from "@/examples/carousel/demo";
 import CarouselSlideshow from "@/examples/carousel/slideshow";
+import VideoDemo from "@/examples/video/demo";
+import VideoBackground from "@/examples/video/background";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2775,6 +2777,45 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "With autoplay, the pause button is visible and first (WCAG 2.2.2). Autoplay holds on hover and focus, stops while the tab is hidden, and never runs with reduced motion.",
       ],
       motion: "Carousel scrolls smoothly and Slideshow cross-fades in 900 ms. With reduced motion the scroll jumps, the fade takes 200 ms and nothing plays on its own.",
+    },
+  },
+  {
+    name: "video",
+    title: "Video",
+    category: "Data display",
+    description: "A video player with captions, and a muted background video. Nothing loads until it is near, and nothing plays on its own unless asked.",
+    examples: [
+      { title: "Video", description: "Poster, the browser's controls and English captions. The file loads only when the player is near the viewport.", file: "video/demo", component: VideoDemo },
+      { title: "Background video", description: "Muted and looped behind content, with a pause button while it moves. Autoplay is on here; with reduced motion it stays on the poster.", file: "video/background", component: VideoBackground },
+    ],
+    usage: `import { Video } from "@/components/ui/video";
+
+<Video src="/films/showreel.mp4" type="video/mp4" poster="/films/showreel.jpg" title="Showreel 2026"
+  captions={[{ src: "/films/showreel.en.vtt", srclang: "en", label: "English", default: true }]} />
+
+<Video variant="background" autoplay src="/films/loop.mp4" title="Studio loop" />`,
+    props: [
+      { name: "src", type: "string", description: "A file on this origin or one the CSP media-src allows (securityHeaders mediaSrc). No third-party embeds." },
+      { name: "type", type: "string", description: "The file's type, e.g. \"video/mp4\"." },
+      { name: "poster", type: "string", description: "Shown before it plays." },
+      { name: "title", type: "string", description: "Names the player. A background video is hidden from assistive technology." },
+      { name: "captions", type: "{ src, srclang, label, default? }[]", description: "Caption tracks (WebVTT)." },
+      { name: "variant", type: "\"player\" | \"background\"", default: "\"player\"", description: "Background: muted, looped, inline, no controls, a pause button; fills its container." },
+      { name: "autoplay", type: "boolean", default: "false", description: "Starts muted once in view. Never under reduced motion." },
+      { name: "labels", type: "Partial<VideoLabels>", description: "Overrides the locale's words (Play video, Pause video)." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Plays files from origins the CSP media-src allows; pass mediaSrc to securityHeaders for a media CDN. It never embeds a third-party player."],
+    },
+    accessibility: {
+      keyboard: [["Tab", "Reaches the player's controls, or the background video's pause button."], ["Space / Enter", "Plays or pauses."]],
+      notes: [
+        "The player is named by title and carries caption tracks.",
+        "A background video is aria-hidden; its pause button is always there while it moves (WCAG 2.2.2).",
+        "Autoplay is off by default, always muted, and never runs with reduced motion.",
+      ],
+      motion: "The video moves only when the person plays it, or when autoplay is asked for and reduced motion is off.",
     },
   },
 ];

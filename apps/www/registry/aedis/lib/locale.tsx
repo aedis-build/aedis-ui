@@ -169,6 +169,10 @@ export type Messages = {
     /** When the browser refuses to copy: the text is selected for the person to copy. */
     fallback: string;
   };
+  video: {
+    play: string;
+    pause: string;
+  };
   /** Input and Textarea. */
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
@@ -344,6 +348,10 @@ export const en: Messages = {
     copy: "Copy",
     copied: "Copied",
     fallback: "Copying is blocked here. The text is selected: press Ctrl+C or ⌘C.",
+  },
+  video: {
+    play: "Play video",
+    pause: "Pause video",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
