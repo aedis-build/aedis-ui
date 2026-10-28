@@ -1716,6 +1716,23 @@
       ]
     },
     {
+      "name": "scroll-motion",
+      "type": "registry:ui",
+      "title": "Scroll Motion",
+      "description": "Reveal, Parallax and Pin: scroll motion with no animation library, off under reduced motion.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-motion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

@@ -80,6 +80,8 @@ import CarouselSlideshow from "@/examples/carousel/slideshow";
 import VideoDemo from "@/examples/video/demo";
 import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
+import ScrollMotionDemo from "@/examples/scroll-motion/demo";
+import ScrollMotionPin from "@/examples/scroll-motion/pin";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2842,6 +2844,41 @@ import { Field, FieldLabel } from "@/components/ui/field";
       keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
       notes: ["A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".", "Each thumbnail is a button named by its image's alt."],
       motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
+    },
+  },
+  {
+    name: "scroll-motion",
+    title: "Scroll Motion",
+    category: "Foundations",
+    description: "Reveal, Parallax and Pin: scroll motion with no animation library, off under reduced motion.",
+    examples: [
+      { title: "Reveal and parallax", description: "Scroll the page: the steps fade in as they enter, and the poster drifts against the scroll.", file: "scroll-motion/demo", component: ScrollMotionDemo, align: "start" },
+      { title: "Pin", description: "The section holds while the page scrolls past it; its children get the progress from 0 to 1.", file: "scroll-motion/pin", component: ScrollMotionPin, align: "start" },
+    ],
+    usage: `import { Parallax, Pin, Reveal } from "@/components/ui/scroll-motion";
+
+<Reveal><h2>Selected work</h2></Reveal>
+<Parallax distance={40}><MediaFrame ratio="16:9" src={poster} alt="Hotel campaign poster" /></Parallax>
+<Pin length={1.5}>{(progress) => <Steps current={Math.floor(progress * 3)} />}</Pin>`,
+    props: [{ name: "...props", type: "div props", description: "Reveal takes any div props." }],
+    parts: [
+      { name: "Parallax", description: "Drifts its content against the scroll; only transform moves. To crop it, wrap it in overflow-clip, not overflow-hidden: a hidden overflow is a scroll container and holds it still.", props: [{ name: "distance", type: "number", default: "40", description: "Pixels, from +distance as it enters to −distance as it leaves." }] },
+      {
+        name: "Pin",
+        description: "Holds its content while the page scrolls past it.",
+        props: [
+          { name: "length", type: "number", default: "1.5", description: "How long it stays pinned, in viewport heights." },
+          { name: "children", type: "ReactNode | (progress: number) => ReactNode", description: "The content, or a function of the progress from 0 to 1. usePinProgress() reads it deeper down." },
+        ],
+      },
+    ],
+    security: { sinks: [], notes: ["No dependency: IntersectionObserver, scroll-driven animations (ViewTimeline) or requestAnimationFrame. Nothing is injected; it sets only transform and opacity."] },
+    accessibility: {
+      notes: [
+        "The content is in the HTML and visible without JavaScript; motion only reveals it. Content already in view never moves.",
+        "Under reduced motion nothing moves: Reveal shows at once, Parallax stays put, Pin is a plain section at progress 1.",
+      ],
+      motion: "Reveal fades and lifts 24 px in 900 ms. Parallax drifts by its distance across the viewport. Only transform and opacity animate, and will-change is set only while they move.",
     },
   },
 ];
