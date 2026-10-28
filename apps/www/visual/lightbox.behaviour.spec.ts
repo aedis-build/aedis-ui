@@ -38,14 +38,23 @@ test("the keyboard opens it, Tab stays inside, and the buttons move and close", 
 });
 
 test("the image grows from its thumbnail, and not with reduced motion", async ({ page }) => {
+  // Counts the animations started on an img, however fast they end on a slow machine.
+  await page.addInitScript(() => {
+    const animate = Element.prototype.animate;
+    (window as unknown as { grows: number }).grows = 0;
+    Element.prototype.animate = function (...args) {
+      if (this.tagName === "IMG") (window as unknown as { grows: number }).grows++;
+      return animate.apply(this, args);
+    };
+  });
   const opened = async () => {
     await page.getByRole("main").getByRole("button", { name: "Blue home page on a phone" }).first().click();
-    const img = page.getByRole("dialog").getByRole("img", { name: "Blue home page on a phone" });
-    await expect(img).toBeVisible();
-    return img.evaluate((el) => new Promise<number>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(el.getAnimations().length)))));
+    await expect(page.getByRole("dialog").getByRole("img", { name: "Blue home page on a phone" })).toBeVisible();
+    await page.waitForTimeout(500);
+    return page.evaluate(() => (window as unknown as { grows: number }).grows);
   };
   await page.goto("/docs/lightbox");
-  expect(await opened()).toBeGreaterThan(0);
+  expect(await opened()).toBe(1);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/docs/lightbox");
   expect(await opened()).toBe(0);
