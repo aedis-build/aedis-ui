@@ -55,8 +55,10 @@ test("wrapping in the site search shows the first group's heading, and No result
   await page.keyboard.press("End");
   await page.keyboard.press("ArrowDown");
   const heading = listbox.getByRole("group").first().locator("> div").first();
-  const [list, head] = [(await listbox.boundingBox())!, (await heading.boundingBox())!];
-  expect(head.y).toBeGreaterThanOrEqual(list.y - 1);
+  // The listbox scrolls the heading into view after the wrap, not synchronously with the key press: poll it.
+  await expect
+    .poll(async () => (await heading.boundingBox())!.y - (await listbox.boundingBox())!.y, { message: "first group heading at the top of the listbox" })
+    .toBeGreaterThanOrEqual(-1);
   // The page itself did not scroll.
   expect(await page.evaluate(() => scrollY)).toBe(0);
 });
