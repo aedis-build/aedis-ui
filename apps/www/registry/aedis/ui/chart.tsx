@@ -309,7 +309,7 @@ function XTicks({ rows, x }: { rows: CleanRow[]; x: (i: number) => number }) {
   return (
     <div ref={box} data-slot="chart-ticks" aria-hidden="true" className="relative h-4 overflow-hidden text-caption text-muted-foreground">
       {rows.map((r, i) => {
-        const left = anchors[i];
+        const left = anchors[i] ?? 0;
         return (
           <span key={i} data-at={left} className="absolute top-0 whitespace-nowrap" style={{ left: `${left}%`, transform: `translateX(${left <= 0 ? 0 : left >= 100 ? -100 : -50}%)` }}>
             {tick(r.label, 32)}

@@ -39,7 +39,7 @@ function Lightbox({ items, ratio = "4:5", zoomFromThumbnail = false, className, 
   const go = (i: number) => setIndex((i + count) % count);
 
   const show = (i: number) => {
-    origin.current = thumbs.current[i];
+    origin.current = thumbs.current[i] ?? null;
     setIndex(i);
     setOpen(true);
   };

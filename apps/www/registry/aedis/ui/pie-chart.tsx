@@ -52,7 +52,7 @@ function PieChart({ title, data, index, value, center, format, labels, className
                         cy={SIZE / 2}
                         r={R}
                         fill="none"
-                        stroke={seriesColor(slices[i], i)}
+                        stroke={seriesColor({ key: String(i), label: r.label }, i)}
                         strokeWidth={active === i ? 26 : 22}
                         strokeDasharray={`${Math.max(0, len - 2)} ${C}`}
                         strokeDashoffset={-offset}

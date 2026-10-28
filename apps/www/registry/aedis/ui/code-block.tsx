@@ -72,7 +72,7 @@ function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 1
     }
     let timer: ReturnType<typeof setInterval> | undefined;
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
+      if (!entry?.isIntersecting) return;
       observer.disconnect();
       timer = setInterval(() => setRevealed((n) => (n + 1 >= lines.length ? (clearInterval(timer), lines.length) : n + 1)), lineDelay);
       setRevealed(1);

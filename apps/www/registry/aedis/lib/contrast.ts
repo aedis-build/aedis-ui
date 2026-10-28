@@ -27,23 +27,23 @@ export function oklchToRgba({ l, c, h, alpha }: Oklch): Rgba {
   const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
   const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
   const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3;
-  const linear = [
-    4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_,
-    -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_,
-    -0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_,
-  ];
   const gamma = (x: number) => (x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055);
-  const [r, g, bl] = linear.map((x) => Math.round(Math.min(1, Math.max(0, gamma(x))) * 255));
-  return [r, g, bl, alpha];
+  const channel = (x: number) => Math.round(Math.min(1, Math.max(0, gamma(x))) * 255);
+  return [
+    channel(4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_),
+    channel(-1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_),
+    channel(-0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_),
+    alpha,
+  ];
 }
 
 /** Reads #rgb, #rrggbb, #rrggbbaa, rgb()/rgba() and oklch(). Throws on anything else. */
 export function parseColor(value: string): Rgba {
-  const hex = HEX.exec(value);
-  if (hex) {
-    const h = hex[1].length === 3 ? [...hex[1]].map((c) => c + c).join("") : hex[1];
-    const [r, g, b, a = 255] = [0, 2, 4, 6].filter((i) => i < h.length).map((i) => parseInt(h.slice(i, i + 2), 16));
-    return [r, g, b, a / 255];
+  const digits = HEX.exec(value)?.[1];
+  if (digits !== undefined) {
+    const h = digits.length === 3 ? [...digits].map((c) => c + c).join("") : digits;
+    const byte = (i: number) => parseInt(h.slice(i, i + 2), 16);
+    return [byte(0), byte(2), byte(4), h.length === 8 ? byte(6) / 255 : 1];
   }
   const rgba = RGBA.exec(value);
   if (rgba && rgba.slice(1, 4).every((c) => Number(c) <= 255)) {
@@ -65,8 +65,8 @@ const luminance = ([r, g, b]: Rgba) => {
 export function contrast(foreground: string, background: string, page = "#ffffff") {
   const bg = over(parseColor(background), parseColor(page));
   const fg = over(parseColor(foreground), bg);
-  const [hi, lo] = [luminance(fg), luminance(bg)].sort((a, b) => b - a);
-  return (hi + 0.05) / (lo + 0.05);
+  const [a, b] = [luminance(fg), luminance(bg)];
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
 /** Euclidean distance in sRGB, 0–1: how far apart two opaque colors look at a glance. */

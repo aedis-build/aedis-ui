@@ -14,13 +14,15 @@ function AreaChart({ title, data, index, series, indexLabel, format, legend = se
   const y = lineScale(rows, stacked);
   const x = (i: number) => lineX(i, rows.length);
   // Per series, the floor and the top of each point; stacked series start where the ones before them ended.
-  const layers = series.map((_, j) =>
-    rows.map((r) => {
+  const layers = series.map((s, j) => ({
+    s,
+    j,
+    points: rows.map((r) => {
       const v = r.values[j];
       const floor = stacked ? r.values.slice(0, j).reduce<number>((a, b) => a + (b ?? 0), 0) : 0;
-      return v === null ? null : ([floor, floor + v] as const);
+      return v == null ? null : ([floor, floor + v] as const);
     }),
-  );
+  }));
   return (
     <ChartFrame title={title} series={series} rows={rows} dropped={dropped} indexLabel={indexLabel} format={format} legend={legend} labels={labels} className={className}>
       {({ active, hover }) => (
@@ -28,18 +30,24 @@ function AreaChart({ title, data, index, series, indexLabel, format, legend = se
           <svg ref={ref} viewBox={`0 0 ${plot.width} ${plot.height}`} width="100%" aria-hidden="true" className="block overflow-visible">
             <CartesianGrid />
             {/* Last series first, so the first one is drawn on top. */}
-            {[...layers.keys()].reverse().map((j) => {
-              const s = series[j];
-              const tops = layers[j].map((p, i) => (p ? ([x(i), y(p[1])] as const) : null));
+            {[...layers].reverse().map(({ s, j, points }) => {
+              const tops = points.map((p, i) => (p ? ([x(i), y(p[1])] as const) : null));
               // Each unbroken run becomes one closed shape down to its floor.
-              const runs: number[][] = [];
-              layers[j].forEach((p, i) => (p ? (i > 0 && layers[j][i - 1] ? runs[runs.length - 1].push(i) : runs.push([i])) : null));
-              const fill = runs.map((run) => `${linePath(run.map((i) => tops[i]))}${linePath([...run].reverse().map((i) => [x(i), y(layers[j][i]![0])] as const)).replace(/^M/, "L")}Z`).join("");
+              const runs: { top: (readonly [number, number])[]; floor: (readonly [number, number])[] }[] = [];
+              points.forEach((p, i) => {
+                if (!p) return;
+                const run = i > 0 && points[i - 1] ? runs.at(-1) : undefined;
+                const at = { top: [x(i), y(p[1])] as const, floor: [x(i), y(p[0])] as const };
+                if (run) (run.top.push(at.top), run.floor.push(at.floor));
+                else runs.push({ top: [at.top], floor: [at.floor] });
+              });
+              const fill = runs.map((run) => `${linePath(run.top)}${linePath([...run.floor].reverse()).replace(/^M/, "L")}Z`).join("");
+              const dot = active === null ? null : tops[active];
               return (
                 <g key={s.key} stroke={seriesColor(s, j)} fill={seriesColor(s, j)}>
                   <path d={fill} fillOpacity={0.18} stroke="none" data-enter="fade" style={moveOn(moves, "d")} />
                   <path d={linePath(tops)} fill="none" strokeWidth={2} strokeLinejoin="round" pathLength={1} strokeDasharray={1} data-enter="draw" style={moveOn(moves, "d")} />
-                  {active !== null && tops[active] ? <circle cx={tops[active]![0]} cy={tops[active]![1]} r={4} fill="var(--surface)" strokeWidth={2} /> : null}
+                  {dot ? <circle cx={dot[0]} cy={dot[1]} r={4} fill="var(--surface)" strokeWidth={2} /> : null}
                 </g>
               );
             })}

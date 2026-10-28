@@ -23,12 +23,12 @@ export function settledMarkdown(text: string): string {
   let out = text.replace(OPEN_LINK, (_m, label: string) => label).replace(OPEN_URL, "$1");
   const dangling = DANGLING.exec(out);
   // snake_case: an underscore inside a word is not emphasis.
-  if (dangling && !(dangling[1][0] === "_" && /\w/.test(out[dangling.index - 1] ?? ""))) {
-    const marker = dangling[1];
+  const marker = dangling?.[1];
+  if (dangling && marker && !(marker.startsWith("_") && /\w/.test(out[dangling.index - 1] ?? ""))) {
     const before = out.slice(0, dangling.index);
     const opened = before.split(marker).length - 1;
     // An odd number of markers before means this one closes an emphasis: keep it.
-    if (opened % 2 === 0) out = before + dangling[2];
+    if (opened % 2 === 0) out = before + (dangling[2] ?? "");
   }
   return out;
 }

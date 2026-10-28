@@ -89,7 +89,7 @@ export function defineMfElement<P extends object>(tag: string, Component: React.
     }
 
     connectedCallback() {
-      for (const name of names) this.#props[camel(name)] ??= parse(attributes[name], this.getAttribute(name), maxJsonBytes);
+      for (const [name, type] of Object.entries(attributes)) this.#props[camel(name)] ??= parse(type, this.getAttribute(name), maxJsonBytes);
       this.#root ??= createRoot(this.#mount);
       this.#render();
     }
@@ -104,7 +104,10 @@ export function defineMfElement<P extends object>(tag: string, Component: React.
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null) {
-      this.#props[camel(name)] = parse(attributes[name], value, maxJsonBytes);
+      // Only observed attributes call back, and every one has a type.
+      const type = attributes[name];
+      if (!type) return;
+      this.#props[camel(name)] = parse(type, value, maxJsonBytes);
       this.#render();
     }
 
