@@ -2,13 +2,17 @@ import type { ComponentType } from "react";
 
 import { components, type Accessibility, type Defense, type Security, type Sink } from "@/content/components";
 import AgentConsoleDemo from "@/examples/blocks/agent-console";
+import CtaSectionDemo from "@/examples/blocks/cta-section";
+import HeroDemo from "@/examples/blocks/hero";
+import LogoCloudDemo from "@/examples/blocks/logo-cloud";
+import ProofListDemo from "@/examples/blocks/proof-list";
 import ApprovalInboxDemo from "@/examples/blocks/approval-inbox";
 import SecureShellDemo from "@/examples/blocks/secure-shell";
 import UsageLimitsDemo from "@/examples/blocks/usage-limits";
 import registry from "@/registry.json";
 
 /** The tabs of the Blocks page, in the board's order; a category may have no block yet. */
-export const blockCategories = ["AI platform", "Approvals", "Usage and limits", "Secure shell", "Micro-frontends"] as const;
+export const blockCategories = ["AI platform", "Approvals", "Usage and limits", "Secure shell", "Micro-frontends", "Marketing"] as const;
 
 /**
  * A whole screen built only from registry items, installed with `aedis add <name>`. The Code tab shows the block's
@@ -150,6 +154,97 @@ export const blocks: BlockDoc[] = [
       keyboard: [["Enter / Space", "On small screens, the menu toggle opens the sidebar."]],
       notes: ["The ended states are plain headings and text with a Sign in link, so nothing interrupts a screen reader mid-sentence."],
     },
+  },
+  {
+    name: "hero",
+    title: "Hero",
+    description: "The top of a marketing page: eyebrow, headline, lead and actions as real HTML, with a media slot for a Slideshow or a background Video.",
+    category: "Marketing",
+    height: 560,
+    demo: HeroDemo,
+    demoFile: "blocks/hero",
+    usage: `import { Hero } from "@/components/ui/hero";
+import { Slideshow } from "@/components/ui/carousel";
+
+<Hero
+  eyebrow="RLFN Studio"
+  headline="Brands that people remember"
+  lead="Identity, websites and film for small companies."
+  actions={[{ label: "See the work", href: "/work" }, { label: "Start a project", href: "/contact", variant: "outline" }]}
+  media={<Slideshow label="Selected work" className="h-full">{frames}</Slideshow>}
+/>`,
+    defenses: [
+      {
+        title: "Actions only to safe URLs",
+        text: "Every action goes through safeUrl: a javascript: or malformed URL is left out, and external links get noopener noreferrer.",
+        evidence: [["marketing-blocks.test.tsx", "renders real headings and text, and leaves out actions whose URL is refused"]],
+        ids: ["CWE-79", "CWE-601"],
+      },
+    ],
+    backend: "keep the copy in your CMS as text; the hero renders it as text.",
+    accessibility: {
+      notes: ["The headline is the page's h1 and the copy is in the HTML, readable without JavaScript.", "The media slot keeps the rules of what goes in it: a background Video has its pause button, a Slideshow its own."],
+      motion: "Only the media moves, and only as its own rules allow.",
+    },
+  },
+  {
+    name: "logo-cloud",
+    title: "Logo Cloud",
+    description: "The clients a studio has worked with, as logos or names.",
+    category: "Marketing",
+    height: 260,
+    demo: LogoCloudDemo,
+    demoFile: "blocks/logo-cloud",
+    usage: `import { LogoCloud } from "@/components/ui/logo-cloud";
+
+<LogoCloud title="Trusted by" clients={[{ name: "Bakery", logo: "/logos/bakery.svg" }, { name: "Wine bar" }]} />`,
+    defenses: [
+      {
+        title: "Names stay text, links stay safe",
+        text: "A logo is an image named by the client; a name without a logo is text; links go through the safe Link.",
+        evidence: [["marketing-blocks.test.tsx", "names every client, by its logo's alt or as text"]],
+        ids: ["CWE-79"],
+      },
+    ],
+    backend: "serve logos from this origin or one the CSP img-src allows.",
+    accessibility: { notes: ["A list in a section named by its heading; each logo's alt is the client's name."] },
+  },
+  {
+    name: "cta-section",
+    title: "CTA Section",
+    description: "A closing call to action: a headline, a line and the actions.",
+    category: "Marketing",
+    height: 320,
+    demo: CtaSectionDemo,
+    demoFile: "blocks/cta-section",
+    usage: `import { CtaSection } from "@/components/ui/cta-section";
+
+<CtaSection headline="Have a project in mind?" actions={[{ label: "Start a project", href: "/contact" }]} />`,
+    defenses: [
+      {
+        title: "Actions only to safe URLs",
+        text: "The demo passes a javascript: action: safeUrl refuses it and the button is left out.",
+        evidence: [["marketing-blocks.test.tsx", "renders real headings and text, and leaves out actions whose URL is refused"]],
+        ids: ["CWE-79", "CWE-601"],
+      },
+    ],
+    backend: "nothing: it only links.",
+    accessibility: { notes: ["The headline is an h2; the actions are links styled as buttons."] },
+  },
+  {
+    name: "proof-list",
+    title: "Proof List",
+    description: "Short facts with optional numerals, e.g. years in practice or clients who return.",
+    category: "Marketing",
+    height: 320,
+    demo: ProofListDemo,
+    demoFile: "blocks/proof-list",
+    usage: `import { ProofList } from "@/components/ui/proof-list";
+
+<ProofList items={[{ value: "12", label: "Years in practice" }, { label: "Independent", detail: "No holding." }]} />`,
+    defenses: [],
+    backend: "keep the numbers true: they are claims.",
+    accessibility: { notes: ["A description list: each label is the term and its numeral and detail describe it, so a screen reader says \"Years in practice, 12\"."] },
   },
 ];
 

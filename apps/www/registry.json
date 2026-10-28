@@ -1817,6 +1817,74 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "hero",
+      "type": "registry:block",
+      "title": "Hero",
+      "description": "The top of a marketing page: eyebrow, headline, lead and actions as real HTML, with a media slot for a Slideshow or a background Video.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/hero.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "logo-cloud",
+      "type": "registry:block",
+      "title": "Logo Cloud",
+      "description": "The clients a studio has worked with, as logos or names.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/link"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/logo-cloud.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "cta-section",
+      "type": "registry:block",
+      "title": "CTA Section",
+      "description": "A closing call to action: a headline, a line and the actions.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/hero"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/cta-section.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "proof-list",
+      "type": "registry:block",
+      "title": "Proof List",
+      "description": "Short facts with optional numerals, e.g. years in practice or clients who return.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/proof-list.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
