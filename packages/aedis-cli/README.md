@@ -3,7 +3,7 @@
 The same `aedis` command as [`@aedis/cli`](https://www.npmjs.com/package/@aedis/cli), under the unscoped name: this package only depends on the exact `@aedis/cli` version it was released with and exposes its bin. Prefer `@aedis/cli` directly:
 
 ```bash
-npx @aedis/cli@0.4.1 init
+npx @aedis/cli@0.4.2 init
 ```
 
 Never run `npx aedis`: the unscoped `aedis` package on npm is not ours. `aedis-cli`, `aedis-ui` and `create-aedis` are.
