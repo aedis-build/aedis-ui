@@ -676,7 +676,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     examples: [{ title: "Code Block", file: "code-block/demo", component: CodeBlockDemo }],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
-<CodeBlock lang="bash" code="npx @aedis/cli@0.2.0 add button" />`,
+<CodeBlock lang="bash" code="npx @aedis/cli@0.2.1 add button" />`,
     props: [
       { name: "code", type: "string", description: "The code, rendered as text. Copy copies exactly this." },
       { name: "lang", type: "string", default: '"text"', description: "Any language shiki bundles; unknown ones are plain text." },
