@@ -16,7 +16,7 @@ permissions: {}
 jobs:
   compare:
     if: github.event.action != 'labeled'
-    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@ca3b4d1e7ce0f73244e62c18b0fcea99f163b2ac # v1.0.0
+    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@255a90d04956caf7436320b50f104aaf80502e64 # v1.2.4
     permissions:
       contents: read
     with:
@@ -24,7 +24,7 @@ jobs:
 
   baselines:
     if: github.event.action == 'labeled' && github.event.label.name == 'update-visual-baselines'
-    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@ca3b4d1e7ce0f73244e62c18b0fcea99f163b2ac # v1.0.0
+    uses: aedis-build/aedis-platform/.github/workflows/visual-regression.yml@255a90d04956caf7436320b50f104aaf80502e64 # v1.2.4
     permissions:
       contents: read
     with:
