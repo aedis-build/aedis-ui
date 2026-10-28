@@ -86,6 +86,26 @@ import CustomThemeFonts from "@/examples/custom-theme/fonts";
 import AbuseGateSimulator from "@/examples/abuse-gate/simulator";
 import BruteForceGuardSimulator from "@/examples/brute-force-guard/simulator";
 import FormTokenSimulator from "@/examples/form-token/simulator";
+import ApiSimulator from "@/examples/api/simulator";
+import UntrustedInspector from "@/examples/untrusted/inspector";
+import SecureActionSimulator from "@/examples/secure-action/simulator";
+import EventStreamSimulator from "@/examples/event-stream/simulator";
+import UseEventStreamSimulator from "@/examples/use-event-stream/simulator";
+import BffStreamSimulator from "@/examples/bff-stream/simulator";
+import UseIdleTimeoutDemo from "@/examples/use-idle-timeout/demo";
+import UseReducedMotionDemo from "@/examples/use-reduced-motion/demo";
+import UseFormatDemo from "@/examples/use-format/demo";
+import LocaleDemo from "@/examples/locale/demo";
+import ShareMetadataBuilder from "@/examples/share-metadata/builder";
+import MfFrameDemo from "@/examples/mf-frame/demo";
+import MfBridgeDemo from "@/examples/mf-bridge/demo";
+import MfContextDemo from "@/examples/mf-context/demo";
+import MfElementDemo from "@/examples/mf-element/demo";
+import RedactInspector from "@/examples/redact/inspector";
+import UseStickToBottomDemo from "@/examples/use-stick-to-bottom/demo";
+import MfEmbedHeadersBuilder from "@/examples/mf-embed-headers/builder";
+import AttachmentChecker from "@/examples/attachment/checker";
+import ReasoningDemo from "@/examples/reasoning/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -351,6 +371,7 @@ import { Sidebar } from "@/components/ui/sidebar";
     title: "Locale",
     category: "Foundations",
     description: "Locale provider and dictionaries: every Aedis UI component reads its text from here, in English, Portuguese or Spanish.",
+    examples: [{ title: "Switch the locale", description: "The same components, in the words of the chosen dictionary.", file: "locale/demo", component: LocaleDemo }],
     usage: `import { LocaleProvider } from "@/lib/locale";
 import { ptBR } from "@/lib/locales/pt-br";
 
@@ -397,6 +418,7 @@ import { ptBR } from "@/lib/locales/pt-br";
     title: "useFormat",
     category: "Foundations",
     description: "Date, number, currency and relative time in the provider locale, on the platform Intl APIs.",
+    examples: [{ title: "Formats by locale", description: "The same values in each locale of the provider.", file: "use-format/demo", component: UseFormatDemo }],
     usage: `import { useFormat } from "@/hooks/use-format";
 
 const f = useFormat();
@@ -1328,6 +1350,7 @@ toast.success("Saved");`,
     title: "useReducedMotion",
     category: "Foundations",
     description: "True when the person asked for less motion. For motion driven by JavaScript; CSS motion already reads the theme tokens.",
+    examples: [{ title: "Live setting", description: "Follows the system setting as it changes.", file: "use-reduced-motion/demo", component: UseReducedMotionDemo }],
     usage: `import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const reduced = useReducedMotion();`,
@@ -1339,6 +1362,7 @@ const reduced = useReducedMotion();`,
     title: "useEventStream",
     category: "Transport",
     description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
+    examples: [{ title: "Simulated stream", description: "The switch enables the hook; turning it off closes the stream.", file: "use-event-stream/simulator", component: UseEventStreamSimulator }],
     usage: `import { useEventStream } from "@/hooks/use-event-stream";
 
 const state = useEventStream<Message>("/api/conversations/42/events", {
@@ -1391,6 +1415,7 @@ const state = useEventStream<Message>("/api/conversations/42/events", {
     title: "event-stream",
     category: "Transport",
     description: "The library under useEventStream: an incremental SSE parser and a fetch-based connection with resume and backoff, for code outside React.",
+    examples: [{ title: "Simulated stream", description: "connectEventStream against a stream simulated in the page.", file: "event-stream/simulator", component: EventStreamSimulator }],
     usage: `import { connectEventStream } from "@/lib/event-stream";
 
 const { close } = connectEventStream<Progress>("/api/tasks/7/events", {
@@ -1439,6 +1464,7 @@ const { close } = connectEventStream<Progress>("/api/tasks/7/events", {
     title: "bffStream",
     category: "Transport",
     description: "A Next.js route handler that relays the API's event stream with the session's bearer, so the token never reaches the browser.",
+    examples: [{ title: "Simulated API", description: "The relay ran on the server when this page was built: the API gets the session's token, the browser never does.", file: "bff-stream/simulator", component: BffStreamSimulator }],
     usage: `import { bffStream } from "@/lib/bff-stream";
 
 export const dynamic = "force-dynamic";
@@ -1453,6 +1479,7 @@ export const GET = bffStream({
       { name: "headers", type: "Record<string, string>", description: "Extra headers for the API; credentials, cookies and hop-by-hop headers throw." },
       { name: "log", type: "(message, details) => void", default: "console.error", description: "Where failure details go." },
       { name: "connectTimeoutMs", type: "number", default: "15000", description: "Wait for the API to start the stream." },
+      { name: "fetcher", type: "typeof fetch", default: "fetch", description: "The fetch for the upstream request; tests and demos pass their own." },
     ],
     security: {
       sinks: ["Transport", "Session"],
@@ -1490,6 +1517,7 @@ export const GET = bffStream({
     title: "secureAction",
     category: "Transport",
     description: "A wrapper for Server Actions: required authorization, rate limit, size limit and schema inside the action, and a typed result without error messages.",
+    examples: [{ title: "Simulated backend", description: "The action ran on the server when this page was built, once per case: what the caller got back.", file: "secure-action/simulator", component: SecureActionSimulator }],
     usage: `import { z } from "zod";
 import { secureAction } from "@/lib/secure-action";
 
@@ -1538,6 +1566,7 @@ const result = await renameAgent({ id, name }); // { ok: true, data } | { ok: fa
     title: "mf-bridge",
     category: "Micro-frontends",
     description: "A typed, origin-checked postMessage channel between a host page and an embedded app.",
+    examples: [{ title: "Live shell and remote", description: "Every message logged; a forged one is dropped and a hung request times out.", file: "mf-bridge/demo", component: MfBridgeDemo }],
     usage: `import { createBridge } from "@/lib/mf-bridge";
 
 // Both sides declare what they accept.
@@ -1597,6 +1626,7 @@ parent.send("resize", { height: document.body.scrollHeight });`,
     title: "mf-frame",
     category: "Micro-frontends",
     description: "The host side of an embed: a sandboxed iframe that the embedded app sizes over mf-bridge, and the headers for both apps.",
+    examples: [{ title: "Live remote", description: "This site's billing remote, framed and sized over the bridge.", file: "mf-frame/demo", component: MfFrameDemo }],
     usage: `import { MfFrame, useReportHeight } from "@/components/ui/mf-frame";
 import { embeddedAppHeaders, hostAppHeaders } from "@/lib/mf-embed-headers";
 
@@ -1664,6 +1694,7 @@ headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN
     title: "mf-element",
     category: "Micro-frontends",
     description: "Turns a React component into a Web Component, for embeds that need tighter integration with the host page than an iframe gives.",
+    examples: [{ title: "A custom element", description: "An attribute in, an event out, its own styles in a shadow root.", file: "mf-element/demo", component: MfElementDemo }],
     usage: `import { defineMfElement } from "@/lib/mf-element";
 
 defineMfElement<{ agentName?: string; config?: Config }>("agent-panel", AgentPanel, {
@@ -1711,6 +1742,7 @@ panel.addEventListener("approve", (e) => approve(e.detail));`,
     title: "mf-context",
     category: "Micro-frontends",
     description: "Keeps an embedded app in step with its host: theme, locale and session, over mf-bridge.",
+    examples: [{ title: "Live shell and remote", description: "Change the shell's theme or sign out: the remote follows.", file: "mf-context/demo", component: MfContextDemo }],
     usage: `import { hostMessages, useMfContext, useMfContextHost } from "@/lib/mf-context";
 
 // Host
@@ -1751,6 +1783,7 @@ const { locale } = useMfContext({ hostOrigins: [BACKOFFICE_ORIGIN], locales: ["e
     title: "useIdleTimeout",
     category: "Security",
     description: "Hook that calls back after a period without pointer or keyboard activity, so the app ends the session.",
+    examples: [{ title: "Idle timeout", description: "Fast-forward makes the quiet spell 6 seconds; stay still to see the warning, then the sign-out.", file: "use-idle-timeout/demo", component: UseIdleTimeoutDemo }],
     usage: `import { useIdleTimeout } from "@/hooks/use-idle-timeout";
 
 useIdleTimeout(15 * 60_000, () => signOut("idle"));`,
@@ -1777,6 +1810,7 @@ useIdleTimeout(15 * 60_000, () => signOut("idle"));`,
     title: "api",
     category: "Transport",
     description: "Same-origin JSON client for the app's own backend.",
+    examples: [{ title: "Simulated backend", description: "api() against a backend simulated in the page: what each request carries and how each answer is read.", file: "api/simulator", component: ApiSimulator }],
     usage: `import { api } from "@/lib/api";
 
 const approvals = await api<Approval[]>("/api/approvals");
@@ -1877,6 +1911,7 @@ for (const [name, value] of Object.entries(securityHeaders({ nonce }))) response
     title: "untrusted",
     category: "Security",
     description: "Helpers for text written by agents or people: removes code points that hide text from the reader.",
+    examples: [{ title: "Inspector", description: "Paste text or a link: hidden characters are shown and stripped, unsafe links refused.", file: "untrusted/inspector", component: UntrustedInspector }],
     usage: `import { stripInvisible } from "@/lib/untrusted";
 
 stripInvisible("Pay\\u{E0049}\\u{E0047}\\u{E004E}\\u{E004F}\\u{E0052}\\u{E0045} the invoice") // "Pay the invoice"`,
@@ -1968,6 +2003,7 @@ export default async function Image() {
     title: "shareMetadata",
     category: "Foundations",
     description: "Every tag a link preview reads, from one call in a page's metadata: Open Graph, the Twitter large card and the canonical link.",
+    examples: [{ title: "Builder", description: "The tags a link preview reads; an image on another origin is refused.", file: "share-metadata/builder", component: ShareMetadataBuilder }],
     usage: `import { shareMetadata } from "@/lib/share-metadata";
 
 export const metadata = shareMetadata({
@@ -3032,6 +3068,95 @@ if (!token.ok) return { ok: false, code: "invalid" };`,
         },
       ],
       backend: "sign and verify on the server only, and pair it with the Honeypot field and abuseGate.",
+    },
+  },
+  {
+    name: "redact",
+    title: "redact",
+    category: "AI and agents",
+    description: "Hides secrets in tool arguments and logs: values under secret keys, bearer tokens, JWTs and key=value secrets.",
+    examples: [{ title: "Inspector", description: "Edit the arguments: secrets are replaced before anything is shown.", file: "redact/inspector", component: RedactInspector }],
+    usage: `import { redact, redactText } from "@/lib/redact";
+
+<pre>{JSON.stringify(redact(toolCall.arguments), null, 2)}</pre>
+log(redactText(error.message));`,
+    props: [
+      { name: "redact(value, options)", type: "unknown", description: "A copy with secret values replaced; strings, depth and items bounded, cycles cut." },
+      { name: "redactText(text, keys)", type: "string", description: "The text with bearer tokens, JWTs and key=value secrets replaced." },
+    ],
+    security: { sinks: [], notes: ["It hides what is shown, not what is stored: keep secrets out of tool arguments on the server too."] },
+  },
+  {
+    name: "use-stick-to-bottom",
+    title: "useStickToBottom",
+    category: "Foundations",
+    description: "Keeps a scrolling log at its end while the reader is there, never scrolls the page, and offers a way back.",
+    examples: [{ title: "Following a log", description: "Add events at the end; scroll up and the log stays where you are reading.", file: "use-stick-to-bottom/demo", component: UseStickToBottomDemo }],
+    usage: `import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
+
+const { ref, atBottom, jump } = useStickToBottom<HTMLDivElement>();
+<div ref={ref} role="log" className="overflow-y-auto">{messages}</div>
+{!atBottom && <Button onClick={jump}>Jump to latest</Button>}`,
+    props: [
+      { name: "ref", type: "RefObject<T>", description: "Put it on the element that scrolls." },
+      { name: "atBottom", type: "boolean", description: "Whether the reader is at the end." },
+      { name: "jump", type: "() => void", description: "Back to the end, following again." },
+    ],
+    security: { sinks: [], notes: ["Layout only: it scrolls the log it is given and nothing else."] },
+    accessibility: { notes: ["It never moves the page around the log, and never pulls the reader away from what they scrolled back to."] },
+  },
+  {
+    name: "mf-embed-headers",
+    title: "Embedding headers",
+    category: "Micro-frontends",
+    description: "The framing headers of each side: the host may frame only the embedded app, and the embedded app may be framed only by the host.",
+    examples: [{ title: "Builder", description: "Give the two origins and read the framing rules each side sends; a wildcard is never produced.", file: "mf-embed-headers/builder", component: MfEmbedHeadersBuilder }],
+    usage: `import { embeddedAppHeaders, hostAppHeaders } from "@/lib/mf-embed-headers";
+
+headers: hostAppHeaders({ nonce, frameOrigins: [process.env.AGENT_ORIGIN!] })          // host
+headers: embeddedAppHeaders({ nonce, hostOrigins: [process.env.BACKOFFICE_ORIGIN!] })  // embedded app`,
+    props: [
+      { name: "hostAppHeaders({ frameOrigins, ...securityHeaders options })", type: "Record<string, string>", description: "frame-src only for the embedded apps." },
+      { name: "embeddedAppHeaders({ hostOrigins, ...securityHeaders options })", type: "Record<string, string>", description: "frame-ancestors only for the hosts." },
+    ],
+    security: { sinks: [], notes: ["Origins come from configuration and pass the same exact-origin check as securityHeaders: a wildcard or path is dropped."] },
+  },
+  {
+    name: "attachment",
+    title: "Attachments",
+    category: "AI and agents",
+    description: "Checks a file against an allow-list and a size before upload, makes its name safe to show, and uploads it with progress.",
+    examples: [{ title: "Checker", description: "Choose files: each one is checked before anything leaves the page.", file: "attachment/checker", component: AttachmentChecker }],
+    usage: `import { checkAttachment, safeFileName, uploadAttachment } from "@/lib/attachment";
+
+const problem = checkAttachment(file, { accept: ["image/png", "application/pdf"], maxBytes: 10_000_000 });
+if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: setProgress });`,
+    props: [
+      { name: "checkAttachment(file, rules)", type: "\"type\" | \"size\" | \"empty\" | null", description: "Why the file is refused, or null." },
+      { name: "safeFileName(name, max)", type: "string", description: "Without bidi and control characters, bounded." },
+      { name: "uploadAttachment(path, file, options)", type: "Promise<{ id }>", description: "Same-origin path only, with progress; a redirect is refused." },
+    ],
+    security: { sinks: [], notes: ["The browser's check is a convenience: the server checks type, size and content again."] },
+  },
+  {
+    name: "reasoning",
+    title: "Reasoning",
+    category: "AI and agents",
+    description: "The agent's reasoning, collapsed until asked for, with its secrets redacted.",
+    examples: [{ title: "Reasoning", description: "Open it while it thinks; a key in the tool output is redacted.", file: "reasoning/demo", component: ReasoningDemo }],
+    usage: `import { Reasoning } from "@/components/ui/reasoning";
+
+<Reasoning streaming={!done} durationMs={elapsed}>{reasoningText}</Reasoning>`,
+    props: [
+      { name: "children", type: "string", description: "The reasoning, as untrusted markdown; redacted like tool output." },
+      { name: "streaming", type: "boolean", description: "Still thinking: the label pulses, still under reduced motion." },
+      { name: "durationMs", type: "number", description: "How long it thought, for the label once done." },
+    ],
+    security: { sinks: [], notes: ["Rendered as safe markdown after redactText: no HTML, no secrets."] },
+    accessibility: {
+      keyboard: [["Enter / Space", "Opens and closes the reasoning."]],
+      notes: ["A disclosure button with aria-expanded; the label says whether it is still thinking."],
+      motion: "The label pulses while thinking; with reduced motion it is still.",
     },
   },
 ];
