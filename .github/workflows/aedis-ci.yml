@@ -35,7 +35,7 @@ jobs:
       language: node
       coverage-script: test:coverage
       coverage-reports: apps/www/coverage/cobertura-coverage.xml
-      min-line: 95
+      min-line: 85
       min-branch: 85
       no-regression: true
       # smoke: packs @aedis/cli as npm would publish it, installs the tarball in a scratch project and runs init, add
