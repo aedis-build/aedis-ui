@@ -192,6 +192,34 @@ describe("dependencies", () => {
     expect(detectPackageManager(ROOT, ...has({}))).toBe("npm");
   });
 
+  // A fake file system keyed by full path: the repository at /repo, the app at /repo/apps/web.
+  const tree = (files: Record<string, string>) => {
+    const full = Object.fromEntries(Object.entries(files).map(([f, c]) => [path.resolve("/repo", f), c]));
+    return [(p: string) => p in full, (p: string) => full[p]!] as const;
+  };
+  const APP = path.resolve("/repo/apps/web");
+
+  it("walks up to the workspace: a lockfile one or two levels above the app decides (#223)", () => {
+    expect(detectPackageManager(APP, ...tree({ "apps/pnpm-lock.yaml": "" }))).toBe("pnpm");
+    expect(detectPackageManager(APP, ...tree({ "pnpm-lock.yaml": "", "apps/web/package.json": "{}" }))).toBe("pnpm");
+    expect(detectPackageManager(APP, ...tree({ "yarn.lock": "__metadata:" }))).toBe("yarn");
+    // The nearest wins: a lockfile in the app beats the workspace's.
+    expect(detectPackageManager(APP, ...tree({ "pnpm-lock.yaml": "", "apps/web/package-lock.json": "{}" }))).toBe("npm");
+  });
+
+  it("takes pnpm from pnpm-workspace.yaml alone, and the manager from packageManager alone (#223)", () => {
+    expect(detectPackageManager(APP, ...tree({ "pnpm-workspace.yaml": "packages: [apps/*]" }))).toBe("pnpm");
+    expect(detectPackageManager(APP, ...tree({ "package.json": '{"packageManager":"pnpm@10.34.6"}' }))).toBe("pnpm");
+    expect(detectPackageManager(APP, ...tree({ "package.json": '{"packageManager":"yarn@1.22.22"}' }))).toBe("yarn1");
+    expect(detectPackageManager(APP, ...tree({ "apps/web/package.json": '{"packageManager":"bun@1.2.0"}' }))).toBe("bun");
+    expect(detectPackageManager(APP, ...tree({ "package.json": "not json", "apps/web/package.json": '{"packageManager":"left-pad"}' }))).toBe("npm");
+  });
+
+  it("stops at the repository: nothing above .git is read (#223)", () => {
+    const [exists, read] = tree({ "apps/web/.git": "", "pnpm-lock.yaml": "" });
+    expect(detectPackageManager(APP, exists, read)).toBe("npm");
+  });
+
   it("installs exact versions without lifecycle scripts", () => {
     expect(installCommand("pnpm", ["a@1.0.0"])).toEqual({ command: "pnpm", args: ["add", "--save-exact", "--ignore-scripts", "a@1.0.0"], env: {} });
     expect(installCommand("npm", ["@s/a@1.0.0"]).args).toEqual(["install", "--save-exact", "--ignore-scripts", "@s/a@1.0.0"]);

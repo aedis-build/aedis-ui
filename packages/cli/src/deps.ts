@@ -3,13 +3,36 @@ import path from "node:path";
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "yarn1" | "bun";
 
-/** The package manager the project uses, from its lockfile. Yarn 2+ lockfiles start with __metadata. */
+const FROM_FIELD = /^(npm|pnpm|yarn|bun)@(\d+)/;
+
+/** The package manager a package.json declares in `packageManager` ("pnpm@9.1.0"), if any. */
+function declared(json: string): PackageManager | null {
+  try {
+    const match = FROM_FIELD.exec(String((JSON.parse(json) as { packageManager?: unknown }).packageManager ?? ""));
+    if (!match) return null;
+    return match[1] === "yarn" ? (Number(match[2]) >= 2 ? "yarn" : "yarn1") : (match[1] as PackageManager);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The package manager the project uses. From `root` up to the folder that holds `.git` (or the filesystem root),
+ * the first folder with a lockfile, a pnpm-workspace.yaml or a package.json `packageManager` decides: an app inside a
+ * workspace installs with the workspace's manager. npm only when nothing up the tree says otherwise. Yarn 2+
+ * lockfiles start with __metadata.
+ */
 export function detectPackageManager(root: string, exists: (p: string) => boolean = existsSync, read: (p: string) => string = (p) => readFileSync(p, "utf8")): PackageManager {
-  const at = (f: string) => path.join(root, f);
-  if (exists(at("pnpm-lock.yaml"))) return "pnpm";
-  if (exists(at("bun.lock")) || exists(at("bun.lockb"))) return "bun";
-  if (exists(at("yarn.lock"))) return /__metadata:/.test(read(at("yarn.lock")).slice(0, 4096)) ? "yarn" : "yarn1";
-  return "npm";
+  for (let dir = path.resolve(root); ; dir = path.dirname(dir)) {
+    const at = (f: string) => path.join(dir, f);
+    if (exists(at("pnpm-lock.yaml")) || exists(at("pnpm-workspace.yaml"))) return "pnpm";
+    if (exists(at("bun.lock")) || exists(at("bun.lockb"))) return "bun";
+    if (exists(at("yarn.lock"))) return /__metadata:/.test(read(at("yarn.lock")).slice(0, 4096)) ? "yarn" : "yarn1";
+    if (exists(at("package-lock.json"))) return "npm";
+    const pm = exists(at("package.json")) ? declared(read(at("package.json"))) : null;
+    if (pm) return pm;
+    if (exists(at(".git")) || path.dirname(dir) === dir) return "npm";
+  }
 }
 
 /** Exact versions, no lifecycle scripts, whatever the package manager. */
