@@ -4,7 +4,7 @@ export default function CodeBlockDemo() {
   return (
     <div className="space-y-4">
       <CodeBlock title="app/page.tsx" lang="tsx" code={'import { Button } from "@/registry/aedis/ui/button";\n\nexport default function Page() {\n  return <Button>Approve</Button>;\n}'} />
-      <CodeBlock animated lang="bash" code={"npx @aedis/cli@0.2.0 add approval-card\npnpm dev"} />
+      <CodeBlock animated lang="bash" code={"npx @aedis/cli@0.3.0 add approval-card\npnpm dev"} />
     </div>
   );
 }
