@@ -1,6 +1,6 @@
 {
   "name": "aedis-cli",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Same `aedis` command as @aedis/cli, under the unscoped name.",
   "keywords": [
     "aedis",
@@ -31,6 +31,6 @@
     "provenance": true
   },
   "dependencies": {
-    "@aedis/cli": "0.2.1"
+    "@aedis/cli": "0.2.2"
   }
 }
