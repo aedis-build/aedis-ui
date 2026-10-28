@@ -61,7 +61,7 @@ export function MfDemoShell() {
   React.useEffect(() => {
     setSrc(`${window.location.origin}${REMOTE_PATH}`);
     // Start from the site's theme, not from Light.
-    const site = document.documentElement.dataset.theme ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const site = document.documentElement.dataset.theme ?? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setMode(site === "dark" ? "dark" : "light");
     defineMfElement("aedis-usage-meter", UsageMeter, { attributes: { used: "number", ceiling: "number" }, events: ["raise-ceiling"], css: meterCss });
   }, []);

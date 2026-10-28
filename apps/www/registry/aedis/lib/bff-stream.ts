@@ -11,6 +11,8 @@ export type BffStreamOptions = {
   log?: (message: string, details?: unknown) => void;
   /** Time to wait for the API to start the stream. */
   connectTimeoutMs?: number;
+  /** The fetch used for the upstream request; the global one by default (tests and demos pass their own). */
+  fetcher?: typeof fetch;
 };
 
 const MAX_EVENT_ID = 256;
@@ -40,7 +42,7 @@ function upstreamUrl(value: BffStreamOptions["upstream"], request: Request) {
  *
  *   export const GET = bffStream({ upstream: process.env.EVENTS_URL!, getAccessToken: (req) => session(req).token });
  */
-export function bffStream({ upstream, getAccessToken, headers = {}, log = console.error, connectTimeoutMs = 15_000 }: BffStreamOptions) {
+export function bffStream({ upstream, getAccessToken, headers = {}, log = console.error, connectTimeoutMs = 15_000, fetcher = (...args) => fetch(...args) }: BffStreamOptions) {
   for (const name of Object.keys(headers)) {
     if (REFUSED.has(name.toLowerCase())) throw new Error(`bffStream: header "${name}" cannot be configured`);
   }
@@ -69,7 +71,7 @@ export function bffStream({ upstream, getAccessToken, headers = {}, log = consol
 
     let response: Response;
     try {
-      response = await fetch(url, {
+      response = await fetcher(url, {
         method: "GET",
         redirect: "error",
         cache: "no-store",
