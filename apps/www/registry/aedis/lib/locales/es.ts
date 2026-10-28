@@ -140,6 +140,13 @@ export const es: Messages = {
     placeholder: "Buscar…",
     empty: "Sin resultados.",
   },
+  carousel: {
+    previous: "Diapositiva anterior",
+    next: "Diapositiva siguiente",
+    pause: "Pausar",
+    play: "Reproducir",
+    slide: "{index} de {count}",
+  },
   combobox: {
     empty: "Sin resultados.",
     toggle: "Mostrar opciones",

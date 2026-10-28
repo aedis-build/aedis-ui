@@ -140,6 +140,13 @@ export const ptBR: Messages = {
     placeholder: "Buscar…",
     empty: "Nenhum resultado.",
   },
+  carousel: {
+    previous: "Slide anterior",
+    next: "Próximo slide",
+    pause: "Pausar",
+    play: "Reproduzir",
+    slide: "{index} de {count}",
+  },
   combobox: {
     empty: "Nenhum resultado.",
     toggle: "Mostrar opções",

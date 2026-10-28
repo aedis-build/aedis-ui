@@ -75,6 +75,8 @@ import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 import CopyButtonDemo from "@/examples/copy-button/demo";
 import SecurityHeadersBuilder from "@/examples/security-headers/builder";
 import MediaFrameDemo from "@/examples/media-frame/demo";
+import CarouselDemo from "@/examples/carousel/demo";
+import CarouselSlideshow from "@/examples/carousel/slideshow";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2735,6 +2737,44 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "The placeholder is role=\"img\" named by the alt and the caption, so a missing picture is still announced.",
       ],
       motion: "Nothing moves; the reserved ratio keeps the layout still while the image loads.",
+    },
+  },
+  {
+    name: "carousel",
+    title: "Carousel",
+    category: "Data display",
+    description: "A gallery that moves one slide at a time, and a cross-fading Slideshow. Autoplay is off unless asked for.",
+    examples: [
+      { title: "Carousel", description: "Previous and next, or swipe on touch. Two slides at a time from the small breakpoint.", file: "carousel/demo", component: CarouselDemo },
+      { title: "Slideshow with autoplay", description: "One frame at a time. Autoplay holds while the pointer or the focus is on it, and never runs with reduced motion.", file: "carousel/slideshow", component: CarouselSlideshow },
+    ],
+    usage: `import { Carousel, Slideshow } from "@/components/ui/carousel";
+
+<Carousel label="Selected work">
+  {works.map((w) => <MediaFrame key={w.id} ratio="4:5" src={w.src} alt={w.alt} />)}
+</Carousel>
+
+<Slideshow label="Showreel" autoplay interval={6000} className="h-screen">
+  {frames}
+</Slideshow>`,
+    props: [
+      { name: "label", type: "string", description: "Names the carousel for assistive technology." },
+      { name: "children", type: "ReactNode", description: "One child per slide." },
+      { name: "autoplay", type: "boolean", default: "false", description: "Advances on its own, with a pause button first in the tab order and a progress bar." },
+      { name: "interval", type: "number", default: "5000 (Slideshow 6000)", description: "Milliseconds per slide while autoplay runs." },
+      { name: "slideClassName", type: "string", description: "Classes for each slide, e.g. a basis to show two at a time." },
+      { name: "labels", type: "Partial<CarouselLabels>", description: "Overrides the locale's words (Previous slide, Next slide, Pause, Play, n of m)." },
+    ],
+    parts: [{ name: "Slideshow", description: "One slide at a time, cross-faded; fills its container. Same props.", props: [{ name: "className", type: "string", description: "Give it a height, e.g. h-screen for a background." }] }],
+    security: { sinks: [], notes: ["Renders the slides it is given; it loads nothing by itself."] },
+    accessibility: {
+      keyboard: [["Tab", "Reaches Pause (with autoplay), then Previous and Next, then the visible slide."], ["Enter / Space", "On a button: pauses, plays or moves."]],
+      notes: [
+        "A region with aria-roledescription=\"carousel\" and its label; each slide is a group named \"n of m\". Slides out of view are inert.",
+        "Moves are announced politely while autoplay is off or paused, and not while it runs.",
+        "With autoplay, the pause button is visible and first (WCAG 2.2.2). Autoplay holds on hover and focus, stops while the tab is hidden, and never runs with reduced motion.",
+      ],
+      motion: "Carousel scrolls smoothly and Slideshow cross-fades in 900 ms. With reduced motion the scroll jumps, the fade takes 200 ms and nothing plays on its own.",
     },
   },
 ];

@@ -1657,6 +1657,25 @@
       ]
     },
     {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "A gallery that moves one slide at a time, and a cross-fading Slideshow. Autoplay is off unless asked for.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/carousel.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

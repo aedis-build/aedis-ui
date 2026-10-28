@@ -150,6 +150,14 @@ export type Messages = {
     placeholder: string;
     empty: string;
   };
+  carousel: {
+    previous: string;
+    next: string;
+    pause: string;
+    play: string;
+    /** Names each slide; {index} and {count} are numbers. */
+    slide: string;
+  };
   combobox: {
     empty: string;
     /** Names the button that opens the list. */
@@ -320,6 +328,13 @@ export const en: Messages = {
     label: "Search",
     placeholder: "Search…",
     empty: "No results.",
+  },
+  carousel: {
+    previous: "Previous slide",
+    next: "Next slide",
+    pause: "Pause",
+    play: "Play",
+    slide: "{index} of {count}",
   },
   combobox: {
     empty: "No results.",
