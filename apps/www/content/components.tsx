@@ -74,6 +74,7 @@ import ToggleGroupDemo from "@/examples/toggle-group/demo";
 import ToggleGroupSegmented from "@/examples/toggle-group/segmented";
 import CopyButtonDemo from "@/examples/copy-button/demo";
 import SecurityHeadersBuilder from "@/examples/security-headers/builder";
+import MediaFrameDemo from "@/examples/media-frame/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -2703,6 +2704,37 @@ import { Field, FieldLabel } from "@/components/ui/field";
       keyboard: [["Enter / Space", "Copies."], ["Ctrl+C / ⌘C", "Where copying is blocked, copies the selected text that takes the focus."]],
       notes: ["Copied is announced politely by a status region and shown on the button for 2 s.", "Where the browser refuses, the text shows in a read-only field, selected and focused, and the status says so."],
       motion: "The icon changes to a check for 2 s. Nothing moves.",
+    },
+  },
+  {
+    name: "media-frame",
+    title: "Media Frame",
+    category: "Data display",
+    description: "A frame with a fixed aspect ratio for work thumbnails, with a labelled placeholder while media is missing.",
+    examples: [{ title: "Media Frame", description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder.", file: "media-frame/demo", component: MediaFrameDemo }],
+    usage: `import { MediaFrame } from "@/components/ui/media-frame";
+
+<MediaFrame ratio="4:5" src="/work/shop-sign.jpg" alt="Ceramics studio identity, the shop sign" />
+<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />`,
+    props: [
+      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"3:2\" | \"16:9\" | \"21:9\"", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves." },
+      { name: "fit", type: "\"cover\" | \"contain\"", default: "\"cover\"", description: "How the media fills the frame." },
+      { name: "alt", type: "string", description: "Required, unless decorative is set; then the image gets an empty alt." },
+      { name: "decorative", type: "true", description: "Marks the media as decoration: empty alt, placeholder hidden from assistive technology." },
+      { name: "src", type: "string", description: "Without it, or when it fails, the placeholder shows. Same-origin, or an origin the CSP img-src allows." },
+      { name: "caption", type: "string", description: "Shown in the placeholder." },
+      { name: "image", type: "(props: MediaImageProps) => ReactNode", default: "a plain img", description: "Renders the image with a framework component, e.g. next/image with fill." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Remote images load only from origins the CSP img-src (securityHeaders imgSrc) and the framework's image allowlist name; the frame adds none."],
+    },
+    accessibility: {
+      notes: [
+        "alt is required by the type; an empty alt only with decorative.",
+        "The placeholder is role=\"img\" named by the alt and the caption, so a missing picture is still announced.",
+      ],
+      motion: "Nothing moves; the reserved ratio keeps the layout still while the image loads.",
     },
   },
 ];

@@ -1641,6 +1641,22 @@
       ]
     },
     {
+      "name": "media-frame",
+      "type": "registry:ui",
+      "title": "Media Frame",
+      "description": "A frame with a fixed aspect ratio for work thumbnails, with a labelled placeholder while media is missing.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/media-frame.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
