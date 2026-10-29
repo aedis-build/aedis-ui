@@ -16,7 +16,8 @@ trustPolicyExclude:
 linkWorkspacePackages: true
 
 # Transitive advisories (dev tooling only: shadcn, miniflare, jsdom, dotenvx). undici < 7.30.1 is forced to the fixed
-# release; body-parser 2.4.0 and zod 4.x cannot be forced yet (release age; dependants require zod 3), see deps-accept.yaml.
+# release, body-parser to 2.4.0; zod 4.x cannot be forced (its dependants require zod 3), see deps-accept.yaml.
 overrides:
   "undici@>=7.0.0 <7.30.1": 7.30.1
   "systeminformation@<5.33.16": 5.33.16
+  "body-parser@>=2.0.0 <2.4.0": 2.4.0
