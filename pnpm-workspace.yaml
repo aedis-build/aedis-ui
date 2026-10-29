@@ -19,3 +19,4 @@ linkWorkspacePackages: true
 # release; body-parser 2.4.0 and zod 4.x cannot be forced yet (release age; dependants require zod 3), see deps-accept.yaml.
 overrides:
   "undici@>=7.0.0 <7.30.1": 7.30.1
+  "systeminformation@<5.33.16": 5.33.16
