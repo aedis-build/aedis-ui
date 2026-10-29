@@ -1,6 +1,6 @@
 {
   "name": "aedis-ui",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "The `aedis` command of @aedis/cli under the name of the library, for people who type the project name.",
   "keywords": [
     "aedis",
@@ -31,6 +31,6 @@
     "provenance": true
   },
   "dependencies": {
-    "@aedis/cli": "0.5.1"
+    "@aedis/cli": "0.5.2"
   }
 }
