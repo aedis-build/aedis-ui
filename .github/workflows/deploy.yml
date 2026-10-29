@@ -16,7 +16,7 @@ permissions: {}
 
 jobs:
   deploy:
-    uses: aedis-build/aedis-platform/.github/workflows/deploy-site.yml@0b4fba33e601833db89a59cd0e995441b92db66f # v1.3.0
+    uses: aedis-build/aedis-platform/.github/workflows/deploy-site.yml@af2f2aca355c38bac8e2d6da12e756f9d81033ae # v1.3.3
     # pull-requests and actions are for the reusable's preview and rollback jobs, which never run here; GitHub checks
     # the permissions of every job of a reusable workflow.
     permissions:
