@@ -1,8 +1,10 @@
-# Deploy the docs site and the registry JSON (/r/<name>.json) to Cloudflare on every push to main (the ruleset only
-# lets changes reach main through a reviewed pull request with CI green). Build, SBOM, SLSA Build L3 attestation,
-# verification and upload come from the deploy-static reusable workflow of Aedis Platform. The Cloudflare token lives
-# only in the prd environment (main only, required reviewer, no admin bypass). To check what is live:
-#   gh attestation verify aedis-ui-www.tgz -R aedis-build/aedis-ui --signer-workflow aedis-build/aedis-platform/.github/workflows/deploy-static.yml
+# Deploy to Cloudflare on every push to main (the ruleset only lets changes reach main through a reviewed pull
+# request with CI green). Build, SBOM, SLSA Build L3 attestation, verification, upload and the post-deploy smoke test
+# come from the deploy-site reusable workflow of Aedis Platform (type static). Only the two Cloudflare secrets are
+# passed, never `secrets: inherit`; they live only in the prd environment (main only, required reviewer, no admin
+# bypass), and because the reusable's deploy job declares that environment, its values are the ones used. To check
+# what is live:
+#   gh attestation verify aedis-ui-www.tgz -R aedis-build/aedis-ui --signer-workflow aedis-build/aedis-platform/.github/workflows/deploy-site.yml
 name: deploy
 
 on:
@@ -14,17 +16,24 @@ permissions: {}
 
 jobs:
   deploy:
-    uses: aedis-build/aedis-platform/.github/workflows/deploy-static.yml@255a90d04956caf7436320b50f104aaf80502e64 # v1.2.4
+    uses: aedis-build/aedis-platform/.github/workflows/deploy-site.yml@966ec43972347fee387516de962198cf125fc9c3 # aedis-platform#113, repin to its release tag
+    # pull-requests and actions are for the reusable's preview and rollback jobs, which never run here; GitHub checks
+    # the permissions of every job of a reusable workflow.
     permissions:
       contents: read
       id-token: write
       attestations: write
+      pull-requests: write
+      actions: read
     with:
+      type: static
       name: aedis-ui-www
       build-script: site:build
       out-dir: apps/www/out
       url: https://ui.aedis.build
-    # A reusable workflow only sees the secrets its caller passes, even in a job that declares the prd
-    # environment. inherit hands it CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID; the prd protection rules
-    # (main only, required reviewer) still gate the job that reads them.
-    secrets: inherit
+      # Off until the WAF skip rule for SMOKE_HEADER exists: from GitHub's runners Cloudflare answers with the bot
+      # challenge (aedis-platform#60), and the smoke test would judge that page instead of the site.
+      smoke: false
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
