@@ -1,7 +1,7 @@
 import { CodeBlock } from "@/registry/aedis/ui/code-block";
 
 /** The CLI version the docs pin; bump with packages/cli. Never document the unscoped `aedis` package. */
-export const CLI = "@aedis/cli@0.5.0";
+export const CLI = "@aedis/cli@0.5.1";
 
 /** One-time setup: aedis.json, the theme, cn and the security primitives, from a verified release. */
 export function RegistrySetup() {
