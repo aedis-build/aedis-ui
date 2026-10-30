@@ -111,6 +111,7 @@ import AttachmentChecker from "@/examples/attachment/checker";
 import ReasoningDemo from "@/examples/reasoning/demo";
 import MarqueeDemo from "@/examples/marquee/demo";
 import MarqueeBackdrop from "@/examples/marquee/backdrop";
+import ImageAccordionDemo from "@/examples/image-accordion/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3219,6 +3220,40 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "The backdrop is aria-hidden decoration: put its content somewhere readable too.",
       ],
       motion: "A linear slide of half the track per loop, so the wrap does not show. Under reduced motion the line stands still, cut at the container edge, and the pause button is not shown.",
+    },
+  },
+  {
+    name: "image-accordion",
+    title: "Image Accordion",
+    category: "Data display",
+    description: "Picture panels in a row: one opens wide with its text, the others stay narrow with a vertical label. A stack on phones.",
+    examples: [{ title: "Image Accordion", description: "Point at a panel, or Tab in and use the arrow keys. On a phone the row becomes a stack.", file: "image-accordion/demo", component: ImageAccordionDemo }],
+    usage: `import { ImageAccordion } from "@/components/ui/image-accordion";
+
+<ImageAccordion
+  aria-label="Principles and process"
+  items={[{ image: "/craft.jpg", alt: "The shop sign", kicker: "Principle", label: "Craft", text: "Every mark is drawn by hand." }]}
+/>`,
+    props: [
+      { name: "items", type: "{ image: string; alt: string; label: string; kicker?: string; text: string }[]", description: "The panels. label is the name, vertical while closed." },
+      { name: "defaultOpen", type: "number", default: "0", description: "The panel open at first." },
+      { name: "onOpenChange", type: "(index: number) => void", description: "Called when another panel opens." },
+      { name: "openOn", type: '"hover" | "click"', default: '"hover"', description: "hover opens after 100 ms of pointing, so sweeping across the row opens nothing; click waits for a press. Focus always opens." },
+      { name: "minOpen", type: "string", default: '"min(440px, 56cqi)"', description: "The narrowest the open panel gets, so its text stays readable. Any CSS length; cqi is the row's width." },
+      { name: "orientation", type: '"auto" | "horizontal" | "vertical"', default: '"auto"', description: "auto is a stack below 768 px and a row from there up." },
+    ],
+    security: { sinks: [], notes: ["Renders strings as text and images by URL; it injects nothing. Images load lazily from origins the CSP img-src allows."] },
+    accessibility: {
+      keyboard: [
+        ["Tab", "Reaches the open panel; the others are one arrow key away."],
+        ["Arrow keys", "Move to the next or previous panel and open it."],
+        ["Home / End", "First or last panel."],
+      ],
+      notes: [
+        "Each panel is a button with aria-expanded, named by its label and described by its text and image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
+        "White text sits on a neutral scrim: over a white photograph it measures 5.7:1 or more (the media-scrim token, 60% black, and 80% at the bottom of the open panel, where the text sits).",
+      ],
+      motion: "The width (the height in the stack) eases over 560 ms (duration-spring, ease-cinematic), and changing panels mid-way continues from where it is. The text fades in and lifts 8 px after 150 ms, at a fixed width so it never re-wraps; the vertical label fades out. Under reduced motion it opens at once.",
     },
   },
 ];

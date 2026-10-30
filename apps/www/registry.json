@@ -1793,6 +1793,22 @@
       ]
     },
     {
+      "name": "image-accordion",
+      "type": "registry:ui",
+      "title": "Image Accordion",
+      "description": "Picture panels in a row: one opens wide with its text, the others stay narrow with a vertical label. A stack on phones.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/image-accordion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
