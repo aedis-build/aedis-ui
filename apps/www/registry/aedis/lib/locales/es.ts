@@ -160,6 +160,10 @@ export const es: Messages = {
     play: "Reproducir vídeo",
     pause: "Pausar vídeo",
   },
+  marquee: {
+    pause: "Pausar la franja en movimiento",
+    play: "Reanudar la franja en movimiento",
+  },
   lightbox: {
     previous: "Anterior",
     next: "Siguiente",

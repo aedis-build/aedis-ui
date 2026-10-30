@@ -109,6 +109,8 @@ import UseStickToBottomDemo from "@/examples/use-stick-to-bottom/demo";
 import MfEmbedHeadersBuilder from "@/examples/mf-embed-headers/builder";
 import AttachmentChecker from "@/examples/attachment/checker";
 import ReasoningDemo from "@/examples/reasoning/demo";
+import MarqueeDemo from "@/examples/marquee/demo";
+import MarqueeBackdrop from "@/examples/marquee/backdrop";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3184,6 +3186,39 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
       keyboard: [["Enter / Space", "Opens and closes the reasoning."]],
       notes: ["A disclosure button with aria-expanded; the label says whether it is still thinking."],
       motion: "The label pulses while thinking; with reduced motion it is still.",
+    },
+  },
+  {
+    name: "marquee",
+    title: "Marquee",
+    category: "Data display",
+    description: "An endless line of words or logos: a sign that pauses, or a quiet backdrop.",
+    examples: [
+      { title: "Sign", description: "Visible content: it pauses on hover and focus, and the button stops it.", file: "marquee/demo", component: MarqueeDemo },
+      { title: "Backdrop", description: "Two lines in opposite directions behind a block that names the same clients, so the decoration is never the only place they appear.", file: "marquee/backdrop", component: MarqueeBackdrop },
+    ],
+    usage: `import { Marquee } from "@/components/ui/marquee";
+
+<Marquee items={services.map((s) => <span key={s}>{s}</span>)} speed={30} />
+<Marquee variant="backdrop" lines={2} speed={70} items={logos} />`,
+    props: [
+      { name: "items", type: "ReactNode[]", description: "The words or logos, in order. children are used when there are no items." },
+      { name: "speed", type: "number", default: "40", description: "Seconds for one full loop." },
+      { name: "direction", type: '"left" | "right"', default: '"left"', description: "Where the first line moves to." },
+      { name: "lines", type: "1 | 2", default: "1", description: "A second line moves the other way; it is a copy, hidden from screen readers." },
+      { name: "gap", type: "string", default: '"3rem"', description: "Space between items, any CSS length." },
+      { name: "variant", type: '"sign" | "backdrop"', default: '"sign"', description: "sign: content, pauses on hover and focus, with a pause button. backdrop: decoration, aria-hidden, 7% opacity, no pointer events." },
+      { name: "labels", type: "Partial<{ pause: string; play: string }>", description: "The pause button's names; the Locale provider gives them by default." },
+    ],
+    security: { sinks: [], notes: ["Renders the nodes it is given as React children; it injects nothing. The motion is the Web Animations API on transform, so no keyframes or styles are added to the page."] },
+    accessibility: {
+      keyboard: [["Tab", "Reaches the pause button; focus inside the line also holds it."]],
+      notes: [
+        "Screen readers get each item once: the first copy is a list, the copy that closes the loop and the second line are aria-hidden.",
+        "The sign moves for longer than 5 s, so it pauses on hover and focus and has a pause button (WCAG 2.2.2).",
+        "The backdrop is aria-hidden decoration: put its content somewhere readable too.",
+      ],
+      motion: "A linear slide of half the track per loop, so the wrap does not show. Under reduced motion the line stands still, cut at the container edge, and the pause button is not shown.",
     },
   },
 ];
