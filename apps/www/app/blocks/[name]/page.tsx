@@ -46,7 +46,7 @@ export default async function BlockPage({ params }: { params: Promise<{ name: st
         <p className="text-callout text-muted-foreground">
           The CLI verifies the signed registry release, then adds the block and everything it is built from:{" "}
           {parts.map((p, i) => (
-            <span key={p.name}>{i > 0 ? ", " : ""}<Link href={`/docs/${p.name}`} className="focus-ring rounded-xs text-link underline-offset-4 hover:underline">{p.title}</Link></span>
+            <span key={p.name}>{i > 0 ? ", " : ""}<Link href={`/docs/${p.name}`} className="focus-ring rounded-xs text-link underline underline-offset-4">{p.title}</Link></span>
           ))}
           .
         </p>

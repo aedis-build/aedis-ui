@@ -40,7 +40,7 @@ export default function Security() {
           <Card key={s.sink} className="shadow-elevation-2">
             <CardHeader>
               <span className="text-caption text-muted-foreground [&_strong]:text-link"><InlineMarkdown text={s.sink} /></span>
-              <CardTitle className="text-headline"><InlineMarkdown text={s.defense} /></CardTitle>
+              <CardTitle as="h2" className="text-headline"><InlineMarkdown text={s.defense} /></CardTitle>
             </CardHeader>
             <CardContent className="text-footnote text-muted-foreground"><InlineMarkdown text={s.where} /></CardContent>
           </Card>

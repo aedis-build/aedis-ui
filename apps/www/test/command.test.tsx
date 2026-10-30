@@ -103,7 +103,7 @@ describe("SiteSearch", () => {
     expect(push).toHaveBeenCalledWith("/docs/table");
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 
-    await user.click(screen.getByRole("button", { name: /Search components and docs/ }));
+    await user.click(screen.getByRole("button", { name: /^Search docs/ }));
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
     await user.keyboard("{Meta>}k{/Meta}");
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());

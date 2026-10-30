@@ -23,20 +23,22 @@ function Header() {
 const desktopNav = () => screen.getByRole("navigation", { name: "Site navigation" });
 
 describe("SiteHeader", () => {
-  it("is a sticky banner whose brand links home with an accessible name", () => {
+  it("is a sticky banner whose brand links home, named by its own text (WCAG 2.5.3, #239)", () => {
     const { container } = render(<Header />);
     const header = screen.getByRole("banner");
     expect(header.className).toContain("sticky");
     expect(header.className).toContain("material-regular");
     expect(header.className).toContain("scroll-edge");
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    const home = screen.getByRole("link", { name: "Aedis" });
+    expect(home).toHaveAttribute("href", "/");
+    expect(home).not.toHaveAttribute("aria-label");
     expect(container.querySelector("[data-slot=navigation-menu]")!.className).toContain("md:flex");
   });
 
   it("keeps hrefs safe, isolates external items and marks the current one", () => {
     render(<SiteHeader brand="Aedis" homeHref="/en" items={items} />);
     const nav = within(desktopNav());
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/en");
+    expect(screen.getByRole("link", { name: "Aedis" })).toHaveAttribute("href", "/en");
     expect(nav.getByRole("link", { name: "Docs" })).toHaveAttribute("aria-current", "page");
     expect(nav.getByRole("link", { name: "Docs" }).closest("li")).toHaveAttribute("data-active");
     expect(nav.getByRole("link", { name: "Pricing" })).not.toHaveAttribute("aria-current");
@@ -75,15 +77,18 @@ describe("SiteHeader", () => {
         <Header />
       </LocaleProvider>,
     );
-    expect(screen.getByRole("link", { name: "Início" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
     expect(await violations(baseElement)).toEqual([]);
     await user.click(screen.getByRole("button", { name: "Menu" }));
     await screen.findByRole("dialog", { name: "Menu" });
     expect(await violations(baseElement)).toEqual([]);
   });
 
-  it("accepts label overrides and works without actions", () => {
-    render(<SiteHeader brand="Aedis" items={[]} labels={{ home: "Aedis home", menu: "Open menu" }} />);
+  it("names a logo-only brand from the locale, accepts label overrides and works without actions", () => {
+    const { unmount } = render(<LocaleProvider locale="pt-BR" messages={ptBR}><SiteHeader brand={<svg aria-hidden="true" />} items={[]} /></LocaleProvider>);
+    expect(screen.getByRole("link", { name: "Início" })).toBeInTheDocument();
+    unmount();
+    render(<SiteHeader brand={<svg aria-hidden="true" />} items={[]} labels={{ home: "Aedis home", menu: "Open menu" }} />);
     expect(screen.getByRole("link", { name: "Aedis home" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open menu" })).toBeInTheDocument();
   });

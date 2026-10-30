@@ -10,8 +10,9 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="card-header" className={cn("flex flex-col gap-1", className)} {...props} />;
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 data-slot="card-title" className={cn("text-headline", className)} {...props} />;
+/** The heading level follows the page outline: `as="h2"` for a card right under the page heading. */
+function CardTitle({ as: Heading = "h3", className, ...props }: React.ComponentProps<"h3"> & { as?: "h2" | "h3" | "h4" | "h5" | "h6" | undefined }) {
+  return <Heading data-slot="card-title" className={cn("text-headline", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {

@@ -19,7 +19,7 @@ describe("securityHeaders", () => {
     expect(headers["X-Content-Type-Options"]).toBe("nosniff");
     expect(headers["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["Cross-Origin-Opener-Policy"]).toBe("same-origin");
-    expect(headers["Cache-Control"]).toBe("no-store, no-transform");
+    expect(headers["Cache-Control"]).toBe("no-store");
     expect(headers["Permissions-Policy"]).toContain("camera=()");
   });
 
@@ -74,13 +74,16 @@ describe("cache policy per response (#231)", () => {
   const csp = (h: Record<string, string>) => Object.fromEntries(h["Content-Security-Policy"]!.split("; ").map((d) => [d.split(" ")[0], d]));
 
   it("is no-store by default, so forgetting the option never makes a page cacheable", () => {
-    expect(securityHeaders({ nonce: "n" })["Cache-Control"]).toBe("no-store, no-transform");
-    expect(securityHeaders({ nonce: "n", cacheControl: "private" })["Cache-Control"]).toBe("no-store, no-transform");
+    expect(securityHeaders({ nonce: "n" })["Cache-Control"]).toBe("no-store");
+    expect(securityHeaders({ nonce: "n", cacheControl: "private" })["Cache-Control"]).toBe("no-store");
   });
 
-  it("writes each preset, every one with no-transform", () => {
-    expect(securityHeaders({ cacheControl: "public" })["Cache-Control"]).toBe("public, max-age=3600, stale-while-revalidate=86400, no-transform");
-    expect(securityHeaders({ cacheControl: "immutable" })["Cache-Control"]).toBe("public, max-age=31536000, immutable, no-transform");
+  it("writes each preset, none with no-transform, so a proxy may compress the response (#239)", () => {
+    expect(securityHeaders({ cacheControl: "public" })["Cache-Control"]).toBe("public, max-age=3600, stale-while-revalidate=86400");
+    expect(securityHeaders({ cacheControl: "immutable" })["Cache-Control"]).toBe("public, max-age=31536000, immutable");
+    for (const cacheControl of ["private", "public", "immutable"] as const) {
+      expect(securityHeaders({ hashes: [], cacheControl })["Cache-Control"]).not.toContain("no-transform");
+    }
   });
 
   it("refuses a nonce on a cacheable response, and any value that is not a preset", () => {

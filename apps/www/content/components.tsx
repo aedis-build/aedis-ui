@@ -1050,11 +1050,11 @@ import { SiteHeader } from "@/components/ui/site-header";
 
 <SiteHeader brand="Acme" items={[{ label: "Docs", href: "/docs", active: true }]} actions={<Button>Sign in</Button>} />`,
     props: [
-      { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref named by labels.home." },
+      { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref. A text brand names the link; a logo-only brand is named by labels.home." },
       { name: "homeHref", type: "string", default: '"/"', description: "Where the brand links; goes through safeUrl." },
       { name: "items", type: "{ label: string; href: string; active?: boolean }[]", description: "The navigation. active marks the current section (indicator and aria-current)." },
       { name: "actions", type: "ReactNode", description: "Right side from md up (e.g. a GitHub link and a primary Button); inside the sheet below md." },
-      { name: "labels", type: "Partial<SiteHeaderLabels>", description: "home: name of the brand link; menu: the menu button and sheet title." },
+      { name: "labels", type: "Partial<SiteHeaderLabels>", description: "home: name of a logo-only brand link; menu: the menu button and sheet title." },
       { name: "className", type: "string", description: "Classes for the header element." },
     ],
     security: {
@@ -1070,7 +1070,7 @@ import { SiteHeader } from "@/components/ui/site-header";
     },
     accessibility: {
       keyboard: [["Tab", "Moves through the brand, the links and the actions."], ["Esc", "Closes the menu sheet on small screens."]],
-      notes: ["A banner landmark; the brand link is named by the Locale provider (\"Home\"), the current item has aria-current=\"page\".", "On small screens the items move into a sheet behind a labelled menu button."],
+      notes: ["A banner landmark; a text brand names its link by the text it shows (WCAG 2.5.3), a logo-only brand by the Locale provider (\"Home\"); the current item has aria-current=\"page\".", "On small screens the items move into a sheet behind a labelled menu button."],
       motion: "The header is a translucent material that fades the content scrolling under it. With reduced transparency it is solid.",
     },
   },
@@ -1876,7 +1876,7 @@ const headers = policy === "private" ? securityHeaders({ nonce }) : securityHead
       { name: "mediaSrc", type: "string[]", description: "Origins for video and audio, e.g. a media CDN. Unset, media follows default-src 'self'. Exact origins only." },
       { name: "fontSrc", type: "string[]", default: "[]", description: "Extra origins for fonts, e.g. self-hosted fonts on a CDN. Exact origins only." },
       { name: "upgradeInsecureRequests", type: "boolean", default: "true", description: "Upgrades http: requests to https:. Turn it off only for a plain-HTTP origin (a local run, e2e)." },
-      { name: "cacheControl", type: "\"private\" | \"public\" | \"immutable\"", default: "\"private\"", description: "private: no-store. public: an hour, then stale for a day. immutable: a year, for hashed assets. Every preset keeps no-transform; any other value throws." },
+      { name: "cacheControl", type: "\"private\" | \"public\" | \"immutable\"", default: "\"private\"", description: "private: no-store. public: an hour, then stale for a day. immutable: a year, for hashed assets. None has no-transform, so a proxy may compress the response; any other value throws." },
       { name: "cachePolicyFor(path, { public, immutable })", type: "CachePolicy", description: "The policy for a path from lists of exact strings and RegExps; private when nothing matches, public when both do." },
     ],
     security: {
@@ -2194,10 +2194,13 @@ import { Button } from "@/components/ui/button";
   </CardHeader>
   <CardContent>…</CardContent>
 </Card>`,
-    props: [{ name: "...props", type: "div props", description: "Each part forwards the props of its element." }],
+    props: [
+      { name: "CardTitle as", type: '"h2" | "h3" | "h4" | "h5" | "h6"', default: '"h3"', description: "The heading level, so the card fits the page outline: h2 right under the page heading." },
+      { name: "...props", type: "div props", description: "Each part forwards the props of its element." },
+    ],
     security: { sinks: [], notes: ["No behavior; render agent text inside with the Chat or markdown components, never as raw HTML."] },
     accessibility: {
-      notes: ["CardTitle is an h3: keep the heading order of the page around it."],
+      notes: ["CardTitle is an h3 unless `as` says otherwise: pick the level that follows the heading before it, never skip one."],
     },
   },
   {

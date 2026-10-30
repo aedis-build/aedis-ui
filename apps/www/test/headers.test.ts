@@ -59,7 +59,7 @@ describe("_headers", () => {
     expect(one).not.toContain("style-src '");
   });
 
-  it("sends every security header but the CSP on every path, and forbids proxies to rewrite pages", () => {
+  it("sends every security header but the CSP on every path, and lets pages be cached and compressed (#239)", () => {
     const all = rule(headersFile([]), "/*");
     expect(all).toEqual(
       expect.arrayContaining([
@@ -69,9 +69,10 @@ describe("_headers", () => {
         "  Referrer-Policy: strict-origin-when-cross-origin",
         "  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()",
         "  X-Content-Type-Options: nosniff",
-        "  Cache-Control: no-store, no-transform",
+        "  Cache-Control: public, max-age=3600, stale-while-revalidate=86400",
       ]),
     );
+    expect(headersFile([])).not.toContain("no-transform");
     expect(all.some((l) => l.startsWith("  Strict-Transport-Security: "))).toBe(true);
     expect(all.some((l) => l.includes("Content-Security-Policy"))).toBe(false);
   });

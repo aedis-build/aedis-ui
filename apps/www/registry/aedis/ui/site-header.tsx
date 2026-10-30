@@ -32,7 +32,7 @@ function SiteHeader({ brand, homeHref = "/", items, actions, labels, className }
   return (
     <header data-slot="site-header" className={cn("material-regular scroll-edge sticky top-0 z-40", className)}>
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href={homeHref} aria-label={l.home} className="focus-ring inline-flex min-h-6 items-center rounded-xs text-headline text-foreground no-underline">
+        <Link href={homeHref} aria-label={typeof brand === "string" ? undefined : l.home} className="focus-ring inline-flex min-h-6 items-center rounded-xs text-headline text-foreground no-underline">
           {brand}
         </Link>
         <div className="flex items-center gap-2">
