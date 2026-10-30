@@ -100,17 +100,23 @@ describe("scroll motion in a browser", () => {
     expect(el).toHaveAttribute("data-state", "static");
   });
 
-  it("drives parallax with a ViewTimeline where there is one, and with scroll events elsewhere", async () => {
+  it("drives parallax with a ViewTimeline where there is one, and with the scroll setting paused keyframes elsewhere", async () => {
+    const frames = [{ transform: "translateY(20px)" }, { transform: "translateY(-20px)" }];
     vi.stubGlobal("ViewTimeline", class {});
     const { unmount } = render(<Parallax distance={20}>Poster</Parallax>);
-    expect(animate).toHaveBeenCalledWith([{ transform: "translateY(20px)" }, { transform: "translateY(-20px)" }], expect.objectContaining({ fill: "both" }));
+    expect(animate).toHaveBeenCalledWith(frames, expect.objectContaining({ fill: "both", timeline: expect.anything() }));
     unmount();
     vi.unstubAllGlobals();
     vi.stubGlobal("IntersectionObserver", FakeObserver);
+    const fallback = { cancel: vi.fn(), pause: vi.fn(), currentTime: null as number | null };
+    animate.mockReturnValueOnce(fallback);
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
     const { container } = render(<Parallax distance={20}>Poster</Parallax>);
     const el = container.firstElementChild as HTMLElement;
+    expect(animate).toHaveBeenLastCalledWith(frames, { duration: 1000, fill: "both" });
+    expect(fallback.pause).toHaveBeenCalled();
+    el.getBoundingClientRect = () => ({ top: 200, height: 400 }) as DOMRect;
     act(() => void window.dispatchEvent(new Event("scroll")));
-    expect(el.style.willChange).toBe("transform");
-    await waitFor(() => expect(el.style.willChange).toBe(""), { timeout: 1000 });
+    await waitFor(() => expect(fallback.currentTime).toBe(500));
   });
 });

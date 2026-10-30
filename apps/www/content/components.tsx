@@ -84,7 +84,9 @@ import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
+import ScrollMotionEffects from "@/examples/scroll-motion/effects";
 import ScrollMotionPinMedia from "@/examples/scroll-motion/pin-media";
+import ScrollMotionStage from "@/examples/scroll-motion/stage";
 import CustomThemeFonts from "@/examples/custom-theme/fonts";
 import AbuseGateSimulator from "@/examples/abuse-gate/simulator";
 import BruteForceGuardSimulator from "@/examples/brute-force-guard/simulator";
@@ -2915,19 +2917,48 @@ import { Field, FieldLabel } from "@/components/ui/field";
     name: "scroll-motion",
     title: "Scroll Motion",
     category: "Foundations",
-    description: "Reveal, Parallax and Pin: scroll motion with no animation library, off under reduced motion.",
+    description: "One scroll-progress primitive, native where the browser has scroll timelines and one JavaScript loop elsewhere, with Curtain, Dolly, Draw, Reveal, Parallax, Pin and ScrollStage on top.",
     examples: [
       { title: "Reveal and parallax", description: "Scroll the page: the steps fade in as they enter, and the poster drifts against the scroll.", file: "scroll-motion/demo", component: ScrollMotionDemo, align: "start" },
       { title: "Pin", description: "The section holds while the page scrolls past it; its children get the progress from 0 to 1.", file: "scroll-motion/pin", component: ScrollMotionPin, align: "start" },
       { title: "Pin on wide screens, with scrollTo", description: "Pinned only at 768 px and wider; the room buttons scroll the page to that progress of the pin.", file: "scroll-motion/pin-media", component: ScrollMotionPinMedia, align: "start" },
+      { title: "Effects, native and fallback side by side", description: "The same effects twice: on the browser's scroll timeline, and forced onto the JavaScript loop. They move together.", file: "scroll-motion/effects", component: ScrollMotionEffects, align: "start" },
+      { title: "ScrollStage", description: "A sticky scene over three screens of scroll: the title zooms away, the film shrinks to a screen, the next line rises out of a blur.", file: "scroll-motion/stage", component: ScrollMotionStage, align: "start" },
     ],
-    usage: `import { Parallax, Pin, Reveal } from "@/components/ui/scroll-motion";
+    usage: `import { Curtain, Dolly, Draw, Parallax, Pin, Reveal, ScrollStage, ScrollTimeline, StageLayer } from "@/components/ui/scroll-motion";
 
-<Reveal><h2>Selected work</h2></Reveal>
+<ScrollTimeline range={{ start: ["entry", 0], end: ["exit", 100] }}>
+  <div style={{ transform: "scaleX(var(--scroll-progress))" }} />
+</ScrollTimeline>
+<Curtain><MediaFrame ratio="4:5" src={sign} alt="The shop sign" /></Curtain>
+<Dolly scale={1.18}><MediaFrame ratio="4:5" src={poster} alt="The poster" /></Dolly>
+<Draw><svg>…<path d="…" /></svg></Draw>
+<ScrollStage track={3}>
+  <StageLayer at={[0, 1]} from={{ transform: "scale(1)" }} to={{ transform: "scale(12)", opacity: 0 }}>Premiere</StageLayer>
+</ScrollStage>
+<Reveal blur><h2>Selected work</h2></Reveal>
 <Parallax distance={40}><MediaFrame ratio="16:9" src={poster} alt="Hotel campaign poster" /></Parallax>
 <Pin length={1.5}>{(progress) => <Steps current={Math.floor(progress * 3)} />}</Pin>`,
-    props: [{ name: "...props", type: "div props", description: "Reveal takes any div props." }],
+    props: [
+      { name: "range", type: '{ start?: [name, offset]; end?: [name, offset] }', default: "cover 0% to cover 100%", description: "The stretch of scroll, as for animation-range: name is cover, contain, entry or exit, offset a percentage of it or a length (\"120px\", \"45svh\") from its start. ScrollTimeline, Curtain, Dolly and Draw take it." },
+      { name: "useScrollProgress(ref, range)", type: "hook", description: "Sets --scroll-progress (0 to 1) on the element: a registered number, 1 when unset, so effects written in CSS show their end state before JavaScript and under reduced motion." },
+      { name: "ScrollMotionProvider", type: "{ fallback?: boolean }", description: "Forces the JavaScript loop for the effects inside, to compare it with the native timeline." },
+    ],
     parts: [
+      { name: "ScrollTimeline", description: "A div whose --scroll-progress follows its range. Write the effect in CSS with var(--scroll-progress).", props: [] },
+      { name: "Curtain", description: "A window that opens to full bleed as it enters: clip-path inset(12% 8% 0 8%, round 16px) to none, over entry.", props: [] },
+      { name: "Dolly", description: "A slow push-in across the whole view, clipped to the box.", props: [{ name: "scale", type: "number", default: "1.18", description: "The scale it starts from; it ends at 1." }] },
+      { name: "Draw", description: "Draws every SVG stroke inside it over contain (stroke-dashoffset 1 to 0, with pathLength 1). Without the effect the strokes are simply drawn.", props: [] },
+      { name: "Reveal", description: "Fades and lifts in on entry, once.", props: [{ name: "blur", type: "boolean", default: "false", description: "Rises out of a 6 px blur as well." }] },
+      {
+        name: "ScrollStage",
+        description: "A sticky scene: StageLayers move between two keyframes over stretches of the track. One screen, every layer in its own style, without JavaScript and under reduced motion.",
+        props: [
+          { name: "track", type: "number", default: "3", description: "Its height in viewport heights; it stays on screen for track − 1 of them." },
+          { name: "StageLayer at", type: "[from, to]", default: "[0, 1]", description: "When the layer moves, in viewport heights scrolled since the stage reached the top." },
+          { name: "StageLayer from, to", type: "{ opacity?, transform?, filter?, clipPath?, borderRadius? }", description: "The two keyframes: properties that never change layout." },
+        ],
+      },
       { name: "Parallax", description: "Drifts its content against the scroll; only transform moves. To crop it, wrap it in overflow-clip, not overflow-hidden: a hidden overflow is a scroll container and holds it still.", props: [{ name: "distance", type: "number", default: "40", description: "Pixels, from +distance as it enters to −distance as it leaves." }] },
       {
         name: "Pin",
@@ -2941,14 +2972,15 @@ import { Field, FieldLabel } from "@/components/ui/field";
         ],
       },
     ],
-    security: { sinks: [], notes: ["No dependency: IntersectionObserver, scroll-driven animations (ViewTimeline) or requestAnimationFrame. Nothing is injected; it sets only transform and opacity."] },
+    security: { sinks: [], notes: ["No dependency: scroll-driven animations (ViewTimeline) through the Web Animations API, one requestAnimationFrame loop where those are missing, and IntersectionObserver for Reveal. Nothing is injected into the page's CSS; effects move transform, opacity, filter, clip-path and stroke-dashoffset only, never layout."] },
     accessibility: {
       notes: [
         "The content is in the HTML and visible without JavaScript; motion only reveals it. Content already in view never moves.",
         "Pin renders a plain section on the server and pins after mount, so a page without JavaScript reads it in full.",
-        "Under reduced motion nothing moves: Reveal shows at once, Parallax stays put, Pin is a plain section at progress 1.",
+        "Under reduced motion nothing moves and every effect shows its end state: Reveal shows at once, Parallax stays put, Curtain is open, Dolly at 1, Draw drawn, Pin a plain section at progress 1, and ScrollStage one screen with no runway.",
+        "Natively the browser plays the effects on its scroll timeline: no script runs per frame. Elsewhere one requestAnimationFrame loop serves every effect on the page, and only while the page scrolls.",
       ],
-      motion: "Reveal fades and lifts 24 px in 900 ms. Parallax drifts by its distance across the viewport. Only transform and opacity animate, and will-change is set only while they move.",
+      motion: "Every effect follows the scroll linearly, so the reader sets the pace. Reveal fades and lifts 24 px in 900 ms (with a 6 px blur if asked). Parallax drifts by its distance across the viewport.",
     },
   },
   {
