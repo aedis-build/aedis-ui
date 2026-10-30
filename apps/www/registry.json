@@ -1775,6 +1775,40 @@
       ]
     },
     {
+      "name": "marquee",
+      "type": "registry:ui",
+      "title": "Marquee",
+      "description": "An endless line of words or logos: a sign that pauses, or a quiet backdrop.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/marquee.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "image-accordion",
+      "type": "registry:ui",
+      "title": "Image Accordion",
+      "description": "Picture panels in a row: one opens wide with its text, the others stay narrow with a vertical label. A stack on phones.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/image-accordion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

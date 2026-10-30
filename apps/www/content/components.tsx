@@ -14,6 +14,7 @@ import BreadcrumbDemo from "@/examples/breadcrumb/demo";
 import ButtonGroupDemo from "@/examples/button-group/demo";
 import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
 import ButtonAsLink from "@/examples/button/as-link";
+import ButtonShapes from "@/examples/button/shapes";
 import ButtonDemo from "@/examples/button/demo";
 import ButtonSizes from "@/examples/button/sizes";
 import CardDemo from "@/examples/card/demo";
@@ -108,6 +109,9 @@ import UseStickToBottomDemo from "@/examples/use-stick-to-bottom/demo";
 import MfEmbedHeadersBuilder from "@/examples/mf-embed-headers/builder";
 import AttachmentChecker from "@/examples/attachment/checker";
 import ReasoningDemo from "@/examples/reasoning/demo";
+import MarqueeDemo from "@/examples/marquee/demo";
+import MarqueeBackdrop from "@/examples/marquee/backdrop";
+import ImageAccordionDemo from "@/examples/image-accordion/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -1050,11 +1054,11 @@ import { SiteHeader } from "@/components/ui/site-header";
 
 <SiteHeader brand="Acme" items={[{ label: "Docs", href: "/docs", active: true }]} actions={<Button>Sign in</Button>} />`,
     props: [
-      { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref named by labels.home." },
+      { name: "brand", type: "ReactNode", description: "Logo or name, wrapped in a link to homeHref. A text brand names the link; a logo-only brand is named by labels.home." },
       { name: "homeHref", type: "string", default: '"/"', description: "Where the brand links; goes through safeUrl." },
       { name: "items", type: "{ label: string; href: string; active?: boolean }[]", description: "The navigation. active marks the current section (indicator and aria-current)." },
       { name: "actions", type: "ReactNode", description: "Right side from md up (e.g. a GitHub link and a primary Button); inside the sheet below md." },
-      { name: "labels", type: "Partial<SiteHeaderLabels>", description: "home: name of the brand link; menu: the menu button and sheet title." },
+      { name: "labels", type: "Partial<SiteHeaderLabels>", description: "home: name of a logo-only brand link; menu: the menu button and sheet title." },
       { name: "className", type: "string", description: "Classes for the header element." },
     ],
     security: {
@@ -1070,7 +1074,7 @@ import { SiteHeader } from "@/components/ui/site-header";
     },
     accessibility: {
       keyboard: [["Tab", "Moves through the brand, the links and the actions."], ["Esc", "Closes the menu sheet on small screens."]],
-      notes: ["A banner landmark; the brand link is named by the Locale provider (\"Home\"), the current item has aria-current=\"page\".", "On small screens the items move into a sheet behind a labelled menu button."],
+      notes: ["A banner landmark; a text brand names its link by the text it shows (WCAG 2.5.3), a logo-only brand by the Locale provider (\"Home\"); the current item has aria-current=\"page\".", "On small screens the items move into a sheet behind a labelled menu button."],
       motion: "The header is a translucent material that fades the content scrolling under it. With reduced transparency it is solid.",
     },
   },
@@ -1876,7 +1880,7 @@ const headers = policy === "private" ? securityHeaders({ nonce }) : securityHead
       { name: "mediaSrc", type: "string[]", description: "Origins for video and audio, e.g. a media CDN. Unset, media follows default-src 'self'. Exact origins only." },
       { name: "fontSrc", type: "string[]", default: "[]", description: "Extra origins for fonts, e.g. self-hosted fonts on a CDN. Exact origins only." },
       { name: "upgradeInsecureRequests", type: "boolean", default: "true", description: "Upgrades http: requests to https:. Turn it off only for a plain-HTTP origin (a local run, e2e)." },
-      { name: "cacheControl", type: "\"private\" | \"public\" | \"immutable\"", default: "\"private\"", description: "private: no-store. public: an hour, then stale for a day. immutable: a year, for hashed assets. Every preset keeps no-transform; any other value throws." },
+      { name: "cacheControl", type: "\"private\" | \"public\" | \"immutable\"", default: "\"private\"", description: "private: no-store. public: an hour, then stale for a day. immutable: a year, for hashed assets. None has no-transform, so a proxy may compress the response; any other value throws." },
       { name: "cachePolicyFor(path, { public, immutable })", type: "CachePolicy", description: "The policy for a path from lists of exact strings and RegExps; private when nothing matches, public when both do." },
     ],
     security: {
@@ -2093,6 +2097,7 @@ import { Sidebar } from "@/components/ui/sidebar";
       { title: "Button", file: "button/demo", component: ButtonDemo },
       { title: "Sizes and states", file: "button/sizes", component: ButtonSizes },
       { title: "As a link", description: "render keeps the element's own role: these are links styled as buttons.", file: "button/as-link", component: ButtonAsLink },
+      { title: "Shapes and a moving icon", description: "Every variant in the theme radius and as a pill. An icon marked data-slot=\"icon\" slides forward on hover and keyboard focus.", file: "button/shapes", component: ButtonShapes },
     ],
     usage: `import { Button } from "@/components/ui/button";
 
@@ -2101,13 +2106,14 @@ import { Sidebar } from "@/components/ui/sidebar";
     props: [
       { name: "variant", type: '"default" | "secondary" | "outline" | "ghost" | "destructive" | "link"', default: '"default"', description: "Visual style." },
       { name: "size", type: '"default" | "sm" | "lg" | "icon"', default: '"default"', description: "Height and padding." },
+      { name: "shape", type: '"default" | "pill"', default: '"default"', description: "default follows the theme radius; pill rounds this button fully without changing the radius of anything else. Also on CopyButton." },
       { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Render another element (e.g. a link) with the button styles. It keeps its own role, so a link stays a link." },
     ],
     security: { sinks: [], notes: ["Defaults to type=\"button\": submitting a form must be explicit (type=\"submit\")."] },
     accessibility: {
       keyboard: [["Enter / Space", "Activates the button."]],
       notes: ["An icon-only button needs an aria-label.", "Disabled buttons use the native disabled attribute, so they leave the tab order."],
-      motion: "Presses sink on pointer-down and spring back on release. With reduced motion there is no scale.",
+      motion: "Presses sink on pointer-down and spring back on release. A child with data-slot=\"icon\" moves 2 px forward on hover and focus, in 200 ms. With reduced motion there is no scale and no movement.",
     },
   },
   {
@@ -2194,10 +2200,13 @@ import { Button } from "@/components/ui/button";
   </CardHeader>
   <CardContent>…</CardContent>
 </Card>`,
-    props: [{ name: "...props", type: "div props", description: "Each part forwards the props of its element." }],
+    props: [
+      { name: "CardTitle as", type: '"h2" | "h3" | "h4" | "h5" | "h6"', default: '"h3"', description: "The heading level, so the card fits the page outline: h2 right under the page heading." },
+      { name: "...props", type: "div props", description: "Each part forwards the props of its element." },
+    ],
     security: { sinks: [], notes: ["No behavior; render agent text inside with the Chat or markdown components, never as raw HTML."] },
     accessibility: {
-      notes: ["CardTitle is an h3: keep the heading order of the page around it."],
+      notes: ["CardTitle is an h3 unless `as` says otherwise: pick the level that follows the heading before it, never skip one."],
     },
   },
   {
@@ -3178,6 +3187,73 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
       keyboard: [["Enter / Space", "Opens and closes the reasoning."]],
       notes: ["A disclosure button with aria-expanded; the label says whether it is still thinking."],
       motion: "The label pulses while thinking; with reduced motion it is still.",
+    },
+  },
+  {
+    name: "marquee",
+    title: "Marquee",
+    category: "Data display",
+    description: "An endless line of words or logos: a sign that pauses, or a quiet backdrop.",
+    examples: [
+      { title: "Sign", description: "Visible content: it pauses on hover and focus, and the button stops it.", file: "marquee/demo", component: MarqueeDemo },
+      { title: "Backdrop", description: "Two lines in opposite directions behind a block that names the same clients, so the decoration is never the only place they appear.", file: "marquee/backdrop", component: MarqueeBackdrop },
+    ],
+    usage: `import { Marquee } from "@/components/ui/marquee";
+
+<Marquee items={services.map((s) => <span key={s}>{s}</span>)} speed={30} />
+<Marquee variant="backdrop" lines={2} speed={70} items={logos} />`,
+    props: [
+      { name: "items", type: "ReactNode[]", description: "The words or logos, in order. children are used when there are no items." },
+      { name: "speed", type: "number", default: "40", description: "Seconds for one full loop." },
+      { name: "direction", type: '"left" | "right"', default: '"left"', description: "Where the first line moves to." },
+      { name: "lines", type: "1 | 2", default: "1", description: "A second line moves the other way; it is a copy, hidden from screen readers." },
+      { name: "gap", type: "string", default: '"3rem"', description: "Space between items, any CSS length." },
+      { name: "variant", type: '"sign" | "backdrop"', default: '"sign"', description: "sign: content, pauses on hover and focus, with a pause button. backdrop: decoration, aria-hidden, 7% opacity, no pointer events." },
+      { name: "labels", type: "Partial<{ pause: string; play: string }>", description: "The pause button's names; the Locale provider gives them by default." },
+    ],
+    security: { sinks: [], notes: ["Renders the nodes it is given as React children; it injects nothing. The motion is the Web Animations API on transform, so no keyframes or styles are added to the page."] },
+    accessibility: {
+      keyboard: [["Tab", "Reaches the pause button; focus inside the line also holds it."]],
+      notes: [
+        "Screen readers get each item once: the first copy is a list, the copy that closes the loop and the second line are aria-hidden.",
+        "The sign moves for longer than 5 s, so it pauses on hover and focus and has a pause button (WCAG 2.2.2).",
+        "The backdrop is aria-hidden decoration: put its content somewhere readable too.",
+      ],
+      motion: "A linear slide of half the track per loop, so the wrap does not show. Under reduced motion the line stands still, cut at the container edge, and the pause button is not shown.",
+    },
+  },
+  {
+    name: "image-accordion",
+    title: "Image Accordion",
+    category: "Data display",
+    description: "Picture panels in a row: one opens wide with its text, the others stay narrow with a vertical label. A stack on phones.",
+    examples: [{ title: "Image Accordion", description: "Point at a panel, or Tab in and use the arrow keys. On a phone the row becomes a stack.", file: "image-accordion/demo", component: ImageAccordionDemo }],
+    usage: `import { ImageAccordion } from "@/components/ui/image-accordion";
+
+<ImageAccordion
+  aria-label="Principles and process"
+  items={[{ image: "/craft.jpg", alt: "The shop sign", kicker: "Principle", label: "Craft", text: "Every mark is drawn by hand." }]}
+/>`,
+    props: [
+      { name: "items", type: "{ image: string; alt: string; label: string; kicker?: string; text: string }[]", description: "The panels. label is the name, vertical while closed." },
+      { name: "defaultOpen", type: "number", default: "0", description: "The panel open at first." },
+      { name: "onOpenChange", type: "(index: number) => void", description: "Called when another panel opens." },
+      { name: "openOn", type: '"hover" | "click"', default: '"hover"', description: "hover opens after 100 ms of pointing, so sweeping across the row opens nothing; click waits for a press. Focus always opens." },
+      { name: "minOpen", type: "string", default: '"min(440px, 56cqi)"', description: "The narrowest the open panel gets, so its text stays readable. Any CSS length; cqi is the row's width." },
+      { name: "orientation", type: '"auto" | "horizontal" | "vertical"', default: '"auto"', description: "auto is a stack below 768 px and a row from there up." },
+    ],
+    security: { sinks: [], notes: ["Renders strings as text and images by URL; it injects nothing. Images load lazily from origins the CSP img-src allows."] },
+    accessibility: {
+      keyboard: [
+        ["Tab", "Reaches the open panel; the others are one arrow key away."],
+        ["Arrow keys", "Move to the next or previous panel and open it."],
+        ["Home / End", "First or last panel."],
+      ],
+      notes: [
+        "Each panel is a button with aria-expanded, named by its label and described by its text and image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
+        "White text sits on a neutral scrim: over a white photograph it measures 5.7:1 or more (the media-scrim token, 60% black, and 80% at the bottom of the open panel, where the text sits).",
+      ],
+      motion: "The width (the height in the stack) eases over 560 ms (duration-spring, ease-cinematic), and changing panels mid-way continues from where it is. The text fades in and lifts 8 px after 150 ms, at a fixed width so it never re-wraps; the vertical label fades out. Under reduced motion it opens at once.",
     },
   },
 ];

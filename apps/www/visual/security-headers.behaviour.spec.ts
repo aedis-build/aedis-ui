@@ -35,6 +35,8 @@ test("the site itself is served with the policy the builder describes", async ({
   expect(csp).toContain("font-src 'self'");
   expect(csp).toContain("upgrade-insecure-requests");
   expect(csp).not.toContain("media-src");
+  // #239: public pages, so the back/forward cache keeps them, and nothing that stops compression.
+  expect(response!.headers()["cache-control"]).toBe("public, max-age=3600, stale-while-revalidate=86400");
 });
 
 test("the builder fits a 390 px screen in dark", async ({ page }) => {
@@ -56,19 +58,19 @@ test("a public path is cached without scripts, a page is not, and a nonce refuse
   const main = page.getByRole("main");
   const out = main.getByRole("status", { name: "Cache headers" });
   await expect(main.getByText("Policy: public")).toBeVisible();
-  await expect(out).toContainText("Cache-Control: public, max-age=3600, stale-while-revalidate=86400, no-transform");
+  await expect(out).toContainText("Cache-Control: public, max-age=3600, stale-while-revalidate=86400");
   await expect(out).toContainText("script-src 'none';");
 
   const path = main.getByRole("textbox", { name: "Path" });
   await path.fill("/_next/static/chunks/app.js");
-  await expect(out).toContainText("Cache-Control: public, max-age=31536000, immutable, no-transform");
+  await expect(out).toContainText("Cache-Control: public, max-age=31536000, immutable");
   await path.fill("/account");
   await expect(main.getByText("Policy: private")).toBeVisible();
   // A private page runs scripts, so it needs its nonce.
   await expect(out).toContainText("Refused: securityHeaders: give either nonce or hashes");
 
   await main.getByRole("switch", { name: "Has a nonce" }).press("Space");
-  await expect(out).toContainText("Cache-Control: no-store, no-transform");
+  await expect(out).toContainText("Cache-Control: no-store");
   await expect(out).toContainText("script-src 'self' 'nonce-r4nd0m' 'strict-dynamic';");
   await main.getByRole("group", { name: "Cache policy" }).getByRole("button", { name: "public" }).click();
   await expect(out).toContainText("Refused: securityHeaders: a response with a nonce is never cached");

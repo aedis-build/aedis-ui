@@ -188,7 +188,7 @@ function Usage() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader>
-        <CardTitle>Tokens this week</CardTitle>
+        <CardTitle as="h2">Tokens this week</CardTitle>
         <CardDescription>Every agent, all models</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -233,7 +233,7 @@ function Ceiling() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader>
-        <CardTitle>Usage ceiling</CardTitle>
+        <CardTitle as="h2">Usage ceiling</CardTitle>
         <CardDescription>Stop agents before the month&apos;s budget runs out.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3.5">
@@ -270,7 +270,7 @@ export function FramePanel() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Billing panel</CardTitle>
+        <CardTitle as="h2">Billing panel</CardTitle>
         <Badge variant="accent">mf-frame</Badge>
       </CardHeader>
       <CardContent className="flex flex-col gap-2.5">
@@ -292,7 +292,7 @@ function Defended() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>This page is defended</CardTitle>
+        <CardTitle as="h2">This page is defended</CardTitle>
         <Badge variant="secondary" className="text-success">5 / 5</Badge>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -319,7 +319,7 @@ function Notifications() {
   return (
     <Card className="gap-3.5 p-4.5">
       <CardHeader>
-        <CardTitle>Notifications</CardTitle>
+        <CardTitle as="h2">Notifications</CardTitle>
         <CardDescription>Choose what reaches you.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">

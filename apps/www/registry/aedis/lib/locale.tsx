@@ -173,6 +173,10 @@ export type Messages = {
     play: string;
     pause: string;
   };
+  marquee: {
+    pause: string;
+    play: string;
+  };
   lightbox: {
     previous: string;
     next: string;
@@ -359,6 +363,10 @@ export const en: Messages = {
   video: {
     play: "Play video",
     pause: "Pause video",
+  },
+  marquee: {
+    pause: "Pause the moving line",
+    play: "Play the moving line",
   },
   lightbox: {
     previous: "Previous",

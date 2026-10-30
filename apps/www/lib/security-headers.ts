@@ -40,11 +40,14 @@ export type SecurityHeadersOptions = {
 
 export type CachePolicy = "private" | "public" | "immutable";
 
-/** Every preset keeps no-transform, so a proxy still cannot rewrite the response. */
+/**
+ * No preset has no-transform (#239): Cloudflare reads it as "never compress". A proxy may then inject its own scripts
+ * (Web Analytics, bot detection), which the strict CSP blocks unless the site lets them in.
+ */
 const CACHE: Record<CachePolicy, string> = {
-  private: "no-store, no-transform",
-  public: "public, max-age=3600, stale-while-revalidate=86400, no-transform",
-  immutable: "public, max-age=31536000, immutable, no-transform",
+  private: "no-store",
+  public: "public, max-age=3600, stale-while-revalidate=86400",
+  immutable: "public, max-age=31536000, immutable",
 };
 
 /**
@@ -137,7 +140,6 @@ export function securityHeaders({
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
-    // no-transform: a proxy (Cloudflare's analytics or bot scripts) must not rewrite the page.
     "Cache-Control": CACHE[cacheControl],
   };
 }

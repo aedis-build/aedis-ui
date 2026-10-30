@@ -104,7 +104,7 @@ export default function Home() {
 
       <footer className="mx-auto flex max-w-7xl flex-wrap justify-between gap-3 px-4 pt-6 pb-14 text-footnote text-muted-foreground md:px-6">
         <span>
-          Aedis UI · Apache-2.0 · part of <a href="https://aedis.build" className="focus-ring rounded-xs text-link underline-offset-4 hover:underline">aedis.build</a>
+          Aedis UI · Apache-2.0 · part of <a href="https://aedis.build" className="focus-ring rounded-xs text-link underline underline-offset-4">aedis.build</a>
         </span>
         <span>Built with Aedis UI, Base UI and Tailwind CSS. Releases signed with Sigstore.</span>
       </footer>

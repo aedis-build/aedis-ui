@@ -27,15 +27,14 @@ export function SiteSearch({ items }: { items: CommandItem[] }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Search components and docs"
         className="press focus-ring flex h-9 items-center gap-2 rounded-sm bg-muted px-3 text-callout text-muted-foreground md:w-52"
       >
         <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
           <circle cx="7" cy="7" r="5" />
           <path d="M11 11l3.5 3.5" />
         </svg>
-        <span aria-hidden="true" className="hidden md:inline md:flex-1 md:text-left">Search docs</span>
-        <Kbd className="hidden md:inline-flex">⌘K</Kbd>
+        <span className="sr-only md:not-sr-only md:flex-1 md:text-left">Search docs</span>
+        <Kbd aria-hidden="true" className="hidden md:inline-flex">⌘K</Kbd>
       </button>
       <CommandDialog
         open={open}

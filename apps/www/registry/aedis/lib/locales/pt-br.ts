@@ -160,6 +160,10 @@ export const ptBR: Messages = {
     play: "Reproduzir vídeo",
     pause: "Pausar vídeo",
   },
+  marquee: {
+    pause: "Pausar a faixa em movimento",
+    play: "Retomar a faixa em movimento",
+  },
   lightbox: {
     previous: "Anterior",
     next: "Próximo",

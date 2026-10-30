@@ -5,7 +5,7 @@ export default function CardDemo() {
   return (
     <Card className="max-w-sm">
       <CardHeader>
-        <CardTitle>Account Executive</CardTitle>
+        <CardTitle as="h2">Account Executive</CardTitle>
         <CardDescription>Turns opportunities into signed projects.</CardDescription>
       </CardHeader>
       <CardContent className="text-sm">Junior · business hours · 3 channels</CardContent>

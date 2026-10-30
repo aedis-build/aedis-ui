@@ -14,6 +14,9 @@
     "capture": "node visual/capture.mjs",
     "theme": "vitest run test/theme.test.ts -u"
   },
+  "browserslist": [
+    "baseline widely available"
+  ],
   "dependencies": {
     "@base-ui/react": "1.9.0",
     "class-variance-authority": "0.7.1",

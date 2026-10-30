@@ -30,7 +30,7 @@ export function InlineMarkdown({ text }: { text: string }) {
     if (code !== undefined) {
       const page = pages.get(key(code));
       const el = <code className="font-mono text-[0.92em]">{code}</code>;
-      out.push(page ? <NextLink key={m.index} href={page} className="focus-ring rounded-xs text-link underline-offset-4 hover:underline">{el}</NextLink> : <span key={m.index}>{el}</span>);
+      out.push(page ? <NextLink key={m.index} href={page} className="focus-ring rounded-xs text-link underline underline-offset-4">{el}</NextLink> : <span key={m.index}>{el}</span>);
     } else if (bold !== undefined) out.push(<strong key={m.index} className="font-medium text-foreground">{bold}</strong>);
     else out.push(<Link key={m.index} href={href}>{label}</Link>);
     last = m.index + m[0].length;

@@ -3,7 +3,7 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { securityHeaders } from "@/lib/security-headers";
+import { cachePolicyFor, securityHeaders } from "@/lib/security-headers";
 
 const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi;
 // A type other than JavaScript makes a data block (application/ld+json…): the browser never runs it.
@@ -57,6 +57,13 @@ const policy = (frameable: boolean, styleHashes: string[]) =>
   securityHeaders({ hashes: [], styleHashes, frameAncestors: frameable ? ["'self'"] : [], frameSrc: ["'self'"] })["Content-Security-Policy"];
 
 /**
+ * What a browser or shared cache may keep (#239): every page is the same for every visitor, so public, which also
+ * lets the back/forward cache keep it; hashed build assets and share cards never change.
+ */
+export const CACHE_RULES = { public: ["/*"], immutable: ["/_next/static/*", "/og/*"] };
+const cacheControl = (rule: string) => securityHeaders({ hashes: [], cacheControl: cachePolicyFor(rule, CACHE_RULES) })["Cache-Control"];
+
+/**
  * The rules that give every page its policy, none overlapping: a directory whose pages all take the same policy gets
  * one `/dir/*` rule, anything else a rule of its own. No path may get two: a header set by two matching rules is
  * comma-joined into two policies that both apply, and production Cloudflare did not honour a
@@ -82,14 +89,14 @@ function policyRules(paths: string[], dir = ""): [rule: string, frameable: boole
  * page the visit started on. Unknown paths outside the page directories (the 404 page) get no CSP.
  */
 export function headersFile(paths: string[], styles: string[] = []): string {
-  const { "Content-Security-Policy": _, ...common } = securityHeaders({ hashes: [] });
+  const { "Content-Security-Policy": _, ...common } = securityHeaders({ hashes: [], cacheControl: cachePolicyFor("/*", CACHE_RULES) });
   const lines = [
     "/*",
     ...Object.entries(common).map(([name, value]) => `  ${name}: ${value}`),
-    // Hashed build assets never change: they keep the headers but swap no-store for immutable caching.
+    // Hashed build assets never change: they keep the headers but swap the pages' caching for immutable.
     "/_next/static/*",
     "  ! Cache-Control",
-    "  Cache-Control: public, max-age=31536000, immutable",
+    `  Cache-Control: ${cacheControl("/_next/static/*")}`,
     // The demo remote is sandboxed, so its origin is opaque and its requests count as cross-origin: the public,
     // hashed build assets may be loaded by it. Pages and everything else keep same-origin.
     "  ! Cross-Origin-Resource-Policy",
@@ -101,7 +108,7 @@ export function headersFile(paths: string[], styles: string[] = []): string {
     // The share cards (app/og): named by a hash of what they show, and fetched by chat apps and networks from anywhere.
     "/og/*",
     "  ! Cache-Control",
-    "  Cache-Control: public, max-age=31536000, immutable",
+    `  Cache-Control: ${cacheControl("/og/*")}`,
     "  ! Cross-Origin-Resource-Policy",
     "  Cross-Origin-Resource-Policy: cross-origin",
     ...policyRules(paths).flatMap(([rule, frameable]) => [rule, `  Content-Security-Policy: ${policy(frameable, styles)}`]),
