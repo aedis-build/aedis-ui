@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "press focus-ring inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-sm text-callout font-medium disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "press focus-ring inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-sm text-callout font-medium disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_[data-slot=icon]]:transition-transform [&_[data-slot=icon]]:duration-(--duration-fast) [&_[data-slot=icon]]:ease-out motion-safe:hover:[&_[data-slot=icon]]:translate-x-0.5 motion-safe:focus-visible:[&_[data-slot=icon]]:translate-x-0.5",
   {
     variants: {
       variant: {
@@ -23,8 +23,13 @@ const buttonVariants = cva(
         lg: "h-11 px-6 text-body",
         icon: "size-9",
       },
+      // The theme radius by default; pill rounds this button alone, not every surface that shares the radius token.
+      shape: {
+        default: "",
+        pill: "rounded-full",
+      },
     },
-    defaultVariants: { variant: "default", size: "default" },
+    defaultVariants: { variant: "default", size: "default", shape: "default" },
   },
 );
 
@@ -43,11 +48,11 @@ export type ButtonProps = React.ComponentProps<"button"> &
  * Pass `render` to give another element the button styles, e.g. `render={<a href="/docs" />}`.
  * It keeps its own role: a link stays a link.
  */
-function Button({ className, variant, size, type, render, pending, ...props }: ButtonProps) {
+function Button({ className, variant, size, shape, type, render, pending, ...props }: ButtonProps) {
   return useRender({
     // A bare <button> inside a form submits it; default to "button" so submitting is always explicit.
     render: render ?? <ButtonPrimitive type={type ?? "button"} />,
-    props: { "data-slot": "button", className: cn(buttonVariants({ variant, size }), className), ...(render ? { type } : {}), ...props, ...(pending ? { disabled: true, "aria-busy": true, ...(render ? {} : { focusableWhenDisabled: true }) } : {}) },
+    props: { "data-slot": "button", className: cn(buttonVariants({ variant, size, shape }), className), ...(render ? { type } : {}), ...props, ...(pending ? { disabled: true, "aria-busy": true, ...(render ? {} : { focusableWhenDisabled: true }) } : {}) },
   });
 }
 

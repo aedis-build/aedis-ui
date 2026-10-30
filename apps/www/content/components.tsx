@@ -14,6 +14,7 @@ import BreadcrumbDemo from "@/examples/breadcrumb/demo";
 import ButtonGroupDemo from "@/examples/button-group/demo";
 import ButtonGroupVerticalText from "@/examples/button-group/vertical-text";
 import ButtonAsLink from "@/examples/button/as-link";
+import ButtonShapes from "@/examples/button/shapes";
 import ButtonDemo from "@/examples/button/demo";
 import ButtonSizes from "@/examples/button/sizes";
 import CardDemo from "@/examples/card/demo";
@@ -2093,6 +2094,7 @@ import { Sidebar } from "@/components/ui/sidebar";
       { title: "Button", file: "button/demo", component: ButtonDemo },
       { title: "Sizes and states", file: "button/sizes", component: ButtonSizes },
       { title: "As a link", description: "render keeps the element's own role: these are links styled as buttons.", file: "button/as-link", component: ButtonAsLink },
+      { title: "Shapes and a moving icon", description: "Every variant in the theme radius and as a pill. An icon marked data-slot=\"icon\" slides forward on hover and keyboard focus.", file: "button/shapes", component: ButtonShapes },
     ],
     usage: `import { Button } from "@/components/ui/button";
 
@@ -2101,13 +2103,14 @@ import { Sidebar } from "@/components/ui/sidebar";
     props: [
       { name: "variant", type: '"default" | "secondary" | "outline" | "ghost" | "destructive" | "link"', default: '"default"', description: "Visual style." },
       { name: "size", type: '"default" | "sm" | "lg" | "icon"', default: '"default"', description: "Height and padding." },
+      { name: "shape", type: '"default" | "pill"', default: '"default"', description: "default follows the theme radius; pill rounds this button fully without changing the radius of anything else. Also on CopyButton." },
       { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Render another element (e.g. a link) with the button styles. It keeps its own role, so a link stays a link." },
     ],
     security: { sinks: [], notes: ["Defaults to type=\"button\": submitting a form must be explicit (type=\"submit\")."] },
     accessibility: {
       keyboard: [["Enter / Space", "Activates the button."]],
       notes: ["An icon-only button needs an aria-label.", "Disabled buttons use the native disabled attribute, so they leave the tab order."],
-      motion: "Presses sink on pointer-down and spring back on release. With reduced motion there is no scale.",
+      motion: "Presses sink on pointer-down and spring back on release. A child with data-slot=\"icon\" moves 2 px forward on hover and focus, in 200 ms. With reduced motion there is no scale and no movement.",
     },
   },
   {

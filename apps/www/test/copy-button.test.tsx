@@ -17,6 +17,12 @@ afterEach(() => {
 });
 
 describe("copy button (#198)", () => {
+  it("takes the button's pill shape and keeps the theme radius otherwise (#249)", () => {
+    render(<><CopyButton value="a" shape="pill">Pill</CopyButton><CopyButton value="b">Plain</CopyButton></>);
+    expect(screen.getByRole("button", { name: "Pill" })).toHaveClass("rounded-full");
+    expect(screen.getByRole("button", { name: "Plain" })).not.toHaveClass("rounded-full");
+  });
+
   it("copies exactly the value, says Copied politely for 2 s, and never reads the clipboard", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
