@@ -84,8 +84,9 @@ test("on a wide screen it pins, and scrollTo(0.5) lands halfway through its run"
   await expect(page.getByRole("main").getByText(/^Pinned:/)).toBeVisible();
   await page.getByRole("navigation", { name: "Rooms" }).getByRole("button", { name: "Posters" }).click();
   await expect(pin.getByText(/^(49|50|51)% through$/)).toBeVisible();
-  const { top, run, y } = await pin.evaluate((el: HTMLElement) => ({ top: el.getBoundingClientRect().top + window.scrollY, run: el.offsetHeight - window.innerHeight, y: window.scrollY }));
-  expect(Math.abs(y - (top + run / 2))).toBeLessThan(4);
+  // Polled: lazy media above the pin can still settle just after the scroll lands.
+  const off = () => pin.evaluate((el: HTMLElement) => Math.abs(window.scrollY - (el.getBoundingClientRect().top + window.scrollY + (el.offsetHeight - window.innerHeight) / 2)));
+  await expect.poll(off).toBeLessThan(4);
   await expect(pin.getByRole("listitem").filter({ hasText: "Posters" })).toHaveAttribute("data-current", "true");
 });
 
