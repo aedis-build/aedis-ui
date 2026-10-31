@@ -15,7 +15,8 @@ import { useReducedMotion } from "@/registry/aedis/hooks/use-reduced-motion";
 
 export type RangeName = "cover" | "contain" | "entry" | "exit";
 /** A point of a range: a named range of the element's way through the viewport, and an offset into it (0–100 %, or a length). */
-export type RangePoint = readonly [RangeName, number | `${number}px` | `${number}svh`];
+/** A point of a range: a named range and an offset into it, 0–100 %, a length, or a calc() of %, px and svh. */
+export type RangePoint = readonly [RangeName, number | `${number}px` | `${number}svh` | `calc(${string})`];
 export type ScrollRange = { start?: RangePoint | undefined; end?: RangePoint | undefined };
 
 const COVER: ScrollRange = { start: ["cover", 0], end: ["cover", 100] };
@@ -29,7 +30,13 @@ function offset([name, at]: RangePoint, h: number, v: number, vh: number) {
   const ranges: Record<RangeName, [number, number]> = { cover: [0, v + h], contain: [Math.min(h, v), Math.max(h, v)], entry: [0, Math.min(h, v)], exit: [Math.max(h, v), v + h] };
   const [a, b] = ranges[name];
   if (typeof at === "number") return a + ((b - a) * at) / 100;
-  return a + (at.endsWith("svh") ? (parseFloat(at) * vh) / 100 : parseFloat(at));
+  // A sum of terms, as CSS writes them: "45svh", "calc(100% - 55svh)", "calc(45svh + 14px)".
+  let total = 0;
+  for (const [, sign, n, unit] of at.matchAll(/([+-])?\s*(\d*\.?\d+)(%|px|svh)/g)) {
+    const value = (sign === "-" ? -1 : 1) * parseFloat(n!);
+    total += unit === "%" ? ((b - a) * value) / 100 : unit === "svh" ? (vh * value) / 100 : value;
+  }
+  return a + total;
 }
 
 /**
@@ -454,4 +461,4 @@ function StageLayer({ at = [0, 1], from, to, className, ...props }: StageLayerPr
   return <div ref={ref} data-slot="stage-layer" className={cn("absolute inset-0", className)} {...props} />;
 }
 
-export { Curtain, Dolly, Draw, Parallax, Pin, Reveal, ScrollMotionProvider, ScrollStage, ScrollTimeline, StageLayer, useScrollProgress, usePinned, usePinProgress };
+export { Curtain, Dolly, Draw, Parallax, Pin, Reveal, ScrollMotionProvider, ScrollStage, ScrollTimeline, StageLayer, useScrollEffect, useScrollProgress, usePinned, usePinProgress };

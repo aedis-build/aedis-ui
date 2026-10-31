@@ -1809,6 +1809,60 @@
       ]
     },
     {
+      "name": "scroll-steps",
+      "type": "registry:ui",
+      "title": "Scroll Steps",
+      "description": "A list of steps on a line that fills as the reader scrolls; each node turns done when the line reaches it.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-steps.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "scroll-path",
+      "type": "registry:ui",
+      "title": "Scroll Path",
+      "description": "A hand-drawn line that draws itself through a section as the reader scrolls, kept in a lane of its own.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-path.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "section-dock",
+      "type": "registry:ui",
+      "title": "Section Dock",
+      "description": "A small ring that fills with the page's progress and opens into the page's sections and one action.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/untrusted",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/section-dock.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
