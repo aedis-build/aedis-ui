@@ -164,6 +164,13 @@ export const ptBR: Messages = {
     pause: "Pausar a faixa em movimento",
     play: "Retomar a faixa em movimento",
   },
+  sectionDock: {
+    label: "Seções da página",
+    ring: "Seções da página, agora: {section}",
+    done: "lida",
+    current: "você está aqui",
+    next: "próxima",
+  },
   lightbox: {
     previous: "Anterior",
     next: "Próximo",

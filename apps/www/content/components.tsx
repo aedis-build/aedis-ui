@@ -116,6 +116,7 @@ import MarqueeBackdrop from "@/examples/marquee/backdrop";
 import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
 import ScrollPathDemo from "@/examples/scroll-path/demo";
+import SectionDockDemo from "@/examples/section-dock/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3342,6 +3343,47 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Under reduced motion and without JavaScript the line is fully drawn.",
       ],
       motion: "The stroke draws linearly with the scroll.",
+    },
+  },
+  {
+    name: "section-dock",
+    title: "Section Dock",
+    category: "Navigation",
+    description: "A small ring that fills with the page's progress and opens into the page's sections and one action.",
+    examples: [{ title: "Section Dock", description: "The ring at the bottom corner follows the chapters below, including the sticky one. Point at it, Tab to it or tap it to open the sections.", file: "section-dock/demo", component: SectionDockDemo, align: "start" }],
+    usage: `import { SectionDock } from "@/components/ui/section-dock";
+
+<section id="work" data-chapter="Work">…</section>
+<SectionDock action={{ label: "Talk to us", href: "/contact" }} />`,
+    props: [
+      { name: "sections", type: '{ id; label }[] | "auto"', default: '"auto"', description: "The sections in order; auto reads every element with an id and a data-chapter label." },
+      { name: "action", type: "{ label: string; href: string }", description: "One primary action below the sections. The href goes through safeUrl." },
+      { name: "placement", type: '"bottom-right" | "bottom-left"', default: '"bottom-right"', description: "The corner it sits in, 12 px from the edges." },
+      { name: "head", type: "number", default: "0.5", description: "The reading point: the current section is the last one that starts above it." },
+      { name: "labels", type: "Partial<SectionDockLabels>", description: "The navigation and ring names, and the state words; the Locale provider gives them by default." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "The action's link is safe by construction",
+          text: "The action's href goes through safeUrl: javascript:, data: and vbscript: never become a link, and the action is left out. Section links are fragments to ids on the page.",
+          evidence: [["section-dock.test.tsx", "drops an action whose href is not safe, and links each section to its id"]],
+          ids: ["CWE-79", "CWE-601"],
+        },
+      ],
+    },
+    accessibility: {
+      keyboard: [
+        ["Tab", "Reaches the ring and opens the sections; Tab goes on through them and the action."],
+        ["Escape", "Closes the sections."],
+      ],
+      notes: [
+        "A nav named \"Page sections\". The ring is a button with aria-expanded, named with the current section; the current link has aria-current=\"location\" and each link says read, you are here or next.",
+        "The current section comes from document position on every scroll, so a sticky scene that stays in view does not keep its title.",
+        "Closed, the panel is not in the page at all. On a phone the ring is 44 px in the corner and the panel is at most the screen width minus 24 px.",
+      ],
+      motion: "The ring fills with the page's progress. The panel pops in (opacity and a 95% scale, 200 ms); under reduced motion it appears at once.",
     },
   },
 ];

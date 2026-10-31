@@ -177,6 +177,15 @@ export type Messages = {
     pause: string;
     play: string;
   };
+  sectionDock: {
+    /** Names the navigation. */
+    label: string;
+    /** The ring button; {section} is the current section, or the label alone before the first one. */
+    ring: string;
+    done: string;
+    current: string;
+    next: string;
+  };
   lightbox: {
     previous: string;
     next: string;
@@ -367,6 +376,13 @@ export const en: Messages = {
   marquee: {
     pause: "Pause the moving line",
     play: "Play the moving line",
+  },
+  sectionDock: {
+    label: "Page sections",
+    ring: "Page sections, now: {section}",
+    done: "read",
+    current: "you are here",
+    next: "next",
   },
   lightbox: {
     previous: "Previous",

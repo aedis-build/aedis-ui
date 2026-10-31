@@ -164,6 +164,13 @@ export const es: Messages = {
     pause: "Pausar la franja en movimiento",
     play: "Reanudar la franja en movimiento",
   },
+  sectionDock: {
+    label: "Secciones de la página",
+    ring: "Secciones de la página, ahora: {section}",
+    done: "leída",
+    current: "estás aquí",
+    next: "siguiente",
+  },
   lightbox: {
     previous: "Anterior",
     next: "Siguiente",

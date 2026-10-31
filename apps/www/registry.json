@@ -1844,6 +1844,25 @@
       ]
     },
     {
+      "name": "section-dock",
+      "type": "registry:ui",
+      "title": "Section Dock",
+      "description": "A small ring that fills with the page's progress and opens into the page's sections and one action.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/untrusted",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/section-dock.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
