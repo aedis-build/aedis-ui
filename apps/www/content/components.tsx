@@ -115,6 +115,7 @@ import MarqueeDemo from "@/examples/marquee/demo";
 import MarqueeBackdrop from "@/examples/marquee/backdrop";
 import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
+import ScrollPathDemo from "@/examples/scroll-path/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3313,6 +3314,34 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "On the server, without JavaScript and under reduced motion every step is done and the line is full.",
       ],
       motion: "The line fills linearly with the scroll, and each node crossfades from a clock to a check in 200 ms as the line reaches it.",
+    },
+  },
+  {
+    name: "scroll-path",
+    title: "Scroll Path",
+    category: "Data display",
+    description: "A hand-drawn line that draws itself through a section as the reader scrolls, kept in a lane of its own.",
+    examples: [{ title: "Scroll Path", description: "Scroll the section: the line draws from entry 20% to exit 20%. Change its lane and its shape; the switch forces the JavaScript fallback.", file: "scroll-path/demo", component: ScrollPathDemo, align: "start" }],
+    usage: `import { ScrollPath } from "@/components/ui/scroll-path";
+
+<ScrollPath lane="left" laneWidth={0.3} d="wave">
+  <ServicesList />
+</ScrollPath>`,
+    props: [
+      { name: "d", type: '"wave" | "loop" | "script" | string', default: '"wave"', description: "A preset, or an SVG path in a 0–100 box on both axes, stretched to the lane." },
+      { name: "lane", type: '"left" | "right" | "full"', default: '"left"', description: "left and right give the line a column of its own beside the content; full runs it behind the content." },
+      { name: "laneWidth", type: "number", default: "0.4", description: "The lane's share of the width, for left and right." },
+      { name: "range", type: "ScrollRange", default: "entry 20% to exit 20%", description: "When it draws, as for scroll-motion." },
+      { name: "strokeWidth", type: "number", default: "2", description: "In pixels, whatever the lane's size." },
+      { name: "opacity", type: "number", default: "0.5", description: "Of the line." },
+    ],
+    security: { sinks: [], notes: ["The path is drawn as an SVG attribute by React, never parsed as markup. It draws with Draw from scroll-motion."] },
+    accessibility: {
+      notes: [
+        "The line is aria-hidden decoration. In a left or right lane it cannot cross the content; with lane full, a development build warns in the console when it crosses text.",
+        "Under reduced motion and without JavaScript the line is fully drawn.",
+      ],
+      motion: "The stroke draws linearly with the scroll.",
     },
   },
 ];

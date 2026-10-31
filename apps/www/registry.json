@@ -1827,6 +1827,23 @@
       ]
     },
     {
+      "name": "scroll-path",
+      "type": "registry:ui",
+      "title": "Scroll Path",
+      "description": "A hand-drawn line that draws itself through a section as the reader scrolls, kept in a lane of its own.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/scroll-path.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
