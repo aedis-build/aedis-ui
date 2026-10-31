@@ -221,6 +221,12 @@ describe("the scroll-progress primitive (#240)", () => {
     expect(scrollProgress({ top: 800, height: 400 }, 800, undefined, [72, 0])).toBe(0);
     expect(scrollProgress({ top: -400 + 72, height: 400 }, 800, undefined, [72, 0])).toBe(1);
     expect(scrollProgress({ top: 200, height: 2000 }, 800, { start: ["contain", 0], end: ["contain", 100] }, [100, 0])).toBe(0);
+    // calc() of %, svh and px, as a reading head writes it: 45svh + 14 px into cover, and 100% − 55svh.
+    expect(at(800 - 360 - 14, { start: ["cover", "calc(45svh + 14px)"], end: ["cover", "calc(45svh + 14px)"] })).toBe(1);
+    expect(at(800 - 360 - 15, { start: ["cover", "calc(45svh + 14px)"], end: ["cover", "calc(45svh + 14px)"] })).toBe(1);
+    expect(at(800 - 360 - 13, { start: ["cover", "calc(45svh + 14px)"], end: ["cover", "calc(45svh + 14px)"] })).toBe(0);
+    expect(at(440 - 400, { start: ["cover", "45svh"], end: ["cover", "calc(100% - 55svh)"] })).toBe(1);
+    expect(at(440 - 200, { start: ["cover", "45svh"], end: ["cover", "calc(100% - 55svh)"] })).toBe(0.5);
     // An empty range is a step.
     expect([at(0, { start: ["entry", 50], end: ["entry", 50] }), at(700, { start: ["entry", 50], end: ["entry", 50] })]).toEqual([1, 0]);
   });

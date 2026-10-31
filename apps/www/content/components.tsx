@@ -114,6 +114,7 @@ import ReasoningDemo from "@/examples/reasoning/demo";
 import MarqueeDemo from "@/examples/marquee/demo";
 import MarqueeBackdrop from "@/examples/marquee/backdrop";
 import ImageAccordionDemo from "@/examples/image-accordion/demo";
+import ScrollStepsDemo from "@/examples/scroll-steps/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3286,6 +3287,32 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "White text sits on a neutral scrim: over a white photograph it measures 5.7:1 or more (the media-scrim token, 60% black, and 80% at the bottom of the open panel, where the text sits).",
       ],
       motion: "The width (the height in the stack) eases over 560 ms (duration-spring, ease-cinematic), and changing panels mid-way continues from where it is. The text fades in and lifts 8 px after 150 ms, at a fixed width so it never re-wraps; the vertical label fades out. Under reduced motion it opens at once.",
+    },
+  },
+  {
+    name: "scroll-steps",
+    title: "Scroll Steps",
+    category: "Data display",
+    description: "A list of steps on a line that fills as the reader scrolls; each node turns done when the line reaches it.",
+    examples: [{ title: "Scroll Steps", description: "Scroll: the line's end and the nodes answer to one reading head at 55% of the screen. The switch forces the JavaScript fallback.", file: "scroll-steps/demo", component: ScrollStepsDemo, align: "start" }],
+    usage: `import { ScrollSteps } from "@/components/ui/scroll-steps";
+
+<ScrollSteps
+  items={[{ meta: "Weeks 1–2", title: "Listen", text: "Two weeks with the team." }]}
+  end={{ title: "How to hire us", children: <HiringModels /> }}
+/>`,
+    props: [
+      { name: "items", type: "{ title; meta?; text?; icon? }[]", description: "The steps, in order. icon replaces the clock and check." },
+      { name: "head", type: "number", default: "0.55", description: "The reading point, as a share of the viewport height from the top." },
+      { name: "end", type: "{ title; icon?; children? }", description: "A closing node and its content, after the steps." },
+    ],
+    security: { sinks: [], notes: ["Renders its nodes as React children. The line runs on scroll-motion (a ViewTimeline, or one shared requestAnimationFrame loop); nothing is injected."] },
+    accessibility: {
+      notes: [
+        "An ordered list: order and content are plain markup. Each step's data-state (pending, done) is visual only and is not announced; the line and icons are aria-hidden.",
+        "On the server, without JavaScript and under reduced motion every step is done and the line is full.",
+      ],
+      motion: "The line fills linearly with the scroll, and each node crossfades from a clock to a check in 200 ms as the line reaches it.",
     },
   },
 ];
