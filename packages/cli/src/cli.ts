@@ -14,7 +14,7 @@ import { themeImport } from "./theme";
 import { planFiles } from "./transform";
 import type { SignatureCheck } from "./verify";
 
-export const VERSION = "0.6.0";
+export const VERSION = "0.7.0";
 
 /** What `aedis init` installs: config, theme tokens, cn and the security primitives. */
 export const INIT_ITEMS = ["theme", "utils", "untrusted", "api", "security-headers"];
