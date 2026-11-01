@@ -53,6 +53,7 @@ import ShareCardDemo from "@/examples/share-card/demo";
 import SheetDemo from "@/examples/sheet/demo";
 import SidebarDemo from "@/examples/sidebar/demo";
 import SiteFooterDemo from "@/examples/site-footer/demo";
+import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
 import SkeletonDemo from "@/examples/skeleton/demo";
 import SourcesDemo from "@/examples/sources/demo";
@@ -1090,8 +1091,11 @@ import { SiteHeader } from "@/components/ui/site-header";
     name: "site-footer",
     title: "Site Footer",
     category: "Navigation",
-    description: "The bottom of a site: links and notes such as the license.",
-    examples: [{ title: "Site Footer", file: "site-footer/demo", component: SiteFooterDemo }],
+    description: "The bottom of a site: links, notes, and optionally a closing statement, credits, a backdrop and a curtain reveal.",
+    examples: [
+      { title: "Site Footer", file: "site-footer/demo", component: SiteFooterDemo },
+      { title: "Curtain reveal", description: "Scroll inside the box: the page lifts off the footer, which waits behind it with a sign of client names, a closing line and the credits.", file: "site-footer/reveal", component: SiteFooterReveal },
+    ],
     usage: `import { SiteFooter } from "@/components/ui/site-footer";
 
 <SiteFooter links={[{ label: "Privacy", href: "/privacy" }]}>© Acme</SiteFooter>`,
@@ -1099,7 +1103,11 @@ import { SiteHeader } from "@/components/ui/site-header";
       { name: "links", type: "{ label: string; href: string }[]", description: "Rendered with Link: safe protocols only, external marker and noopener." },
       { name: "children", type: "ReactNode", description: "Notes, e.g. the license line." },
       { name: "labels", type: "Partial<SiteFooterLabels>", description: "label: accessible name of the footer navigation." },
-      { name: "className", type: "string", description: "Classes for the footer element." },
+      { name: "className", type: "string", description: "Classes for the footer element, e.g. min-h-svh for a curtain." },
+      { name: "reveal", type: "boolean", default: "false", description: "Curtain mode: stuck to the bottom behind the page, uncovered as it scrolls off. The element before it must be position relative, z-index above 0 and opaque; a development build warns otherwise. A normal footer under reduced motion or when taller than its viewport." },
+      { name: "backdrop", type: "ReactNode", description: "Drawn behind the content, aria-hidden: a Marquee backdrop, a masked wordmark." },
+      { name: "closing", type: "ReactNode", description: "A closing statement and its action, above the links." },
+      { name: "credits", type: "{ left?; right?; center? }", description: "The credit row: copyright, image credit, and a maker's line centred below." },
     ],
     security: {
       sinks: ["DOM"],
@@ -1113,7 +1121,12 @@ import { SiteHeader } from "@/components/ui/site-header";
       ],
     },
     accessibility: {
-      notes: ["A contentinfo landmark with its links in a nav named by the Locale provider; links go through safeUrl like every Aedis link."],
+      notes: [
+        "A contentinfo landmark with its links in a nav named by the Locale provider; links go through safeUrl like every Aedis link.",
+        "In curtain mode the footer stays after the page in the DOM: Tab reaches its links while it is still covered, and the page scrolls to them.",
+        "The backdrop is always aria-hidden decoration.",
+      ],
+      motion: "The curtain is the page's own scroll: nothing animates. Under reduced motion it is a normal footer.",
     },
   },
   {

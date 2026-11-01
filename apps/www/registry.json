@@ -1037,6 +1037,7 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
+        "@aedis/use-reduced-motion",
         "@aedis/locale",
         "@aedis/link"
       ],
