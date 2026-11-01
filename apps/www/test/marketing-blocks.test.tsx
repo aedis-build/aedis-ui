@@ -51,3 +51,20 @@ describe("marketing blocks (#199)", () => {
     expect(await violations(container)).toEqual([]);
   });
 });
+
+describe("hero highlight (#256)", () => {
+  it("ends the h1 with a highlighted line that is part of its name", async () => {
+    const { container } = render(<Hero headline="Engineering for fintechs and startups," highlight="from zero to product." />);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1).toHaveAccessibleName("Engineering for fintechs and startups, from zero to product.");
+    const span = h1.querySelector("[data-slot=hero-highlight]")!;
+    expect(span).toHaveTextContent("from zero to product.");
+    expect(span).toHaveClass("block", "text-highlight");
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(await violations(container)).toEqual([]);
+    render(<Hero headline="Plain" />);
+    expect(screen.getByRole("heading", { name: "Plain" }).querySelector("[data-slot=hero-highlight]")).toBeNull();
+  });
+
+});
+

@@ -56,3 +56,18 @@ test("every marketing block page fits 390 px in dark, and the hero stacks its me
   const media = (await page.locator("[data-slot=hero] [data-slot=video]").boundingBox())!;
   expect(media.y).toBeGreaterThan(h1.y + h1.height);
 });
+
+// #256: a highlighted end of the headline, part of the one h1.
+test("the hero has one h1 named by the whole sentence, its last line in the highlight colour", async ({ page }) => {
+  await page.goto("/blocks/view/hero");
+  const h1 = page.getByRole("heading", { level: 1 });
+  await expect(h1).toHaveCount(1);
+  await expect(h1).toHaveAccessibleName("Brands that people remember, from the first mark to the last film.");
+  const highlight = h1.locator("[data-slot=hero-highlight]");
+  await expect(highlight).toHaveText("from the first mark to the last film.");
+  const [colour, token, display] = await highlight.evaluate((el) => [getComputedStyle(el).color, getComputedStyle(el).getPropertyValue("--highlight").trim(), getComputedStyle(el).display]);
+  expect(token).not.toBe("");
+  expect(colour).not.toBe(await h1.evaluate((el) => getComputedStyle(el).color));
+  expect(display).toBe("block");
+});
+

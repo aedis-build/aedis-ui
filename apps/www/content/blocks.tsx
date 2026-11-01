@@ -168,7 +168,8 @@ import { Slideshow } from "@/components/ui/carousel";
 
 <Hero
   eyebrow="RLFN Studio"
-  headline="Brands that people remember"
+  headline="Brands that people remember,"
+  highlight="from the first mark to the last film."
   lead="Identity, websites and film for small companies."
   actions={[{ label: "See the work", href: "/work" }, { label: "Start a project", href: "/contact", variant: "outline" }]}
   media={<Slideshow label="Selected work" className="h-full">{frames}</Slideshow>}
@@ -183,7 +184,11 @@ import { Slideshow } from "@/components/ui/carousel";
     ],
     backend: "keep the copy in your CMS as text; the hero renders it as text.",
     accessibility: {
-      notes: ["The headline is the page's h1 and the copy is in the HTML, readable without JavaScript.", "The media slot keeps the rules of what goes in it: a background Video has its pause button, a Slideshow its own."],
+      notes: [
+        "The headline is the page's h1 and the copy is in the HTML, readable without JavaScript.",
+        "highlight ends the headline on its own line in the highlight token (4.5:1 on surface and background in every theme). It is part of the h1's text, so its accessible name is the whole sentence.",
+        "The media slot keeps the rules of what goes in it: a background Video has its pause button, a Slideshow its own.",
+      ],
       motion: "Only the media moves, and only as its own rules allow.",
     },
   },

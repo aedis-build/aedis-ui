@@ -24,6 +24,8 @@ export function MarketingActions({ actions, className }: { actions: MarketingAct
 export type HeroProps = {
   eyebrow?: string;
   headline: string;
+  /** The end of the headline, on its own line in the theme's highlight colour. Part of the h1's text and name. */
+  highlight?: string | undefined;
   lead?: string;
   actions?: MarketingAction[];
   /** e.g. a Slideshow or a background Video; it fills its side of the hero. */
@@ -32,12 +34,22 @@ export type HeroProps = {
 };
 
 /** The top of a marketing page: eyebrow, headline, lead and actions as real HTML, with an optional media slot. */
-export function Hero({ eyebrow, headline, lead, actions = [], media, className }: HeroProps) {
+export function Hero({ eyebrow, headline, highlight, lead, actions = [], media, className }: HeroProps) {
   return (
     <section data-slot="hero" className={cn("grid items-center gap-8 px-6 py-12 md:grid-cols-2 md:px-10", className)}>
       <div className="flex flex-col gap-4">
         {eyebrow ? <p className="text-footnote font-semibold tracking-wide text-muted-foreground uppercase">{eyebrow}</p> : null}
-        <h1 className="text-display text-balance">{headline}</h1>
+        <h1 className="text-display text-balance">
+          {headline}
+          {highlight ? (
+            <>
+              {" "}
+              <span data-slot="hero-highlight" className="block text-highlight">
+                {highlight}
+              </span>
+            </>
+          ) : null}
+        </h1>
         {lead ? <p className="text-body text-muted-foreground">{lead}</p> : null}
         <MarketingActions actions={actions} className="pt-2" />
       </div>
