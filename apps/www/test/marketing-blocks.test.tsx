@@ -52,7 +52,7 @@ describe("marketing blocks (#199)", () => {
   });
 });
 
-describe("hero highlight (#256)", () => {
+describe("hero highlight and logo cloud row (#256, #258)", () => {
   it("ends the h1 with a highlighted line that is part of its name", async () => {
     const { container } = render(<Hero headline="Engineering for fintechs and startups," highlight="from zero to product." />);
     const h1 = screen.getByRole("heading", { level: 1 });
@@ -66,5 +66,24 @@ describe("hero highlight (#256)", () => {
     expect(screen.getByRole("heading", { name: "Plain" }).querySelector("[data-slot=hero-highlight]")).toBeNull();
   });
 
+  it("names a list with no title by its label or the locale, and lays out a row of dividers", async () => {
+    const clients = [{ name: "Next.js" }, { name: "Postgres", logo: "/pg.svg", width: 90, height: 30 }];
+    const { container, rerender } = render(<LogoCloud variant="row" clients={clients} />);
+    expect(screen.getByRole("region", { name: "Clients" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading")).toBeNull();
+    const list = container.querySelector("ul")!;
+    expect(list).toHaveAttribute("data-variant", "row");
+    expect(list.className).toContain("[&>li]:border-l");
+    expect(list.className).toContain("-ml-px");
+    expect(list.className).toContain("[&>li:first-child]:border-l-0");
+    expect(list.parentElement).toHaveClass("overflow-hidden");
+    expect(screen.getByRole("img", { name: "Postgres" })).toHaveAttribute("width", "90");
+    expect(await violations(container)).toEqual([]);
+    rerender(<LogoCloud variant="row" label="Stack" clients={clients} />);
+    expect(screen.getByRole("region", { name: "Stack" })).toBeInTheDocument();
+    rerender(<LogoCloud title="Trusted by" clients={clients} />);
+    expect(screen.getByRole("region", { name: "Trusted by" })).toBeInTheDocument();
+    expect(container.querySelector("ul")).toHaveAttribute("data-variant", "grid");
+  });
 });
 

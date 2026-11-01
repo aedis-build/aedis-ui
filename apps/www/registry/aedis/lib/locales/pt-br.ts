@@ -164,6 +164,9 @@ export const ptBR: Messages = {
     pause: "Pausar a faixa em movimento",
     play: "Retomar a faixa em movimento",
   },
+  logoCloud: {
+    label: "Clientes",
+  },
   sectionDock: {
     label: "Seções da página",
     ring: "Seções da página, agora: {section}",

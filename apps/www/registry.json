@@ -2010,6 +2010,7 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
+        "@aedis/locale",
         "@aedis/link"
       ],
       "files": [

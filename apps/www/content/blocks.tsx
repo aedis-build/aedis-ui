@@ -202,7 +202,8 @@ import { Slideshow } from "@/components/ui/carousel";
     demoFile: "blocks/logo-cloud",
     usage: `import { LogoCloud } from "@/components/ui/logo-cloud";
 
-<LogoCloud title="Trusted by" clients={[{ name: "Bakery", logo: "/logos/bakery.svg" }, { name: "Wine bar" }]} />`,
+<LogoCloud title="Trusted by" clients={[{ name: "Bakery", logo: "/logos/bakery.svg", width: 96, height: 32 }, { name: "Wine bar" }]} />
+<LogoCloud variant="row" label="Stack" clients={stack} />`,
     defenses: [
       {
         title: "Names stay text, links stay safe",
@@ -212,7 +213,13 @@ import { Slideshow } from "@/components/ui/carousel";
       },
     ],
     backend: "serve logos from this origin or one the CSP img-src allows.",
-    accessibility: { notes: ["A list in a section named by its heading; each logo's alt is the client's name."] },
+    accessibility: {
+      notes: [
+        "A list in a section named by its heading, or by label (the Locale provider's \"Clients\" by default) when there is no title. Each logo's alt is the client's name.",
+        "variant=\"row\" splits the logos with hairline dividers drawn as borders, so they are never read. A wrapped line never starts with a divider and none follows the last logo.",
+        "Give each logo its width and height so the row does not shift while the images load.",
+      ],
+    },
   },
   {
     name: "cta-section",
