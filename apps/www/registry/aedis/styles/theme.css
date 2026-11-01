@@ -103,6 +103,7 @@
   --color-on-media: var(--on-media);
   --color-media-scrim: var(--media-scrim);
   --color-media-scrim-strong: var(--media-scrim-strong);
+  --color-media-mask: var(--media-mask);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -147,6 +148,7 @@
   --on-media: #ffffff;
   --media-scrim: rgba(0,0,0,0.6);
   --media-scrim-strong: rgba(0,0,0,0.8);
+  --media-mask: #000000;
   --chart-1: #2457d6;
   --chart-2: #0f8577;
   --chart-3: #b25e09;
@@ -204,6 +206,7 @@
     --on-media: #ffffff;
     --media-scrim: rgba(0,0,0,0.6);
     --media-scrim-strong: rgba(0,0,0,0.8);
+    --media-mask: #000000;
     --chart-1: #7aa2ff;
     --chart-2: #3dd6c4;
     --chart-3: #f5a524;
@@ -249,6 +252,7 @@
   --on-media: #ffffff;
   --media-scrim: rgba(0,0,0,0.6);
   --media-scrim-strong: rgba(0,0,0,0.8);
+  --media-mask: #000000;
   --chart-1: #7aa2ff;
   --chart-2: #3dd6c4;
   --chart-3: #f5a524;
@@ -301,6 +305,7 @@
   --on-media: #ffffff;
   --media-scrim: rgba(0,0,0,0.6);
   --media-scrim-strong: rgba(0,0,0,0.8);
+  --media-mask: #000000;
   --chart-1: #1a2740;
   --chart-2: #8a6a1f;
   --chart-3: #2f6f73;

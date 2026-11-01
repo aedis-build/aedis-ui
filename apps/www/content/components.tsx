@@ -117,6 +117,8 @@ import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
 import ScrollPathDemo from "@/examples/scroll-path/demo";
 import SectionDockDemo from "@/examples/section-dock/demo";
+import TextMaskDemo from "@/examples/text-mask/demo";
+import TextMaskFly from "@/examples/text-mask/fly";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3384,6 +3386,34 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Closed, the panel is not in the page at all. On a phone the ring is 44 px in the corner and the panel is at most the screen width minus 24 px.",
       ],
       motion: "The ring fills with the page's progress. The panel pops in (opacity and a 95% scale, 200 ms); under reduced motion it appears at once.",
+    },
+  },
+  {
+    name: "text-mask",
+    title: "Text Mask",
+    category: "Data display",
+    description: "A word set large with a picture or a film inside its letters, and an optional flight through one glyph.",
+    examples: [
+      { title: "Text Mask", description: "A picture and a film, seen only through the letters.", file: "text-mask/demo", component: TextMaskDemo },
+      { title: "Fly through a glyph", description: "Scroll: the camera flies through the stem of the L until the picture fills the screen.", file: "text-mask/fly", component: TextMaskFly, align: "start" },
+    ],
+    usage: `import { TextMask } from "@/components/ui/text-mask";
+
+<TextMask text="RLFN" label="RLFN Studio" video="/brand.webm" poster="/brand.jpg" />
+<TextMask text="RLFN" label="RLFN Studio" image="/brand.jpg" fly={{ glyph: 1, origin: [0.2, 0.5] }} />`,
+    props: [
+      { name: "text", type: "string", description: "The word drawn with the media inside it. Decorative: aria-hidden." },
+      { name: "label", type: "string", description: "Required: the accessible name, rendered as real text for screen readers." },
+      { name: "image / video / poster", type: "string", description: "A picture, or a muted looping film and its poster." },
+      { name: "fly", type: "{ glyph: number; origin?: [x, y]; track?: number }", description: "Flies through glyph number `glyph`, aiming at `origin` in the glyph's own box (0–1), over `track` viewport heights of a sticky runway (default 2)." },
+    ],
+    security: { sinks: [], notes: ["Media by URL from origins the CSP img-src and media-src allow; the text is rendered as text. The flight is Web Animations keyframes on the scroll primitive; nothing is injected."] },
+    accessibility: {
+      notes: [
+        "The masked word, the media and the mask are aria-hidden; screen readers read `label` once. Contrast is not measured on the masked word, so the page's real heading should carry the name too.",
+        "Under reduced motion there is no flight and no runway, and a film stays on its poster.",
+      ],
+      motion: "The word scales around a point inside the glyph, measured with a Range so it stays inside the stroke at any width, and moves it to the centre: 1.3× at 15% of the runway, 2.2× at 40%, 7× at 70%, 34× at the end. The mask fades over the last third.",
     },
   },
 ];

@@ -1863,6 +1863,24 @@
       ]
     },
     {
+      "name": "text-mask",
+      "type": "registry:ui",
+      "title": "Text Mask",
+      "description": "A word set large with a picture or a film inside its letters, and an optional flight through one glyph.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/text-mask.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
