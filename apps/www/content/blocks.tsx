@@ -168,7 +168,8 @@ import { Slideshow } from "@/components/ui/carousel";
 
 <Hero
   eyebrow="RLFN Studio"
-  headline="Brands that people remember"
+  headline="Brands that people remember,"
+  highlight="from the first mark to the last film."
   lead="Identity, websites and film for small companies."
   actions={[{ label: "See the work", href: "/work" }, { label: "Start a project", href: "/contact", variant: "outline" }]}
   media={<Slideshow label="Selected work" className="h-full">{frames}</Slideshow>}
@@ -183,7 +184,11 @@ import { Slideshow } from "@/components/ui/carousel";
     ],
     backend: "keep the copy in your CMS as text; the hero renders it as text.",
     accessibility: {
-      notes: ["The headline is the page's h1 and the copy is in the HTML, readable without JavaScript.", "The media slot keeps the rules of what goes in it: a background Video has its pause button, a Slideshow its own."],
+      notes: [
+        "The headline is the page's h1 and the copy is in the HTML, readable without JavaScript.",
+        "highlight ends the headline on its own line in the highlight token (4.5:1 on surface and background in every theme). It is part of the h1's text, so its accessible name is the whole sentence.",
+        "The media slot keeps the rules of what goes in it: a background Video has its pause button, a Slideshow its own.",
+      ],
       motion: "Only the media moves, and only as its own rules allow.",
     },
   },
@@ -197,7 +202,8 @@ import { Slideshow } from "@/components/ui/carousel";
     demoFile: "blocks/logo-cloud",
     usage: `import { LogoCloud } from "@/components/ui/logo-cloud";
 
-<LogoCloud title="Trusted by" clients={[{ name: "Bakery", logo: "/logos/bakery.svg" }, { name: "Wine bar" }]} />`,
+<LogoCloud title="Trusted by" clients={[{ name: "Bakery", logo: "/logos/bakery.svg", width: 96, height: 32 }, { name: "Wine bar" }]} />
+<LogoCloud variant="row" label="Stack" clients={stack} />`,
     defenses: [
       {
         title: "Names stay text, links stay safe",
@@ -207,7 +213,13 @@ import { Slideshow } from "@/components/ui/carousel";
       },
     ],
     backend: "serve logos from this origin or one the CSP img-src allows.",
-    accessibility: { notes: ["A list in a section named by its heading; each logo's alt is the client's name."] },
+    accessibility: {
+      notes: [
+        "A list in a section named by its heading, or by label (the Locale provider's \"Clients\" by default) when there is no title. Each logo's alt is the client's name.",
+        "variant=\"row\" splits the logos with hairline dividers drawn as borders, so they are never read. A wrapped line never starts with a divider and none follows the last logo.",
+        "Give each logo its width and height so the row does not shift while the images load.",
+      ],
+    },
   },
   {
     name: "cta-section",

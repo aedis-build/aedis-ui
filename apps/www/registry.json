@@ -1037,6 +1037,7 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
+        "@aedis/use-reduced-motion",
         "@aedis/locale",
         "@aedis/link"
       ],
@@ -1863,6 +1864,41 @@
       ]
     },
     {
+      "name": "text-mask",
+      "type": "registry:ui",
+      "title": "Text Mask",
+      "description": "A word set large with a picture or a film inside its letters, and an optional flight through one glyph.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion",
+        "@aedis/scroll-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/text-mask.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "image-stream",
+      "type": "registry:ui",
+      "title": "Image Stream",
+      "description": "A corridor of pictures rushing toward the viewer on two rails from a vanishing point.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/image-stream.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
@@ -1974,6 +2010,7 @@
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
+        "@aedis/locale",
         "@aedis/link"
       ],
       "files": [

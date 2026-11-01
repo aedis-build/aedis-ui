@@ -56,3 +56,42 @@ test("every marketing block page fits 390 px in dark, and the hero stacks its me
   const media = (await page.locator("[data-slot=hero] [data-slot=video]").boundingBox())!;
   expect(media.y).toBeGreaterThan(h1.y + h1.height);
 });
+
+// #256: a highlighted end of the headline, part of the one h1.
+test("the hero has one h1 named by the whole sentence, its last line in the highlight colour", async ({ page }) => {
+  await page.goto("/blocks/view/hero");
+  const h1 = page.getByRole("heading", { level: 1 });
+  await expect(h1).toHaveCount(1);
+  await expect(h1).toHaveAccessibleName("Brands that people remember, from the first mark to the last film.");
+  const highlight = h1.locator("[data-slot=hero-highlight]");
+  await expect(highlight).toHaveText("from the first mark to the last film.");
+  const [colour, token, display] = await highlight.evaluate((el) => [getComputedStyle(el).color, getComputedStyle(el).getPropertyValue("--highlight").trim(), getComputedStyle(el).display]);
+  expect(token).not.toBe("");
+  expect(colour).not.toBe(await h1.evaluate((el) => getComputedStyle(el).color));
+  expect(display).toBe("block");
+});
+
+// #258: a row of logos with no title, split by hairlines that never open or close a line.
+for (const width of [1280, 390]) {
+  test(`at ${width} px the logo row is named without a title, and no line starts or ends with a divider`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/blocks/view/logo-cloud");
+    const row = page.getByRole("region", { name: "Stack" });
+    await expect(row).toBeVisible();
+    await expect(row.getByRole("heading")).toHaveCount(0);
+    const lines = await row.locator("ul").evaluate((ul) => {
+      const clip = ul.parentElement!.getBoundingClientRect();
+      const items = [...ul.children].map((li) => ({ r: li.getBoundingClientRect(), border: getComputedStyle(li).borderLeftWidth, right: getComputedStyle(li).borderRightWidth }));
+      const byLine = new Map<number, typeof items>();
+      for (const it of items) byLine.set(Math.round(it.r.top), [...(byLine.get(Math.round(it.r.top)) ?? []), it]);
+      // A line opens with no divider: the first logo has none, and on a wrapped line it sits past the clipping box's edge.
+      return [...byLine.values()].map((line) => ({ firstClipped: line[0]!.border === "0px" || line[0]!.r.left < clip.left, lastRight: line.at(-1)!.right, count: line.length }));
+    });
+    if (width === 390) expect(lines.length).toBeGreaterThan(1);
+    for (const l of lines) {
+      expect(l.firstClipped).toBe(true);
+      expect(l.lastRight).toBe("0px");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  });
+}
