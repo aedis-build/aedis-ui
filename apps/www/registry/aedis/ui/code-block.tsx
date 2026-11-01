@@ -18,6 +18,10 @@ export type CodeBlockProps = {
   lang?: string | undefined;
   /** Shown above the code, e.g. a file name. */
   title?: string;
+  /** A gutter of line numbers, kept with each line. Hidden from screen readers and never copied. */
+  lineNumbers?: boolean | undefined;
+  /** window: a small editor window, with three decorative dots and the title as the file name. */
+  chrome?: "none" | "window" | undefined;
   /** Quickstart effect: lines are revealed one by one when the block scrolls into view, once. */
   animated?: boolean;
   /** Time between two lines when animated, in ms. */
@@ -46,7 +50,7 @@ function Visible({ text, hidden }: { text: string; hidden: string }) {
 }
 
 /** Code with token highlighting, a copy button and an optional line-by-line reveal. */
-function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 120, labels, className }: CodeBlockProps) {
+function CodeBlock({ code, lang = "text", title, lineNumbers = false, chrome = "none", animated = false, lineDelay = 120, labels, className }: CodeBlockProps) {
   const l = useMessages("codeBlock", labels);
   const reduced = useReducedMotion();
   const [tokens, setTokens] = React.useState<CodeToken[][] | null>(null);
@@ -101,7 +105,18 @@ function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 1
 
   return (
     <div ref={root} data-slot="code-block" className={cn("group relative overflow-hidden rounded-md border border-hairline bg-(--syntax-background) text-(--syntax-foreground) shadow-elevation-1", className)}>
-      {title ? <div className="border-b border-hairline px-4 py-2 font-mono text-footnote text-muted-foreground">{title}</div> : null}
+      {chrome === "window" ? (
+        <div data-slot="code-block-chrome" className="flex h-11 items-center gap-3 border-b border-hairline pr-12 pl-4 font-mono text-footnote text-muted-foreground">
+          <span aria-hidden="true" data-slot="code-block-dots" className="flex gap-1.5">
+            <span className="size-3 rounded-full bg-destructive" />
+            <span className="size-3 rounded-full bg-warning" />
+            <span className="size-3 rounded-full bg-success" />
+          </span>
+          {title ? <span className="truncate">{title}</span> : null}
+        </div>
+      ) : title ? (
+        <div className="border-b border-hairline px-4 py-2 font-mono text-footnote text-muted-foreground">{title}</div>
+      ) : null}
       <Button variant="ghost" size="icon" aria-label={l.copy} onClick={onCopy} className="absolute top-1.5 right-1.5 size-8 text-muted-foreground">
         {copy === "copied" ? (
           <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3.5 8.5l3 3 6-7" /></svg>
@@ -110,7 +125,7 @@ function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 1
         )}
       </Button>
       <span role="status" className="sr-only">{copy === "copied" ? l.copied : copy === "failed" ? l.copyFailed : ""}</span>
-      <pre className="overflow-x-auto py-3 pl-4 font-mono text-code">
+      <pre className={cn("overflow-x-auto py-3 font-mono text-code", lineNumbers ? "pl-0" : "pl-4")}>
         {/* The room for the copy button is on the code, not the pre: a scroller's end padding is lost when it overflows. */}
         <code className="block w-max min-w-full pr-12">
           {lines.map((line, i) => {
@@ -122,6 +137,12 @@ function CodeBlock({ code, lang = "text", title, animated = false, lineDelay = 1
                 data-shown={shown || undefined}
                 className={cn("block min-h-[1lh]", animated && "reveal-line")}
               >
+                {/* Sticky, so it stays put while a long line scrolls; unselectable, so a selection copies only code. */}
+                {lineNumbers ? (
+                  <span aria-hidden="true" data-slot="code-block-line-number" className="sticky left-0 mr-4 inline-block w-[4ch] bg-(--syntax-background) pr-2 text-right text-muted-foreground select-none">
+                    {i + 1}
+                  </span>
+                ) : null}
                 {tokens?.[i]
                   ? tokens[i].map((t, j) => (
                       <span key={j} style={{ color: t.color }}>

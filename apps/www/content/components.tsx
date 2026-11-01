@@ -22,6 +22,7 @@ import ChartDemo from "@/examples/chart/demo";
 import ChatDemo from "@/examples/chat/demo";
 import CheckboxDemo from "@/examples/checkbox/demo";
 import CodeBlockDemo from "@/examples/code-block/demo";
+import CodeBlockWindow from "@/examples/code-block/window";
 import CollapsibleDemo from "@/examples/collapsible/demo";
 import CommandDemo from "@/examples/command/demo";
 import DialogDemo from "@/examples/dialog/demo";
@@ -716,11 +717,16 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     title: "Code Block",
     category: "Data display",
     description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
-    examples: [{ title: "Code Block", file: "code-block/demo", component: CodeBlockDemo }],
+    examples: [
+      { title: "Code Block", file: "code-block/demo", component: CodeBlockDemo },
+      { title: "Window and line numbers", description: "Together, and each on its own: the copy button still copies only the code.", file: "code-block/window", component: CodeBlockWindow },
+    ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
 <CodeBlock lang="bash" code="npx @aedis/cli@0.8.0 add button" />`,
     props: [
+      { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
+      { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
       { name: "code", type: "string", description: "The code, rendered as text. Copy copies exactly this." },
       { name: "lang", type: "string", default: '"text"', description: "Any language shiki bundles; unknown ones are plain text." },
       { name: "title", type: "string", description: "Shown above the code, e.g. a file name." },

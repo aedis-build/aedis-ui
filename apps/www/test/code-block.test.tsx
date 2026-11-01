@@ -34,6 +34,37 @@ afterEach(() => {
 const lines = (c: HTMLElement) => [...c.querySelectorAll("[data-slot=code-block-line]")];
 
 describe("CodeBlock", () => {
+  it("numbers each line in a hidden, unselectable gutter and still copies only the code (#257)", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const code = "const a = 1;\nconst b = 2;\nexport { a, b };";
+    const { container } = render(<CodeBlock code={code} lineNumbers />);
+    const numbers = [...container.querySelectorAll("[data-slot=code-block-line-number]")];
+    expect(numbers.map((n) => n.textContent)).toEqual(["1", "2", "3"]);
+    expect(numbers.every((n) => n.getAttribute("aria-hidden") === "true" && n.className.includes("select-none") && n.className.includes("sticky"))).toBe(true);
+    // Each number sits in its own line, so the reveal shows and hides them together.
+    expect(numbers[1]!.closest("[data-slot=code-block-line]")).toHaveTextContent("2const b = 2;");
+    await user.click(screen.getByRole("button", { name: "Copy code" }));
+    expect(writeText).toHaveBeenCalledWith(code);
+    expect(await violations(container)).toEqual([]);
+  }, 15_000);
+
+  it("draws a window bar with hidden dots and the title as the file name, and keeps the copy button (#257)", async () => {
+    const { container, rerender } = render(<CodeBlock code="pnpm test" title="terminal" chrome="window" />);
+    const bar = container.querySelector("[data-slot=code-block-chrome]")!;
+    expect(bar).toHaveTextContent("terminal");
+    expect(bar.querySelector("[data-slot=code-block-dots]")).toHaveAttribute("aria-hidden", "true");
+    expect(bar.querySelectorAll("[data-slot=code-block-dots] > span")).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "Copy code" })).toBeInTheDocument();
+    expect(await violations(container)).toEqual([]);
+    rerender(<CodeBlock code="pnpm test" chrome="window" />);
+    expect(container.querySelector("[data-slot=code-block-chrome]")!.textContent).toBe("");
+    rerender(<CodeBlock code="pnpm test" title="terminal" />);
+    expect(container.querySelector("[data-slot=code-block-chrome]")).toBeNull();
+    expect(container).toHaveTextContent("terminal");
+  });
+
   it("copies exactly the original code on click and announces it", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
