@@ -1881,6 +1881,23 @@
       ]
     },
     {
+      "name": "image-stream",
+      "type": "registry:ui",
+      "title": "Image Stream",
+      "description": "A corridor of pictures rushing toward the viewer on two rails from a vanishing point.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/use-reduced-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/image-stream.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",

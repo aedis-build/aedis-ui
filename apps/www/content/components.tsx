@@ -119,6 +119,7 @@ import ScrollPathDemo from "@/examples/scroll-path/demo";
 import SectionDockDemo from "@/examples/section-dock/demo";
 import TextMaskDemo from "@/examples/text-mask/demo";
 import TextMaskFly from "@/examples/text-mask/fly";
+import ImageStreamDemo from "@/examples/image-stream/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3414,6 +3415,33 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Under reduced motion there is no flight and no runway, and a film stays on its poster.",
       ],
       motion: "The word scales around a point inside the glyph, measured with a Range so it stays inside the stroke at any width, and moves it to the centre: 1.3× at 15% of the runway, 2.2× at 40%, 7× at 70%, 34× at the end. The mask fades over the last third.",
+    },
+  },
+  {
+    name: "image-stream",
+    title: "Image Stream",
+    category: "Data display",
+    description: "A corridor of pictures rushing toward the viewer on two rails from a vanishing point.",
+    examples: [{ title: "Image Stream", description: "The path is live: change how the rails open, how far they reach, the size of a card at exit and its turn.", file: "image-stream/demo", component: ImageStreamDemo }],
+    usage: `import { ImageStream } from "@/components/ui/image-stream";
+
+<ImageStream images={work} centre={<video src="/brand.webm" muted loop autoPlay playsInline />} />`,
+    props: [
+      { name: "images", type: "string[]", description: "The pictures, used in turn on both rails. Decorative: empty alt." },
+      { name: "cards", type: "number", default: "7", description: "Cards on each rail." },
+      { name: "speed", type: "number", default: "2.4", description: "Seconds between two cards." },
+      { name: "axis", type: "number", default: "50", description: "The vanishing point's height, in % of the stream." },
+      { name: "path", type: "Partial<StreamPath>", description: "perspective, cardWidth, cardHeight, birthHeight, exitHeight, railBirth, railExit, fan, turnBirth, turnExit, stops. Lengths in cqw." },
+      { name: "centre", type: "ReactNode", description: "A still or a film at the vanishing point." },
+      { name: "children", type: "ReactNode", description: "Drawn above the stream." },
+    ],
+    security: { sinks: [], notes: ["The keyframes are generated in JavaScript and played by the Web Animations API, so no <style> element is added and the strict CSP needs no 'unsafe-inline' or nonce. Pictures load lazily from origins img-src allows."] },
+    accessibility: {
+      notes: [
+        "The corridor is aria-hidden and its pictures have empty alt: the work they show must live elsewhere on the page.",
+        "Every card starts mid-flight; that same mid-flight still is what the page shows without JavaScript and under reduced motion. It never collapses onto the axis.",
+      ],
+      motion: "Each card takes cards × speed seconds to fly from the vanishing point out of the frame, its height growing geometrically. Linear, endless, and paused while the stream is off screen.",
     },
   },
 ];
