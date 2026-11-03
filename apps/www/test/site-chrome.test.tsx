@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { LocaleProvider } from "@/registry/aedis/lib/locale";
@@ -130,5 +130,100 @@ describe("SiteFooter", () => {
     );
     expect(screen.getByRole("navigation", { name: "Pie de página" })).toBeInTheDocument();
     expect(await violations(container)).toEqual([]);
+  });
+});
+
+describe("SiteFooter curtain, backdrop, closing and credits (#247)", () => {
+  function reducedMotion(on: boolean) {
+    window.matchMedia = ((q: string) => ({ matches: on && q.includes("reduce"), addEventListener() {}, removeEventListener() {} })) as unknown as typeof window.matchMedia;
+  }
+  afterEach(() => {
+    reducedMotion(false);
+    vi.restoreAllMocks();
+  });
+
+  function Rich({ reveal = false }: { reveal?: boolean }) {
+    return (
+      <div>
+        <main className="relative z-10 bg-surface">Page</main>
+        <SiteFooter
+          reveal={reveal}
+          links={[{ label: "Work", href: "/work" }]}
+          backdrop={<p>RLFN RLFN RLFN</p>}
+          closing={<a href="/contact">Talk to us</a>}
+          credits={{ left: "© 2026 RLFN", right: "Photos: the studio", center: "Built by RLFN Tech" }}
+        />
+      </div>
+    );
+  }
+
+  it("keeps the backdrop decorative, and the closing action and credits in the page after the links", async () => {
+    const { container } = render(<Rich />);
+    const footer = screen.getByRole("contentinfo");
+    expect(container.querySelector("[data-slot=site-footer-backdrop]")).toHaveAttribute("aria-hidden", "true");
+    expect(within(footer).getByRole("link", { name: "Talk to us" })).toHaveAttribute("href", "/contact");
+    expect(container.querySelector("[data-slot=site-footer-credits]")).toHaveTextContent("© 2026 RLFNPhotos: the studioBuilt by RLFN Tech");
+    expect(footer).not.toHaveAttribute("data-reveal");
+    expect(await violations(container)).toEqual([]);
+  });
+
+  it("is a curtain only where it fits its viewport, and never under reduced motion", () => {
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+    const height = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(700);
+    vi.spyOn(window, "getComputedStyle").mockReturnValue({ overflowY: "visible", position: "relative", zIndex: "10", backgroundColor: "rgb(255, 255, 255)", backgroundImage: "none" } as CSSStyleDeclaration);
+    const { unmount } = render(<Rich reveal />);
+    const footer = screen.getByRole("contentinfo");
+    expect(footer).toHaveAttribute("data-reveal", "true");
+    expect(footer.className).toContain("sticky");
+    unmount();
+
+    height.mockReturnValue(900);
+    const { unmount: tall } = render(<Rich reveal />);
+    expect(screen.getByRole("contentinfo")).not.toHaveAttribute("data-reveal");
+    tall();
+
+    height.mockReturnValue(700);
+    reducedMotion(true);
+    render(<Rich reveal />);
+    expect(screen.getByRole("contentinfo")).not.toHaveAttribute("data-reveal");
+  });
+
+  it("uncovers itself when the focus lands in it, so a focused link is never hidden under the page (WCAG 2.4.11)", () => {
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(700);
+    Object.defineProperty(document.documentElement, "scrollHeight", { configurable: true, value: 3000 });
+    const scrollTo = vi.fn();
+    window.scrollTo = scrollTo as unknown as typeof window.scrollTo;
+    render(<Rich reveal />);
+    expect(screen.getByRole("contentinfo")).toHaveAttribute("data-reveal", "true");
+    act(() => screen.getByRole("link", { name: "Work" }).focus());
+    expect(scrollTo).toHaveBeenCalledWith(0, 3000);
+  });
+
+  it("warns in development when the page before it would let it show through", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(100);
+    render(
+      <div>
+        <main>Not stacked above</main>
+        <SiteFooter reveal links={[]} />
+      </div>,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("position relative, a z-index above 0 and an opaque background"));
+  });
+
+  it("measures against the box it scrolls in, when there is one", () => {
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(400);
+    const real = window.getComputedStyle;
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el) => (el instanceof HTMLElement && "box" in el.dataset ? ({ overflowY: "auto" } as CSSStyleDeclaration) : real(el)));
+    render(
+      <div data-box="">
+        <main className="relative z-10 bg-surface">Page</main>
+        <SiteFooter reveal links={[]} closing="Bye" />
+      </div>,
+    );
+    // 500 px of footer in a 400 px box: a normal footer.
+    expect(screen.getByRole("contentinfo")).not.toHaveAttribute("data-reveal");
   });
 });

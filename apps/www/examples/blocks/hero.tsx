@@ -5,7 +5,8 @@ export default function HeroDemo() {
   return (
     <Hero
       eyebrow="RLFN Studio"
-      headline="Brands that people remember"
+      headline="Brands that people remember,"
+      highlight="from the first mark to the last film."
       lead="Identity, websites and film for small companies with a lot to say."
       actions={[
         { label: "See the work", href: "/blocks/proof-list" },

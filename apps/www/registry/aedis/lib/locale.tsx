@@ -177,6 +177,10 @@ export type Messages = {
     pause: string;
     play: string;
   };
+  logoCloud: {
+    /** Names the list of clients when it has no visible title. */
+    label: string;
+  };
   sectionDock: {
     /** Names the navigation. */
     label: string;
@@ -376,6 +380,9 @@ export const en: Messages = {
   marquee: {
     pause: "Pause the moving line",
     play: "Play the moving line",
+  },
+  logoCloud: {
+    label: "Clients",
   },
   sectionDock: {
     label: "Page sections",

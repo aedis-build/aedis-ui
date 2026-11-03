@@ -22,6 +22,7 @@ import ChartDemo from "@/examples/chart/demo";
 import ChatDemo from "@/examples/chat/demo";
 import CheckboxDemo from "@/examples/checkbox/demo";
 import CodeBlockDemo from "@/examples/code-block/demo";
+import CodeBlockWindow from "@/examples/code-block/window";
 import CollapsibleDemo from "@/examples/collapsible/demo";
 import CommandDemo from "@/examples/command/demo";
 import DialogDemo from "@/examples/dialog/demo";
@@ -53,6 +54,7 @@ import ShareCardDemo from "@/examples/share-card/demo";
 import SheetDemo from "@/examples/sheet/demo";
 import SidebarDemo from "@/examples/sidebar/demo";
 import SiteFooterDemo from "@/examples/site-footer/demo";
+import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
 import SkeletonDemo from "@/examples/skeleton/demo";
 import SourcesDemo from "@/examples/sources/demo";
@@ -117,6 +119,9 @@ import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
 import ScrollPathDemo from "@/examples/scroll-path/demo";
 import SectionDockDemo from "@/examples/section-dock/demo";
+import TextMaskDemo from "@/examples/text-mask/demo";
+import TextMaskFly from "@/examples/text-mask/fly";
+import ImageStreamDemo from "@/examples/image-stream/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -712,11 +717,16 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     title: "Code Block",
     category: "Data display",
     description: "Code with token highlighting, a copy button and an optional line-by-line reveal for quickstarts.",
-    examples: [{ title: "Code Block", file: "code-block/demo", component: CodeBlockDemo }],
+    examples: [
+      { title: "Code Block", file: "code-block/demo", component: CodeBlockDemo },
+      { title: "Window and line numbers", description: "Together, and each on its own: the copy button still copies only the code.", file: "code-block/window", component: CodeBlockWindow },
+    ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
 <CodeBlock lang="bash" code="npx @aedis/cli@0.8.0 add button" />`,
     props: [
+      { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
+      { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
       { name: "code", type: "string", description: "The code, rendered as text. Copy copies exactly this." },
       { name: "lang", type: "string", default: '"text"', description: "Any language shiki bundles; unknown ones are plain text." },
       { name: "title", type: "string", description: "Shown above the code, e.g. a file name." },
@@ -1087,8 +1097,11 @@ import { SiteHeader } from "@/components/ui/site-header";
     name: "site-footer",
     title: "Site Footer",
     category: "Navigation",
-    description: "The bottom of a site: links and notes such as the license.",
-    examples: [{ title: "Site Footer", file: "site-footer/demo", component: SiteFooterDemo }],
+    description: "The bottom of a site: links, notes, and optionally a closing statement, credits, a backdrop and a curtain reveal.",
+    examples: [
+      { title: "Site Footer", file: "site-footer/demo", component: SiteFooterDemo },
+      { title: "Curtain reveal", description: "Scroll inside the box: the page lifts off the footer, which waits behind it with a sign of client names, a closing line and the credits.", file: "site-footer/reveal", component: SiteFooterReveal },
+    ],
     usage: `import { SiteFooter } from "@/components/ui/site-footer";
 
 <SiteFooter links={[{ label: "Privacy", href: "/privacy" }]}>© Acme</SiteFooter>`,
@@ -1096,7 +1109,11 @@ import { SiteHeader } from "@/components/ui/site-header";
       { name: "links", type: "{ label: string; href: string }[]", description: "Rendered with Link: safe protocols only, external marker and noopener." },
       { name: "children", type: "ReactNode", description: "Notes, e.g. the license line." },
       { name: "labels", type: "Partial<SiteFooterLabels>", description: "label: accessible name of the footer navigation." },
-      { name: "className", type: "string", description: "Classes for the footer element." },
+      { name: "className", type: "string", description: "Classes for the footer element, e.g. min-h-svh for a curtain." },
+      { name: "reveal", type: "boolean", default: "false", description: "Curtain mode: stuck to the bottom behind the page, uncovered as it scrolls off. The element before it must be position relative, z-index above 0 and opaque; a development build warns otherwise. A normal footer under reduced motion or when taller than its viewport." },
+      { name: "backdrop", type: "ReactNode", description: "Drawn behind the content, aria-hidden: a Marquee backdrop, a masked wordmark." },
+      { name: "closing", type: "ReactNode", description: "A closing statement and its action, above the links." },
+      { name: "credits", type: "{ left?; right?; center? }", description: "The credit row: copyright, image credit, and a maker's line centred below." },
     ],
     security: {
       sinks: ["DOM"],
@@ -1110,7 +1127,12 @@ import { SiteHeader } from "@/components/ui/site-header";
       ],
     },
     accessibility: {
-      notes: ["A contentinfo landmark with its links in a nav named by the Locale provider; links go through safeUrl like every Aedis link."],
+      notes: [
+        "A contentinfo landmark with its links in a nav named by the Locale provider; links go through safeUrl like every Aedis link.",
+        "In curtain mode the footer stays after the page in the DOM: Tab reaches its links while it is still covered, and the page scrolls to them.",
+        "The backdrop is always aria-hidden decoration.",
+      ],
+      motion: "The curtain is the page's own scroll: nothing animates. Under reduced motion it is a normal footer.",
     },
   },
   {
@@ -3384,6 +3406,61 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Closed, the panel is not in the page at all. On a phone the ring is 44 px in the corner and the panel is at most the screen width minus 24 px.",
       ],
       motion: "The ring fills with the page's progress. The panel pops in (opacity and a 95% scale, 200 ms); under reduced motion it appears at once.",
+    },
+  },
+  {
+    name: "text-mask",
+    title: "Text Mask",
+    category: "Data display",
+    description: "A word set large with a picture or a film inside its letters, and an optional flight through one glyph.",
+    examples: [
+      { title: "Text Mask", description: "A picture and a film, seen only through the letters.", file: "text-mask/demo", component: TextMaskDemo },
+      { title: "Fly through a glyph", description: "Scroll: the camera flies through the stem of the L until the picture fills the screen.", file: "text-mask/fly", component: TextMaskFly, align: "start" },
+    ],
+    usage: `import { TextMask } from "@/components/ui/text-mask";
+
+<TextMask text="RLFN" label="RLFN Studio" video="/brand.webm" poster="/brand.jpg" />
+<TextMask text="RLFN" label="RLFN Studio" image="/brand.jpg" fly={{ glyph: 1, origin: [0.2, 0.5] }} />`,
+    props: [
+      { name: "text", type: "string", description: "The word drawn with the media inside it. Decorative: aria-hidden." },
+      { name: "label", type: "string", description: "Required: the accessible name, rendered as real text for screen readers." },
+      { name: "image / video / poster", type: "string", description: "A picture, or a muted looping film and its poster." },
+      { name: "fly", type: "{ glyph: number; origin?: [x, y]; track?: number }", description: "Flies through glyph number `glyph`, aiming at `origin` in the glyph's own box (0–1), over `track` viewport heights of a sticky runway (default 2)." },
+    ],
+    security: { sinks: [], notes: ["Media by URL from origins the CSP img-src and media-src allow; the text is rendered as text. The flight is Web Animations keyframes on the scroll primitive; nothing is injected."] },
+    accessibility: {
+      notes: [
+        "The masked word, the media and the mask are aria-hidden; screen readers read `label` once. Contrast is not measured on the masked word, so the page's real heading should carry the name too.",
+        "Under reduced motion there is no flight and no runway, and a film stays on its poster.",
+      ],
+      motion: "The word scales around a point inside the glyph, measured with a Range so it stays inside the stroke at any width, and moves it to the centre: 1.3× at 15% of the runway, 2.2× at 40%, 7× at 70%, 34× at the end. The mask fades over the last third.",
+    },
+  },
+  {
+    name: "image-stream",
+    title: "Image Stream",
+    category: "Data display",
+    description: "A corridor of pictures rushing toward the viewer on two rails from a vanishing point.",
+    examples: [{ title: "Image Stream", description: "The path is live: change how the rails open, how far they reach, the size of a card at exit and its turn.", file: "image-stream/demo", component: ImageStreamDemo }],
+    usage: `import { ImageStream } from "@/components/ui/image-stream";
+
+<ImageStream images={work} centre={<video src="/brand.webm" muted loop autoPlay playsInline />} />`,
+    props: [
+      { name: "images", type: "string[]", description: "The pictures, used in turn on both rails. Decorative: empty alt." },
+      { name: "cards", type: "number", default: "7", description: "Cards on each rail." },
+      { name: "speed", type: "number", default: "2.4", description: "Seconds between two cards." },
+      { name: "axis", type: "number", default: "50", description: "The vanishing point's height, in % of the stream." },
+      { name: "path", type: "Partial<StreamPath>", description: "perspective, cardWidth, cardHeight, birthHeight, exitHeight, railBirth, railExit, fan, turnBirth, turnExit, stops. Lengths in cqw." },
+      { name: "centre", type: "ReactNode", description: "A still or a film at the vanishing point." },
+      { name: "children", type: "ReactNode", description: "Drawn above the stream." },
+    ],
+    security: { sinks: [], notes: ["The keyframes are generated in JavaScript and played by the Web Animations API, so no <style> element is added and the strict CSP needs no 'unsafe-inline' or nonce. Pictures load lazily from origins img-src allows."] },
+    accessibility: {
+      notes: [
+        "The corridor is aria-hidden and its pictures have empty alt: the work they show must live elsewhere on the page.",
+        "Every card starts mid-flight; that same mid-flight still is what the page shows without JavaScript and under reduced motion. It never collapses onto the axis.",
+      ],
+      motion: "Each card takes cards × speed seconds to fly from the vanishing point out of the frame, its height growing geometrically. Linear, endless, and paused while the stream is off screen.",
     },
   },
 ];
