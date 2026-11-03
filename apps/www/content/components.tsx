@@ -723,7 +723,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
-<CodeBlock lang="bash" code="npx @aedis/cli@0.8.0 add button" />`,
+<CodeBlock lang="bash" code="npx @aedis/cli@0.9.0 add button" />`,
     props: [
       { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
       { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
