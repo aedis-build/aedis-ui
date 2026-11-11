@@ -10,7 +10,7 @@ Requirements: Node.js 22+ and pnpm 10.
 pnpm install
 pnpm dev            # docs site at http://localhost:3000
 pnpm test           # unit, property-based and accessibility tests
-pnpm test:coverage  # the same with the coverage gate (95 % lines, 85 % branches)
+pnpm test:coverage  # the same with the coverage gates (site: 85 % lines and branches; CLI: 95 % lines, 85 % branches)
 pnpm registry:build # writes the registry JSON to apps/www/public/r
 pnpm build          # registry + static site in apps/www/out
 ```
