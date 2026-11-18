@@ -91,3 +91,36 @@ test("a disabled sidebar item shows why, and header and footer links are at leas
   await page.goto("/docs/site-footer");
   for (const link of await page.getByRole("main").locator("footer").first().getByRole("link").all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(24);
 });
+
+test("sidebar sections: only the one with the current page starts open, Enter and Space toggle, 44 px on a phone, no turn with reduced motion", async ({ page }) => {
+  await page.goto("/docs/sidebar");
+  // The nested demo: the first example also has an Approvals link.
+  const main = page.getByRole("main").locator("[data-slot=sidebar]", { has: page.locator("[data-slot=sidebar-section]") }).first();
+  const summary = (name: string) => main.locator("[data-slot=sidebar-section] > summary", { hasText: name }).first();
+
+  await expect(main.getByRole("link", { name: /Approvals/ })).toHaveAttribute("aria-current", "page");
+  await expect(main.getByRole("link", { name: /Approvals/ })).toBeVisible();
+  await expect(main.getByRole("link", { name: "People" })).toBeHidden();
+  await expect(main.getByRole("link", { name: "Controls" })).toBeHidden();
+
+  await summary("Compliance").focus();
+  await page.keyboard.press("Enter");
+  await expect(summary("Compliance").locator("..")).toHaveAttribute("open", "");
+  await expect(main.getByRole("link", { name: "Controls" })).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(main.getByRole("link", { name: "Controls" })).toBeHidden();
+
+  await summary("Users").click();
+  await expect(main.getByRole("link", { name: "People" })).toBeVisible();
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const chevron = summary("Users").locator("svg");
+  expect(await chevron.evaluate((el) => getComputedStyle(el).transitionDuration)).toBe("0s");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  // Phones report a coarse pointer only in the mobile emulation; the desktop project keeps the compact row.
+  const coarse = await page.evaluate(() => matchMedia("(pointer: coarse)").matches);
+  if (coarse) expect((await summary("Compliance").boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

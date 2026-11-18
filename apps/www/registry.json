@@ -558,7 +558,7 @@
       "name": "sidebar",
       "type": "registry:ui",
       "title": "Sidebar",
-      "description": "Grouped navigation with pending counters, disabled areas with a reason, and header/footer slots.",
+      "description": "Grouped navigation with pending counters, disabled areas with a reason, collapsible nested sections, and header/footer slots.",
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils"

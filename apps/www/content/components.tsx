@@ -53,6 +53,7 @@ import SeparatorDemo from "@/examples/separator/demo";
 import ShareCardDemo from "@/examples/share-card/demo";
 import SheetDemo from "@/examples/sheet/demo";
 import SidebarDemo from "@/examples/sidebar/demo";
+import SidebarNested from "@/examples/sidebar/nested";
 import SiteFooterDemo from "@/examples/site-footer/demo";
 import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
@@ -2093,17 +2094,28 @@ export const metadata = shareMetadata({
     name: "sidebar",
     title: "Sidebar",
     category: "Navigation",
-    description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
-    examples: [{ title: "Sidebar", file: "sidebar/demo", component: SidebarDemo }],
+    description: "Grouped navigation with counters for items waiting on a person, areas that open later, and collapsible nested sections.",
+    examples: [
+      { title: "Sidebar", file: "sidebar/demo", component: SidebarDemo },
+      { title: "Nested sections", description: "Three levels: the workspace, Identity with three sections, and Compliance. Only the section that holds the current page starts open.", file: "sidebar/nested", component: SidebarNested },
+    ],
     usage: `import Link from "next/link";
 import { Sidebar } from "@/components/ui/sidebar";
 
 <Sidebar
   linkComponent={Link}
-  groups={[{ label: "Work", items: [{ href: "/approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }] }]}
+  groups={[
+    { label: "Work", items: [{ href: "/approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }] },
+    { label: "Products", items: [
+      { label: "Identity", items: [
+        { label: "Access", items: [{ href: "/identity/agents", label: "Agents", active: true }] },
+      ] },
+    ] },
+  ]}
 />`,
     props: [
-      { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason." },
+      { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason. An item with items instead of href is a collapsible section (up to two levels below a group); its open defaults to whether it holds the active item." },
+      { name: "onOpenChange", type: "(section: SidebarItem, open: boolean) => void", description: "Called when a person opens or closes a section. Pass open on the section with it to control the state." },
       { name: "header / footer", type: "ReactNode", description: "Organization switcher at the top, signed-in user at the bottom." },
       { name: "linkComponent", type: "ComponentType", default: "<a>", description: "Your router link, e.g. Next.js Link." },
       { name: "label", type: "string", default: '"Main navigation"', description: "Accessible name of the nav landmark." },
@@ -2111,11 +2123,18 @@ import { Sidebar } from "@/components/ui/sidebar";
     security: { sinks: [], notes: [
       "Disabled items stay visible with their reason instead of disappearing, so people know an area exists.",
       "Counters have accessible text (countLabel), not just a number.",
+      "The section that holds the current page opens by default, so a collapsed section never hides where the person is.",
     ] },
     accessibility: {
-      keyboard: [["Tab", "Moves through the links; disabled items are skipped."]],
-      notes: ["A nav landmark named \"Main navigation\" by default; the current item has aria-current=\"page\".", "Counters are read from countLabel, not the bare number.", "A disabled item stays visible with aria-disabled and its reason."],
-      motion: "Items sink slightly when pressed. With reduced motion there is no scale.",
+      keyboard: [["Tab", "Moves through the links and section titles; disabled items are skipped."], ["Enter / Space", "Opens or closes the focused section."]],
+      notes: [
+        "A nav landmark named \"Main navigation\" by default; the current item has aria-current=\"page\".",
+        "Counters are read from countLabel, not the bare number.",
+        "A disabled item stays visible with aria-disabled and its reason.",
+        "Sections are native details and summary, so screen readers announce them as expanded or collapsed; the chevron is decorative.",
+        "Rows are at least 44 px tall on touch screens.",
+      ],
+      motion: "Items sink slightly when pressed and the chevron turns when a section opens; sections never animate their height. With reduced motion there is no scale and no turn.",
     },
   },
   {
