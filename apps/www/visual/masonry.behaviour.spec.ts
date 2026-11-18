@@ -24,7 +24,7 @@ test("each tile keeps its own ratio and is never split across columns", async ({
   const boxes = await gallery(page)
     .locator("[data-slot=media-frame]")
     .evaluateAll((frames) => frames.map((f) => ({ ratio: f.getAttribute("data-ratio"), rects: f.getClientRects().length, ...f.getBoundingClientRect().toJSON() })));
-  const shape = { "4:5": 4 / 5, "1:1": 1, "3:2": 3 / 2, "16:9": 16 / 9 } as Record<string, number>;
+  const shape = { "2:3": 2 / 3, "9:16": 9 / 16, "4:5": 4 / 5, "1:1": 1, "3:2": 3 / 2, "16:9": 16 / 9 } as Record<string, number>;
   for (const b of boxes) {
     expect(b.rects).toBe(1);
     expect(b.width / b.height).toBeCloseTo(shape[b.ratio!]!, 1);
