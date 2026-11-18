@@ -253,6 +253,33 @@ describe("lightbox shared element and drag to close (#270)", () => {
     expect(vt.named()).toEqual([]);
   });
 
+  it("after moving to another item, closing shrinks it into that item's thumbnail; the focus still goes to the one that opened", async () => {
+    const vt = transitions();
+    const user = userEvent.setup();
+    render(<Lightbox items={items} zoomFromThumbnail />);
+    const first = screen.getByRole("button", { name: "Shop sign in terracotta" });
+    const third = screen.getByRole("button", { name: "Home page on a phone" });
+    await user.click(first);
+    const dialog = await screen.findByRole("dialog", { name: "Ceramics studio" });
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+    await user.keyboard("{ArrowRight}{ArrowRight}");
+    await screen.findByRole("dialog", { name: "Bakery website" });
+    const start = vt.start.mock.calls.length;
+    vt.start.mockImplementationOnce((update: () => void) => {
+      const before = vt.named();
+      update();
+      // Which thumbnail the item flies back to, by element, not by tag.
+      expect([...document.querySelectorAll<HTMLElement>("*")].filter((el) => el.style.viewTransitionName === "lightbox-item")).toEqual([third]);
+      vt.names.push({ before, after: vt.named() });
+      return { finished: Promise.resolve() };
+    });
+    await user.keyboard("{Escape}");
+    expect(vt.start).toHaveBeenCalledTimes(start + 1);
+    expect(vt.names.at(-1)).toEqual({ before: ["lightbox-media"], after: ["button"] });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(first).toHaveFocus();
+  });
+
   it("opens at once where there are no view transitions, without zoomFromThumbnail, and under reduced motion", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<Lightbox items={items} zoomFromThumbnail />);
@@ -279,9 +306,12 @@ describe("lightbox shared element and drag to close (#270)", () => {
     drag(60);
     expect(media()!.style.translate).toBe("0px 60px");
     expect(Number(overlay().style.opacity)).toBeLessThan(1);
+    // The fade follows the finger: no transition lags behind it while dragging.
+    expect(overlay().style.transition).toBe("none");
     fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 160 });
     expect(media()!.style.translate).toBe("");
     expect(overlay().style.opacity).toBe("");
+    expect(overlay().style.transition).toBe("");
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 

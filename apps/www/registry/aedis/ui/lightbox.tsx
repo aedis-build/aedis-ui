@@ -88,7 +88,8 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
 
   // Shared element: the name sits on the thumbnail before the change and on the open item after it (the reverse on closing).
   const morph = (opening: boolean, update: () => void) => {
-    const thumb = origin.current;
+    // Closing flies back to the item's own thumbnail, which after ← → is not the one that opened it.
+    const thumb = opening ? origin.current : (thumbs.current[index] ?? origin.current);
     if (!zoomFromThumbnail || reduced || !thumb || typeof document.startViewTransition !== "function") return update();
     const name = (el: HTMLElement | null, on: boolean) => void (el && (el.style.viewTransitionName = on ? MORPH : ""));
     name(opening ? thumb : media.current, true);
@@ -122,7 +123,7 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
     const d = drag.current;
     if (d?.id !== e.pointerId) return;
     drag.current = null;
-    if (overlay.current) overlay.current.style.opacity = "";
+    if (overlay.current) Object.assign(overlay.current.style, { transition: "", opacity: "" });
     if (done && d.dy > DISMISS) return toggle(false);
     const el = media.current;
     if (el) Object.assign(el.style, { transition: "translate var(--duration-spring) var(--ease-spring-bouncy)", translate: "" });
@@ -215,7 +216,7 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
                 // Under reduced motion nothing follows the pointer; letting go past DISMISS still closes.
                 if (reduced) return;
                 if (media.current) Object.assign(media.current.style, { transition: "none", translate: `0 ${d.dy}px` });
-                if (overlay.current) overlay.current.style.opacity = String(Math.max(0, 1 - d.dy / (DISMISS * 3)));
+                if (overlay.current) Object.assign(overlay.current.style, { transition: "none", opacity: String(Math.max(0, 1 - d.dy / (DISMISS * 3))) });
               }}
               onPointerUp={(e) => release(e, true)}
               onPointerCancel={(e) => release(e, false)}

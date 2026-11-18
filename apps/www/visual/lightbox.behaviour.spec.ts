@@ -76,6 +76,9 @@ test("at 390 px a short drag down springs back, a long one closes and the focus 
   const dialog = page.getByRole("dialog", { name: "Ceramics studio" });
   const image = dialog.getByRole("img", { name: "Shop sign in terracotta and cream" });
   await expect(image).toBeVisible();
+  // The rest position is measured once the morph and the dialog's entrance have finished; during the view
+  // transition the page takes no pointer input at all.
+  await expect.poll(() => dialog.evaluate((d) => Boolean(document.activeViewTransition) || d.getAnimations({ subtree: true }).length > 0)).toBe(false);
   const start = (await image.boundingBox())!;
   const x = start.x + start.width / 2;
   const y = start.y + start.height / 2;

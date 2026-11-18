@@ -2326,7 +2326,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
     </DialogHeader>
   </DialogContent>
 </Dialog>`,
-    props: baseProps("@base-ui/react Dialog"),
+    props: [
+      { name: "DialogContent overlay", type: "{ className?: string; ref?: Ref<HTMLDivElement> }", description: "The scrim behind the dialog: classes merged into it (a backdrop blur, say) and a ref to it." },
+      ...baseProps("@base-ui/react Dialog"),
+    ],
     security: { sinks: [], notes: ["Focus is trapped while open and returns to the trigger on close."] },
     accessibility: {
       keyboard: [["Tab / Shift+Tab", "Moves focus inside the dialog only."], ["Esc", "Closes it and returns focus to the trigger."]],
