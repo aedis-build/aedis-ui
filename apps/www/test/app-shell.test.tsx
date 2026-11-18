@@ -100,6 +100,17 @@ describe("AppShell without a sidebar (#275)", () => {
     expect(await screen.findByRole("menuitem", { name: "Acme Studio" })).toBeInTheDocument();
   });
 
+  it("puts the account name in the switcher label as it is, even with replacement patterns like $&", () => {
+    render(account({ current: "R$& D$1 Co" }));
+    expect(screen.getByRole("button", { name: "Switch account, current: R$& D$1 Co" })).toBeInTheDocument();
+  });
+
+  it("keeps the sidebar layout when the sidebar slot is null; only leaving it out gives the account layout", () => {
+    render(<AppShell sidebar={null} title="Approvals">x</AppShell>);
+    expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
+    expect(document.querySelector("[data-slot=app-shell]")).not.toHaveAttribute("data-layout");
+  });
+
   it("reads the switcher name from the dictionary", () => {
     render(<LocaleProvider locale="pt-BR" messages={ptBR}>{account()}</LocaleProvider>);
     expect(screen.getByRole("button", { name: "Trocar de conta, atual: RLFN Tech" })).toBeInTheDocument();

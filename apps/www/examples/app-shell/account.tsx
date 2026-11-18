@@ -17,7 +17,9 @@ import {
 } from "@/registry/aedis/ui/dropdown-menu";
 
 const accounts = ["RLFN Tech", "Acme Studio"];
-const link = "focus-ring inline-flex min-h-11 items-center rounded-xs px-2 text-callout hover:text-foreground";
+// The display stays out of the shared classes: a link hidden on phones sets its own, or "inline-flex" would beat "hidden".
+const target = "focus-ring min-h-11 items-center rounded-xs px-2 text-callout hover:text-foreground";
+const link = `${target} inline-flex`;
 
 /** Account pages: no sidebar, an account bar, and an optional breadcrumb. The narrower page keeps the grid's left edge. */
 export function AccountShell({ breadcrumb = false }: { breadcrumb?: boolean }) {
@@ -35,7 +37,7 @@ export function AccountShell({ breadcrumb = false }: { breadcrumb?: boolean }) {
             <AppShellAccountSwitcher current={account}>
               <DropdownMenuRadioGroup value={account} onValueChange={setAccount}>
                 {accounts.map((a) => (
-                  <DropdownMenuRadioItem key={a} value={a}>{a}</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem key={a} value={a} closeOnClick>{a}</DropdownMenuRadioItem>
                 ))}
               </DropdownMenuRadioGroup>
             </AppShellAccountSwitcher>
@@ -44,7 +46,7 @@ export function AccountShell({ breadcrumb = false }: { breadcrumb?: boolean }) {
         }
         end={
           <>
-            <a href="#docs" className={`${link} hidden text-muted-foreground md:inline-flex`}>Documentation</a>
+            <a href="#docs" className={`${target} hidden text-muted-foreground md:inline-flex`}>Documentation</a>
             <DropdownMenu>
               <DropdownMenuTrigger className="press focus-ring inline-flex size-11 items-center justify-center rounded-full">
                 <Avatar>

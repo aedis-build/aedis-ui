@@ -255,8 +255,8 @@ import { Sidebar } from "@/components/ui/sidebar";
 </AppShell>`,
     props: [
       { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar. Leave it out for account pages." },
-      { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
-      { name: "menuLabel", type: "string", description: "Accessible name of the menu toggle. Defaults to the Locale provider." },
+      { name: "title", type: "ReactNode", description: "With a sidebar: shown in the top bar on small screens. Not used by the account layout." },
+      { name: "menuLabel", type: "string", description: "With a sidebar: accessible name of the menu toggle. Defaults to the Locale provider. Not used by the account layout." },
       { name: "start", type: "ReactNode", description: "Without a sidebar: the start of the account bar (mark, account switcher, plan badge)." },
       { name: "end", type: "ReactNode", description: "Without a sidebar: the end of the account bar (links, avatar menu). Hide secondary links below md." },
       { name: "breadcrumb", type: "ReactNode", description: "Without a sidebar: a Breadcrumb under the account bar; its links are 44 px tall." },

@@ -132,6 +132,8 @@ test("on a phone the account bar hides secondary links and keeps the switcher an
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/docs/app-shell");
   const shell = page.locator("[data-slot=app-shell][data-layout=account]").first();
+  // The demo sits below the fold of the docs page: bring its bar on screen before asking what fits in it.
+  await shell.locator("[data-slot=app-shell-header]").scrollIntoViewIfNeeded();
   await expect(shell.getByRole("link", { name: "Documentation" })).toBeHidden();
   await expect(shell.getByRole("button", { name: /Switch account/ })).toBeInViewport();
   const avatar = shell.getByRole("button", { name: /profile/ });

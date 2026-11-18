@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/registry/aedis/
 export type AppShellLabels = Messages["appShell"];
 
 export type AppShellProps = {
-  /** The navigation, usually a Sidebar. Leave it out for account pages: a top bar over one content column. */
+  /** The navigation, usually a Sidebar. Leave it out (undefined) for account pages: a top bar over one content column. */
   sidebar?: React.ReactNode;
   /** Without a sidebar: the start of the top bar (mark, account switcher, plan badge). */
   start?: React.ReactNode;
@@ -20,9 +20,9 @@ export type AppShellProps = {
   /** Without a sidebar: a Breadcrumb shown under the top bar. */
   breadcrumb?: React.ReactNode;
   children: React.ReactNode;
-  /** Shown in the top bar on small screens, next to the menu toggle. */
+  /** With a sidebar: shown in the top bar on small screens, next to the menu toggle. Not used by the account layout. */
   title?: React.ReactNode;
-  /** Accessible name of the menu toggle on small screens. Defaults to the dictionary. */
+  /** With a sidebar: accessible name of the menu toggle on small screens. Defaults to the dictionary. Not used by the account layout. */
   menuLabel?: string;
   /** The content is the page's <main>. Pass false when the shell sits inside a page that already has one. */
   main?: boolean | undefined;
@@ -39,7 +39,8 @@ function AppShell({ sidebar, start, end, breadcrumb, children, title, menuLabel,
   const Content = main ? "main" : "div";
 
   // Account pages: one 12-column grid, left-aligned at most 1120 px, so the left edge never moves between pages.
-  if (sidebar == null) {
+  // Only a sidebar left out picks this layout: sidebar={null} (an empty slot, as SecureShell may pass) keeps the sidebar one.
+  if (sidebar === undefined) {
     const column = "box-content max-w-280 px-4 md:px-8";
     return (
       <div data-slot="app-shell" data-layout="account" className={cn("min-h-screen", className)}>
@@ -108,7 +109,7 @@ function AppShellAccountSwitcher({ current, children, labels, className }: AppSh
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={l.switchAccount.replace("{account}", name)}
+        aria-label={l.switchAccount.replace("{account}", () => name)}
         className={cn("press focus-ring inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-sm px-2 text-callout font-medium hover:bg-muted", className)}
       >
         <span className="truncate">{name}</span>
