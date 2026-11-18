@@ -50,7 +50,7 @@ test("vertical presets and a measured frame keep their ratio, also at 390 px", a
     };
     expect(await ratio("Greenhouse signage, portrait")).toBeCloseTo(3 / 2, 1);
     expect(await ratio("Hotel campaign reel, cover")).toBeCloseTo(16 / 9, 1);
-    expect(await ratio("Studio showreel, still at its own 1600 × 1000 size")).toBeCloseTo(1000 / 1600, 1);
+    expect(await ratio("Studio showreel, still at its own 1600 × 1000 size")).toBeCloseTo(1000 / 1600, 2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   }
 });
