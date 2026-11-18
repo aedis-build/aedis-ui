@@ -167,7 +167,7 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
               key={i}
               data-shape={ratios[i]! < 1 ? "vertical" : "horizontal"}
               style={{ "--ratio": ratios[i], "--md-ratio": slot.aspect ?? "auto", "--col": slot.column, "--row": slot.row } as React.CSSProperties}
-              className="relative overflow-hidden rounded-md [aspect-ratio:var(--ratio)] md:[aspect-ratio:var(--md-ratio)] md:[grid-column:var(--col)] md:[grid-row:var(--row)]"
+              className="relative rounded-md [aspect-ratio:var(--ratio)] md:[aspect-ratio:var(--md-ratio)] md:[grid-column:var(--col)] md:[grid-row:var(--row)]"
             >
               {href ? (
                 <a
@@ -179,9 +179,9 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
                 />
               ) : null}
               {it.kind === "film" ? (
-                <Video variant="background" autoplay src={it.src} {...film(it)} title={it.title} fit={slot.fit ?? "cover"} className="absolute inset-0 min-h-0 rounded-none [&_button]:z-2" />
+                <Video variant="background" autoplay src={it.src} {...film(it)} title={it.title} fit={slot.fit ?? "cover"} className="absolute inset-0 min-h-0 [&_button]:z-2" />
               ) : (
-                <MediaFrame decorative src={it.src} fit={slot.fit ?? "cover"} className="absolute inset-0 aspect-auto h-full rounded-none" />
+                <MediaFrame decorative src={it.src} fit={slot.fit ?? "cover"} className="absolute inset-0 aspect-auto h-full" />
               )}
             </li>
           );

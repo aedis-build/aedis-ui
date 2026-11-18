@@ -47,6 +47,8 @@ test("the keyboard opens a film; Close and a click outside close the card", asyn
   await expect(block).toBeFocused();
   await block.click();
   await expect(dialog).toBeVisible();
+  // While the card grows, the View Transition overlay takes the pointer; click outside once it has settled.
+  await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
   await page.mouse.click(5, 5);
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
