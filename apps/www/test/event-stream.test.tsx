@@ -274,6 +274,44 @@ describe("useEventStream", () => {
     expect(onEvent).toHaveBeenCalledWith(9, { type: "message", id: "" });
     expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 0, dropped: 0 });
   });
+
+  it("drops held events when the stream is disabled, so a later session never receives them", async () => {
+    const calls = scriptedFetch([sse(["data: 1\n\n"], { hold: true }), sse([], { hold: true })]);
+    const onEvent = vi.fn();
+    const onBuffer = vi.fn();
+    const { rerender } = render(<Probe path="/events" paused onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 1, dropped: 0 }));
+    rerender(<Probe path="/events" paused enabled={false} onEvent={onEvent} onBuffer={onBuffer} />);
+    expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 0, dropped: 0 });
+    rerender(<Probe path="/events" onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(calls).toHaveLength(2));
+    await act(async () => {});
+    expect(onEvent).not.toHaveBeenCalled();
+  });
+
+  it("delivers every held event and clears the count even when a handler throws", async () => {
+    scriptedFetch([sse(["data: 1\n\ndata: 2\n\ndata: 3\n\n"], { hold: true })]);
+    const seen: unknown[] = [];
+    const onEvent = vi.fn((d: unknown) => {
+      seen.push(d);
+      if (d === 1) throw new Error("boom");
+    });
+    const onBuffer = vi.fn();
+    const { rerender } = render(<Probe path="/events" paused onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 3, dropped: 0 }));
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => rerender(<Probe path="/events" onEvent={onEvent} onBuffer={onBuffer} />)).toThrow("boom");
+    quiet.mockRestore();
+    expect(seen).toEqual([1, 2, 3]);
+    expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 0, dropped: 0 });
+  });
+
+  it("keeps a limit when maxBuffered is not a finite number", async () => {
+    scriptedFetch([sse([Array.from({ length: 101 }, (_, i) => `data: ${i}\n\n`).join("")], { hold: true })]);
+    const onBuffer = vi.fn();
+    render(<Probe path="/events" paused maxBuffered={Infinity} onEvent={() => {}} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 100, dropped: 1 }));
+  });
 });
 
 describe("use-event-stream live table example", () => {

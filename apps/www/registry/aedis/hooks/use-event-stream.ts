@@ -26,8 +26,10 @@ export function useEventStream<T>(path: string | null, { enabled = true, paused 
   const [state, setState] = React.useState<EventStreamState>("closed");
   const latest = React.useRef(options);
   latest.current = options;
-  const held = React.useRef({ paused, max: Math.max(1, maxBuffered), events: [] as Parameters<EventStreamOptions<T>["onEvent"]>[], dropped: 0 });
-  held.current.max = Math.max(1, maxBuffered);
+  // The limit can be changed, never removed: Infinity or NaN falls back to the default.
+  const max = Number.isFinite(maxBuffered) ? Math.max(1, Math.floor(maxBuffered)) : 100;
+  const held = React.useRef({ paused, max, events: [] as Parameters<EventStreamOptions<T>["onEvent"]>[], dropped: 0 });
+  held.current.max = max;
   const events = (options.events ?? ["message"]).join("\u0000");
 
   React.useEffect(() => {
@@ -47,19 +49,15 @@ export function useEventStream<T>(path: string | null, { enabled = true, paused 
     return () => {
       close();
       setState("closed");
-    };
-  }, [path, enabled, events]);
-
-  // Held events belong to the stream they came from: a new path starts with an empty buffer.
-  React.useEffect(() => {
-    const h = held.current;
-    return () => {
+      // Held events belong to the connection they came from: a new path, or enabled off and on again (another
+      // session), starts with an empty buffer.
+      const h = held.current;
       if (!h.events.length && !h.dropped) return;
       h.events = [];
       h.dropped = 0;
       latest.current.onBuffer?.({ buffered: 0, dropped: 0 });
     };
-  }, [path]);
+  }, [path, enabled, events]);
 
   // Switched here, not during render, so nothing new is delivered ahead of the held events.
   React.useEffect(() => {
@@ -69,8 +67,17 @@ export function useEventStream<T>(path: string | null, { enabled = true, paused 
     const flushed = h.events;
     h.events = [];
     h.dropped = 0;
-    for (const [data, event] of flushed) latest.current.onEvent(data, event);
+    // One throwing handler must not swallow the rest of the buffer or leave the count on screen.
+    let failure: { error: unknown } | undefined;
+    for (const [data, event] of flushed) {
+      try {
+        latest.current.onEvent(data, event);
+      } catch (error) {
+        failure ??= { error };
+      }
+    }
     latest.current.onBuffer?.({ buffered: 0, dropped: 0 });
+    if (failure) throw failure.error;
   }, [paused]);
 
   return state;
