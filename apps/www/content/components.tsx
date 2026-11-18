@@ -727,7 +727,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
-<CodeBlock lang="bash" code="npx @aedis/cli@0.9.1 add button" />`,
+<CodeBlock lang="bash" code="npx @aedis/cli@0.10.0 add button" />`,
     props: [
       { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
       { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
@@ -3405,7 +3405,7 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         ["Home / End", "First or last panel."],
       ],
       notes: [
-        "Each panel is a button with aria-expanded, named by its label and described by its text and image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
+        "Each panel is a button with aria-expanded, named by every word it shows when open (kicker, label and text, in reading order, so voice control finds it) and described by its image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
         "White text sits on a neutral scrim: over a white photograph it measures 5.7:1 or more (the media-scrim token, 60% black, and 80% at the bottom of the open panel, where the text sits).",
       ],
       motion: "The width (the height in the stack) eases over 560 ms (duration-spring, ease-cinematic), and changing panels mid-way continues from where it is. The text fades in and lifts 8 px after 150 ms, at a fixed width so it never re-wraps; the vertical label fades out. Under reduced motion it opens at once.",
