@@ -200,6 +200,8 @@ export type Messages = {
     close: string;
     /** {index} and {count} are numbers. */
     counter: string;
+    /** Read after a film's thumbnail, so it is not taken for a photo. */
+    video: string;
   };
   /** Input and Textarea. */
   field: {
@@ -403,6 +405,7 @@ export const en: Messages = {
     next: "Next",
     close: "Close",
     counter: "{index} of {count}",
+    video: "video",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
