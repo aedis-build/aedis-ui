@@ -58,6 +58,8 @@ import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
 import SkeletonDemo from "@/examples/skeleton/demo";
 import SourcesDemo from "@/examples/sources/demo";
+import StatBilling from "@/examples/stat/billing";
+import StatDemo from "@/examples/stat/demo";
 import SpinnerDemo from "@/examples/spinner/demo";
 import StreamingMarkdownDemo from "@/examples/streaming-markdown/demo";
 import SwitchDemo from "@/examples/switch/demo";
@@ -2416,6 +2418,45 @@ import { Label } from "@/components/ui/label";
     accessibility: {
       notes: ["role=\"progressbar\" with aria-valuenow; give it an aria-label."],
       motion: "The bar moves to a new value on a critically damped spring. With reduced motion it jumps.",
+    },
+  },
+  {
+    name: "stat",
+    title: "Stat",
+    category: "Data display",
+    description: "Key numbers in a row under a 1 px ink rule, with hairlines between them and no cards. Two columns on a phone.",
+    examples: [
+      { title: "Identity", description: "Four stats; the last one links to where the number is acted on.", file: "stat/demo", component: StatDemo },
+      { title: "Billing", description: "A value with a total shows \"of\" the total and a bar. stack keeps one stat per row.", file: "stat/billing", component: StatBilling },
+    ],
+    usage: `import { Stat, StatGroup } from "@/components/ui/stat";
+
+<StatGroup aria-label="Identity">
+  <Stat label="People active this month" value={12480} delta="+4% from last month" />
+  <Stat label="Approvals pending" value={3} action={{ href: "/approvals", label: "Review approvals" }} />
+</StatGroup>`,
+    props: [
+      { name: "label", type: "string", description: "Stat. What the number counts; read first." },
+      { name: "value", type: "number | string", description: "Stat. A number is formatted in the locale with tabular numerals; a string shows as given." },
+      { name: "format", type: "Intl.NumberFormatOptions", description: "Stat. Options for a number value and its total, e.g. { style: \"percent\" }." },
+      { name: "total", type: "number", description: "Stat. Adds \"of total\" after the value and a bar of value / total." },
+      { name: "delta", type: "ReactNode", description: "Stat. A change or a note under the value, in muted text." },
+      { name: "action", type: "{ href: string; label: string }", description: "Stat. A link under the value, through Link: safe URLs only, 24 px tall target." },
+      { name: "labels", type: "Partial<StatLabels>", description: "Stat. Overrides the locale's words (of {total})." },
+      { name: "stack", type: "boolean", default: "false", description: "StatGroup. One stat per row at every width." },
+      { name: "...props", type: "ComponentProps<\"dl\">", description: "StatGroup. Name the group with aria-label when the page has more than one." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Labels, values and deltas render as text. The action href goes through Link, so only safe protocols survive and external links get noopener noreferrer."],
+    },
+    accessibility: {
+      notes: [
+        "A description list: each stat reads label, value, delta in order.",
+        "Separators are borders, never elements, so nothing decorative is announced. The total bar is hidden; the text already says value of total.",
+        "The action looks like a link (accent, underline) and is at least 24 px tall.",
+      ],
+      motion: "Nothing moves.",
     },
   },
   ...chartDocs(),

@@ -196,4 +196,7 @@ export const ptBR: Messages = {
     thanks: "Obrigado pelo retorno.",
     error: "Não deu para enviar o retorno. Tente de novo.",
   },
+  stat: {
+    of: "de {total}",
+  },
 };

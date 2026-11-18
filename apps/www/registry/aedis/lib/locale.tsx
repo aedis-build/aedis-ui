@@ -217,6 +217,10 @@ export type Messages = {
     thanks: string;
     error: string;
   };
+  stat: {
+    /** After a value with a total, e.g. "13,041 of 50,000"; {total} is the formatted total. */
+    of: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -414,6 +418,9 @@ export const en: Messages = {
     skip: "Skip",
     thanks: "Thanks for the feedback.",
     error: "Feedback could not be sent. Try again.",
+  },
+  stat: {
+    of: "of {total}",
   },
 };
 

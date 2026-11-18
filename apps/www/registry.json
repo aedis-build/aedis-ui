@@ -423,6 +423,26 @@
       ]
     },
     {
+      "name": "stat",
+      "type": "registry:ui",
+      "title": "Stat",
+      "description": "Big-number indicators in a row under an ink rule, with hairlines between them: label, value, and an optional delta, total bar or link.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-format",
+        "@aedis/link",
+        "@aedis/progress"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/stat.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "chart",
       "type": "registry:ui",
       "title": "Chart",
