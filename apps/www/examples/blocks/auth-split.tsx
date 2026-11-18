@@ -35,6 +35,8 @@ export default function AuthSplitDemo() {
       ]}
       title={c.title}
       lead="Use your work email or a passkey."
+      // A real page puts the token its server issued for the session here; the demo has no server.
+      csrfToken="simulated"
       onSubmit={(e) => {
         e.preventDefault();
         simulate(mode === "sign-in" ? "a sign-in link would go to that address" : "an account would be created for that address");

@@ -276,6 +276,7 @@ import { Slideshow } from "@/components/ui/carousel";
   facts={[{ title: "Signed by default" }, { title: "Reviewed by people" }, { title: "Kept on record" }]}
   title="Sign in"
   action={signIn}
+  csrfToken={csrfToken}
   footer={<a href="/sign-up">Create an account</a>}
 >
   <Button variant="outline" type="button">Continue with Google</Button>
@@ -294,9 +295,15 @@ import { Slideshow } from "@/components/ui/carousel";
         evidence: [["auth-split.test.tsx", "names the form by its h1, numbers the facts as a list, and posts the form"]],
         ids: ["CWE-598", "OWASP A04:2021"],
       },
+      {
+        title: "The form carries an anti-forgery token",
+        text: "Give csrfToken the token your server issued for the session and the form sends it as the hidden field csrf_token, so the server can refuse a sign-in posted from another site.",
+        evidence: [["auth-split.test.tsx", "sends the anti-forgery token as a hidden field, and none when it is not given"]],
+        ids: ["CWE-352", "OWASP A01:2021"],
+      },
     ],
     backend:
-      "answer the same way and in the same time whether or not the address has an account, limit attempts per address and per IP, wrap the action in secureAction (rate limit, size limit, schema), and keep the identity provider, versions and infrastructure out of the page and its errors. Give the email field autocomplete=\"username webauthn\" so the browser can offer a passkey.",
+      "check csrf_token against the session before anything else, answer the same way and in the same time whether or not the address has an account, limit attempts per address and per IP, wrap the action in secureAction (rate limit, size limit, schema), and keep the identity provider, versions and infrastructure out of the page and its errors. Give the email field autocomplete=\"username webauthn\" so the browser can offer a passkey.",
     accessibility: {
       keyboard: [["Enter", "In the email field, submits the form."]],
       notes: [

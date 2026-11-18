@@ -47,6 +47,15 @@ describe("auth-split (#283)", () => {
     expect(container.querySelector("[data-slot=auth-split-footer]")).toBeNull();
   });
 
+  it("sends the anti-forgery token as a hidden field, and none when it is not given", () => {
+    const { container, rerender } = render(<AuthSplit statement="S." title="Sign in" csrfToken="t0k3n" />);
+    const field = container.querySelector("form input[type=hidden]");
+    expect(field).toHaveAttribute("name", "csrf_token");
+    expect(field).toHaveAttribute("value", "t0k3n");
+    rerender(<AuthSplit statement="S." title="Sign in" />);
+    expect(container.querySelector("form input[type=hidden]")).toBeNull();
+  });
+
   it("says or from the dictionary, overridable by labels", () => {
     const { rerender } = render(<AuthSplitDivider />);
     expect(screen.getByText("or")).toBeInTheDocument();

@@ -21,6 +21,8 @@ export type AuthSplitProps = Omit<React.ComponentProps<"form">, "title" | "class
   lead?: React.ReactNode;
   /** Links under the form (switch to sign up, help); each gets a 44 px target. */
   footer?: React.ReactNode;
+  /** The anti-forgery token your server issued for this session; sent with the form as the hidden field csrf_token. */
+  csrfToken?: string;
   className?: string;
 };
 
@@ -30,7 +32,7 @@ export type AuthSplitProps = Omit<React.ComponentProps<"form">, "title" | "class
  * never moves between them. The form is a real <form>: Enter submits it, it posts unless told otherwise, so a submit
  * before hydration never puts the email in the URL, and its fields, handlers and action come in as props.
  */
-export function AuthSplit({ mark, statement, shortStatement, facts, title, lead, footer, className, children, ...form }: AuthSplitProps) {
+export function AuthSplit({ mark, statement, shortStatement, facts, title, lead, footer, csrfToken, className, children, ...form }: AuthSplitProps) {
   const heading = React.useId();
   return (
     <div data-slot="auth-split" className={cn("grid lg:min-h-[44rem] lg:grid-cols-[minmax(0,1fr)_480px]", className)}>
@@ -61,6 +63,7 @@ export function AuthSplit({ mark, statement, shortStatement, facts, title, lead,
           {lead ? <p className="text-callout text-muted-foreground">{lead}</p> : null}
         </div>
         <form method="post" data-slot="auth-split-form" aria-labelledby={heading} className="flex flex-col gap-4" {...form}>
+          {csrfToken !== undefined ? <input type="hidden" name="csrf_token" value={csrfToken} /> : null}
           {children}
         </form>
         {footer ? (
