@@ -179,6 +179,7 @@ export const ptBR: Messages = {
     next: "Próximo",
     close: "Fechar",
     counter: "{index} de {count}",
+    video: "vídeo",
   },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
