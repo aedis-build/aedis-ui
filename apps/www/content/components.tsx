@@ -3446,9 +3446,10 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
 
 <Steps>
   <Step status="done" title="Create the application" summary="Aedis Console" action={<Button variant="link" onClick={reopen}>Change</Button>} />
-  <Step status="current" title="Add the JWKS credential">
-    <JwksForm />
+  <Step status="current" title="Add a redirect URI">
+    <RedirectUriForm />
   </Step>
+  <Step status="upcoming" title="Add the JWKS credential" />
   <Step status="upcoming" title="Test the sign-in" />
 </Steps>`,
     props: [
@@ -3459,7 +3460,7 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
       { name: "Step children", type: "ReactNode", description: "The current step's content, e.g. its form. Not rendered for done and upcoming steps." },
       { name: "Step labels", type: "Partial<{ done; upcoming }>", description: "Overrides the screen reader text read after done and upcoming titles." },
     ],
-    parts: [{ name: "Steps", description: "The ordered list. Numbers 01, 02… come from a CSS counter, in the order of its Step children.", props: [] }],
+    parts: [{ name: "Steps", description: "The ordered list. Numbers 01, 02… come from a CSS counter, in the order of its Step children.", props: [{ name: "...props", type: 'ComponentProps<"ol">', description: "Passed to the list, e.g. className or aria-label." }] }],
     security: { sinks: [], notes: ["Renders titles, summaries and content as React children; nothing is injected. A summary that echoes what someone typed is text, and the wizard's own Input already strips hidden code points."] },
     accessibility: {
       keyboard: [["Tab", "Moves through the current step's fields and the done steps' actions."]],
