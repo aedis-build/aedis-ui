@@ -221,6 +221,11 @@ export type Messages = {
     /** After a value with a total, e.g. "13,041 of 50,000"; {total} is the formatted total. */
     of: string;
   };
+  /** Read after a step's title by screen readers; the current step is announced by aria-current. */
+  steps: {
+    done: string;
+    upcoming: string;
+  };
 };
 
 /** English, the default when there is no provider. */
@@ -421,6 +426,10 @@ export const en: Messages = {
   },
   stat: {
     of: "of {total}",
+  },
+  steps: {
+    done: "(done)",
+    upcoming: "(not started)",
   },
 };
 

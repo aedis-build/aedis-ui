@@ -199,4 +199,8 @@ export const es: Messages = {
   stat: {
     of: "de {total}",
   },
+  steps: {
+    done: "(completado)",
+    upcoming: "(sin empezar)",
+  },
 };

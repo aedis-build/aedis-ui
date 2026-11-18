@@ -1849,6 +1849,23 @@
       ]
     },
     {
+      "name": "steps",
+      "type": "registry:ui",
+      "title": "Steps",
+      "description": "A wizard's numbered steps in a column: done ones fold to a line with a summary, the current one is open, the next ones wait.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/steps.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "scroll-path",
       "type": "registry:ui",
       "title": "Scroll Path",

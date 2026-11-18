@@ -121,6 +121,7 @@ import MarqueeDemo from "@/examples/marquee/demo";
 import MarqueeBackdrop from "@/examples/marquee/backdrop";
 import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
+import StepsDemo from "@/examples/steps/demo";
 import ScrollPathDemo from "@/examples/scroll-path/demo";
 import SectionDockDemo from "@/examples/section-dock/demo";
 import TextMaskDemo from "@/examples/text-mask/demo";
@@ -3425,6 +3426,48 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "On the server, without JavaScript and under reduced motion every step is done and the line is full.",
       ],
       motion: "The line fills linearly with the scroll, and each node crossfades from a clock to a check in 200 ms as the line reaches it.",
+    },
+  },
+  {
+    name: "steps",
+    title: "Steps",
+    category: "Navigation",
+    description: "A wizard's numbered steps in a column: done ones fold to a line with a summary, the current one is open, the next ones wait.",
+    examples: [
+      {
+        title: "Identity wizard",
+        description: "Four steps to connect an application, the JWKS credential among them. Continue moves on, Change reopens a done step; focus follows the current step's heading. Nothing is sent anywhere.",
+        file: "steps/demo",
+        component: StepsDemo,
+        align: "start",
+      },
+    ],
+    usage: `import { Step, Steps } from "@/components/ui/steps";
+
+<Steps>
+  <Step status="done" title="Create the application" summary="Aedis Console" action={<Button variant="link" onClick={reopen}>Change</Button>} />
+  <Step status="current" title="Add the JWKS credential">
+    <JwksForm />
+  </Step>
+  <Step status="upcoming" title="Test the sign-in" />
+</Steps>`,
+    props: [
+      { name: "Step status", type: '"done" | "current" | "upcoming"', description: "Done folds to one line with summary and action; current shows its children; upcoming is a muted title." },
+      { name: "Step title", type: "ReactNode", description: "The step's heading (an h3). It takes focus when the step becomes current." },
+      { name: "Step summary", type: "ReactNode", description: "One line after a done step's title, e.g. what was chosen in it." },
+      { name: "Step action", type: "ReactNode", description: "A control at the end of a done step's line, e.g. a Change button that makes it current again." },
+      { name: "Step children", type: "ReactNode", description: "The current step's content, e.g. its form. Not rendered for done and upcoming steps." },
+      { name: "Step labels", type: "Partial<{ done; upcoming }>", description: "Overrides the screen reader text read after done and upcoming titles." },
+    ],
+    parts: [{ name: "Steps", description: "The ordered list. Numbers 01, 02… come from a CSS counter, in the order of its Step children.", props: [] }],
+    security: { sinks: [], notes: ["Renders titles, summaries and content as React children; nothing is injected. A summary that echoes what someone typed is text, and the wizard's own Input already strips hidden code points."] },
+    accessibility: {
+      keyboard: [["Tab", "Moves through the current step's fields and the done steps' actions."]],
+      notes: [
+        "An ordered list; the current step carries aria-current=\"step\". Done and upcoming are said in text after the title, e.g. \"(done)\", from the dictionary.",
+        "When a step becomes current (moving on, or reopening a done one) its heading takes focus, so keyboard and screen reader land on the new step.",
+        "The large number is aria-hidden: the list already gives the position. On phones it sits above the title, so the content keeps the full width.",
+      ],
     },
   },
   {

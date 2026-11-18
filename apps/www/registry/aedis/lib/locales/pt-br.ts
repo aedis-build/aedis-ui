@@ -199,4 +199,8 @@ export const ptBR: Messages = {
   stat: {
     of: "de {total}",
   },
+  steps: {
+    done: "(concluída)",
+    upcoming: "(não iniciada)",
+  },
 };
