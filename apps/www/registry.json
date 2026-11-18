@@ -1699,7 +1699,7 @@
       "name": "lightbox",
       "type": "registry:ui",
       "title": "Lightbox",
-      "description": "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
+      "description": "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption; the item can grow out of its thumbnail and a drag down closes it.",
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",

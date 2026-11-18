@@ -2919,9 +2919,9 @@ import { Field, FieldLabel } from "@/components/ui/field";
     name: "lightbox",
     title: "Lightbox",
     category: "Overlays",
-    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption. Photos and films in the same group.",
+    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption. Photos and films in the same group. The open item can grow out of its thumbnail, and a drag down closes it.",
     examples: [
-      { title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo },
+      { title: "Lightbox", description: "Open a work, move with ← →, close with Esc or drag it down: the focus goes back to its thumbnail. Here the image grows out of the thumbnail and shrinks back into it, over the page blurred.", file: "lightbox/demo", component: LightboxDemo },
       { title: "Photos and films", description: "A film opens in the video player and plays only when you press play; it stops when you move on or close.", file: "lightbox/mixed", component: LightboxMixed },
     ],
     usage: `import { Lightbox } from "@/components/ui/lightbox";
@@ -2940,24 +2940,27 @@ import { Field, FieldLabel } from "@/components/ui/field";
     { kind: "video", src: "/work/kitchen.webm", type: "video/webm", poster: "/work/kitchen.jpg", alt: "The kitchen at service", title: "Restaurant film" },
   ]}
   thumbSizes="(min-width: 640px) 25vw, 50vw"
+  zoomFromThumbnail
+  backdrop="blur"
 />`,
     props: [
       { name: "items", type: "LightboxItem[]", description: "The works; title names the open dialog. A photo is { src, alt, title, caption?, srcSet?, sizes?, width?, height? } (sizes is for the open image, \"100vw\" by default); a film is { kind: \"video\", src, poster, alt, title, caption?, type?, captions?, width?, height? }, where width and height give the player the film's shape (16:9 by default)." },
       { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each)." },
       { name: "thumbSizes", type: "string", default: "\"(min-width: 640px) 33vw, 50vw\"", description: "The sizes of the thumbnails of items with a srcSet, so a small grid takes small files. Say less when the grid is narrower than the screen." },
-      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened item grows from its thumbnail. Never with reduced motion." },
+      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The open item grows out of its thumbnail and shrinks back into it on closing, with the View Transitions API. Where the browser has no document.startViewTransition, and with reduced motion, it simply appears." },
+      { name: "backdrop", type: "\"solid\" | \"blur\"", default: "\"solid\"", description: "Behind the open item: the scrim, or the page blurred under it (backdrop-filter; solid again with reduced transparency)." },
       { name: "className", type: "string", description: "Classes for the grid of thumbnails." },
       { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m, video)." },
     ],
     security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows, films from those media-src allows; titles and captions are text.", "A film never plays on opening: only the person's press on play starts it, with sound."] },
     accessibility: {
-      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
+      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Drag down", "With a finger or the mouse, past 120 px, closes like Esc; shorter, the item springs back. Not on a film, whose controls keep their presses."], ["Tab", "Stays inside while it is open."]],
       notes: [
         "A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".",
         "Each thumbnail is a button named by its image's alt; a film's adds \"video\".",
         "An open film is the Video player named by its alt, with the browser's controls and its caption tracks. In the player, ← → seek in the film instead of moving to another item.",
       ],
-      motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
+      motion: "The dialog materializes; with zoomFromThumbnail the item grows out of its thumbnail and shrinks back into it (a view transition). While dragged, the item follows the finger and the backdrop fades with the distance. With reduced motion there is no morph and nothing follows the drag: the item simply appears, and letting go past 120 px still closes it.",
     },
   },
   {

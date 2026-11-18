@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/aedis/hooks/use-reduced-motion";
@@ -29,6 +30,11 @@ export type LightboxItem = LightboxImage | LightboxVideo;
 /** Only the file, type, poster and caption tracks reach the player: extra keys in item data (autoplay, variant) never do. */
 const film = ({ src, poster, type, captions }: LightboxVideo) => ({ src, poster, ...(type ? { type } : {}), ...(captions ? { captions } : {}) });
 
+/** The view-transition-name the thumbnail and the open item share, each only for the length of one transition. */
+const MORPH = "lightbox-item";
+/** How far down, in px, the open item has to be dragged to close it. */
+const DISMISS = 120;
+
 
 type LightboxProps = {
   items: LightboxItem[];
@@ -36,8 +42,13 @@ type LightboxProps = {
   ratio?: MediaRatio;
   /** The `sizes` of the thumbnails, for items with a srcSet. The default fits the grid at full width; say less when it is narrower. */
   thumbSizes?: string;
-  /** The opened item grows from its thumbnail (FLIP). Never under reduced motion. */
+  /**
+   * The open item grows out of its thumbnail and shrinks back into it on closing (View Transitions). Where the browser
+   * has no document.startViewTransition, and under reduced motion, it simply appears.
+   */
   zoomFromThumbnail?: boolean;
+  /** Behind the open item: the solid scrim, or the page blurred under it. */
+  backdrop?: "solid" | "blur";
   /** Classes for the grid of thumbnails. */
   className?: string;
   labels?: Partial<Messages["lightbox"]>;
@@ -45,9 +56,10 @@ type LightboxProps = {
 
 /**
  * Thumbnails that open full screen in a Dialog: the item, its title and caption, previous and next (← →), a counter,
- * and Esc to close. The focus stays inside while it is open and goes back to the thumbnail that opened it.
+ * and Esc to close; dragging the item down past 120 px closes it too. The focus stays inside while it is open and goes
+ * back to the thumbnail that opened it.
  */
-function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, className, labels }: LightboxProps) {
+function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, backdrop = "solid", className, labels }: LightboxProps) {
   const l = useMessages("lightbox", labels);
   const reduced = useReducedMotion();
   const [open, setOpen] = React.useState(false);
@@ -56,6 +68,8 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
   const origin = React.useRef<HTMLButtonElement | null>(null);
   const media = React.useRef<HTMLDivElement>(null);
   const stage = React.useRef<HTMLDivElement>(null);
+  const overlay = React.useRef<HTMLDivElement>(null);
+  const drag = React.useRef<{ id: number; y: number; dy: number } | null>(null);
   // The thumbnail the person already saw, shown behind the large image until it loads.
   const [behind, setBehind] = React.useState<string>();
   const [loaded, setLoaded] = React.useState(false);
@@ -72,29 +86,47 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
   };
   const go = (i: number) => select((i + count) % count);
 
-  const show = (i: number) => {
-    origin.current = thumbs.current[i] ?? null;
-    select(i);
-    setOpen(true);
-  };
-  const toggle = (next: boolean) => {
-    if (!next) stage.current?.querySelector("video")?.pause?.();
-    setOpen(next);
+  // Shared element: the name sits on the thumbnail before the change and on the open item after it (the reverse on closing).
+  const morph = (opening: boolean, update: () => void) => {
+    const thumb = origin.current;
+    if (!zoomFromThumbnail || reduced || !thumb || typeof document.startViewTransition !== "function") return update();
+    const name = (el: HTMLElement | null, on: boolean) => void (el && (el.style.viewTransitionName = on ? MORPH : ""));
+    name(opening ? thumb : media.current, true);
+    const clear = () => (name(thumb, false), name(media.current, false));
+    document
+      .startViewTransition(() => {
+        name(opening ? thumb : media.current, false);
+        // The dialog fades out after closing: its copy of the item hides, so only the one flying back is seen.
+        if (!opening && stage.current) stage.current.style.visibility = "hidden";
+        flushSync(update);
+        name(opening ? media.current : thumb, true);
+      })
+      .finished.then(clear, clear);
   };
 
-  React.useEffect(() => {
-    if (!open || !zoomFromThumbnail || reduced) return;
-    const frame = requestAnimationFrame(() => {
-      const img = media.current;
-      const from = origin.current?.getBoundingClientRect();
-      const to = img?.getBoundingClientRect();
-      if (!img?.animate || !from || !to?.width || !to.height) return;
-      const move = `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
-      img.animate([{ transform: move, transformOrigin: "top left" }, { transform: "none", transformOrigin: "top left" }], { duration: 380, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+  const show = (i: number) => {
+    origin.current = thumbs.current[i] ?? null;
+    morph(true, () => {
+      select(i);
+      setOpen(true);
     });
-    return () => cancelAnimationFrame(frame);
-    // Only on opening: moving between items does not fly from a thumbnail.
-  }, [open]);
+  };
+  const toggle = (next: boolean) => {
+    if (next) return setOpen(true);
+    stage.current?.querySelector("video")?.pause?.();
+    morph(false, () => setOpen(false));
+  };
+
+  // Drag down to close: the item follows the pointer and the backdrop fades with the distance; short of DISMISS it springs back.
+  const release = (e: React.PointerEvent, done: boolean) => {
+    const d = drag.current;
+    if (d?.id !== e.pointerId) return;
+    drag.current = null;
+    if (overlay.current) overlay.current.style.opacity = "";
+    if (done && d.dy > DISMISS) return toggle(false);
+    const el = media.current;
+    if (el) Object.assign(el.style, { transition: "translate var(--duration-spring) var(--ease-spring-bouncy)", translate: "" });
+  };
 
   return (
     <>
@@ -136,6 +168,7 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
         {item ? (
           <DialogContent
             finalFocus={origin}
+            overlay={{ ref: overlay, ...(backdrop === "blur" ? { className: "backdrop-blur-(--blur-regular)" } : {}) }}
             onKeyDown={(e) => {
               // In the player the arrows seek and change the volume; they do not move to another item there.
               const inPlayer = (e.target as HTMLElement).closest?.("video");
@@ -164,7 +197,29 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
                 </svg>
               </DialogClose>
             </div>
-            <div ref={stage} className="relative min-h-0">
+            <div
+              ref={stage}
+              data-slot="lightbox-stage"
+              // Vertical moves are the drag's; sideways panning and pinch zoom stay the browser's.
+              className="relative min-h-0 touch-pan-x touch-pinch-zoom select-none"
+              onPointerDown={(e) => {
+                // The player's controls keep their presses: the drag starts only off the film.
+                if (e.button !== 0 || (e.target as Element).closest("video")) return;
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                drag.current = { id: e.pointerId, y: e.clientY, dy: 0 };
+              }}
+              onPointerMove={(e) => {
+                const d = drag.current;
+                if (d?.id !== e.pointerId) return;
+                d.dy = Math.max(0, e.clientY - d.y);
+                // Under reduced motion nothing follows the pointer; letting go past DISMISS still closes.
+                if (reduced) return;
+                if (media.current) Object.assign(media.current.style, { transition: "none", translate: `0 ${d.dy}px` });
+                if (overlay.current) overlay.current.style.opacity = String(Math.max(0, 1 - d.dy / (DISMISS * 3)));
+              }}
+              onPointerUp={(e) => release(e, true)}
+              onPointerCancel={(e) => release(e, false)}
+            >
               {item.kind === "video" ? (
                 <div key={item.src} ref={media} data-slot="lightbox-media" className="absolute inset-0 grid place-items-center" style={{ containerType: "size" }}>
                   <div
@@ -178,7 +233,7 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
               ) : (
                 <div key={item.src} ref={media} data-slot="lightbox-media" className="absolute inset-0">
                   {behind && !loaded ? (
-                    <img data-slot="lightbox-behind" src={behind} alt="" aria-hidden="true" className="absolute inset-0 size-full object-contain" />
+                    <img data-slot="lightbox-behind" src={behind} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 size-full object-contain" />
                   ) : null}
                   <img
                     src={item.src}
@@ -187,6 +242,8 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
                     width={item.width}
                     height={item.height}
                     alt={item.alt}
+                    // A mouse drag moves the item; the browser's own image drag would cancel it.
+                    draggable={false}
                     onLoad={() => setLoaded(true)}
                     // A failed file shows its alt, not the stretched thumbnail.
                     onError={() => setLoaded(true)}

@@ -208,3 +208,127 @@ describe("lightbox with films and responsive images (#269)", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 });
+
+describe("lightbox shared element and drag to close (#270)", () => {
+  const media = () => document.querySelector<HTMLElement>('[data-slot="lightbox-media"]');
+  const stage = () => document.querySelector<HTMLElement>('[data-slot="lightbox-stage"]')!;
+  const overlay = () => document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
+  const reduce = () => vi.stubGlobal("matchMedia", (q: string) => ({ matches: q.includes("reduce"), addEventListener: () => {}, removeEventListener: () => {} }));
+  // jsdom has no View Transitions: a stand-in that records which element carries the name before and after the change.
+  const transitions = () => {
+    const names: { before: string[]; after: string[] }[] = [];
+    const named = () => [...document.querySelectorAll<HTMLElement>("*")].filter((el) => el.style.viewTransitionName === "lightbox-item").map((el) => el.dataset.slot ?? el.tagName.toLowerCase());
+    const start = vi.fn((update: () => void) => {
+      const before = named();
+      update();
+      names.push({ before, after: named() });
+      return { finished: Promise.resolve() };
+    });
+    Object.defineProperty(document, "startViewTransition", { value: start, configurable: true });
+    return { start, names, named };
+  };
+  const drag = (to: number) => {
+    fireEvent.pointerDown(stage(), { pointerId: 1, button: 0, clientY: 100 });
+    fireEvent.pointerMove(stage(), { pointerId: 1, clientY: 100 + to });
+  };
+
+  afterEach(() => {
+    delete (document as { startViewTransition?: unknown }).startViewTransition;
+    vi.unstubAllGlobals();
+  });
+
+  it("morphs from the thumbnail to the open item and back, then gives the focus back to the thumbnail", async () => {
+    const vt = transitions();
+    const user = userEvent.setup();
+    render(<Lightbox items={items} zoomFromThumbnail />);
+    const thumb = screen.getByRole("button", { name: "Signage by the greenhouse" });
+    await user.click(thumb);
+    await screen.findByRole("dialog", { name: "Garden centre" });
+    expect(vt.names[0]).toEqual({ before: ["button"], after: ["lightbox-media"] });
+    await waitFor(() => expect(vt.named()).toEqual([]));
+    await user.keyboard("{Escape}");
+    expect(vt.names[1]).toEqual({ before: ["lightbox-media"], after: ["button"] });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(thumb).toHaveFocus();
+    expect(vt.named()).toEqual([]);
+  });
+
+  it("opens at once where there are no view transitions, without zoomFromThumbnail, and under reduced motion", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<Lightbox items={items} zoomFromThumbnail />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    expect(await screen.findByRole("dialog", { name: "Ceramics studio" })).toBeInTheDocument();
+    unmount();
+    const vt = transitions();
+    const plain = render(<Lightbox items={items} />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    await screen.findByRole("dialog");
+    plain.unmount();
+    reduce();
+    render(<Lightbox items={items} zoomFromThumbnail />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    await screen.findByRole("dialog");
+    expect(vt.start).not.toHaveBeenCalled();
+  });
+
+  it("follows a drag down and fades the backdrop; short of 120 px it springs back and stays open", async () => {
+    const user = userEvent.setup();
+    render(<Lightbox items={items} />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    await screen.findByRole("dialog");
+    drag(60);
+    expect(media()!.style.translate).toBe("0px 60px");
+    expect(Number(overlay().style.opacity)).toBeLessThan(1);
+    fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 160 });
+    expect(media()!.style.translate).toBe("");
+    expect(overlay().style.opacity).toBe("");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("closes when let go past 120 px, and the focus goes back to the thumbnail", async () => {
+    const user = userEvent.setup();
+    render(<Lightbox items={items} />);
+    const thumb = screen.getByRole("button", { name: "Home page on a phone" });
+    await user.click(thumb);
+    await screen.findByRole("dialog");
+    drag(150);
+    fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 250 });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(thumb).toHaveFocus();
+  });
+
+  it("under reduced motion the item does not follow the pointer, but letting go past 120 px still closes", async () => {
+    reduce();
+    const user = userEvent.setup();
+    render(<Lightbox items={items} />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    await screen.findByRole("dialog");
+    drag(150);
+    expect(media()!.style.translate).toBe("");
+    expect(overlay().style.opacity).toBe("");
+    fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 250 });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("leaves presses on the film to its controls: a drag that starts on the video does nothing", async () => {
+    const user = userEvent.setup();
+    render(<Lightbox items={mixed} />);
+    await user.click(screen.getByRole("button", { name: "Studio showreel video" }));
+    const dialog = await screen.findByRole("dialog", { name: "Studio film" });
+    const video = dialog.querySelector("video")!;
+    fireEvent.pointerDown(video, { pointerId: 1, button: 0, clientY: 100 });
+    fireEvent.pointerMove(video, { pointerId: 1, clientY: 300 });
+    fireEvent.pointerUp(video, { pointerId: 1, clientY: 300 });
+    expect(media()!.style.translate).toBe("");
+    expect(screen.getByRole("dialog", { name: "Studio film" })).toBeInTheDocument();
+  });
+
+  it("blurs the page behind with backdrop=\"blur\", and stays accessible", async () => {
+    const user = userEvent.setup();
+    render(<Lightbox items={items} backdrop="blur" />);
+    await user.click(screen.getByRole("button", { name: "Shop sign in terracotta" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(overlay()).toHaveClass("backdrop-blur-(--blur-regular)", "bg-scrim");
+    expect(await violations(dialog)).toEqual([]);
+  });
+});
