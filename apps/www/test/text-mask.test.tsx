@@ -83,7 +83,7 @@ describe("text mask (#241)", () => {
     expect(root.style.height).toBe("300svh");
     // The point is 120 px into the word, half way down: 30% 50%. In the stage it is at (420, 400); the centre is (500, 400).
     const word = container.querySelector("[data-slot=text-mask-layer] span") as HTMLElement;
-    expect(word.style.transformOrigin).toBe("30.00% 50.00%");
+    expect(word.style.transformOrigin).toBe("30% 50%");
     const [zoom, fade] = made;
     expect(zoom!.el).toBe(word);
     expect(zoom!.keyframes.map((k) => k.transform)).toEqual(["translate(0px, 0px) scale(1)", "translate(80px, 0px) scale(1.3)", "translate(80px, 0px) scale(2.2)", "translate(80px, 0px) scale(7)", "translate(80px, 0px) scale(34)"]);
