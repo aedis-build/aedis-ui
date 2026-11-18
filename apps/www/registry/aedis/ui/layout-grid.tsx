@@ -3,6 +3,7 @@
 import * as React from "react";
 import { flushSync } from "react-dom";
 
+import { safeUrl } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/aedis/hooks/use-reduced-motion";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
@@ -29,8 +30,11 @@ export type LayoutGridItem = {
   captions?: VideoCaptions[];
 };
 
-/** Where a block sits on the three columns at 768 px and wider; `aspect` sets its height, without it the block fills its row. */
-export type LayoutSlot = { column: string; row: string; aspect?: number };
+/**
+ * Where a block sits on the three columns at 768 px and wider; `aspect` sets its height, without it the block fills its
+ * row. `fit: "contain"` marks a vertical piece in a wide block: shown whole, never cropped.
+ */
+export type LayoutSlot = { column: string; row: string; aspect?: number; fit?: "contain" };
 
 /**
  * Places pieces in order on three columns. Pairs alternate a wide block and a narrow one (2+1, then 1+2), the horizontal
@@ -56,7 +60,7 @@ export function layoutSlots(ratios: number[]): LayoutSlot[] {
     } else {
       const [wide, narrow] = pairs++ % 2 === 0 ? ["1 / span 2", "3"] : ["2 / span 2", "1"];
       const w = vertical(i) && !vertical(i + 1) ? i + 1 : i;
-      for (const j of [i, i + 1]) slots.push(j === w ? { column: wide, row: `${row}`, aspect: vertical(j) ? 3 / 2 : ratios[j]! } : { column: narrow, row: `${row}` });
+      for (const j of [i, i + 1]) slots.push(j === w ? (vertical(j) ? { column: wide, row: `${row}`, aspect: 3 / 2, fit: "contain" } : { column: wide, row: `${row}`, aspect: ratios[j]! }) : { column: narrow, row: `${row}` });
       row += 1;
       i += 2;
     }
@@ -74,6 +78,9 @@ type LayoutGridProps = {
 
 const NAME = "layout-grid-card";
 
+// A ratio that is not a positive number would break the layout; such a piece is treated as 3:2.
+const normal = (r: number) => (Number.isFinite(r) && r > 0 ? r : 3 / 2);
+
 // Only the film fields that are set: Video takes no undefined props.
 const film = ({ type, poster, captions }: LayoutGridItem) => ({ ...(type && { type }), ...(poster && { poster }), ...(captions && { captions }) });
 
@@ -88,11 +95,15 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
   const card = React.useRef<HTMLDivElement>(null);
   const close = React.useRef<HTMLButtonElement>(null);
   const origin = React.useRef<HTMLAnchorElement | null>(null);
+  // A drag that starts in the card and ends on the backdrop is not a click outside.
+  const pressed = React.useRef(false);
   const [active, setActive] = React.useState<number | null>(null);
   const [aside, setAside] = React.useState(false);
   const id = React.useId();
-  const slots = layoutSlots(items.map((i) => i.ratio));
+  const ratios = items.map((i) => normal(i.ratio));
+  const slots = layoutSlots(ratios);
   const item = active === null ? undefined : items[active];
+  const ratio = active === null ? 3 / 2 : ratios[active]!;
 
   const open = (i: number, e: React.MouseEvent<HTMLAnchorElement>) => {
     // A modified click opens the file itself, like any link.
@@ -114,7 +125,8 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
         show();
         if (card.current) card.current.style.viewTransitionName = NAME;
       })
-      .finished.finally(() => card.current?.style.removeProperty("view-transition-name"));
+      .finished.finally(() => card.current?.style.removeProperty("view-transition-name"))
+      .catch(() => {});
   };
 
   React.useEffect(() => {
@@ -133,7 +145,7 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
     };
   }, [active]);
 
-  const vertical = !!item && item.ratio < 1;
+  const vertical = !!item && ratio < 1;
 
   return (
     <section data-slot="layout-grid" aria-labelledby={chapter ? `${id}-chapter` : undefined} className={cn("w-full", className)}>
@@ -149,23 +161,27 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
       <ul className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {items.map((it, i) => {
           const slot = slots[i]!;
+          const href = safeUrl(it.src);
           return (
             <li
               key={i}
-              data-shape={it.ratio < 1 ? "vertical" : "horizontal"}
-              style={{ "--ratio": it.ratio, "--md-ratio": slot.aspect ?? "auto", "--col": slot.column, "--row": slot.row } as React.CSSProperties}
+              data-shape={ratios[i]! < 1 ? "vertical" : "horizontal"}
+              style={{ "--ratio": ratios[i], "--md-ratio": slot.aspect ?? "auto", "--col": slot.column, "--row": slot.row } as React.CSSProperties}
               className="relative overflow-hidden rounded-md [aspect-ratio:var(--ratio)] md:[aspect-ratio:var(--md-ratio)] md:[grid-column:var(--col)] md:[grid-row:var(--row)]"
             >
-              <a
-                href={it.src}
-                onClick={(e) => open(i, e)}
-                aria-label={(it.kind === "film" ? l.film : l.photo).replace("{title}", it.title)}
-                className="absolute inset-0 z-1 rounded-md focus-ring"
-              />
+              {href ? (
+                <a
+                  href={href}
+                  rel="noopener noreferrer"
+                  onClick={(e) => open(i, e)}
+                  aria-label={(it.kind === "film" ? l.film : l.photo).replace("{title}", it.title)}
+                  className="absolute inset-0 z-1 rounded-md focus-ring"
+                />
+              ) : null}
               {it.kind === "film" ? (
-                <Video variant="background" autoplay src={it.src} {...film(it)} title={it.title} className="absolute inset-0 min-h-0 rounded-none [&_button]:z-2" />
+                <Video variant="background" autoplay src={it.src} {...film(it)} title={it.title} fit={slot.fit ?? "cover"} className="absolute inset-0 min-h-0 rounded-none [&_button]:z-2" />
               ) : (
-                <MediaFrame decorative src={it.src} className="absolute inset-0 aspect-auto h-full rounded-none" />
+                <MediaFrame decorative src={it.src} fit={slot.fit ?? "cover"} className="absolute inset-0 aspect-auto h-full rounded-none" />
               )}
             </li>
           );
@@ -179,28 +195,33 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
           origin.current?.focus();
         }}
         // A click on the backdrop lands on the dialog itself; the card fills it.
-        onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
-        className="m-auto max-h-none max-w-none overflow-visible border-0 bg-transparent p-0 backdrop:bg-black/70"
+        onPointerDown={(e) => (pressed.current = e.target === e.currentTarget)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget && pressed.current) e.currentTarget.close();
+          pressed.current = false;
+        }}
+        className="m-auto max-h-none max-w-none overflow-visible border-0 bg-transparent p-0 backdrop:bg-scrim"
       >
         {item ? (
           <div
             ref={card}
             data-slot="layout-grid-card"
             data-shape={vertical ? "vertical" : "horizontal"}
-            style={{ "--ratio": item.ratio } as React.CSSProperties}
+            style={{ "--ratio": ratio } as React.CSSProperties}
             className={cn("relative grid overflow-hidden rounded-lg bg-surface [--side:0px]", vertical && "md:grid-cols-[auto_18rem] md:[--side:18rem]")}
           >
             <div className="relative w-[min(calc(100vw-2rem-var(--side)),calc((100dvh-2rem)*var(--ratio)))] [aspect-ratio:var(--ratio)]">
               {item.kind === "film" ? (
                 <Video src={item.src} {...film(item)} title={item.title} className="absolute inset-0 aspect-auto rounded-none" />
               ) : (
-                <img src={item.src} alt={item.alt} className="absolute inset-0 size-full object-cover" />
+                // The description below already says what the picture shows, so it is not read twice.
+                <img src={item.src} alt={item.description ? "" : item.alt} className="absolute inset-0 size-full object-cover" />
               )}
             </div>
             <div
               data-aside={aside || undefined}
               className={cn(
-                "pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 to-transparent p-4 pt-16 text-white motion-safe:transition-[opacity,translate] motion-safe:duration-(--duration-slow) data-aside:translate-y-2 data-aside:opacity-0",
+                "pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-media-scrim-strong to-transparent p-4 pt-16 text-on-media motion-safe:transition-[opacity,translate] motion-safe:duration-(--duration-base) data-aside:translate-y-2 data-aside:opacity-0",
                 vertical && "md:pointer-events-auto md:static md:bg-none md:p-6 md:pt-16 md:text-foreground md:data-aside:translate-y-0 md:data-aside:opacity-100",
               )}
             >

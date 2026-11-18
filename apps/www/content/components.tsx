@@ -3014,8 +3014,8 @@ import { Field, FieldLabel } from "@/components/ui/field";
       { name: "layoutSlots(ratios)", type: "function", description: "The placement on three columns, exported to test or reuse: pairs alternate wide and narrow with the horizontal piece wide; three vertical pieces in a row make a feature beside two stacked blocks, switching sides each group." },
     ],
     security: {
-      sinks: [],
-      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript."],
+      sinks: ["DOM"],
+      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript. The href goes through safeUrl and carries rel=\"noopener noreferrer\"; a refused URL leaves the block without a link."],
     },
     accessibility: {
       keyboard: [["Tab", "Moves through the blocks, and the pause button of each film."], ["Enter", "On a block, opens its card; the focus moves to Close."], ["Esc", "Closes; the focus goes back to the block."]],

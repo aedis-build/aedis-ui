@@ -66,7 +66,8 @@ describe("layoutSlots (#273)", () => {
       { column: "2 / span 2", row: "4", aspect: H },
       { column: "2", row: "5", aspect: V },
     ]);
-    expect(layoutSlots([V, V])[0]).toEqual({ column: "1 / span 2", row: "1", aspect: 3 / 2 });
+    // A vertical piece in a wide block is shown whole, never cropped.
+    expect(layoutSlots([V, V])[0]).toEqual({ column: "1 / span 2", row: "1", aspect: 3 / 2, fit: "contain" });
     expect(layoutSlots([H])).toEqual([{ column: "1 / span 3", row: "1", aspect: H }]);
     expect(layoutSlots([])).toEqual([]);
   });
@@ -90,7 +91,8 @@ describe("layout-grid (#273)", () => {
     const dialog = screen.getByRole("dialog", { name: "Casa do Largo" });
     expect(dialog).toHaveTextContent("Lisbon");
     expect(dialog).toHaveTextContent("A lobby on the square.");
-    expect(screen.getByRole("img", { name: "Lobby in gold light" })).toBeInTheDocument();
+    // The description is on screen, so the picture is not read twice.
+    expect(dialog.querySelector("img")).toHaveAttribute("alt", "");
     expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
     expect(await violations(dialog)).toEqual([]);
     await user.click(screen.getByRole("button", { name: "Close" }));
@@ -151,6 +153,77 @@ describe("layout-grid (#273)", () => {
     await user.click(screen.getByRole("link", { name: "Photo: Casa do Largo" }));
     expect(start).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog", { name: "Casa do Largo" })).toBeInTheDocument();
+  });
+
+  it("shows a vertical piece whole in a wide block, and treats an invalid ratio as 3:2", () => {
+    const { container } = render(
+      <LayoutGrid
+        items={[
+          { kind: "photo", src: "/a.svg", ratio: V, alt: "A", title: "A" },
+          { kind: "photo", src: "/b.svg", ratio: V, alt: "B", title: "B" },
+          { kind: "photo", src: "/c.svg", ratio: Number.NaN, alt: "C", title: "C" },
+          { kind: "photo", src: "/d.svg", ratio: -2, alt: "D", title: "D" },
+        ]}
+      />,
+    );
+    const lis = container.querySelectorAll("li");
+    expect(lis[0]!.querySelector("img")).toHaveClass("object-contain");
+    expect(lis[1]!.querySelector("img")).toHaveClass("object-cover");
+    for (const li of [lis[2]!, lis[3]!]) {
+      expect(li).toHaveAttribute("data-shape", "horizontal");
+      expect(li.style.getPropertyValue("--ratio")).toBe(String(3 / 2));
+    }
+    fireEvent.click(screen.getByRole("link", { name: "Photo: C" }));
+    expect(screen.getByRole("dialog").querySelector<HTMLElement>("[data-slot=layout-grid-card]")!.style.getPropertyValue("--ratio")).toBe(String(3 / 2));
+  });
+
+  it("keeps the picture's alt in the card when there is no description", async () => {
+    const user = userEvent.setup();
+    render(<LayoutGrid items={[{ kind: "photo", src: "/a.svg", ratio: H, alt: "A quiet room", title: "Room" }]} />);
+    await user.click(screen.getByRole("link", { name: "Photo: Room" }));
+    expect(screen.getByRole("img", { name: "A quiet room" })).toBeInTheDocument();
+  });
+
+  it("links a block through safeUrl with noopener noreferrer, and leaves a refused URL without a link", () => {
+    render(
+      <LayoutGrid
+        items={[
+          { kind: "photo", src: "https://cdn.example.com/a.jpg", ratio: H, alt: "A", title: "A" },
+          { kind: "photo", src: "javascript:alert(1)", ratio: H, alt: "B", title: "B" },
+        ]}
+      />,
+    );
+    const link = screen.getByRole("link", { name: "Photo: A" });
+    expect(link).toHaveAttribute("href", "https://cdn.example.com/a.jpg");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.queryByRole("link", { name: "Photo: B" })).toBeNull();
+  });
+
+  it("does not close when a drag starts in the card and ends on the backdrop", async () => {
+    const user = userEvent.setup();
+    render(<LayoutGrid items={items} />);
+    await user.click(screen.getByRole("link", { name: "Photo: Casa do Largo" }));
+    const dialog = screen.getByRole("dialog");
+    fireEvent.pointerDown(screen.getByText("A lobby on the square."));
+    fireEvent.click(dialog);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("swallows a View Transition that rejects", async () => {
+    const user = userEvent.setup();
+    const unhandled = vi.fn();
+    process.on("unhandledRejection", unhandled);
+    try {
+      Object.assign(document, {
+        startViewTransition: (update: () => void) => (update(), { finished: Promise.reject(new Error("skipped")) }),
+      });
+      render(<LayoutGrid items={items} />);
+      await user.click(screen.getByRole("link", { name: "Photo: Casa do Largo" }));
+      await new Promise((r) => setTimeout(r, 0));
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      process.off("unhandledRejection", unhandled);
+    }
   });
 
   it("leaves a modified click to the browser, so the file opens in a new tab", () => {
