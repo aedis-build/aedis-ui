@@ -123,10 +123,22 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
     const d = drag.current;
     if (d?.id !== e.pointerId) return;
     drag.current = null;
-    if (overlay.current) Object.assign(overlay.current.style, { transition: "", opacity: "" });
-    if (done && d.dy > DISMISS) return toggle(false);
-    const el = media.current;
-    if (el) Object.assign(el.style, { transition: "translate var(--duration-spring) var(--ease-spring-bouncy)", translate: "" });
+    const o = overlay.current;
+    if (done && d.dy > DISMISS) {
+      // The backdrop fades on from where the drag left it: clearing the opacity first would flash it opaque.
+      if (o?.style.opacity) Object.assign(o.style, { transition: "", opacity: "0" });
+      return toggle(false);
+    }
+    // Under reduced motion nothing moved, so there is nothing to bring back.
+    if (reduced) return;
+    // The item and the backdrop come back together, on the same spring.
+    const spring = "var(--duration-spring) var(--ease-spring-bouncy)";
+    if (media.current) Object.assign(media.current.style, { transition: `translate ${spring}`, translate: "" });
+    if (o?.style.opacity) {
+      Object.assign(o.style, { transition: `opacity ${spring}`, opacity: "" });
+      // Then the dialog's own fade takes over again for the exit.
+      o.addEventListener("transitionend", () => (o.style.transition = ""), { once: true });
+    }
   };
 
   return (

@@ -89,13 +89,19 @@ test("at 390 px a short drag down springs back, a long one closes and the focus 
   expect((await image.boundingBox())!.y).toBeGreaterThan(start.y + 40);
   expect(Number(await page.locator('[data-slot="dialog-overlay"]').evaluate((o) => getComputedStyle(o).opacity))).toBeLessThan(1);
   expect(await page.locator('[data-slot="dialog-overlay"]').evaluate((o) => getComputedStyle(o).backdropFilter)).toContain("blur");
+  const overlay = page.locator('[data-slot="dialog-overlay"]');
   await page.mouse.up();
+  // The backdrop eases back with the item instead of snapping opaque.
+  expect(await overlay.evaluate((o) => o.getAnimations().some((a) => (a as CSSTransition).transitionProperty === "opacity"))).toBe(true);
   await expect.poll(async () => Math.round((await image.boundingBox())!.y)).toBe(Math.round(start.y));
   await expect(dialog).toBeVisible();
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.move(x, y + 200, { steps: 10 });
+  const dragged = Number(await overlay.evaluate((o) => getComputedStyle(o).opacity));
   await page.mouse.up();
+  // Closing fades on from the dragged opacity: it never flashes back to opaque.
+  expect(Number(await overlay.evaluate((o) => getComputedStyle(o).opacity))).toBeLessThanOrEqual(dragged);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(thumb).toBeFocused();
 });

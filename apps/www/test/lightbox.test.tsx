@@ -311,6 +311,10 @@ describe("lightbox shared element and drag to close (#270)", () => {
     fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 160 });
     expect(media()!.style.translate).toBe("");
     expect(overlay().style.opacity).toBe("");
+    // The backdrop comes back on the item's spring, not in one jump.
+    expect(overlay().style.transition).toBe("opacity var(--duration-spring) var(--ease-spring-bouncy)");
+    expect(media()!.style.transition).toBe("translate var(--duration-spring) var(--ease-spring-bouncy)");
+    fireEvent.transitionEnd(overlay());
     expect(overlay().style.transition).toBe("");
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
@@ -322,7 +326,10 @@ describe("lightbox shared element and drag to close (#270)", () => {
     await user.click(thumb);
     await screen.findByRole("dialog");
     drag(150);
+    const o = overlay();
     fireEvent.pointerUp(stage(), { pointerId: 1, clientY: 250 });
+    // It fades on from the dragged opacity; it is never reset to opaque on the way out.
+    expect(o.style.opacity).toBe("0");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(thumb).toHaveFocus();
   });
