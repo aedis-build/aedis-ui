@@ -88,8 +88,9 @@ function ImageAccordion({ items, defaultOpen = 0, onOpenChange, openOn = "hover"
             data-slot="image-accordion-panel"
             data-open={isOpen ? "" : undefined}
             aria-expanded={isOpen}
-            aria-labelledby={`${id}-${i}-label`}
-            aria-describedby={`${id}-${i}-text ${id}-${i}-image`}
+            // Named by every word an open panel shows, in reading order, so voice control finds it (WCAG 2.5.3).
+            aria-labelledby={[item.kicker ? `${id}-${i}-kicker` : null, `${id}-${i}-label`, `${id}-${i}-text`].filter(Boolean).join(" ")}
+            aria-describedby={`${id}-${i}-image`}
             tabIndex={isOpen ? 0 : -1}
             onClick={() => show(i)}
             onFocus={() => show(i)}
@@ -127,8 +128,10 @@ function ImageAccordion({ items, defaultOpen = 0, onOpenChange, openOn = "hover"
                 textWidth,
               )}
             >
-              {item.kicker ? <span className="text-caption font-semibold tracking-wide uppercase opacity-80">{item.kicker}</span> : null}
-              <span id={`${id}-${i}-label`} className="text-title-2">{item.label}</span>
+              {item.kicker ? <span id={`${id}-${i}-kicker`} className="text-caption font-semibold tracking-wide uppercase opacity-80">{item.kicker}</span> : null}
+              {/* Spaces between the grid items keep the words apart in the text read out, without changing the layout. */}
+              {" "}
+              <span id={`${id}-${i}-label`} className="text-title-2">{item.label}</span>{" "}
               <span id={`${id}-${i}-text`} className="max-w-prose text-callout opacity-90">{item.text}</span>
             </span>
           </button>
