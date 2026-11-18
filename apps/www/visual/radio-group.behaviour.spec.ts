@@ -45,6 +45,11 @@ test("a contracted-only card is unavailable, readable and says why", async ({ pa
   await expect(keys).toHaveAttribute("aria-disabled", "true");
   await expect(keys.getByText("Contracted with our team")).toBeVisible();
   expect(Number(await keys.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
+  // Unavailable reads unlike hover: no fill, a dashed edge, and a hover changes nothing.
+  const look = () => keys.evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).borderStyle]);
+  expect(await look()).toEqual(["rgba(0, 0, 0, 0)", "dashed"]);
+  await keys.hover({ force: true });
+  expect(await look()).toEqual(["rgba(0, 0, 0, 0)", "dashed"]);
   await keys.click({ force: true });
   await expect(keys).toHaveAttribute("aria-checked", "false");
 });

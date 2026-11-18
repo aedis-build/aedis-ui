@@ -39,14 +39,15 @@ function RadioGroupItem(props: RadioGroupItemProps) {
         data-variant="card"
         className={cn(
           // Selected: accent border plus an inset 1 px ring, so the card does not shift. Focus uses an outline so it never
-          // collides with that ring. Disabled keeps its text readable (muted) instead of fading the whole card.
-          "group/radio-card flex w-full cursor-pointer items-start gap-3 rounded-md border border-hairline bg-surface p-4 text-left text-callout outline-none transition-colors duration-(--duration-fast) ease-out hover:bg-muted focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring data-checked:border-accent data-checked:ring-1 data-checked:ring-inset data-checked:ring-accent data-disabled:cursor-not-allowed data-disabled:bg-muted data-disabled:text-muted-foreground data-disabled:hover:bg-muted",
+          // collides with that ring. Disabled keeps its text readable (muted) instead of fading the whole card, and reads as
+          // out of reach rather than raised: no fill, a dashed edge, no hover.
+          "group/radio-card flex w-full cursor-pointer items-start gap-3 rounded-md border border-hairline bg-surface p-4 text-left text-callout outline-none transition-colors duration-(--duration-fast) ease-out hover:bg-muted focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring data-checked:border-accent data-checked:ring-1 data-checked:ring-inset data-checked:ring-accent data-disabled:cursor-not-allowed data-disabled:border-dashed data-disabled:border-border data-disabled:bg-transparent data-disabled:text-muted-foreground data-disabled:hover:bg-transparent",
           className,
         )}
         {...rest}
       >
         {icon ? (
-          <span aria-hidden="true" data-slot="radio-group-card-icon" className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-hairline bg-muted [&_svg]:size-4 group-data-checked/radio-card:text-accent">
+          <span aria-hidden="true" data-slot="radio-group-card-icon" className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-hairline bg-muted [&_svg]:size-4 group-data-checked/radio-card:text-accent group-data-disabled/radio-card:border-dashed group-data-disabled/radio-card:bg-transparent">
             {icon}
           </span>
         ) : null}
@@ -54,7 +55,15 @@ function RadioGroupItem(props: RadioGroupItemProps) {
           {/* The spaces keep the accessible name readable: the card's name is its text, in reading order. */}
           <span data-slot="radio-group-card-title" className="font-medium">{title}</span>{" "}
           {description ? <span data-slot="radio-group-card-description" className="text-footnote text-muted-foreground">{description}</span> : null}{" "}
-          {children ? <span data-slot="radio-group-card-note" className="text-footnote text-muted-foreground">{children}</span> : null}
+          {children ? (
+            <span data-slot="radio-group-card-note" className="mt-1 inline-flex items-center gap-1.5 text-footnote text-muted-foreground">
+              {/* A lock on a disabled card: the note is why it is out of reach. */}
+              <svg viewBox="0 0 16 16" aria-hidden="true" className="hidden size-3.5 shrink-0 group-data-disabled/radio-card:block" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M4.5 7.5h7v6h-7zM6 7.5V5.5a2 2 0 0 1 4 0v2" />
+              </svg>
+              {children}
+            </span>
+          ) : null}
         </span>
       </RadioPrimitive.Root>
     );
