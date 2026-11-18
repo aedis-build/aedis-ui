@@ -17,5 +17,9 @@ Commands: `init` (config, theme, `cn` and the security primitives; `--preset <id
 `add <item...>`, `diff [item...]`, `theme import <file.json>`, `lint [registry.json]`, `mcp` (read-only docs server
 for coding agents). `--registry github:<owner>/<repo>@<tag>` installs a third-party registry under the same checks.
 
+`aedis.json` keeps a receipt for every file the CLI writes (`files`: path, sha256 of the bytes written, item,
+release). Adding again never replaces a file edited since: the new version goes next to it as `<file>.aedis-new` and
+the command exits non-zero. The receipt is a local, editable file: it detects drift, it does not authenticate anything.
+
 Source, issues and the security policy: [github.com/aedis-build/aedis-ui](https://github.com/aedis-build/aedis-ui).
 Apache-2.0.
