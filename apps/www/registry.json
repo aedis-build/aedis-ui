@@ -1166,6 +1166,7 @@
         "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted",
+        "@aedis/use-format",
         "@aedis/locale",
         "@aedis/button"
       ],

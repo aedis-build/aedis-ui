@@ -2,24 +2,24 @@ import { expect, test } from "./fixtures";
 
 // #282: the console plans as a person on Plan and billing meets them. "/blocks/plans" is the block's page.
 
-/** Every plan column's box and the box of its heading, in order. */
+/** Every plan column's box (in page coordinates: clicking a button may scroll it into view) and the box of its heading, in order. */
 const boxes = (page: import("@playwright/test").Page) =>
   page.locator("[data-slot=plans] section").evaluateAll((sections) =>
     sections.map((s) => {
       const r = s.getBoundingClientRect();
       const h = s.querySelector("h2, h3")!.getBoundingClientRect();
-      return { x: r.x, y: r.y, w: r.width, h: r.height, titleY: h.y - r.y, titleH: h.height };
+      return { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height, titleY: h.y - r.y, titleH: h.height };
     }),
   );
 
-for (const [width, columns] of [[1440, 5], [390, 1]] as const) {
+for (const [width, columns] of [[1440, 5], [800, 2], [390, 1]] as const) {
   test(`at ${width} px the plans sit on ${columns} column(s), and switching plan moves no column by a pixel`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/blocks/view/plans");
     await expect(page.getByRole("region", { name: "Start" }).getByText("Current plan")).toBeVisible();
     const before = await boxes(page);
     expect(before).toHaveLength(5);
-    expect(new Set(before.map((b) => Math.round(b.y))).size).toBe(width === 1440 ? 1 : 5);
+    expect(new Set(before.map((b) => Math.round(b.y))).size).toBe(Math.ceil(5 / columns));
     // The heading sits at the same place and height in every column, current or not.
     expect(new Set(before.map((b) => `${b.titleY}:${b.titleH}`)).size).toBe(1);
 
@@ -40,7 +40,8 @@ test("the actions are named in full and reachable by keyboard; the current plan 
   await expect(pro).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("region", { name: "Pro" }).getByText("Current plan")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Talk to us about Managed" })).toHaveAttribute("href", "#contact");
+  await page.getByRole("button", { name: "Talk to us about Managed" }).click();
+  await expect(page.getByRole("status")).toContainText("Simulated");
 });
 
 test("prices come in reais and in dollars, and the current rule is the accent", async ({ page }) => {

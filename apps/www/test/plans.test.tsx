@@ -57,6 +57,15 @@ describe("plans (#282)", () => {
     expect(sections()[1]).toHaveAttribute("data-current", "true");
   });
 
+  it("reserves the action row in every plan, current or without an action, so a column's height does not depend on being current", () => {
+    const { container } = render(<Plans plans={plans} current="free" currency="USD" />);
+    const slots = [...container.querySelectorAll("section")].map((s) => s.querySelector("[data-slot=plan-action]"));
+    // Free is current and has no action; Trap's URL is refused: both keep the empty row.
+    for (const slot of slots) expect(slot).toHaveClass("h-9");
+    expect(slots[0]).toBeEmptyDOMElement();
+    expect(slots[2]).toBeEmptyDOMElement();
+  });
+
   it("puts plan headings under a title, and reads the tag from the locale or labels", async () => {
     const { container, rerender } = render(
       <LocaleProvider locale="pt-BR" messages={ptBR}>

@@ -22,6 +22,7 @@ const tiers = [
 export default function PlansDemo() {
   const [currency, setCurrency] = React.useState<"BRL" | "USD">("BRL");
   const [current, setCurrent] = React.useState("start");
+  const [asked, setAsked] = React.useState(false);
   const label = React.useId();
   const p = prices[currency];
   const plans: Plan[] = tiers.map((t) => ({
@@ -34,7 +35,7 @@ export default function PlansDemo() {
       t.id === current
         ? undefined
         : t.id === "managed"
-          ? { label: "Talk to us about Managed", href: "#contact" }
+          ? { label: "Talk to us about Managed", onClick: () => setAsked(true) }
           : { label: `Switch to ${t.name}`, onClick: () => setCurrent(t.id) },
   }));
   return (
@@ -50,6 +51,9 @@ export default function PlansDemo() {
         <p className="text-footnote text-muted-foreground">Switching plans here is simulated: nothing is charged.</p>
       </div>
       <Plans title="Plan and billing" plans={plans} current={current} currency={currency} locale={p.locale} />
+      <p role="status" className="text-footnote text-muted-foreground">
+        {asked ? "Simulated: here the console would open a message to our team about Managed." : null}
+      </p>
     </div>
   );
 }

@@ -4,11 +4,12 @@ import * as React from "react";
 
 import { isExternal, safeUrl } from "@/lib/untrusted";
 import { cn } from "@/lib/utils";
-import { useLocale, useMessages, type Messages } from "@/registry/aedis/lib/locale";
+import { useFormat } from "@/registry/aedis/hooks/use-format";
+import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
 
-/** What a plan's action does: a link (through safeUrl) when it has an href, otherwise a button. Name it in full: "Switch to Pro". */
-export type PlanAction = { label: string; href?: string; onClick?: () => void };
+/** What a plan's action does: a link (through safeUrl) with an href, or a button with onClick. Name it in full: "Switch to Pro". */
+export type PlanAction = { label: string } & ({ href: string; onClick?: never } | { onClick: () => void; href?: never });
 
 export type Plan = {
   id: string;
@@ -41,8 +42,7 @@ export type PlansProps = {
  */
 export function Plans({ plans, current, currency, locale, title, labels, className }: PlansProps) {
   const l = useMessages("plans", labels);
-  const provider = useLocale().locale;
-  const money = new Intl.NumberFormat(locale ?? provider, { style: "currency", currency, trailingZeroDisplay: "stripIfInteger" });
+  const f = useFormat();
   const H = title ? "h3" : "h2";
   const uid = React.useId();
   return (
@@ -67,7 +67,7 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
                 {on ? <span className="text-footnote font-medium text-highlight">{l.current}</span> : null}
               </div>
               <p className="flex items-baseline gap-1">
-                <span className="text-title-2 tabular-nums">{typeof p.price === "number" ? money.format(p.price) : p.price}</span>
+                <span className="text-title-2 tabular-nums">{typeof p.price === "number" ? f.currency(p.price, currency, { locale, trailingZeroDisplay: "stripIfInteger" }) : p.price}</span>
                 {p.period ? (
                   <>
                     {" "}
@@ -84,15 +84,17 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
                   ))}
                 </ul>
               ) : null}
-              {p.action && (url || !p.action.href) ? (
-                <Button
-                  className="mt-auto self-start"
-                  variant="outline"
-                  {...(url ? { render: <a href={url} rel={isExternal(url) ? "noopener noreferrer" : undefined} /> } : { onClick: p.action.onClick })}
-                >
-                  {p.action.label}
-                </Button>
-              ) : null}
+              {/* The action row is reserved in every plan, so a column is as tall whether it is current or not. */}
+              <div data-slot="plan-action" className="mt-auto flex h-9 items-center">
+                {p.action && (url || !p.action.href) ? (
+                  <Button
+                    variant="outline"
+                    {...(url ? { render: <a href={url} rel={isExternal(url) ? "noopener noreferrer" : undefined} /> } : { onClick: p.action.onClick })}
+                  >
+                    {p.action.label}
+                  </Button>
+                ) : null}
+              </div>
             </section>
           );
         })}
