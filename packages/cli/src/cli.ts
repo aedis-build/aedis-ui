@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { decodePreset, presetBlocks, presetChoices, presetItems, presetLevels, presetTheme } from "../../../apps/www/content/preset";
@@ -7,7 +7,7 @@ import { CONFIG_FILE, defaultConfig, isRelease, readConfig, sha256, type AedisCo
 import { detectPackageManager, installCommand, pickVersions } from "./deps";
 import { lineDiff } from "./diff";
 import { lintMessages, lintRegistry } from "./lint";
-import { insideProject } from "./paths";
+import { createFile, insideProject, notSymlink, replaceFile } from "./paths";
 import { githubRegistry, releaseSource, resolveItems, urlSource, type ItemSource } from "./registry";
 import { serve } from "./mcp";
 import { themeImport } from "./theme";
@@ -57,8 +57,10 @@ Options
                      any other registry, e.g. a local branch; refused unless you allow it
   --yes, -y          do not ask before writing
   --overwrite        replace local copies that differ from the registry and have no receipt in
-                     aedis.json; a file edited since aedis wrote it is never replaced: the new
-                     version goes next to it as <file>.aedis-new and the command fails
+                     aedis.json (or any local copy, when the registry is not verified); a file
+                     edited since aedis wrote it is never replaced: the new version goes next to
+                     it as <file>.aedis-new and the command fails. To settle it, make the file
+                     equal to <file>.aedis-new, add again, then delete the .aedis-new
   --cwd <dir>        project root (default: current directory)`;
 
 function parse(argv: string[]) {
@@ -109,24 +111,33 @@ async function add(names: string[], config: AedisConfig, flags: Flags, io: Io, r
   const items = await resolveItems(names, from);
   const files = planFiles(items, config, root);
   const receipts = config.files ?? {};
+  const fresh = (relative: string) => `${relative}.aedis-new`;
   // edited: changed since the CLI wrote it (receipt does not match), never overwritten; differs: no receipt (installed
   // before receipts existed), replaced only with --overwrite; update: still what the CLI wrote, replaced.
-  const status = files.map((f) => {
-    const bytes = local(f.absolute);
+  const seen = files.map((f) => local(f.absolute));
+  const status = files.map((f, i) => {
+    const bytes = seen[i];
     if (!bytes) return "create" as const;
     if (bytes.toString("utf8") === f.content) return "unchanged" as const;
     const receipt = receipts[f.relative];
     if (receipt) return receipt.sha256 === sha256(bytes) ? ("update" as const) : ("edited" as const);
     return "differs" as const;
   });
-  const differs = files.filter((_f, i) => status[i] === "differs");
-  if (differs.length && !flags.overwrite) {
-    for (const f of differs) io.log(`  local copy differs: ${f.relative}`);
-    throw new Error("local copies differ from the registry: run aedis diff, send changes upstream, or pass --overwrite");
+  // A symlink as the last component would be followed by a write, even to another file inside the project.
+  files.forEach((f, i) => (status[i] === "edited" ? notSymlink(insideProject(root, fresh(f.relative)), fresh(f.relative)) : notSymlink(f.absolute, f.relative)));
+  // An unverified registry may replace nothing on its own, not even a file still as the CLI wrote it.
+  const replacing = files.filter((_f, i) => status[i] === "differs" || (status[i] === "update" && !from.verified));
+  if (replacing.length && !flags.overwrite) {
+    for (const f of replacing) io.log(receipts[f.relative] ? `  would replace from an unverified registry: ${f.relative}` : `  local copy differs: ${f.relative}`);
+    throw new Error(
+      replacing.some((f) => !receipts[f.relative])
+        ? "local copies differ from the registry: run aedis diff, send changes upstream, or pass --overwrite"
+        : "replacing local copies from an unverified registry needs --overwrite",
+    );
   }
   const label = { create: "create   ", unchanged: "unchanged", update: "update   ", differs: "overwrite", edited: "keep     " } as const;
   io.log(`from ${from.label}:`);
-  files.forEach((f, i) => io.log(`  ${label[status[i]]} ${f.relative}${status[i] === "edited" ? ` (edited locally; new version in ${f.relative}.aedis-new)` : ""}`));
+  files.forEach((f, i) => io.log(`  ${label[status[i]]} ${f.relative}${status[i] === "edited" ? ` (edited locally; new version in ${fresh(f.relative)})` : ""}`));
 
   const deps = [...new Set(items.flatMap((i) => i.dependencies))];
   const specs = deps.length ? await pickVersions(deps, { fetcher: io.fetcher, now: io.now }) : [];
@@ -137,16 +148,30 @@ async function add(names: string[], config: AedisConfig, flags: Flags, io: Io, r
     return 1;
   }
   const written: Record<string, Receipt> = {};
+  const edited: string[] = [];
   files.forEach((f, i) => {
-    const target = status[i] === "edited" ? insideProject(root, `${f.relative}.aedis-new`) : f.absolute;
-    if (status[i] !== "unchanged") {
-      mkdirSync(path.dirname(target), { recursive: true });
-      writeFileSync(target, f.content);
+    // Look again: the file may have changed while the prompt was open. Anything new there is an edit to keep.
+    let state = status[i];
+    if (state !== "edited") {
+      const bytes = local(f.absolute);
+      if (!bytes) state = "create";
+      else if (bytes.toString("utf8") === f.content) state = "unchanged";
+      else if (!seen[i]?.equals(bytes)) state = "edited";
     }
-    // The hash is of the bytes written (or already there, byte for byte), from a release verified above.
-    if (status[i] !== "edited") written[f.relative] = { sha256: sha256(f.content), item: f.item, release: from.release };
+    if (state === "create" && !createFile(f.absolute, f.content)) state = "edited";
+    else if (state === "update" || state === "differs") replaceFile(f.absolute, f.content);
+    if (state === "edited") {
+      const target = insideProject(root, fresh(f.relative));
+      if (existsSync(target)) io.log(`  replaced the previous ${fresh(f.relative)}`);
+      replaceFile(target, f.content);
+      edited.push(f.relative);
+      return;
+    }
+    // The hash is of the bytes written (or already there, byte for byte). The release was verified unless the source
+    // is an --allow-unverified registry, whose receipts say release "unverified".
+    written[f.relative] = { sha256: sha256(f.content), item: f.item, release: from.release };
   });
-  writeFileSync(insideProject(root, CONFIG_FILE), `${JSON.stringify({ ...config, files: { ...receipts, ...written } }, null, 2)}\n`);
+  replaceFile(insideProject(root, CONFIG_FILE), `${JSON.stringify({ ...config, files: { ...receipts, ...written } }, null, 2)}\n`);
   if (specs.length) {
     const pm = detectPackageManager(root);
     const { command, args, env } = installCommand(pm, specs);
@@ -154,9 +179,8 @@ async function add(names: string[], config: AedisConfig, flags: Flags, io: Io, r
     const code = io.spawn(command, args, { cwd: root, env });
     if (code !== 0) throw new Error(`${command} exited with ${code}`);
   }
-  const edited = files.filter((_f, i) => status[i] === "edited");
   if (edited.length) {
-    for (const f of edited) io.log(`  conflict: ${f.relative} was edited locally; kept it, wrote ${f.relative}.aedis-new`);
+    for (const relative of edited) io.log(`  conflict: ${relative} was edited locally; kept it, wrote ${fresh(relative)}`);
     throw new Error(`${edited.length} file(s) edited locally were not overwritten: merge each .aedis-new by hand, then add again`);
   }
   io.log(`added ${items.map((i) => i.name).join(", ")}`);
@@ -189,9 +213,11 @@ async function diff(names: string[], config: AedisConfig, flags: Flags, io: Io, 
   for (const f of planned) {
     if (receipts[f.relative]) continue;
     if (existsSync(f.absolute)) io.log(`${"untracked".padEnd(15)}${f.relative}`);
-    else if (names.length) io.log(`${"missing".padEnd(15)}${f.relative}`), drift++;
+    // Never installed (no receipt, no file) is not drift: diff of an item you have not added exits 0, as before receipts.
+    else if (names.length) io.log(`${"missing".padEnd(15)}${f.relative}`);
   }
-  io.log(changed ? `${changed} file(s) differ. Local copies are not meant to be edited in place: send the change upstream.` : "up to date");
+  if (changed) io.log(`${changed} file(s) differ. Local copies are not meant to be edited in place: send the change upstream.`);
+  else io.log(drift ? `${drift} tracked file(s) missing or edited since aedis wrote them (see above)` : "up to date");
   return changed || drift ? 1 : 0;
 }
 
@@ -244,8 +270,7 @@ ${JSON.stringify(shown, null, 2)}`);
       const theme = code === 0 && preset ? presetTheme(preset) : null;
       if (theme) {
         const out = insideProject(root, `${config.paths.styles}/aedis-custom-theme.css`);
-        mkdirSync(path.dirname(out), { recursive: true });
-        writeFileSync(out, `/* Generated by aedis init --preset ${flags.preset}. Do not edit; run it again or use aedis theme import. */
+        replaceFile(out, `/* Generated by aedis init --preset ${flags.preset}. Do not edit; run it again or use aedis theme import. */
 ${themeToCss(theme)}
 `);
         io.log(`wrote ${path.relative(root, out)}; import it after aedis-theme.css`);
@@ -268,8 +293,7 @@ ${themeToCss(theme)}
         throw new Error("theme refused");
       }
       const out = insideProject(root, `${config.paths.styles}/aedis-custom-theme.css`);
-      mkdirSync(path.dirname(out), { recursive: true });
-      writeFileSync(out, result.css);
+      replaceFile(out, result.css);
       io.log(`wrote ${path.relative(root, out)} for "${result.name}"; import it after aedis-theme.css`);
       return 0;
     }

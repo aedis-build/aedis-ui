@@ -1,4 +1,5 @@
-import { lstatSync, realpathSync } from "node:fs";
+import { randomBytes } from "node:crypto";
+import { lstatSync, mkdirSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -29,4 +30,30 @@ export function insideProject(root: string, relative: string): string {
     if (real !== realBase && !real.startsWith(realBase + path.sep)) throw new Error(`refused path: ${relative} leaves the project through a symlink`);
   }
   return full;
+}
+
+/** Refuses a file that is itself a symlink: writing to it would land wherever it points, even inside the project. */
+export function notSymlink(absolute: string, relative: string): string {
+  if (lstatSync(absolute, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error(`refused path: ${relative} is a symlink`);
+  return absolute;
+}
+
+/** Writes through a new temporary file in the same folder and a rename, which replaces a symlink instead of following it. */
+export function replaceFile(absolute: string, content: string) {
+  mkdirSync(path.dirname(absolute), { recursive: true });
+  const temporary = `${absolute}.${randomBytes(6).toString("hex")}.tmp`;
+  writeFileSync(temporary, content, { flag: "wx" });
+  renameSync(temporary, absolute);
+}
+
+/** Creates a file that must not exist yet (O_EXCL, which never follows a symlink); false when something is already there. */
+export function createFile(absolute: string, content: string): boolean {
+  mkdirSync(path.dirname(absolute), { recursive: true });
+  try {
+    writeFileSync(absolute, content, { flag: "wx" });
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "EEXIST") return false;
+    throw error;
+  }
 }

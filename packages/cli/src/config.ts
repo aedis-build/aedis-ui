@@ -24,7 +24,7 @@ export type AedisConfig = {
 
 export type Receipt = { sha256: string; item: string; release: string };
 
-export const sha256 = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+export const sha256 = (bytes: string | Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 export function defaultConfig(root: string, release: string): AedisConfig {
   const src = existsSync(path.join(root, "src")) ? "src/" : "";

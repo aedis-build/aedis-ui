@@ -1,6 +1,4 @@
-import { createHash } from "node:crypto";
-
-import { REPOSITORY } from "./config";
+import { REPOSITORY, sha256 } from "./config";
 
 export const ISSUER = "https://token.actions.githubusercontent.com";
 export const WORKFLOW = ".github/workflows/release.yml";
@@ -56,7 +54,7 @@ export async function verifyRelease({ archive, bundle, release, assetName, check
   if (statement._type !== "https://in-toto.io/Statement/v1") throw new ProvenanceError("unexpected statement type");
   if (statement.predicateType !== "https://slsa.dev/provenance/v1") throw new ProvenanceError("not SLSA provenance");
 
-  const digest = createHash("sha256").update(archive).digest("hex");
+  const digest = sha256(archive);
   const subject = statement.subject?.find((s) => s.name === assetName);
   if (!subject) throw new ProvenanceError(`statement does not name ${assetName}`);
   if (subject.digest?.sha256 !== digest) throw new ProvenanceError(`${assetName} does not match its attestation (tampered or replaced)`);
