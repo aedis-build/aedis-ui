@@ -123,6 +123,7 @@ import SectionDockDemo from "@/examples/section-dock/demo";
 import TextMaskDemo from "@/examples/text-mask/demo";
 import TextMaskFly from "@/examples/text-mask/fly";
 import ImageStreamDemo from "@/examples/image-stream/demo";
+import MasonryDemo from "@/examples/masonry/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -3483,6 +3484,45 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Every card starts mid-flight; that same mid-flight still is what the page shows without JavaScript and under reduced motion. It never collapses onto the axis.",
       ],
       motion: "Each card takes cards × speed seconds to fly from the vanishing point out of the frame, its height growing geometrically. Linear, endless, and paused while the stream is off screen.",
+    },
+  },
+  {
+    name: "masonry",
+    title: "Masonry",
+    category: "Data display",
+    description: "Media in mixed ratios laid out in columns by CSS, optionally interleaved by group.",
+    examples: [
+      {
+        title: "Masonry",
+        description: "Nine works from four clients in their own ratios, each a link to its file. Turn interleaving off to see them in the order they are stored, one client after another.",
+        file: "masonry/demo",
+        component: MasonryDemo,
+      },
+    ],
+    usage: `import { Masonry } from "@/components/ui/masonry";
+import { MediaFrame } from "@/components/ui/media-frame";
+
+<Masonry aria-label="Work" items={works} itemKey={(w) => w.src} groupBy={(w) => w.client}>
+  {(w) => (
+    <a href={w.src} className="block rounded-md focus-ring">
+      <MediaFrame ratio={w.ratio} src={w.src} alt={w.alt} />
+    </a>
+  )}
+</Masonry>`,
+    props: [
+      { name: "items", type: "T[]", description: "The works, in the order they are stored." },
+      { name: "itemKey", type: "(item: T) => string", description: "A stable, unique key for each item, e.g. its file." },
+      { name: "groupBy", type: "(item: T) => string", description: "Interleaves the items by this key: one from each group in turn, groups in the order they first appear, each keeping its own order. Without it, the order of items." },
+      { name: "children", type: "(item: T) => ReactNode", description: "The tile. A link to the file around a MediaFrame keeps the gallery working without JavaScript." },
+      { name: "className", type: "string", description: "Classes for the list, e.g. other column counts." },
+    ],
+    security: { sinks: [], notes: ["Layout only: no script lays it out and nothing is injected. The tiles are what children renders; links to files on other origins get rel=\"noopener noreferrer\"."] },
+    accessibility: {
+      notes: [
+        "A list of list items; name it with aria-label. Each tile is a link named by its image's alt, so it opens without JavaScript.",
+        "CSS columns fill top to bottom, so the DOM, reading and focus order runs down the first column, then the next: it follows the visible order by column, not by row. Interleaving keeps each column from being one client.",
+        "Keep controls out of a link tile: a background Video with its pause button goes beside the link, not inside it.",
+      ],
     },
   },
 ];

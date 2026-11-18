@@ -1900,6 +1900,22 @@
       ]
     },
     {
+      "name": "masonry",
+      "type": "registry:ui",
+      "title": "Masonry",
+      "description": "Media in mixed ratios laid out in columns by CSS, optionally interleaved by group.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/masonry.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "agent-console",
       "type": "registry:block",
       "title": "Agent Console",
