@@ -3583,7 +3583,7 @@ import { MediaFrame } from "@/components/ui/media-frame";
       { name: "children", type: "(item: T) => ReactNode", description: "The tile. A link to the file around a MediaFrame keeps the gallery working without JavaScript." },
       { name: "className", type: "string", description: "Classes for the list, e.g. other column counts." },
     ],
-    security: { sinks: [], notes: ["Layout only: no script lays it out and nothing is injected. The tiles are what children renders; links to files on other origins get rel=\"noopener noreferrer\"."] },
+    security: { sinks: [], notes: ["Layout only: no script lays it out and nothing is injected. The tiles are what children renders and belong to the consumer; for a link to another origin use the house Link, which applies safeUrl and rel=\"noopener noreferrer\"."] },
     accessibility: {
       notes: [
         "A list of list items; name it with aria-label. Each tile is a link named by its image's alt, so it opens without JavaScript.",
