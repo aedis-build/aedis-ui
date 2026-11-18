@@ -179,7 +179,7 @@ function LayoutGrid({ items, chapter, className, labels }: LayoutGridProps) {
                 />
               ) : null}
               {it.kind === "film" ? (
-                <Video variant="background" autoplay src={it.src} {...film(it)} title={it.title} fit={slot.fit ?? "cover"} className="absolute inset-0 min-h-0 [&_button]:z-2" />
+                <Video variant="background" autoplay src={it.src} {...(it.type && { type: it.type })} {...(it.poster && { poster: it.poster })} title={it.title} fit={slot.fit ?? "cover"} className="absolute inset-0 min-h-0 [&_button]:z-2" />
               ) : (
                 <MediaFrame decorative src={it.src} fit={slot.fit ?? "cover"} className="absolute inset-0 aspect-auto h-full" />
               )}

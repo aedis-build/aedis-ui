@@ -83,6 +83,14 @@ describe("layout-grid (#273)", () => {
     expect(await violations(container)).toEqual([]);
   });
 
+  it("keeps a film's captions for the card, not the muted loop in the block", () => {
+    const withCaptions: LayoutGridItem[] = [{ ...items[1]!, captions: [{ src: "/media/showreel.vtt", srclang: "en", label: "English" }] }];
+    const { container } = render(<LayoutGrid items={withCaptions} />);
+    expect(container.querySelector("[data-variant=background] track")).toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "Film: Arrival" }));
+    expect(screen.getByRole("dialog").querySelector("track")).not.toBeNull();
+  });
+
   it("opens a card named by the title, focuses Close, and gives the focus back to the block on close", async () => {
     const user = userEvent.setup();
     render(<LayoutGrid items={items} />);
