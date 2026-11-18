@@ -167,6 +167,9 @@ export const es: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "o",
+  },
   sectionDock: {
     label: "Secciones de la página",
     ring: "Secciones de la página, ahora: {section}",

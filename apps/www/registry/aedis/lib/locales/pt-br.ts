@@ -167,6 +167,9 @@ export const ptBR: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "ou",
+  },
   sectionDock: {
     label: "Seções da página",
     ring: "Seções da página, agora: {section}",

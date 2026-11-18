@@ -2052,6 +2052,23 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "auth-split",
+      "type": "registry:block",
+      "title": "Auth Split",
+      "description": "Sign in and sign up as one split screen: a statement and numbered facts beside the form.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/auth-split.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
