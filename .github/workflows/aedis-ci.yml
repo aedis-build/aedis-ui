@@ -1,4 +1,4 @@
-# Single quality pipeline of aedis-ui: calls aedis-ci from Aedis Platform (Conventional Commits, tests with the 95/85
+# Single quality pipeline of aedis-ui: calls aedis-ci from Aedis Platform (Conventional Commits, tests with the 85/85
 # coverage gate and no regression, typecheck and build of the site and the CLI, SAST with the Aedis and Next.js
 # rules, CodeQL security-extended, REUSE, and a DAST baseline against the static site and the registry JSON).
 # The pipeline belongs to the platform; this file only holds the trigger, the permissions and the repository's

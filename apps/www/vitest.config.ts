@@ -21,7 +21,7 @@ export default defineConfig({
       include: ["registry/**", "lib/**"],
       // Cobertura XML is what the Aedis Platform coverage gate reads.
       reporter: ["text-summary", "cobertura"],
-      // Same bar as the .NET framework: 95 % lines, 85 % branches (aedis-platform L3 asks 85/70).
+      // Site gate: 85 % lines, 85 % branches (aedis-platform L3 asks 85/70; the CLI keeps 95/85 in its own config).
       thresholds: { lines: 85, branches: 85 },
     },
   },
