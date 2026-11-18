@@ -14,6 +14,16 @@ const plans = [
 ];
 
 describe("plans (#282)", () => {
+  it("keeps a long plan name on the fixed title row, truncated with its full name as a tooltip", () => {
+    const long = "Business with dedicated regional support";
+    render(<Plans plans={[{ id: "b", name: long, price: 1, items: ["Same line", "Same line"] }]} current="b" currency="USD" />);
+    const heading = screen.getByRole("heading", { name: long });
+    expect(heading).toHaveAttribute("title", long);
+    expect(heading).toHaveClass("truncate");
+    expect(screen.getByText("Current plan")).toHaveClass("shrink-0", "whitespace-nowrap");
+    expect(screen.getAllByText("Same line")).toHaveLength(2);
+  });
+
   it("is a section per plan named by its heading, and states the current plan in text", async () => {
     const { container } = render(<Plans plans={plans} current="free" currency="BRL" locale="pt-BR" />);
     const free = screen.getByRole("region", { name: "Free" });

@@ -46,9 +46,10 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
   const H = title ? "h3" : "h2";
   const uid = React.useId();
   return (
-    <div data-slot="plans" className={cn("flex flex-col gap-6", className)}>
+    <div data-slot="plans" className={cn("@container flex flex-col gap-6", className)}>
       {title ? <h2 className="text-title-2">{title}</h2> : null}
-      <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-5">
+      {/* Columns follow the block's own width, not the viewport, so a narrow page or preview still gets five. */}
+      <div className="grid gap-x-6 gap-y-10 @xl:grid-cols-2 @5xl:grid-cols-5">
         {plans.map((p) => {
           const on = p.id === current;
           const url = p.action?.href ? safeUrl(p.action.href) : undefined;
@@ -61,10 +62,10 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
               className={cn("flex flex-col gap-4 pt-4", on ? "shadow-[inset_0_2px_0_var(--accent)]" : "shadow-[inset_0_1px_0_var(--hairline)]")}
             >
               <div data-slot="plan-title" className="flex h-7 items-center justify-between gap-2">
-                <H id={`${uid}-${p.id}`} className="text-headline">
+                <H id={`${uid}-${p.id}`} title={p.name} className="min-w-0 truncate text-headline">
                   {p.name}
                 </H>
-                {on ? <span className="text-footnote font-medium text-highlight">{l.current}</span> : null}
+                {on ? <span className="shrink-0 whitespace-nowrap text-footnote font-medium text-highlight">{l.current}</span> : null}
               </div>
               <p className="flex items-baseline gap-1">
                 <span className="text-title-2 tabular-nums">{typeof p.price === "number" ? f.currency(p.price, currency, { locale, trailingZeroDisplay: "stripIfInteger" }) : p.price}</span>
@@ -77,8 +78,8 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
               </p>
               {p.items?.length ? (
                 <ul className="flex flex-col gap-2 text-callout text-muted-foreground">
-                  {p.items.map((item) => (
-                    <li key={item} className="flex gap-2 before:shrink-0 before:content-['–']">
+                  {p.items.map((item, i) => (
+                    <li key={i} className="flex gap-2 before:shrink-0 before:content-['–']">
                       {item}
                     </li>
                   ))}
@@ -89,9 +90,12 @@ export function Plans({ plans, current, currency, locale, title, labels, classNa
                 {p.action && (url || !p.action.href) ? (
                   <Button
                     variant="outline"
+                    // A long label never runs past its column: it shortens on screen, and its name stays whole.
+                    className="max-w-full min-w-0"
+                    title={p.action.label}
                     {...(url ? { render: <a href={url} rel={isExternal(url) ? "noopener noreferrer" : undefined} /> } : { onClick: p.action.onClick })}
                   >
-                    {p.action.label}
+                    <span className="truncate">{p.action.label}</span>
                   </Button>
                 ) : null}
               </div>
