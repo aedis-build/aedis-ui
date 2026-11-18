@@ -637,7 +637,7 @@
       "name": "use-event-stream",
       "type": "registry:hook",
       "title": "useEventStream",
-      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, aborts on unmount.",
+      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, pauses into a capped buffer, aborts on unmount.",
       "registryDependencies": [
         "@aedis/event-stream"
       ],

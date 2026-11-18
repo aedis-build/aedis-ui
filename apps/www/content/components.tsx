@@ -98,6 +98,7 @@ import ApiSimulator from "@/examples/api/simulator";
 import UntrustedInspector from "@/examples/untrusted/inspector";
 import SecureActionSimulator from "@/examples/secure-action/simulator";
 import EventStreamSimulator from "@/examples/event-stream/simulator";
+import UseEventStreamLiveTable from "@/examples/use-event-stream/live-table";
 import UseEventStreamSimulator from "@/examples/use-event-stream/simulator";
 import BffStreamSimulator from "@/examples/bff-stream/simulator";
 import UseIdleTimeoutDemo from "@/examples/use-idle-timeout/demo";
@@ -1396,7 +1397,15 @@ const reduced = useReducedMotion();`,
     title: "useEventStream",
     category: "Transport",
     description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
-    examples: [{ title: "Simulated stream", description: "The switch enables the hook; turning it off closes the stream.", file: "use-event-stream/simulator", component: UseEventStreamSimulator }],
+    examples: [
+      { title: "Simulated stream", description: "The switch enables the hook; turning it off closes the stream.", file: "use-event-stream/simulator", component: UseEventStreamSimulator },
+      {
+        title: "Pause live sign-ins",
+        description: "A login table fed by a simulated stream. Pause holds new rows and counts them (5 kept here, so dropping shows); resume adds them in order. Only the status line speaks, once per pause and once per resume.",
+        file: "use-event-stream/live-table",
+        component: UseEventStreamLiveTable,
+      },
+    ],
     usage: `import { useEventStream } from "@/hooks/use-event-stream";
 
 const state = useEventStream<Message>("/api/conversations/42/events", {
@@ -1408,11 +1417,21 @@ const state = useEventStream<Message>("/api/conversations/42/events", {
       { name: "onEvent", type: "(data, { type, id }) => void", description: "Called with the parsed JSON of each allowed event; malformed JSON is ignored." },
       { name: "events", type: "string[]", default: '["message"]', description: "Allow-list of event types." },
       { name: "enabled", type: "boolean", default: "true", description: "Pause without changing the path." },
+      { name: "paused", type: "boolean", default: "false", description: "Keep the connection but hold new events back (WCAG 2.2.2); turning it off delivers them to onEvent in order." },
+      { name: "maxBuffered", type: "number", default: "100", description: "Events held while paused; past it the oldest are dropped and counted. A new path empties the buffer." },
+      { name: "onBuffer", type: "({ buffered, dropped }) => void", description: "Called when the held events change, to show a count such as \"3 new events\"." },
       { name: "lastEventId", type: "string", description: "Resume after this id (Last-Event-ID, 256 printable characters at most)." },
       { name: "maxEventBytes / maxConnectionBytes", type: "number", default: "64 KiB / 16 MiB", description: "Bigger events are dropped; past the connection limit it reconnects from the last id." },
       { name: "heartbeatMs / maxRetries / retryMs / maxRetryMs", type: "number", default: "15000 / 8 / 1000 / 30000", description: "Silence for 2x heartbeat reconnects; backoff with jitter honours the server's retry:." },
       { name: "returns", type: '"connecting" | "open" | "retrying" | "closed" | "error"', description: "Connection state." },
     ],
+    accessibility: {
+      notes: [
+        "Live data that keeps moving needs a way to pause it (WCAG 2.2.2): bind a Pause toggle (aria-pressed) to paused and show onBuffer's count next to it.",
+        "Never put aria-live on the table: one role=\"status\" line speaks a summary once per pause and once per resume.",
+      ],
+      motion: "The example's new rows fade in once; under reduced motion they appear without it.",
+    },
     security: {
       sinks: ["Transport", "DOM"],
       defenses: [
@@ -1439,6 +1458,12 @@ const state = useEventStream<Message>("/api/conversations/42/events", {
           text: "204 stops for good, other 4xx stop with an error, 5xx and network errors retry with capped backoff.",
           evidence: [["event-stream.test.tsx", "stops on 204 and on client errors, retries server errors and gives up after maxRetries"]],
           ids: ["CWE-400"],
+        },
+        {
+          title: "A pause with a bounded buffer",
+          text: "While paused at most maxBuffered events are held; older ones are dropped and counted, so the count shows the loss.",
+          evidence: [["event-stream.test.tsx", "holds events while paused, caps the buffer and counts what it drops"]],
+          ids: ["CWE-770"],
         },
       ],
       backend: "Authenticate the stream with the session cookie (or bff-stream) and authorize every event a person receives.",

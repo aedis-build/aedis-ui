@@ -1,9 +1,12 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import fc from "fast-check";
 
 import { hasInvisible } from "@/lib/untrusted";
 import { useEventStream } from "@/registry/aedis/hooks/use-event-stream";
 import { assertStreamPath, connectEventStream, createSseParser, MAX_EVENT_ID, type SseEvent } from "@/registry/aedis/lib/event-stream";
+import UseEventStreamLiveTable from "@/examples/use-event-stream/live-table";
+import { violations } from "./a11y";
 
 const collect = (chunks: string[], maxEventBytes?: number) => {
   const out: SseEvent[] = [];
@@ -216,8 +219,9 @@ describe("connectEventStream", () => {
 describe("useEventStream", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  function Probe({ path, onEvent, enabled }: { path: string | null; onEvent: (d: unknown) => void; enabled?: boolean }) {
-    const state = useEventStream(path, { onEvent, enabled });
+  type ProbeProps = { path: string | null; onEvent: (d: unknown) => void; enabled?: boolean; paused?: boolean; maxBuffered?: number; onBuffer?: (b: { buffered: number; dropped: number }) => void };
+  function Probe({ path, onEvent, enabled, paused, maxBuffered, onBuffer }: ProbeProps) {
+    const state = useEventStream(path, { onEvent, enabled, paused, maxBuffered, onBuffer });
     return <span>{state}</span>;
   }
 
@@ -244,4 +248,65 @@ describe("useEventStream", () => {
     expect(screen.getAllByText("closed")).toHaveLength(2);
     act(() => {});
   });
+
+  it("holds events while paused, caps the buffer and counts what it drops", async () => {
+    scriptedFetch([sse(["data: 1\n\n", "data: 2\n\n", "data: 3\n\n", "data: 4\n\n"], { hold: true })]);
+    const onEvent = vi.fn();
+    const onBuffer = vi.fn();
+    const { rerender } = render(<Probe path="/events" paused maxBuffered={3} onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 3, dropped: 1 }));
+    expect(onEvent).not.toHaveBeenCalled();
+    rerender(<Probe path="/events" maxBuffered={3} onEvent={onEvent} onBuffer={onBuffer} />);
+    // Resume delivers what was kept, oldest first, and resets the count.
+    expect(onEvent.mock.calls.map((c) => c[0])).toEqual([2, 3, 4]);
+    expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 0, dropped: 0 });
+  });
+
+  it("delivers straight away when not paused, and empties the buffer for a new path", async () => {
+    scriptedFetch([sse(["data: 1\n\n"], { hold: true }), sse(["data: 9\n\n"], { hold: true })]);
+    const onEvent = vi.fn();
+    const onBuffer = vi.fn();
+    const { rerender } = render(<Probe path="/a" paused onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 1, dropped: 0 }));
+    rerender(<Probe path="/b" onEvent={onEvent} onBuffer={onBuffer} />);
+    await waitFor(() => expect(onEvent).toHaveBeenCalledOnce());
+    // Event 1 came from /a and is gone; only /b's event is delivered.
+    expect(onEvent).toHaveBeenCalledWith(9, { type: "message", id: "" });
+    expect(onBuffer).toHaveBeenLastCalledWith({ buffered: 0, dropped: 0 });
+  });
+});
+
+describe("use-event-stream live table example", () => {
+  // demo-backend builds a Request from the page's relative path; Node's Request needs the base URL a browser has.
+  beforeEach(() => {
+    const NodeRequest = globalThis.Request;
+    vi.stubGlobal("Request", class extends NodeRequest {
+      constructor(input: RequestInfo | URL, init?: RequestInit) {
+        super(typeof input === "string" ? new URL(input, location.href) : input, init);
+      }
+    });
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("pauses with aria-pressed, counts held rows and announces once per batch in one status, axe-clean", async () => {
+    const user = userEvent.setup();
+    // The example answers its own stream (demo-backend), one sign-in every 900 ms.
+    const { container } = render(<UseEventStreamLiveTable />);
+    await screen.findByText("Ana Souza", undefined, { timeout: 3000 });
+    expect(screen.getAllByRole("status")).toHaveLength(1);
+    expect(container.querySelector("[aria-live]:not([role=status])")).toBeNull();
+    const pause = screen.getByRole("button", { name: "Pause updates" });
+    expect(pause).toHaveAttribute("aria-pressed", "false");
+    await user.click(pause);
+    expect(pause).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("status")).toHaveTextContent("Updates paused.");
+    await screen.findByText("1 new event", undefined, { timeout: 3000 });
+    // Held rows do not reach the table, and the status does not count along.
+    expect(screen.queryByText("Bruno Lima")).toBeNull();
+    expect(screen.getByRole("status")).toHaveTextContent("Updates paused.");
+    expect(await violations(container)).toEqual([]);
+    await user.click(pause);
+    expect(screen.getByRole("status")).toHaveTextContent(/^Updates resumed, \d+ new events?\.$/);
+    expect(screen.getByText("Bruno Lima")).toBeInTheDocument();
+  }, 10_000);
 });

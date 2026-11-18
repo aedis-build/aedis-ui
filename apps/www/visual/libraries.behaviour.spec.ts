@@ -75,6 +75,36 @@ test("event-stream and use-event-stream: a simulated stream opens, delivers and 
   await expect(main.getByRole("list", { name: "Messages" }).getByRole("listitem")).toHaveText(["Reading the brief", "Drafting three directions", "Picking the strongest one"], { timeout: 8000 });
 });
 
+test("use-event-stream paused: Pause holds and counts sign-ins, one status speaks, Resume adds them in order", async ({ page }) => {
+  await page.goto("/docs/use-event-stream");
+  const main = page.getByRole("main");
+  const table = main.getByRole("table", { name: "Recent sign-ins" });
+  await expect(table.getByRole("row")).toHaveCount(2, { timeout: 5000 });
+  const pause = main.getByRole("button", { name: "Pause updates" });
+  await expect(pause).toHaveAttribute("aria-pressed", "false");
+  await pause.focus();
+  await page.keyboard.press("Space");
+  await expect(pause).toHaveAttribute("aria-pressed", "true");
+  await expect(main.getByText("Paused", { exact: true })).toBeVisible();
+  const rowsWhenPaused = await table.getByRole("row").count();
+  // 5 kept: after 6 or more, the count says how many were not kept.
+  await expect(main.getByText(/^\d+ new events?, \d+ older not kept$/)).toBeVisible({ timeout: 10_000 });
+  await expect(table.getByRole("row")).toHaveCount(rowsWhenPaused);
+  const status = main.getByRole("status").filter({ hasText: "Updates" });
+  await expect(status).toHaveText("Updates paused.");
+  await page.keyboard.press("Space");
+  await expect(status).toHaveText(/^Updates resumed, \d+ new events\.$/);
+  await expect(table.getByRole("row")).toHaveCount(7);
+});
+
+test("use-event-stream paused: new rows do not animate under reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/docs/use-event-stream");
+  const row = page.getByRole("main").getByRole("table", { name: "Recent sign-ins" }).getByRole("row").nth(1);
+  await expect(row).toBeVisible({ timeout: 5000 });
+  expect(await row.evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+});
+
 test("use-idle-timeout: fast-forward warns, Stay keeps the session, stillness signs out", async ({ page }) => {
   await page.goto("/docs/use-idle-timeout");
   const main = page.getByRole("main");
