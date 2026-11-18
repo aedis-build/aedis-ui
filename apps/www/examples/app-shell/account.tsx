@@ -25,23 +25,26 @@ const link = `${target} inline-flex`;
 export function AccountShell({ breadcrumb = false }: { breadcrumb?: boolean }) {
   const [account, setAccount] = React.useState(accounts[0]!);
   return (
-    <div className="h-96 w-full overflow-auto rounded-xl border border-border">
+    // clip-path, not overflow alone: the sticky header's backdrop filter paints past a rounded overflow clip.
+    <div className="h-96 w-full overflow-auto rounded-xl border border-border [clip-path:inset(0_round_var(--radius-xl))]">
       <AppShell
         // The docs page already has a <main>.
         main={false}
         className="min-h-full"
         start={
           <>
-            <a href="#home" className={`${link} font-semibold`}>Aedis</a>
-            <span aria-hidden="true" className="text-muted-foreground">/</span>
-            <AppShellAccountSwitcher current={account}>
+            {/* -ms-2 puts the word, not its tap area, on the column's left edge, in line with the breadcrumb and the page. */}
+            <a href="#home" className={`${link} -ms-2 font-semibold`}>Aedis</a>
+            {/* On a phone the account name gets the room; the plan shows from md. */}
+            <span aria-hidden="true" className="hidden text-muted-foreground md:inline">/</span>
+            <AppShellAccountSwitcher current={account} className="min-w-24">
               <DropdownMenuRadioGroup value={account} onValueChange={setAccount}>
                 {accounts.map((a) => (
                   <DropdownMenuRadioItem key={a} value={a} closeOnClick>{a}</DropdownMenuRadioItem>
                 ))}
               </DropdownMenuRadioGroup>
             </AppShellAccountSwitcher>
-            <Badge variant="outline">Pro</Badge>
+            <Badge variant="outline" className="hidden md:inline-flex">Pro</Badge>
           </>
         }
         end={
@@ -64,12 +67,13 @@ export function AccountShell({ breadcrumb = false }: { breadcrumb?: boolean }) {
         breadcrumb={
           breadcrumb ? (
             <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem><BreadcrumbLink href="#account">{account}</BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
+              {/* One line on every screen; a phone shows only the parent and the current page. */}
+              <BreadcrumbList className="flex-nowrap">
+                <BreadcrumbItem className="hidden md:inline-flex"><BreadcrumbLink href="#account">{account}</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem><BreadcrumbLink href="#workspace">Production</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbPage>Plan and billing</BreadcrumbPage></BreadcrumbItem>
+                <BreadcrumbItem className="min-w-0"><BreadcrumbPage className="truncate">Plan and billing</BreadcrumbPage></BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           ) : undefined

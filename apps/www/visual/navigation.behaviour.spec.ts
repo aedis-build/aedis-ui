@@ -126,6 +126,16 @@ test("the account bar switches account by mouse and keyboard, with 44 px targets
   const start = (await crumbs.locator("[data-slot=app-shell-header] > div > div").first().boundingBox())!;
   expect(Math.abs(main.x - bar.x)).toBeLessThanOrEqual(1);
   expect(Math.abs(section.x - start.x)).toBeLessThanOrEqual(1);
+  // The visible word "Aedis", not its tap area, starts on that same edge, with the breadcrumb.
+  const textLeft = (el: Element) => {
+    const r = document.createRange();
+    r.selectNodeContents(el);
+    return r.getBoundingClientRect().x;
+  };
+  const brand = await crumbs.getByRole("link", { name: "Aedis" }).evaluate(textLeft);
+  const crumb = await nav.getByRole("link").first().evaluate(textLeft);
+  expect(Math.abs(brand - section.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(crumb - section.x)).toBeLessThanOrEqual(1);
 });
 
 test("on a phone the account bar hides secondary links and keeps the switcher and the avatar", async ({ page }) => {
@@ -143,4 +153,21 @@ test("on a phone the account bar hides secondary links and keeps the switcher an
   await page.keyboard.press("Escape");
   await expect(avatar).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  // The account name gets the room: the separator and the plan badge wait for md, and the name is not cut.
+  await expect(shell.getByText("Pro", { exact: true })).toBeHidden();
+  await expect(shell.getByText("/", { exact: true })).toBeHidden();
+  const name = shell.getByRole("button", { name: /Switch account/ }).locator("span").first();
+  expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+});
+
+test("on a phone the account breadcrumb is one line with the parent and the current page", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs/app-shell");
+  const nav = page.locator("[data-slot=app-shell][data-layout=account]").nth(1).getByRole("navigation", { name: "Breadcrumb" });
+  await nav.scrollIntoViewIfNeeded();
+  await expect(nav.getByRole("link", { name: "RLFN Tech" })).toBeHidden();
+  await expect(nav.getByRole("link", { name: "Production" })).toBeVisible();
+  await expect(nav.locator("[aria-current=page]")).toBeVisible();
+  const [list, link] = [(await nav.locator("ol").boundingBox())!, (await nav.getByRole("link", { name: "Production" }).boundingBox())!];
+  expect(list.height).toBeLessThanOrEqual(link.height + 1);
 });
