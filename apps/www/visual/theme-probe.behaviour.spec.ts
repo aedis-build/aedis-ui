@@ -1,8 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { colors } from "../registry/aedis/lib/tokens";
+import { expect, test } from "./fixtures";
 import { probeReport, probeTheme, tokensIn } from "./probe-theme";
 
 // #288: the screenshot projects catch a pixel that moves, not a colour token that reaches no element. The probe theme
@@ -12,6 +13,8 @@ import { probeReport, probeTheme, tokensIn } from "./probe-theme";
 
 /** Tokens no element paints on purpose, each with its reason. Nothing is exempt silently; a stale entry fails. */
 const EXEMPT: Record<string, string> = {
+  "chart-4": "Chart offers five series colours; the chart demos use up to three.",
+  "chart-5": "Chart offers five series colours; the chart demos use up to three.",
   "material-thin": "Offered to apps for chips and floating controls; no component of the registry uses the material-thin utility yet.",
 };
 
@@ -28,6 +31,10 @@ const PROPERTIES = ["color", "background-color", "background-image", "border-top
 /** Applies the probe theme on <html> (inline, through the CSSOM, so the CSP allows it) and returns every colour the page computes, with the strings each token computes to. */
 async function probe(page: Page) {
   return page.evaluate(({ theme, properties }) => {
+    // Without this, an element with a transition (every Button) still computes the old colour when it is read.
+    const still = new CSSStyleSheet();
+    still.replaceSync("*, *::before, *::after { transition: none !important; animation: none !important; }");
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, still];
     for (const [n, v] of Object.entries(theme)) document.documentElement.style.setProperty(`--${n}`, v);
     const ref = document.body.appendChild(document.createElement("i"));
     const read = (value: string) => {
