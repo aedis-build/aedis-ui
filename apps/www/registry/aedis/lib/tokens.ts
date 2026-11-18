@@ -32,7 +32,7 @@ export const colors = {
   thread: { light: "#2457d6", dark: "#7aa2ff", brand: "#c8a24c", horizon: "#c8a24c" },
   ring: { light: "#2457d6", dark: "#7aa2ff", brand: "#1a2740", horizon: "#9db8ff" },
   success: { light: "#18794e", dark: "#3dd68c", brand: "#18794e", horizon: "#7fd1a8" },
-  warning: { light: "#a35200", dark: "#f5a524", brand: "#a35200", horizon: "#f5a524" },
+  warning: { light: "#a35200", dark: "#f5a524", brand: "#a35200", horizon: "#e2c27a" },
   destructive: { light: "#c9302c", dark: "#ff6369", brand: "#c9302c", horizon: "#ff6369" },
   "destructive-solid": { light: "#c9302c", dark: "#c93a3f", brand: "#c9302c", horizon: "#c93a3f" },
   "destructive-foreground": { light: "#ffffff", dark: "#ffffff", brand: "#ffffff", horizon: "#ffffff" },
