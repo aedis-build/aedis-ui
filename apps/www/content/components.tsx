@@ -10,6 +10,7 @@ import AreaChartDemo from "@/examples/area-chart/demo";
 import ApprovalCardDemo from "@/examples/approval-card/demo";
 import AvatarDemo from "@/examples/avatar/demo";
 import BadgeDemo from "@/examples/badge/demo";
+import BadgeStatus from "@/examples/badge/status";
 import BarChartDemo from "@/examples/bar-chart/demo";
 import BarChartMonth from "@/examples/bar-chart/month";
 import BreadcrumbDemo from "@/examples/breadcrumb/demo";
@@ -2238,14 +2239,29 @@ import { Button } from "@/components/ui/button";
     title: "Badge",
     category: "Data display",
     description: "Small status label: level, channel, state.",
-    examples: [{ title: "Badge", file: "badge/demo", component: BadgeDemo }],
+    examples: [
+      { title: "Badge", file: "badge/demo", component: BadgeDemo },
+      {
+        title: "Status",
+        description: "A quiet outline pill with a dot: ok, attention and neutral. Colour lives only in the dot; the words say the state.",
+        file: "badge/status",
+        component: BadgeStatus,
+      },
+    ],
     usage: `import { Badge } from "@/components/ui/badge";
 
-<Badge variant="secondary">Draft</Badge>`,
-    props: [{ name: "variant", type: '"default" | "secondary" | "accent" | "outline" | "destructive"', default: '"default"', description: "Visual style." }],
+<Badge variant="secondary">Draft</Badge>
+<Badge variant="status" tone="ok">Up to date</Badge>`,
+    props: [
+      { name: "variant", type: '"default" | "secondary" | "accent" | "outline" | "destructive" | "status"', default: '"default"', description: "Visual style. status draws an outline pill with a 6 px dot." },
+      { name: "tone", type: '"ok" | "attention" | "neutral"', default: '"neutral"', description: "Dot colour for variant=\"status\": success, warning or muted. Ignored by the other variants." },
+    ],
     security: { sinks: [], notes: ["Text only; pass labels as children."] },
     accessibility: {
-      notes: ["Inline text. If a badge only carries a number, add the meaning in text (\"3 waiting\")."],
+      notes: [
+        "Inline text. If a badge only carries a number, add the meaning in text (\"3 waiting\").",
+        "Status: the dot is aria-hidden and colour never carries the meaning alone, so write the state in the label (\"Paid\", \"1 warning\"). Text is 4.5:1 and the dot 3:1 against the surface in every theme.",
+      ],
     },
   },
   {

@@ -203,7 +203,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "Small status label.",
+      "description": "Small status label, with a quiet status pill and dot.",
       "dependencies": [
         "class-variance-authority"
       ],
