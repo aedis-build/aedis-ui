@@ -21,6 +21,8 @@ jobs:
       contents: read
     with:
       working-directory: apps/www
+      # Same Playwright as apps/www/package.json; bump together with @playwright/test.
+      playwright-image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:9beb546099e11f52d62e505537914870e01a67e0e6b00ae41da4775324e73dbe
 
   baselines:
     if: github.event.action == 'labeled' && github.event.label.name == 'update-visual-baselines'
@@ -29,4 +31,6 @@ jobs:
       contents: read
     with:
       working-directory: apps/www
+      # Same Playwright as apps/www/package.json; bump together with @playwright/test.
+      playwright-image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:9beb546099e11f52d62e505537914870e01a67e0e6b00ae41da4775324e73dbe
       mode: update
