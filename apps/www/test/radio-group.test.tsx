@@ -63,6 +63,15 @@ describe("RadioGroupItem variant=card", () => {
     expect(screen.getByRole("radiogroup", { name: "Application type" })).toBeInTheDocument();
   });
 
+  it("the default variant still passes an HTML title through to the radio", () => {
+    render(
+      <RadioGroup aria-label="Size" defaultValue="s">
+        <RadioGroupItem value="s" aria-label="Small" title="Fits one person" />
+      </RadioGroup>,
+    );
+    expect(screen.getByRole("radio", { name: "Small" })).toHaveAttribute("title", "Fits one person");
+  });
+
   it("has no axe violations", async () => {
     const { container } = render(<RadioGroupCards />);
     expect(await violations(container)).toEqual([]);
