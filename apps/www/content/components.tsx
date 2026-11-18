@@ -3015,7 +3015,15 @@ import { Field, FieldLabel } from "@/components/ui/field";
     ],
     security: {
       sinks: ["DOM"],
-      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript. The href goes through safeUrl and carries rel=\"noopener noreferrer\"; a refused URL leaves the block without a link."],
+      defenses: [
+        {
+          title: "Only safe protocols become links",
+          text: "Each block's href goes through safeUrl and carries rel=\"noopener noreferrer\"; a refused URL leaves the block without a link.",
+          evidence: [["layout-grid.test.tsx", "links a block through safeUrl with noopener noreferrer, and leaves a refused URL without a link"]],
+          ids: ["CWE-79", "CWE-601"],
+        },
+      ],
+      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript."],
     },
     accessibility: {
       keyboard: [["Tab", "Moves through the blocks, and the pause button of each film."], ["Enter", "On a block, opens its card; the focus moves to Close."], ["Esc", "Closes; the focus goes back to the block."]],
