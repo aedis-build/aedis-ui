@@ -75,13 +75,13 @@ describe("LocaleProvider", () => {
   it("names the app shell menu from the dictionary unless the prop is set", () => {
     const { rerender } = render(
       <LocaleProvider locale="es" messages={es}>
-        <AppShell sidebar={null}>x</AppShell>
+        <AppShell sidebar={<div />}>x</AppShell>
       </LocaleProvider>,
     );
     expect(screen.getByRole("button", { name: "Menú" })).toBeInTheDocument();
     rerender(
       <LocaleProvider locale="es" messages={es}>
-        <AppShell sidebar={null} menuLabel="Abrir">
+        <AppShell sidebar={<div />} menuLabel="Abrir">
           x
         </AppShell>
       </LocaleProvider>,

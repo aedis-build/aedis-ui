@@ -574,13 +574,15 @@
       "name": "app-shell",
       "type": "registry:ui",
       "title": "App Shell",
-      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
+      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens; without a sidebar, an account bar with breadcrumb over one left-aligned grid.",
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
         "@aedis/sidebar",
         "@aedis/locale",
-        "@aedis/sheet"
+        "@aedis/sheet",
+        "@aedis/dropdown-menu",
+        "@aedis/untrusted"
       ],
       "files": [
         {

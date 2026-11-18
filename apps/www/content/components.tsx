@@ -3,6 +3,8 @@ import type { ComponentType } from "react";
 import AccordionDemo from "@/examples/accordion/demo";
 import AlertDialogDemo from "@/examples/alert-dialog/demo";
 import AlertDemo from "@/examples/alert/demo";
+import AppShellAccountBreadcrumb from "@/examples/app-shell/account-breadcrumb";
+import AppShellAccount from "@/examples/app-shell/account";
 import AppShellDemo from "@/examples/app-shell/demo";
 import AreaChartDemo from "@/examples/area-chart/demo";
 import ApprovalCardDemo from "@/examples/approval-card/demo";
@@ -227,23 +229,56 @@ export const components: ComponentDoc[] = [
     name: "app-shell",
     title: "App Shell",
     category: "Navigation",
-    description: "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar.",
-    examples: [{ title: "App Shell", file: "app-shell/demo", component: AppShellDemo }],
-    usage: `import { AppShell } from "@/components/ui/app-shell";
+    description:
+      "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar. Without a sidebar, account pages get a sticky account bar, an optional breadcrumb and one left-aligned grid.",
+    examples: [
+      { title: "App Shell", file: "app-shell/demo", component: AppShellDemo },
+      { title: "Account bar", description: "No sidebar: the mark, the account switcher and the plan badge, then the links and the avatar menu. Below md the secondary links hide.", file: "app-shell/account", component: AppShellAccount },
+      { title: "Account bar with breadcrumb", description: "A narrower page takes the first eight columns of the same grid, so its left edge does not move.", file: "app-shell/account-breadcrumb", component: AppShellAccountBreadcrumb },
+    ],
+    usage: `import { AppShell, AppShellAccountSwitcher } from "@/components/ui/app-shell";
 import { Sidebar } from "@/components/ui/sidebar";
 
 <AppShell title="Approvals" sidebar={<Sidebar groups={groups} />}>
   {children}
+</AppShell>
+
+// Account pages: no sidebar.
+<AppShell
+  start={<><Mark /><AppShellAccountSwitcher current={account.name}>{accountItems}</AppShellAccountSwitcher></>}
+  end={<><a className="hidden md:inline-flex" href="/docs">Documentation</a><ProfileMenu /></>}
+  breadcrumb={<Breadcrumb>…</Breadcrumb>}
+>
+  <section className="md:col-span-8">{children}</section>
 </AppShell>`,
     props: [
-      { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar." },
+      { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar. Leave it out for account pages." },
       { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
       { name: "menuLabel", type: "string", description: "Accessible name of the menu toggle. Defaults to the Locale provider." },
+      { name: "start", type: "ReactNode", description: "Without a sidebar: the start of the account bar (mark, account switcher, plan badge)." },
+      { name: "end", type: "ReactNode", description: "Without a sidebar: the end of the account bar (links, avatar menu). Hide secondary links below md." },
+      { name: "breadcrumb", type: "ReactNode", description: "Without a sidebar: a Breadcrumb under the account bar; its links are 44 px tall." },
+      { name: "main", type: "boolean", default: "true", description: "The content is the page's <main>. Pass false inside a page that already has one." },
+      { name: "AppShellAccountSwitcher current", type: "string", description: "The current account, on the button and in its name (\"Switch account, current: …\"). Invisible code points are stripped." },
+      { name: "AppShellAccountSwitcher labels", type: "Partial<Messages[\"appShell\"]>", description: "Overrides switchAccount; {account} is the current account." },
     ],
-    security: { sinks: [], notes: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."] },
+    security: {
+      sinks: [],
+      notes: [
+        "The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark.",
+        "The account name is rendered as text through stripInvisible, never as HTML.",
+      ],
+    },
     accessibility: {
-      keyboard: [["Enter / Space", "On small screens, the menu toggle opens and closes the sidebar."]],
-      notes: ["The toggle has aria-expanded and aria-controls pointing at the sidebar; its name comes from the Locale provider (\"Menu\")."],
+      keyboard: [
+        ["Enter / Space", "On small screens, the menu toggle opens and closes the sidebar."],
+        ["Enter / Space / ↓", "Opens the account switcher; arrows move between accounts."],
+      ],
+      notes: [
+        "The toggle has aria-expanded and aria-controls pointing at the sidebar; its name comes from the Locale provider (\"Menu\").",
+        "Without a sidebar the account bar is a header landmark, the breadcrumb a nav with aria-current=\"page\", and the content stays the main landmark a skip link points to.",
+        "The account switcher and the breadcrumb links are at least 44 px tall.",
+      ],
     },
   },
   {
