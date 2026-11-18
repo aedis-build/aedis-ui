@@ -2812,13 +2812,23 @@ import { Field, FieldLabel } from "@/components/ui/field";
     title: "Media Frame",
     category: "Data display",
     description: "A frame with a fixed aspect ratio for work thumbnails, with a labelled placeholder while media is missing.",
-    examples: [{ title: "Media Frame", description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder.", file: "media-frame/demo", component: MediaFrameDemo }],
+    examples: [
+      {
+        title: "Media Frame",
+        description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder. The second row is 2:3, 9:16, and a frame sized by the image's own width and height.",
+        file: "media-frame/demo",
+        component: MediaFrameDemo,
+      },
+    ],
     usage: `import { MediaFrame } from "@/components/ui/media-frame";
 
 <MediaFrame ratio="4:5" src="/work/shop-sign.jpg" alt="Ceramics studio identity, the shop sign" />
-<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />`,
+<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />
+<MediaFrame ratio="9:16" src="/work/reel-cover.jpg" alt="Hotel campaign reel, cover" />
+<MediaFrame width={photo.width} height={photo.height} src={photo.src} alt={photo.alt} />`,
     props: [
-      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"3:2\" | \"16:9\" | \"21:9\"", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves." },
+      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"2:3\" | \"3:2\" | \"9:16\" | \"16:9\" | \"21:9\" | number", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves. A number is width over height, e.g. 0.8." },
+      { name: "width / height", type: "number", description: "The media's real size. Together they set any ratio through aspect-ratio and win over ratio. A value that is not a positive number is ignored." },
       { name: "fit", type: "\"cover\" | \"contain\"", default: "\"cover\"", description: "How the media fills the frame." },
       { name: "alt", type: "string", description: "Required, unless decorative is set; then the image gets an empty alt." },
       { name: "decorative", type: "true", description: "Marks the media as decoration: empty alt, placeholder hidden from assistive technology." },
