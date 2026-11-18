@@ -49,6 +49,7 @@ import PaginationDemo from "@/examples/pagination/demo";
 import PieChartDemo from "@/examples/pie-chart/demo";
 import ProgressDemo from "@/examples/progress/demo";
 import PromptInputDemo from "@/examples/prompt-input/demo";
+import RadioGroupCards from "@/examples/radio-group/cards";
 import RadioGroupDemo from "@/examples/radio-group/demo";
 import RadialChartDemo from "@/examples/radial-chart/demo";
 import ScrollAreaDemo from "@/examples/scroll-area/demo";
@@ -2449,21 +2450,50 @@ import { Label } from "@/components/ui/label";
     name: "radio-group",
     title: "Radio Group",
     category: "Forms",
-    description: "Single choice among options.",
-    examples: [{ title: "Radio Group", file: "radio-group/demo", component: RadioGroupDemo }],
-    usage: `import { Label } from "@/components/ui/label";
+    description: "Single choice among options, as plain radios or as cards with an icon, a title and a description.",
+    examples: [
+      { title: "Radio Group", file: "radio-group/demo", component: RadioGroupDemo },
+      {
+        title: "Cards",
+        description: "A product picker in a grid, with two contracted-only options disabled and the reason shown, and an application-type picker stacked.",
+        file: "radio-group/cards",
+        component: RadioGroupCards,
+      },
+    ],
+    usage: `import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 <RadioGroup defaultValue="case" aria-label="Scope">
   <RadioGroupItem value="case" id="case" />
   <Label htmlFor="case">Just this case</Label>
-</RadioGroup>`,
-    props: baseProps("@base-ui/react RadioGroup and Radio"),
-    security: { sinks: [], notes: ["Arrow keys move between options; the group needs an accessible name."] },
+</RadioGroup>
+
+<Fieldset render={<RadioGroup defaultValue="identity" />} className="grid gap-3 sm:grid-cols-2">
+  <FieldsetLegend>Product</FieldsetLegend>
+  <RadioGroupItem variant="card" value="identity" icon={<UserIcon />} title="Identity" description="Sign-in for your users." />
+  <RadioGroupItem variant="card" value="keys" title="Managed keys" description="Keys in your own vault." disabled>
+    Contracted with our team
+  </RadioGroupItem>
+</Fieldset>`,
+    props: [
+      { name: "variant", type: '"default" | "card"', description: "RadioGroupItem. \"card\" makes the whole card the radio; selected draws an accent border and an inset 1 px ring, with no layout shift." },
+      { name: "icon", type: "ReactNode", description: "Card only. Decorative: hidden from assistive technology." },
+      { name: "title", type: "ReactNode", description: "Card only. The option's name." },
+      { name: "description", type: "ReactNode", description: "Card only. One line under the title." },
+      { name: "children", type: "ReactNode", description: "Card only. A note under the description, such as why a disabled option is unavailable." },
+      ...baseProps("@base-ui/react RadioGroup and Radio"),
+    ],
+    security: { sinks: [], notes: ["Arrow keys move between options; the group needs an accessible name.", "Cards render their text as React children, never as HTML."] },
     accessibility: {
-      keyboard: [["Tab", "Moves into the group, to the checked option."], ["↑ ↓ / ← →", "Moves to the next option and checks it."]],
-      notes: ["role=\"radiogroup\" with one tab stop; name it with aria-label or aria-labelledby."],
-      motion: "The ring and dot change color in 200 ms.",
+      keyboard: [["Tab", "Moves into the group, to the checked option."], ["↑ ↓ / ← →", "Moves to the next enabled option and checks it."]],
+      notes: [
+        "role=\"radiogroup\" with one tab stop; name it with aria-label, aria-labelledby, or a Fieldset rendering the group with a FieldsetLegend.",
+        "A card's accessible name is its text in reading order: title, description, then the note.",
+        "Disabled cards are announced as unavailable (aria-disabled), skipped by the arrows, and keep their text readable instead of fading out.",
+        "The focus outline sits outside the card, so it never hides the selected ring. Dark themes set color-scheme: dark.",
+      ],
+      motion: "The ring and dot, and a card's border, change color in 200 ms.",
     },
   },
   {

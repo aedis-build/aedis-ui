@@ -388,7 +388,7 @@
       "name": "radio-group",
       "type": "registry:ui",
       "title": "Radio Group",
-      "description": "Single choice among options.",
+      "description": "Single choice among options, as plain radios or as cards with an icon, a title and a description.",
       "dependencies": [
         "@base-ui/react@1.9.0"
       ],
