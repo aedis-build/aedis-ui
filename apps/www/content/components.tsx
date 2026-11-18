@@ -85,6 +85,7 @@ import VideoDemo from "@/examples/video/demo";
 import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
 import LightboxMixed from "@/examples/lightbox/mixed";
+import LayoutGridDemo from "@/examples/layout-grid/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
 import ScrollMotionEffects from "@/examples/scroll-motion/effects";
@@ -2969,6 +2970,43 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "An open film is the Video player named by its alt, with the browser's controls and its caption tracks. In the player, ← → seek in the film instead of moving to another item.",
       ],
       motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
+    },
+  },
+  {
+    name: "layout-grid",
+    title: "Layout Grid",
+    category: "Overlays",
+    description: "Photos and films in blocks of their own shape, alternating wide and narrow, that grow into a centered card with a title and a description.",
+    examples: [{ title: "Layout Grid", description: "A chapter of hotels: pairs alternate 2+1 and 1+2, three vertical films make a group. Open a block, close with Esc or a click outside. The demo reuses the site's sample media.", file: "layout-grid/demo", component: LayoutGridDemo, align: "start" }],
+    usage: `import { LayoutGrid } from "@/components/ui/layout-grid";
+
+<LayoutGrid
+  chapter={{ number: "01", name: "Coast and city", label: "Hotels" }}
+  items={[
+    { kind: "photo", src: "/hotels/lobby.jpg", ratio: 3 / 2, alt: "Gold light across the lobby", title: "Casa do Largo", label: "Lisbon", description: "A lobby that opens onto the square." },
+    { kind: "film", src: "/hotels/arrival.webm", type: "video/webm", poster: "/hotels/arrival.jpg", ratio: 9 / 16, alt: "Walking in to the front desk", title: "Arrival" },
+  ]}
+/>`,
+    props: [
+      { name: "items", type: "{ kind, src, ratio, alt, title, description?, label?, type?, poster?, captions? }[]", description: "The pieces in order. ratio is width over height; below 1 the piece is vertical. src is the file each block links to." },
+      { name: "chapter", type: "{ number?, name, label? }", description: "A header that names the grid, to group several on one page." },
+      { name: "className", type: "string", description: "Classes for the section." },
+      { name: "labels", type: "Partial<LayoutGridLabels>", description: "Overrides the locale's words (Photo: {title}, Film: {title}, Close)." },
+      { name: "layoutSlots(ratios)", type: "function", description: "The placement on three columns, exported to test or reuse: pairs alternate wide and narrow with the horizontal piece wide; three vertical pieces in a row make a feature beside two stacked blocks, switching sides each group." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript."],
+    },
+    accessibility: {
+      keyboard: [["Tab", "Moves through the blocks, and the pause button of each film."], ["Enter", "On a block, opens its card; the focus moves to Close."], ["Esc", "Closes; the focus goes back to the block."]],
+      notes: [
+        "Each block is a link named by its kind and title (\"Photo: Casa do Largo\"); its picture is decorative inside it, so it is read once.",
+        "The card is a native modal dialog named by the title; Esc, Close and a click outside close it.",
+        "Close sits on an opaque button, so it keeps its contrast over bright media.",
+        "Films loop muted in the grid with a pause button (WCAG 2.2.2) and never move with reduced motion; in the card they have controls, sound and captions.",
+      ],
+      motion: "The card grows from its block with a View Transition; where the browser has none, or with reduced motion, it opens at once. The copy over a film fades aside 1.2 s after it starts, without the fade under reduced motion.",
     },
   },
   {

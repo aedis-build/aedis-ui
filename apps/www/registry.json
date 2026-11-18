@@ -1718,6 +1718,27 @@
       ]
     },
     {
+      "name": "layout-grid",
+      "type": "registry:ui",
+      "title": "Layout Grid",
+      "description": "Photos and films in blocks of their own shape, alternating wide and narrow, that grow into a centered card.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-reduced-motion",
+        "@aedis/button",
+        "@aedis/media-frame",
+        "@aedis/video"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/layout-grid.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "scroll-motion",
       "type": "registry:ui",
       "title": "Scroll Motion",

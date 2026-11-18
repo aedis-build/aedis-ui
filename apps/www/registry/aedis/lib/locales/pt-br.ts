@@ -181,6 +181,11 @@ export const ptBR: Messages = {
     counter: "{index} de {count}",
     video: "vídeo",
   },
+  layoutGrid: {
+    photo: "Foto: {title}",
+    film: "Filme: {title}",
+    close: "Fechar",
+  },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     honeypot: "Deixe este campo vazio",
