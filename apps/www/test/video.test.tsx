@@ -38,6 +38,13 @@ describe("video (#193)", () => {
     expect(await violations(container)).toEqual([]);
   });
 
+  it("crops by default and letterboxes with fit contain (#269)", () => {
+    const { container, rerender } = render(<Video src="/a.webm" title="Reel" />);
+    expect(container.querySelector("video")).toHaveClass("object-cover");
+    rerender(<Video src="/a.webm" title="Reel" fit="contain" />);
+    expect(container.querySelector("video")).toHaveClass("object-contain");
+  });
+
   it("autoplays muted when asked, but never under reduced motion", () => {
     const { container, unmount } = render(<Video src="/a.webm" title="Clip" autoplay />);
     expect(play).toHaveBeenCalledTimes(1);

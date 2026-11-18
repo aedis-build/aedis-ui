@@ -84,6 +84,7 @@ import CarouselSlideshow from "@/examples/carousel/slideshow";
 import VideoDemo from "@/examples/video/demo";
 import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
+import LightboxMixed from "@/examples/lightbox/mixed";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
 import ScrollMotionEffects from "@/examples/scroll-motion/effects";
@@ -723,7 +724,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
-<CodeBlock lang="bash" code="npx @aedis/cli@0.9.0 add button" />`,
+<CodeBlock lang="bash" code="npx @aedis/cli@0.9.1 add button" />`,
     props: [
       { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
       { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
@@ -2897,6 +2898,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
       { name: "captions", type: "{ src, srclang, label, default? }[]", description: "Caption tracks (WebVTT)." },
       { name: "variant", type: "\"player\" | \"background\"", default: "\"player\"", description: "Background: muted, looped, inline, no controls, a pause button; fills its container." },
       { name: "autoplay", type: "boolean", default: "false", description: "Starts muted once in view. Never under reduced motion." },
+      { name: "fit", type: "\"cover\" | \"contain\"", default: "\"cover\"", description: "How the picture fills the player; contain letterboxes it instead of cropping." },
       { name: "labels", type: "Partial<VideoLabels>", description: "Overrides the locale's words (Play video, Pause video)." },
     ],
     security: {
@@ -2917,24 +2919,44 @@ import { Field, FieldLabel } from "@/components/ui/field";
     name: "lightbox",
     title: "Lightbox",
     category: "Overlays",
-    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
-    examples: [{ title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo }],
+    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption. Photos and films in the same group.",
+    examples: [
+      { title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo },
+      { title: "Photos and films", description: "A film opens in the video player and plays only when you press play; it stops when you move on or close.", file: "lightbox/mixed", component: LightboxMixed },
+    ],
     usage: `import { Lightbox } from "@/components/ui/lightbox";
 
 <Lightbox
-  items={[{ src: "/work/shop-sign.jpg", alt: "Shop sign in terracotta", title: "Ceramics studio", caption: "Identity, 2026" }]}
+  items={[
+    {
+      src: "/work/shop-sign-1600.jpg",
+      srcSet: "/work/shop-sign-640.jpg 640w, /work/shop-sign-1600.jpg 1600w",
+      width: 1600,
+      height: 2000,
+      alt: "Shop sign in terracotta",
+      title: "Ceramics studio",
+      caption: "Identity, 2026",
+    },
+    { kind: "video", src: "/work/kitchen.webm", type: "video/webm", poster: "/work/kitchen.jpg", alt: "The kitchen at service", title: "Restaurant film" },
+  ]}
+  thumbSizes="(min-width: 640px) 25vw, 50vw"
 />`,
     props: [
-      { name: "items", type: "{ src, alt, title, caption? }[]", description: "The works; title names the open dialog." },
+      { name: "items", type: "LightboxItem[]", description: "The works; title names the open dialog. A photo is { src, alt, title, caption?, srcSet?, sizes?, width?, height? } (sizes is for the open image, \"100vw\" by default); a film is { kind: \"video\", src, poster, alt, title, caption?, type?, captions?, width?, height? }, where width and height give the player the film's shape (16:9 by default)." },
       { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each)." },
-      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened image grows from its thumbnail. Never with reduced motion." },
+      { name: "thumbSizes", type: "string", default: "\"(min-width: 640px) 33vw, 50vw\"", description: "The sizes of the thumbnails of items with a srcSet, so a small grid takes small files. Say less when the grid is narrower than the screen." },
+      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened item grows from its thumbnail. Never with reduced motion." },
       { name: "className", type: "string", description: "Classes for the grid of thumbnails." },
-      { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m)." },
+      { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m, video)." },
     ],
-    security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows; titles and captions are text."] },
+    security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows, films from those media-src allows; titles and captions are text.", "A film never plays on opening: only the person's press on play starts it, with sound."] },
     accessibility: {
       keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
-      notes: ["A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".", "Each thumbnail is a button named by its image's alt."],
+      notes: [
+        "A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".",
+        "Each thumbnail is a button named by its image's alt; a film's adds \"video\".",
+        "An open film is the Video player named by its alt, with the browser's controls and its caption tracks. In the player, ← → seek in the film instead of moving to another item.",
+      ],
       motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
     },
   },

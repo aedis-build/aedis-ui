@@ -182,6 +182,7 @@ export const es: Messages = {
     next: "Siguiente",
     close: "Cerrar",
     counter: "{index} de {count}",
+    video: "vídeo",
   },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",

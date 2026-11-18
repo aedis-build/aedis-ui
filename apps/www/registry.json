@@ -1707,7 +1707,8 @@
         "@aedis/use-reduced-motion",
         "@aedis/button",
         "@aedis/dialog",
-        "@aedis/media-frame"
+        "@aedis/media-frame",
+        "@aedis/video"
       ],
       "files": [
         {

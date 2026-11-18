@@ -22,6 +22,8 @@ type VideoProps = {
   variant?: "player" | "background";
   /** Off by default. On, it starts muted once in view, never under reduced motion. */
   autoplay?: boolean;
+  /** How the picture fills the player: "contain" letterboxes it instead of cropping. */
+  fit?: "cover" | "contain";
   className?: string;
   labels?: Partial<Messages["video"]>;
 };
@@ -31,7 +33,7 @@ type VideoProps = {
  * player has the browser's controls and caption tracks; the background variant always shows a pause button while it
  * moves.
  */
-function Video({ src, type, poster, title, captions = [], variant = "player", autoplay = false, className, labels }: VideoProps) {
+function Video({ src, type, poster, title, captions = [], variant = "player", autoplay = false, fit = "cover", className, labels }: VideoProps) {
   const l = useMessages("video", labels);
   const reduced = useReducedMotion();
   const video = React.useRef<HTMLVideoElement>(null);
@@ -67,7 +69,7 @@ function Video({ src, type, poster, title, captions = [], variant = "player", au
         aria-hidden={background || undefined}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
-        className="size-full object-cover"
+        className={cn("size-full", fit === "contain" ? "object-contain" : "object-cover")}
       >
         {near ? <source src={src} type={type} /> : null}
         {captions.map((c) => (
