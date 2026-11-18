@@ -6,7 +6,8 @@ import { expect, test } from "./fixtures";
 
 // #243: the panels open with a real, slow change of width, on the built docs page.
 const row = (page: Page) => page.getByRole("main").locator("[data-slot=image-accordion]").first();
-const panel = (page: Page, name: string) => row(page).getByRole("button", { name });
+// A panel is named by its kicker, label and text; find it by the label as a whole word.
+const panel = (page: Page, name: string) => row(page).getByRole("button", { name: new RegExp(`\\b${name}\\b`) });
 const width = async (page: Page, name: string) => (await panel(page, name).boundingBox())!.width;
 // The default minOpen, min(440px, 56cqi), in pixels for this row.
 const minOpen = async (page: Page) => Math.min(440, 0.56 * (await row(page).boundingBox())!.width);

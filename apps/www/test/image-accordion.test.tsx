@@ -11,7 +11,8 @@ const items = [
   { image: "/b.svg", alt: "The greenhouse door", label: "Place", text: "Where the brand lives." },
   { image: "/c.svg", alt: "The phone", label: "Use", text: "Run by the team." },
 ];
-const panel = (name: string) => screen.getByRole("button", { name });
+// A panel is named by its kicker, label and text; find it by the label as a whole word.
+const panel = (name: string) => screen.getByRole("button", { name: new RegExp(`\\b${name}\\b`) });
 
 describe("image accordion (#243)", () => {
   it("is a group of buttons with aria-expanded, every text in the page, and has no accessibility violations", async () => {
@@ -19,8 +20,10 @@ describe("image accordion (#243)", () => {
     expect(screen.getByRole("group", { name: "Principles" })).toBeInTheDocument();
     expect(panel("Craft")).toHaveAttribute("aria-expanded", "true");
     expect(panel("Place")).toHaveAttribute("aria-expanded", "false");
-    // Closed panels keep their text: it describes the button, with the image's alt.
-    expect(panel("Use")).toHaveAccessibleDescription("Run by the team. The phone");
+    // Closed panels keep their text in the name, as an open one shows it; the image's alt describes the button.
+    expect(panel("Use")).toHaveAccessibleName("Use Run by the team.");
+    expect(panel("Craft")).toHaveAccessibleName("Principle Craft Drawn by hand.");
+    expect(panel("Use")).toHaveAccessibleDescription("The phone");
     expect(container.querySelector("[style]")).toHaveStyle({ "--min-open": "min(440px, 56cqi)" });
     expect(await violations(container)).toEqual([]);
   });
