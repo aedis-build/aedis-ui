@@ -35,6 +35,16 @@ describe("ThemeEditor", () => {
     await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.light));
   });
 
+  it("starts dark mode from the horizon palette", async () => {
+    const user = userEvent.setup();
+    render(<ThemeEditor />);
+    await user.click(screen.getByRole("button", { name: "Horizon" }));
+    await waitFor(() => expect(preview().style.getPropertyValue("--background")).toBe(colors.background.horizon));
+    expect(preview().style.getPropertyValue("--thread")).toBe(colors.thread.horizon);
+    expect(preview().style.getPropertyValue("color-scheme")).toBe("dark");
+    expect(screen.getAllByRole("status")[0]).toHaveTextContent("Passes contrast AA");
+  });
+
   it("edits dark separately", async () => {
     const user = userEvent.setup();
     render(<ThemeEditor />);

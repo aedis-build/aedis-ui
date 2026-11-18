@@ -1,10 +1,10 @@
-import { blurs, colors, durations, easings, fonts, radii, scales, shadows, typeScale, type ThemeName } from "./tokens";
+import { blurs, colors, darkThemes, durations, easings, fonts, radii, scales, shadows, typeScale, type ThemeName } from "./tokens";
 
 const block = (selector: string, lines: string[], indent = "") =>
   `${indent}${selector} {\n${lines.map((l) => `${indent}  ${l}`).join("\n")}\n${indent}}`;
 
 const themeVars = (theme: ThemeName) => [
-  `color-scheme: ${theme === "dark" ? "dark" : "light"};`,
+  `color-scheme: ${darkThemes.includes(theme) ? "dark" : "light"};`,
   ...Object.entries(colors).map(([name, v]) => `--${name}: ${v[theme]};`),
   ...Object.entries(shadows).map(([name, v]) => `--${name}: ${v[theme]};`),
 ];
@@ -418,7 +418,7 @@ const solidMaterials = [
   "--blur-thick: 0px;",
 ];
 
-/** The theme stylesheet: tokens for the three themes, the Tailwind mapping, accessibility fallbacks and utilities. */
+/** The theme stylesheet: tokens for every theme, the Tailwind mapping, accessibility fallbacks and utilities. */
 export function themeCss() {
   return [
     "/* Generated from registry/aedis/lib/tokens.ts by `pnpm theme`. Do not edit by hand. */",
@@ -441,6 +441,9 @@ ${block(":where(h1, h2, h3)", ["font-family: var(--font-display);"], "  ")}
     "",
     "/* The Aedis brand (navy, gold, cream) is an extra theme, never the default. */",
     block(':root[data-theme="brand"]', themeVars("brand")),
+    "",
+    "/* Horizon (navy, mist, gold only as a thin thread) is an extra dark theme, never the default. */",
+    block(':root[data-theme="horizon"]', themeVars("horizon")),
     "",
     `@media (prefers-reduced-transparency: reduce) {\n${block(":root:root", solidMaterials, "  ")}\n}`,
     "",

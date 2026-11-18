@@ -51,7 +51,7 @@ export default function Themes() {
           <Step n={1} title="Pick a starting point">
             <p>
               <strong>Light and dark</strong> starts from the default theme in both modes; <strong>Brand</strong> starts light mode from the Aedis brand
-              palette (navy, gold, cream). Use the Light and Dark tabs to edit each mode: a theme always has both.
+              palette (navy, gold, cream); <strong>Horizon</strong> starts dark mode from the Horizon palette (navy, mist, gold only as a thin thread). Use the Light and Dark tabs to edit each mode: a theme always has both.
             </p>
           </Step>
           <Step n={2} title="Change the tokens">
@@ -81,8 +81,8 @@ export default function Themes() {
           <Step n={7} title="Set data-theme">
             <CodeBlock lang="html" code={'<html data-theme="dark">   <!-- "light" or "dark"; leave it out to follow the system -->'} />
             <p>
-              Do not combine a custom theme with <code className="font-mono">data-theme=&quot;brand&quot;</code>: the built-in brand rule is more specific and wins.
-              To start from the brand look, pick Brand in step 1 instead.
+              Do not combine a custom theme with <code className="font-mono">data-theme=&quot;brand&quot;</code> or <code className="font-mono">&quot;horizon&quot;</code>: the
+              built-in rule is more specific and wins. To start from either look, pick Brand or Horizon in step 1 instead.
             </p>
           </Step>
         </ol>

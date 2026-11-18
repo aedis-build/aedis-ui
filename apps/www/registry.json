@@ -23,7 +23,7 @@
       "name": "theme",
       "type": "registry:file",
       "title": "Theme",
-      "description": "The Aedis UI default theme: light, dark and the extra brand theme as CSS variables, Tailwind tokens, accessibility fallbacks and motion utilities. Import it once in your global CSS after tailwindcss.",
+      "description": "The Aedis UI default theme: light, dark and the extra brand and horizon themes as CSS variables, Tailwind tokens, accessibility fallbacks and motion utilities. Import it once in your global CSS after tailwindcss.",
       "files": [
         {
           "path": "registry/aedis/styles/theme.css",
