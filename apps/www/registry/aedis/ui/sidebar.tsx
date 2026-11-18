@@ -63,6 +63,9 @@ function Count({ item }: { item: SidebarItem }) {
   ) : null;
 }
 
+// The open value React last rendered for each section, as seen at its last toggle event.
+const rendered = new WeakMap<HTMLDetailsElement, boolean>();
+
 type ItemsProps = { items: SidebarItem[]; Link: React.ComponentType<LinkProps>; onOpenChange?: SidebarProps["onOpenChange"]; nested?: boolean };
 
 function Items({ items, Link, onOpenChange, nested }: ItemsProps) {
@@ -84,11 +87,23 @@ function Items({ items, Link, onOpenChange, nested }: ItemsProps) {
             <details
               data-slot="sidebar-section"
               open={item.open ?? holdsActive(item)}
-              onToggle={onOpenChange ? (e) => onOpenChange(item, e.currentTarget.open) : undefined}
-              className="group/section"
+              onToggle={
+                onOpenChange
+                  ? (e) => {
+                      // The browser also fires toggle when React sets `open` (on mount, or a new controlled value): that lands on
+                      // the value just rendered. Only a change made by a person is reported.
+                      const el = e.currentTarget;
+                      const open = item.open ?? holdsActive(item);
+                      const was = rendered.get(el);
+                      rendered.set(el, open);
+                      if (el.open === open && was !== open) return;
+                      onOpenChange(item, el.open);
+                    }
+                  : undefined
+              }
             >
               <summary
-                // A closed section that holds the current page keeps its title in the accent, so the location never vanishes.
+                // A closed section that holds the current page keeps its title in medium weight, so the location never vanishes.
                 data-active={holdsActive(item) || undefined}
                 className={cn(row, "press focus-ring cursor-pointer list-none hover:bg-muted data-active:font-medium [&::-webkit-details-marker]:hidden")}
               >
@@ -98,7 +113,7 @@ function Items({ items, Link, onOpenChange, nested }: ItemsProps) {
                 <svg
                   viewBox="0 0 16 16"
                   aria-hidden="true"
-                  className="size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-spring) ease-spring-critical group-open/section:rotate-90 motion-reduce:transition-none"
+                  className="size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-spring) ease-spring-critical [details[open]>summary>&]:rotate-90 motion-reduce:transition-none"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"

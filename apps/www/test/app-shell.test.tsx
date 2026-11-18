@@ -88,6 +88,35 @@ describe("Sidebar sections", () => {
     await vi.waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(expect.objectContaining({ label: "Compliance" }), true));
   });
 
+  it("reports only a person's change, not the open state React renders on mount or from a new controlled value", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    const groups = (open: boolean) => [{ label: "Products", items: [{ label: "Identity", open, items: [{ href: "/a", label: "A", active: true }] }, { label: "Users", items: [{ href: "/b", label: "B", active: true }] }] }];
+    const { rerender } = render(<Sidebar onOpenChange={onOpenChange} groups={groups(true)} />);
+    rerender(<Sidebar onOpenChange={onOpenChange} groups={groups(false)} />);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(section("Users")).toHaveAttribute("open");
+    expect(onOpenChange).not.toHaveBeenCalled();
+    // Uncontrolled: closing and reopening the section that started open are both reported.
+    await user.click(section("Users").querySelector("summary")!);
+    await vi.waitFor(() => expect(onOpenChange).toHaveBeenLastCalledWith(expect.objectContaining({ label: "Users" }), false));
+    await user.click(section("Users").querySelector("summary")!);
+    await vi.waitFor(() => expect(onOpenChange).toHaveBeenLastCalledWith(expect.objectContaining({ label: "Users" }), true));
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
+  });
+
+  it("turns a chevron only for its own open section, not for an open ancestor", () => {
+    render(nested);
+    const chevron = (name: string) => section(name).querySelector(":scope > summary > svg")!;
+    for (const name of ["Identity", "Access", "Users", "Compliance"]) expect(chevron(name).getAttribute("class")).toContain("[details[open]>summary>&]:rotate-90");
+    // The rule the class compiles to: details[open] > summary > svg.
+    expect(chevron("Identity").matches("details[open] > summary > svg")).toBe(true);
+    expect(chevron("Access").matches("details[open] > summary > svg")).toBe(true);
+    expect(chevron("Users").matches("details[open] > summary > svg")).toBe(false);
+    expect(chevron("Users").closest("details[open]")).toBe(section("Identity"));
+    expect(chevron("Users").getAttribute("class")).not.toContain("group-open");
+  });
+
   it("follows a controlled open state", () => {
     render(<Sidebar groups={[{ label: "Products", items: [{ label: "Identity", open: false, items: [{ href: "/a", label: "A", active: true }] }] }]} />);
     expect(section("Identity")).not.toHaveAttribute("open");
