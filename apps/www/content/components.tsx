@@ -3416,7 +3416,7 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         ["Home / End", "First or last panel."],
       ],
       notes: [
-        "Each panel is a button with aria-expanded, named by its label and described by its text and image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
+        "Each panel is a button with aria-expanded, named by every word it shows when open (kicker, label and text, in reading order, so voice control finds it) and described by its image. Closed panels keep their text in the page (hidden by opacity, not display:none), so screen readers get the whole list.",
         "White text sits on a neutral scrim: over a white photograph it measures 5.7:1 or more (the media-scrim token, 60% black, and 80% at the bottom of the open panel, where the text sits).",
       ],
       motion: "The width (the height in the stack) eases over 560 ms (duration-spring, ease-cinematic), and changing panels mid-way continues from where it is. The text fades in and lifts 8 px after 150 ms, at a fixed width so it never re-wraps; the vertical label fades out. Under reduced motion it opens at once.",
