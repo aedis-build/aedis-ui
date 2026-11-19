@@ -28,8 +28,9 @@ function useFormat() {
         new Intl.DateTimeFormat(locale, options).format(toDate(value)),
       dateTime: (value: DateInput) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(toDate(value)),
       number: (value: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat(locale, options).format(value),
-      /** ISO 4217 code, e.g. "BRL" or "USD". */
-      currency: (value: number, currency: string) => new Intl.NumberFormat(locale, { style: "currency", currency }).format(value),
+      /** ISO 4217 code, e.g. "BRL" or "USD". `locale` in the options overrides the provider's for this amount. */
+      currency: (value: number, currency: string, { locale: tag = locale, ...options }: Intl.NumberFormatOptions & { locale?: string | undefined } = {}) =>
+        new Intl.NumberFormat(tag, { style: "currency", currency, ...options }).format(value),
       /** "2 minutes ago", "in 3 days", "yesterday". */
       relative: (value: DateInput, now: DateInput = Date.now()) => {
         const seconds = (toDate(value).getTime() - toDate(now).getTime()) / 1000;

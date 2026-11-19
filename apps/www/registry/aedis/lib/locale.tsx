@@ -181,6 +181,10 @@ export type Messages = {
     /** Names the list of clients when it has no visible title. */
     label: string;
   };
+  plans: {
+    /** The tag beside the plan the account is on. */
+    current: string;
+  };
   sectionDock: {
     /** Names the navigation. */
     label: string;
@@ -385,6 +389,9 @@ export const en: Messages = {
   },
   logoCloud: {
     label: "Clients",
+  },
+  plans: {
+    current: "Current plan",
   },
   sectionDock: {
     label: "Page sections",

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import fc from "fast-check";
 
@@ -23,6 +23,18 @@ describe("insideProject", () => {
     for (const bad of ["../evil.ts", "a/../../evil", "/etc/passwd", "C:\\Windows\\x", "c:/x", "~/x", "a\\..\\..\\x", "a\u0000b", "", ".", "x".repeat(401)]) {
       expect(() => insideProject(ROOT, bad), bad).toThrow(/refused path/);
     }
+  });
+
+  it("refuses symlinks that lead out of the project or nowhere, and allows those that stay inside", () => {
+    const root = project();
+    const outside = project();
+    mkdirSync(path.join(root, "real"));
+    symlinkSync(path.join(root, "real"), path.join(root, "inside"), "dir");
+    symlinkSync(outside, path.join(root, "out"), "dir");
+    symlinkSync(path.join(root, "gone"), path.join(root, "dangling.ts"));
+    expect(insideProject(root, "inside/a.ts")).toBe(path.join(root, "inside", "a.ts"));
+    expect(() => insideProject(root, "out/a.ts")).toThrow(/out\/a.ts leaves the project through a symlink/);
+    expect(() => insideProject(root, "dangling.ts")).toThrow(/dangling.ts goes through a broken symlink/);
   });
 
   it("never returns a path outside the project, whatever the input (property)", () => {
@@ -56,6 +68,19 @@ describe("config", () => {
     expect(readConfig(root)).toBeNull();
     const bad = project({ "aedis.json": JSON.stringify({ release: "latest", paths: { ui: "../x", lib: "lib", hooks: "hooks", styles: "styles" }, aliases: { ui: "@/x", lib: "@/lib", hooks: "@/h y" } }) });
     expect(() => readConfig(bad)).toThrow(/release must look like v1.2.3; paths.ui must be a relative directory; aliases.hooks must be an import alias/);
+  });
+
+  it("validates install receipts", () => {
+    const base = { release: "v1.0.0", paths: { ui: "ui", lib: "lib", hooks: "hooks", styles: "styles" }, aliases: { ui: "@/ui", lib: "@/lib", hooks: "@/hooks" } };
+    const good = { sha256: "a".repeat(64), item: "api", release: "v1.0.0" };
+    const at = (files: unknown) => project({ "aedis.json": JSON.stringify({ ...base, files }) });
+    expect(readConfig(at({ "lib/api.ts": good }))?.files).toEqual({ "lib/api.ts": good });
+    expect(() => readConfig(at([]))).toThrow(/files must be an object/);
+    expect(() => readConfig(at(null))).toThrow(/files must be an object/);
+    expect(() => readConfig(at({ "../x": good, "/etc/passwd": good, "a\u0000b": good }))).toThrow(/files: refused path: \.\.\/x leaves the project; files: refused path: \/etc\/passwd is absolute; files: refused path: control character/);
+    for (const bad of [null, { ...good, sha256: "nope" }, { ...good, item: "../x" }, { ...good, release: "" }, { ...good, release: 1 }]) {
+      expect(() => readConfig(at({ "lib/api.ts": bad })), JSON.stringify(bad)).toThrow(/files.lib\/api.ts must be \{ sha256, item, release \}/);
+    }
   });
 });
 
@@ -141,7 +166,7 @@ describe("registry", () => {
 
   it("resolves dependencies first, once, refuses foreign namespaces and survives cycles", async () => {
     const items: Record<string, unknown> = { ...ITEMS, a: { ...ITEMS.button, name: "a", registryDependencies: ["@aedis/b"] }, b: { ...ITEMS.button, name: "b", registryDependencies: ["@aedis/a"] }, bad: { ...ITEMS.button, name: "bad", registryDependencies: ["@shadcn/utils"] } };
-    const source = { verified: false, label: "t", namespace: "@aedis", get: async (n: string) => parseItem(items[n], n) };
+    const source = { verified: false, label: "t", namespace: "@aedis", release: "t", get: async (n: string) => parseItem(items[n], n) };
     expect((await resolveItems(["button", "@aedis/button"], source)).map((i) => i.name)).toEqual(["utils", "theme", "button"]);
     expect((await resolveItems(["a"], source)).map((i) => i.name)).toEqual(["b", "a"]);
     await expect(resolveItems(["bad"], source)).rejects.toThrow(/outside @aedis/);

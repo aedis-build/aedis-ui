@@ -1,4 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { INIT_ITEMS, run, VERSION } from "../src/cli";
@@ -7,6 +9,8 @@ import { bundleFor, fakeCheck, io, item, ITEMS, project, releaseArchive, release
 
 const RELEASE = `v${VERSION}`;
 const read = (root: string, f: string) => readFileSync(path.join(root, f), "utf8");
+const hash = (text: string) => createHash("sha256").update(text).digest("hex");
+const receipts = (root: string) => JSON.parse(read(root, "aedis.json")).files;
 
 describe("aedis init", () => {
   it("verifies the release, writes config, theme, cn and the security primitives, and installs aged exact deps", async () => {
@@ -68,14 +72,17 @@ describe("aedis add", () => {
     expect(existsSync(path.join(root, "components/ui/button.tsx"))).toBe(false);
   });
 
-  it("refuses to overwrite a local copy that differs, unless asked", async () => {
+  it("refuses to overwrite a local copy without a receipt (installed before receipts) unless asked, then records one", async () => {
     const root = await initialized();
+    const { files: _files, ...legacy } = JSON.parse(read(root, "aedis.json"));
+    writeFileSync(path.join(root, "aedis.json"), JSON.stringify(legacy));
     writeFileSync(path.join(root, "lib/utils.ts"), "export const cn = 2;\n");
     const t = io(root, releaseRoutes(RELEASE));
     expect(await run(["add", "utils", "--yes"], t.io)).toBe(1);
     expect(t.lines).toContain("  local copy differs: lib/utils.ts");
     expect(await run(["add", "utils", "--yes", "--overwrite"], t.io)).toBe(0);
     expect(read(root, "lib/utils.ts")).toBe("export const cn = 1;\n");
+    expect(receipts(root)).toEqual({ "lib/utils.ts": { sha256: hash("export const cn = 1;\n"), item: "utils", release: RELEASE } });
   });
 
   it("refuses an unverified registry unless allowed, and then says loudly it is not verified", async () => {
@@ -118,7 +125,189 @@ describe("aedis diff", () => {
     writeFileSync(path.join(root, "lib/api.ts"), "export const hacked = true;\n");
     expect(await run(["diff", "api", "button"], t.io)).toBe(1);
     expect(t.lines.join("\n")).toMatch(/--- lib\/api.ts \(local\)[\s\S]*- export const hacked = true;[\s\S]*\+ export \{\};/);
-    expect(t.lines).toContain("missing  components/ui/button.tsx");
+    expect(t.lines).toContain("missing        components/ui/button.tsx");
+    expect(t.lines).toContain("edited locally lib/api.ts");
+  });
+
+  it("reports each tracked file as unchanged, edited locally, missing or untracked", async () => {
+    const root = project();
+    await run(["init", "--yes"], io(root, releaseRoutes(RELEASE)).io);
+    const config = JSON.parse(read(root, "aedis.json"));
+    delete config.files["lib/untrusted.ts"];
+    writeFileSync(path.join(root, "aedis.json"), JSON.stringify(config));
+    writeFileSync(path.join(root, "lib/api.ts"), "export const mine = 1;\n");
+    rmSync(path.join(root, "lib/utils.ts"));
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["diff"], t.io)).toBe(1);
+    expect(t.lines).toEqual(expect.arrayContaining(["unchanged      styles/aedis-theme.css", "edited locally lib/api.ts", "missing        lib/utils.ts", "untracked      lib/untrusted.ts"]));
+  });
+
+  it("never says up to date while failing: drift alone gets its own message", async () => {
+    const root = project();
+    await run(["init", "--yes"], io(root, releaseRoutes(RELEASE)).io);
+    rmSync(path.join(root, "lib/utils.ts"));
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["diff"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toBe("1 tracked file(s) missing or edited since aedis wrote them (see above)");
+  });
+
+  it("exits 0 for an item never installed: no receipt and no file is not drift", async () => {
+    const root = project();
+    await run(["init", "--yes"], io(root, releaseRoutes(RELEASE)).io);
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["diff", "button"], t.io)).toBe(0);
+    expect(t.lines).toContain("missing        components/ui/button.tsx");
+    expect(t.lines.at(-1)).toBe("up to date");
+  });
+});
+
+describe("install receipts in aedis.json", () => {
+  async function initialized() {
+    const root = project();
+    expect(await run(["init", "--yes"], io(root, releaseRoutes(RELEASE)).io)).toBe(0);
+    return root;
+  }
+
+  it("records the sha256, item and release of every file written", async () => {
+    const root = await initialized();
+    expect(receipts(root)).toEqual({
+      "styles/aedis-theme.css": { sha256: hash(":root{}\n"), item: "theme", release: RELEASE },
+      "lib/utils.ts": { sha256: hash("export const cn = 1;\n"), item: "utils", release: RELEASE },
+      "lib/untrusted.ts": { sha256: hash("export {};\n"), item: "untrusted", release: RELEASE },
+      "lib/api.ts": { sha256: hash("export {};\n"), item: "api", release: RELEASE },
+      "lib/security-headers.ts": { sha256: hash("export {};\n"), item: "security-headers", release: RELEASE },
+    });
+    expect(JSON.parse(read(root, "aedis.json"))).toMatchObject({ release: RELEASE, paths: { ui: "components/ui" } });
+  });
+
+  it("re-adds an unchanged item without touching it, and replaces a file still as written with a newer release", async () => {
+    const root = await initialized();
+    const before = read(root, "aedis.json");
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["add", "utils", "--yes"], t.io)).toBe(0);
+    expect(t.lines).toContain("  unchanged lib/utils.ts");
+    expect(read(root, "aedis.json")).toBe(before);
+
+    const newer = releaseArchive({ ...ITEMS, utils: { ...ITEMS.utils, files: [{ ...ITEMS.utils.files[0], content: "export const cn = 2;\n" }] } });
+    const u = io(root, releaseRoutes("v0.11.0", newer), { check: fakeCheck("v0.11.0") });
+    expect(await run(["add", "utils", "--release", "v0.11.0", "--yes"], u.io)).toBe(0);
+    expect(u.lines).toContain("  update    lib/utils.ts");
+    expect(read(root, "lib/utils.ts")).toBe("export const cn = 2;\n");
+    expect(receipts(root)["lib/utils.ts"]).toEqual({ sha256: hash("export const cn = 2;\n"), item: "utils", release: "v0.11.0" });
+  });
+
+  it("never overwrites a file edited locally, even with --overwrite: writes .aedis-new, lists the conflict and fails", async () => {
+    const root = await initialized();
+    writeFileSync(path.join(root, "lib/utils.ts"), "export const cn = 'mine';\n");
+    rmSync(path.join(root, "lib/api.ts"));
+    const before = receipts(root)["lib/utils.ts"];
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["add", "utils", "api", "--yes", "--overwrite"], t.io)).toBe(1);
+    expect(read(root, "lib/utils.ts")).toBe("export const cn = 'mine';\n");
+    expect(read(root, "lib/utils.ts.aedis-new")).toBe("export const cn = 1;\n");
+    expect(read(root, "lib/api.ts")).toBe("export {};\n");
+    expect(t.lines).toContain("  keep      lib/utils.ts (edited locally; new version in lib/utils.ts.aedis-new)");
+    expect(t.lines).toContain("  conflict: lib/utils.ts was edited locally; kept it, wrote lib/utils.ts.aedis-new");
+    expect(t.lines.at(-1)).toBe("error: 1 file(s) edited locally were not overwritten: merge each .aedis-new by hand, then add again");
+    expect(receipts(root)["lib/utils.ts"]).toEqual(before);
+
+    // Taking the new version by hand settles it.
+    writeFileSync(path.join(root, "lib/utils.ts"), read(root, "lib/utils.ts.aedis-new"));
+    expect(await run(["add", "utils", "--yes"], io(root, releaseRoutes(RELEASE)).io)).toBe(0);
+  });
+
+  it("re-checks each file just before writing: an edit or a new file made while the prompt was open is kept", async () => {
+    const root = await initialized();
+    const newer = releaseArchive({ ...ITEMS, utils: { ...ITEMS.utils, files: [{ ...ITEMS.utils.files[0], content: "export const cn = 2;\n" }] } });
+    const before = receipts(root)["lib/utils.ts"];
+    const confirm = async () => {
+      writeFileSync(path.join(root, "lib/utils.ts"), "export const cn = 'mine';\n");
+      writeFileSync(path.join(root, "components/ui/button.tsx"), "mine\n");
+      return true;
+    };
+    mkdirSync(path.join(root, "components/ui"), { recursive: true });
+    const t = io(root, releaseRoutes("v0.11.0", newer), { check: fakeCheck("v0.11.0"), confirm });
+    expect(await run(["add", "button", "--release", "v0.11.0"], t.io)).toBe(1);
+    expect(t.lines).toContain("  update    lib/utils.ts");
+    expect(t.lines).toContain("  create    components/ui/button.tsx");
+    expect(read(root, "lib/utils.ts")).toBe("export const cn = 'mine';\n");
+    expect(read(root, "lib/utils.ts.aedis-new")).toBe("export const cn = 2;\n");
+    expect(read(root, "components/ui/button.tsx")).toBe("mine\n");
+    expect(read(root, "components/ui/button.tsx.aedis-new")).toContain("export const button = 1;");
+    expect(receipts(root)["lib/utils.ts"]).toEqual(before);
+    expect(receipts(root)["components/ui/button.tsx"]).toBeUndefined();
+    expect(t.lines.at(-1)).toBe("error: 2 file(s) edited locally were not overwritten: merge each .aedis-new by hand, then add again");
+  });
+
+  it("refuses a symlink as the file or its .aedis-new, even one that stays inside the project", async () => {
+    const root = await initialized();
+    writeFileSync(path.join(root, "lib/utils.ts"), "export const cn = 'mine';\n");
+    symlinkSync("../package.json", path.join(root, "lib/utils.ts.aedis-new"));
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["add", "utils", "--yes"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toBe("error: refused path: lib/utils.ts.aedis-new is a symlink");
+    expect(read(root, "package.json")).toBe("{}");
+
+    rmSync(path.join(root, "lib/utils.ts.aedis-new"));
+    rmSync(path.join(root, "lib/api.ts"));
+    symlinkSync("../package.json", path.join(root, "lib/api.ts"));
+    const config = JSON.parse(read(root, "aedis.json"));
+    delete config.files["lib/api.ts"];
+    writeFileSync(path.join(root, "aedis.json"), JSON.stringify(config));
+    expect(await run(["add", "api", "--yes", "--overwrite"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toBe("error: refused path: lib/api.ts is a symlink");
+    expect(read(root, "package.json")).toBe("{}");
+  });
+
+  it("replaces an old .aedis-new and says so", async () => {
+    const root = await initialized();
+    writeFileSync(path.join(root, "lib/utils.ts"), "export const cn = 'mine';\n");
+    writeFileSync(path.join(root, "lib/utils.ts.aedis-new"), "stale\n");
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["add", "utils", "--yes"], t.io)).toBe(1);
+    expect(read(root, "lib/utils.ts.aedis-new")).toBe("export const cn = 1;\n");
+    expect(t.lines).toContain("  replaced the previous lib/utils.ts.aedis-new");
+  });
+
+  it("needs --overwrite to replace even a file still as written when the registry is not verified", async () => {
+    const root = await initialized();
+    const routes = { "http://localhost:3000/r/utils.json": () => Response.json({ ...ITEMS.utils, files: [{ ...ITEMS.utils.files[0], content: "export const cn = 2;\n" }] }) };
+    const t = io(root, routes);
+    const args = ["add", "utils", "--registry", "http://localhost:3000/r", "--allow-unverified", "--yes"];
+    expect(await run(args, t.io)).toBe(1);
+    expect(t.lines).toContain("  would replace from an unverified registry: lib/utils.ts");
+    expect(t.lines.at(-1)).toBe("error: replacing local copies from an unverified registry needs --overwrite");
+    expect(read(root, "lib/utils.ts")).toBe("export const cn = 1;\n");
+    expect(await run([...args, "--overwrite"], t.io)).toBe(0);
+    expect(read(root, "lib/utils.ts")).toBe("export const cn = 2;\n");
+    expect(receipts(root)["lib/utils.ts"]).toEqual({ sha256: hash("export const cn = 2;\n"), item: "utils", release: "unverified" });
+  });
+
+  it("recreates a missing tracked file", async () => {
+    const root = await initialized();
+    rmSync(path.join(root, "lib/api.ts"));
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["diff", "api"], t.io)).toBe(1);
+    expect(t.lines).toContain("missing        lib/api.ts");
+    expect(await run(["add", "api", "--yes"], t.io)).toBe(0);
+    expect(t.lines).toContain("  create    lib/api.ts");
+  });
+
+  it("refuses to write through a symlink that leaves the project, and a receipt that does", async () => {
+    const root = await initialized();
+    const outside = mkdtempSync(path.join(tmpdir(), "aedis-outside-"));
+    mkdirSync(path.join(root, "components"));
+    symlinkSync(outside, path.join(root, "components", "ui"), "dir");
+    const t = io(root, releaseRoutes(RELEASE));
+    expect(await run(["add", "button", "--yes"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toMatch(/refused path: components\/ui\/button.tsx leaves the project through a symlink/);
+    expect(existsSync(path.join(outside, "button.tsx"))).toBe(false);
+
+    const config = JSON.parse(read(root, "aedis.json"));
+    config.files["components/ui/x.tsx"] = config.files["lib/api.ts"];
+    writeFileSync(path.join(root, "aedis.json"), JSON.stringify(config));
+    expect(await run(["diff"], t.io)).toBe(1);
+    expect(t.lines.at(-1)).toMatch(/aedis.json: files: refused path: components\/ui\/x.tsx leaves the project through a symlink/);
   });
 });
 

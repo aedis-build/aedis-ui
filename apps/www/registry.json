@@ -1166,6 +1166,7 @@
         "@aedis/theme",
         "@aedis/utils",
         "@aedis/untrusted",
+        "@aedis/use-format",
         "@aedis/locale",
         "@aedis/button"
       ],
@@ -2050,6 +2051,25 @@
       "files": [
         {
           "path": "registry/aedis/blocks/proof-list.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "plans",
+      "type": "registry:block",
+      "title": "Plans",
+      "description": "Pricing columns with name, price, a short list and an action; the current plan is marked without shifting the grid.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/untrusted",
+        "@aedis/locale",
+        "@aedis/button"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/blocks/plans.tsx",
           "type": "registry:component"
         }
       ]
