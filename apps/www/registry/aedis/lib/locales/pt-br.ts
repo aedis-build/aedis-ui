@@ -170,6 +170,9 @@ export const ptBR: Messages = {
   authSplit: {
     or: "ou",
   },
+  plans: {
+    current: "Plano atual",
+  },
   sectionDock: {
     label: "Seções da página",
     ring: "Seções da página, agora: {section}",

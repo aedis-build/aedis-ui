@@ -27,7 +27,7 @@ export function parseItem(json: unknown, expected: string): RegistryItem {
 }
 
 /** Where items come from. `namespace` is the prefix of the registry dependencies it may resolve, e.g. "@aedis". */
-export type ItemSource = { get: (name: string) => Promise<RegistryItem>; verified: boolean; label: string; namespace: string };
+export type ItemSource = { get: (name: string) => Promise<RegistryItem>; verified: boolean; label: string; namespace: string; release: string };
 
 /** The release asset of a registry: <repository name>-registry-<tag>.tgz, as aedis-ui's release workflow names it. */
 export const assetName = (release: string, repository = REPOSITORY) => `${repository.split("/")[1]}-registry-${release}.tgz`;
@@ -67,6 +67,7 @@ export async function releaseSource(
   return {
     verified: true,
     namespace,
+    release,
     label: `${repository} ${release} (verified)`,
     async get(item) {
       if (!NAME.test(item)) throw new Error(`registry: invalid item name ${JSON.stringify(item)}`);
@@ -84,6 +85,7 @@ export function urlSource(base: string, { fetcher = fetch }: { fetcher?: typeof 
   return {
     verified: false,
     namespace: "@aedis",
+    release: "unverified",
     label: `${url.href} (NOT verified)`,
     async get(item) {
       if (!NAME.test(item)) throw new Error(`registry: invalid item name ${JSON.stringify(item)}`);

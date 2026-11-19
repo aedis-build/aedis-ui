@@ -185,6 +185,10 @@ export type Messages = {
     /** Between the provider buttons and the email field. */
     or: string;
   };
+  plans: {
+    /** The tag beside the plan the account is on. */
+    current: string;
+  };
   sectionDock: {
     /** Names the navigation. */
     label: string;
@@ -392,6 +396,9 @@ export const en: Messages = {
   },
   authSplit: {
     or: "or",
+  },
+  plans: {
+    current: "Current plan",
   },
   sectionDock: {
     label: "Page sections",

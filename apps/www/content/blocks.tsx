@@ -6,6 +6,7 @@ import AuthSplitDemo from "@/examples/blocks/auth-split";
 import CtaSectionDemo from "@/examples/blocks/cta-section";
 import HeroDemo from "@/examples/blocks/hero";
 import LogoCloudDemo from "@/examples/blocks/logo-cloud";
+import PlansDemo from "@/examples/blocks/plans";
 import ProofListDemo from "@/examples/blocks/proof-list";
 import ApprovalInboxDemo from "@/examples/blocks/approval-inbox";
 import SecureShellDemo from "@/examples/blocks/secure-shell";
@@ -120,6 +121,43 @@ export const blocks: BlockDoc[] = [
     accessibility: {
       notes: ["Paused agents are announced as an alert, agents near the limit as a status; each bar is a named progressbar.", "Amounts are formatted for the reader's locale."],
       motion: "Bars move to new values on a spring. With reduced motion they jump.",
+    },
+  },
+  {
+    name: "plans",
+    title: "Plans",
+    description: "Pricing columns with name, price, a short list and an action; the current plan is marked without shifting the grid.",
+    category: "Usage and limits",
+    height: 560,
+    demo: PlansDemo,
+    demoFile: "blocks/plans",
+    usage: `import { Plans } from "@/components/ui/plans";
+
+<Plans
+  currency="BRL"
+  locale="pt-BR"
+  current="start"
+  plans={[
+    { id: "free", name: "Free", price: 0, items: ["1 agent"] },
+    { id: "pro", name: "Pro", price: 299, period: "per month", items: ["10 agents"], action: { label: "Switch to Pro", onClick: () => switchTo("pro") } },
+    { id: "managed", name: "Managed", price: "Talk to us", action: { label: "Talk to us about Managed", href: "/contact" } },
+  ]}
+/>`,
+    defenses: [
+      {
+        title: "Actions only to safe URLs",
+        text: "A link action goes through safeUrl: a javascript: or malformed URL leaves the plan without an action, and external links get noopener noreferrer.",
+        evidence: [["plans.test.tsx", "names actions in full and leaves out an action whose URL is refused"]],
+        ids: ["CWE-79", "CWE-601"],
+      },
+    ],
+    backend: "change the plan on the server, after checking who asks; this block only calls back. Prices are data: send the amount, currency and locale the account is billed in.",
+    accessibility: {
+      notes: [
+        "Each plan is a section named by its heading; the current one says so in text (the Locale provider's \"Current plan\"), not only by the accent rule.",
+        "The rules are inset shadows and the title row has a fixed height, so marking another plan moves nothing.",
+        "Amounts are formatted with Intl.NumberFormat for the locale and currency you pass.",
+      ],
     },
   },
   {
