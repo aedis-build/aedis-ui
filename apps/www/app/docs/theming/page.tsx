@@ -60,7 +60,7 @@ export default function Theming() {
         <p className="text-body text-muted-foreground">
           Components use semantic Tailwind tokens backed by CSS variables, generated from typed data in{" "}
           <code className="font-mono text-code">registry/aedis/lib/tokens.ts</code>. Light and dark are the default; the Aedis brand
-          (navy, gold, cream) is an extra theme. Never edit a component to change how it looks.
+          (navy, gold, cream) and Horizon (navy and mist, gold only as a thin <code className="font-mono">thread</code> line) are extra themes. Never edit a component to change how it looks.
         </p>
       </header>
 
@@ -69,7 +69,7 @@ export default function Theming() {
           Without <code className="font-mono">data-theme</code>, the theme follows the system. Set it on <code className="font-mono">&lt;html&gt;</code> to choose one.
         </p>
         <pre className={code}>
-          <code>{`<html data-theme="dark">   <!-- "light", "dark" or "brand" -->`}</code>
+          <code>{`<html data-theme="dark">   <!-- "light", "dark", "brand" or "horizon" -->`}</code>
         </pre>
       </Section>
 

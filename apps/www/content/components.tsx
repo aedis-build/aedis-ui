@@ -63,6 +63,8 @@ import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
 import SkeletonDemo from "@/examples/skeleton/demo";
 import SourcesDemo from "@/examples/sources/demo";
+import StatBilling from "@/examples/stat/billing";
+import StatDemo from "@/examples/stat/demo";
 import SpinnerDemo from "@/examples/spinner/demo";
 import StreamingMarkdownDemo from "@/examples/streaming-markdown/demo";
 import SwitchDemo from "@/examples/switch/demo";
@@ -104,6 +106,7 @@ import ApiSimulator from "@/examples/api/simulator";
 import UntrustedInspector from "@/examples/untrusted/inspector";
 import SecureActionSimulator from "@/examples/secure-action/simulator";
 import EventStreamSimulator from "@/examples/event-stream/simulator";
+import UseEventStreamLiveTable from "@/examples/use-event-stream/live-table";
 import UseEventStreamSimulator from "@/examples/use-event-stream/simulator";
 import BffStreamSimulator from "@/examples/bff-stream/simulator";
 import UseIdleTimeoutDemo from "@/examples/use-idle-timeout/demo";
@@ -124,6 +127,7 @@ import MarqueeDemo from "@/examples/marquee/demo";
 import MarqueeBackdrop from "@/examples/marquee/backdrop";
 import ImageAccordionDemo from "@/examples/image-accordion/demo";
 import ScrollStepsDemo from "@/examples/scroll-steps/demo";
+import StepsDemo from "@/examples/steps/demo";
 import ScrollPathDemo from "@/examples/scroll-path/demo";
 import SectionDockDemo from "@/examples/section-dock/demo";
 import TextMaskDemo from "@/examples/text-mask/demo";
@@ -1436,7 +1440,15 @@ const reduced = useReducedMotion();`,
     title: "useEventStream",
     category: "Transport",
     description: "Hook that subscribes to a Server-Sent Events endpoint of this origin, e.g. the messages of a conversation as an agent writes them.",
-    examples: [{ title: "Simulated stream", description: "The switch enables the hook; turning it off closes the stream.", file: "use-event-stream/simulator", component: UseEventStreamSimulator }],
+    examples: [
+      { title: "Simulated stream", description: "The switch enables the hook; turning it off closes the stream.", file: "use-event-stream/simulator", component: UseEventStreamSimulator },
+      {
+        title: "Pause live sign-ins",
+        description: "A login table fed by a simulated stream. Pause holds new rows and counts them (5 kept here, so dropping shows); resume adds them in order. Only the status line speaks, once per pause and once per resume.",
+        file: "use-event-stream/live-table",
+        component: UseEventStreamLiveTable,
+      },
+    ],
     usage: `import { useEventStream } from "@/hooks/use-event-stream";
 
 const state = useEventStream<Message>("/api/conversations/42/events", {
@@ -1448,11 +1460,21 @@ const state = useEventStream<Message>("/api/conversations/42/events", {
       { name: "onEvent", type: "(data, { type, id }) => void", description: "Called with the parsed JSON of each allowed event; malformed JSON is ignored." },
       { name: "events", type: "string[]", default: '["message"]', description: "Allow-list of event types." },
       { name: "enabled", type: "boolean", default: "true", description: "Pause without changing the path." },
+      { name: "paused", type: "boolean", default: "false", description: "Keep the connection but hold new events back (WCAG 2.2.2); turning it off delivers them to onEvent in order." },
+      { name: "maxBuffered", type: "number", default: "100", description: "Events held while paused; past it the oldest are dropped and counted. A new path empties the buffer." },
+      { name: "onBuffer", type: "({ buffered, dropped }) => void", description: "Called when the held events change, to show a count such as \"3 new events\"." },
       { name: "lastEventId", type: "string", description: "Resume after this id (Last-Event-ID, 256 printable characters at most)." },
       { name: "maxEventBytes / maxConnectionBytes", type: "number", default: "64 KiB / 16 MiB", description: "Bigger events are dropped; past the connection limit it reconnects from the last id." },
       { name: "heartbeatMs / maxRetries / retryMs / maxRetryMs", type: "number", default: "15000 / 8 / 1000 / 30000", description: "Silence for 2x heartbeat reconnects; backoff with jitter honours the server's retry:." },
       { name: "returns", type: '"connecting" | "open" | "retrying" | "closed" | "error"', description: "Connection state." },
     ],
+    accessibility: {
+      notes: [
+        "Live data that keeps moving needs a way to pause it (WCAG 2.2.2): bind a Pause toggle (aria-pressed) to paused and show onBuffer's count next to it.",
+        "Never put aria-live on the table: one role=\"status\" line speaks a summary once per pause and once per resume.",
+      ],
+      motion: "The example's new rows fade in once; under reduced motion they appear without it.",
+    },
     security: {
       sinks: ["Transport", "DOM"],
       defenses: [
@@ -1479,6 +1501,12 @@ const state = useEventStream<Message>("/api/conversations/42/events", {
           text: "204 stops for good, other 4xx stop with an error, 5xx and network errors retry with capped backoff.",
           evidence: [["event-stream.test.tsx", "stops on 204 and on client errors, retries server errors and gives up after maxRetries"]],
           ids: ["CWE-400"],
+        },
+        {
+          title: "A pause with a bounded buffer",
+          text: "While paused at most maxBuffered events are held; older ones are dropped and counted, so the count shows the loss.",
+          evidence: [["event-stream.test.tsx", "holds events while paused, caps the buffer and counts what it drops"]],
+          ids: ["CWE-770"],
         },
       ],
       backend: "Authenticate the stream with the session cookie (or bff-stream) and authorize every event a person receives.",
@@ -2467,6 +2495,45 @@ import { Label } from "@/components/ui/label";
     accessibility: {
       notes: ["role=\"progressbar\" with aria-valuenow; give it an aria-label."],
       motion: "The bar moves to a new value on a critically damped spring. With reduced motion it jumps.",
+    },
+  },
+  {
+    name: "stat",
+    title: "Stat",
+    category: "Data display",
+    description: "Key numbers in a row under a 1 px ink rule, with hairlines between them and no cards. Two columns on a phone.",
+    examples: [
+      { title: "Identity", description: "Four stats; the last one links to where the number is acted on.", file: "stat/demo", component: StatDemo },
+      { title: "Billing", description: "A value with a total shows \"of\" the total and a bar. stack keeps one stat per row.", file: "stat/billing", component: StatBilling },
+    ],
+    usage: `import { Stat, StatGroup } from "@/components/ui/stat";
+
+<StatGroup aria-label="Identity">
+  <Stat label="People active this month" value={12480} delta="+4% from last month" />
+  <Stat label="Approvals pending" value={3} action={{ href: "/approvals", label: "Review approvals" }} />
+</StatGroup>`,
+    props: [
+      { name: "label", type: "string", description: "Stat. What the number counts; read first." },
+      { name: "value", type: "number | string", description: "Stat. A number is formatted in the locale with tabular numerals; a string shows as given." },
+      { name: "format", type: "Intl.NumberFormatOptions", description: "Stat. Options for a number value and its total, e.g. { style: \"percent\" }." },
+      { name: "total", type: "number", description: "Stat. Adds \"of total\" after the value and a bar of value / total." },
+      { name: "delta", type: "ReactNode", description: "Stat. A change or a note under the value, in muted text." },
+      { name: "action", type: "{ href: string; label: string }", description: "Stat. A link under the value, through Link: safe URLs only, 24 px tall target." },
+      { name: "labels", type: "Partial<StatLabels>", description: "Stat. Overrides the locale's words (of {total})." },
+      { name: "stack", type: "boolean", default: "false", description: "StatGroup. One stat per row at every width." },
+      { name: "...props", type: "ComponentProps<\"dl\">", description: "StatGroup. Name the group with aria-label when the page has more than one." },
+    ],
+    security: {
+      sinks: [],
+      notes: ["Labels, values and deltas render as text. The action href goes through Link, so only safe protocols survive and external links get noopener noreferrer."],
+    },
+    accessibility: {
+      notes: [
+        "A description list: each stat reads label, value, delta in order.",
+        "Separators are borders, never elements, so nothing decorative is announced. The total bar is hidden; the text already says value of total.",
+        "The action looks like a link (accent, underline) and is at least 24 px tall.",
+      ],
+      motion: "Nothing moves.",
     },
   },
   ...chartDocs(),
@@ -3522,6 +3589,49 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "On the server, without JavaScript and under reduced motion every step is done and the line is full.",
       ],
       motion: "The line fills linearly with the scroll, and each node crossfades from a clock to a check in 200 ms as the line reaches it.",
+    },
+  },
+  {
+    name: "steps",
+    title: "Steps",
+    category: "Navigation",
+    description: "A wizard's numbered steps in a column: done ones fold to a line with a summary, the current one is open, the next ones wait.",
+    examples: [
+      {
+        title: "Identity wizard",
+        description: "Four steps to connect an application, the JWKS credential among them. Continue moves on, Change reopens a done step; focus follows the current step's heading. Nothing is sent anywhere.",
+        file: "steps/demo",
+        component: StepsDemo,
+        align: "start",
+      },
+    ],
+    usage: `import { Step, Steps } from "@/components/ui/steps";
+
+<Steps>
+  <Step status="done" title="Create the application" summary="Aedis Console" action={<Button variant="link" onClick={reopen}>Change</Button>} />
+  <Step status="current" title="Add a redirect URI">
+    <RedirectUriForm />
+  </Step>
+  <Step status="upcoming" title="Add the JWKS credential" />
+  <Step status="upcoming" title="Test the sign-in" />
+</Steps>`,
+    props: [
+      { name: "Step status", type: '"done" | "current" | "upcoming"', description: "Done folds to one line with summary and action; current shows its children; upcoming is a muted title." },
+      { name: "Step title", type: "ReactNode", description: "The step's heading (an h3). It takes focus when the step becomes current." },
+      { name: "Step summary", type: "ReactNode", description: "One line after a done step's title, e.g. what was chosen in it." },
+      { name: "Step action", type: "ReactNode", description: "A control at the end of a done step's line, e.g. a Change button that makes it current again." },
+      { name: "Step children", type: "ReactNode", description: "The current step's content, e.g. its form. Not rendered for done and upcoming steps." },
+      { name: "Step labels", type: "Partial<{ done; upcoming }>", description: "Overrides the screen reader text read after done and upcoming titles." },
+    ],
+    parts: [{ name: "Steps", description: "The ordered list. Numbers 01, 02… come from a CSS counter, in the order of its Step children.", props: [{ name: "...props", type: 'ComponentProps<"ol">', description: "Passed to the list, e.g. className or aria-label." }] }],
+    security: { sinks: [], notes: ["Renders titles, summaries and content as React children; nothing is injected. A summary that echoes what someone typed is text, and the wizard's own Input already strips hidden code points."] },
+    accessibility: {
+      keyboard: [["Tab", "Moves through the current step's fields and the done steps' actions."]],
+      notes: [
+        "An ordered list; the current step carries aria-current=\"step\". Done and upcoming are said in text after the title, e.g. \"(done)\", from the dictionary.",
+        "When a step becomes current (moving on, or reopening a done one) its heading takes focus, so keyboard and screen reader land on the new step.",
+        "The large number is aria-hidden: the list already gives the position. On phones it sits above the title, so the content keeps the full width.",
+      ],
     },
   },
   {

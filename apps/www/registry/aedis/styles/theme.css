@@ -89,6 +89,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
+  --color-thread: var(--thread);
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -135,6 +136,7 @@
   --accent: #2457d6;
   --accent-foreground: #ffffff;
   --accent-soft: #e8eefc;
+  --thread: #2457d6;
   --ring: #2457d6;
   --success: #18794e;
   --warning: #a35200;
@@ -194,6 +196,7 @@
     --accent: #7aa2ff;
     --accent-foreground: #0d1015;
     --accent-soft: #1b2742;
+    --thread: #7aa2ff;
     --ring: #7aa2ff;
     --success: #3dd68c;
     --warning: #f5a524;
@@ -241,6 +244,7 @@
   --accent: #7aa2ff;
   --accent-foreground: #0d1015;
   --accent-soft: #1b2742;
+  --thread: #7aa2ff;
   --ring: #7aa2ff;
   --success: #3dd68c;
   --warning: #f5a524;
@@ -295,6 +299,7 @@
   --accent: #c8a24c;
   --accent-foreground: #1a2740;
   --accent-soft: #f3ebd6;
+  --thread: #c8a24c;
   --ring: #1a2740;
   --success: #18794e;
   --warning: #a35200;
@@ -320,6 +325,54 @@
   --elevation-2: 0 2px 4px rgba(26,39,64,0.06), 0 4px 12px rgba(26,39,64,0.09);
   --elevation-3: 0 4px 8px rgba(26,39,64,0.07), 0 12px 28px rgba(26,39,64,0.13);
   --elevation-4: 0 8px 16px rgba(26,39,64,0.09), 0 24px 56px rgba(26,39,64,0.19);
+}
+
+/* Horizon (navy, mist, gold only as a thin thread) is an extra dark theme, never the default. */
+:root[data-theme="horizon"] {
+  color-scheme: dark;
+  --background: #0e1626;
+  --surface: #131d31;
+  --surface-raised: #1a2540;
+  --muted: #0b1220;
+  --foreground: #e8ecf1;
+  --muted-foreground: #aeb8c6;
+  --border: #22304a;
+  --border-control: #5b6b86;
+  --hairline: rgba(232,236,241,0.08);
+  --primary: #2457d6;
+  --primary-foreground: #ffffff;
+  --secondary: #131d31;
+  --secondary-foreground: #e8ecf1;
+  --link: #9db8ff;
+  --accent: #9db8ff;
+  --accent-foreground: #0e1626;
+  --accent-soft: #18284a;
+  --thread: #c8a24c;
+  --ring: #9db8ff;
+  --success: #7fd1a8;
+  --warning: #e2c27a;
+  --destructive: #ff6369;
+  --destructive-solid: #c93a3f;
+  --destructive-foreground: #ffffff;
+  --material-thin: rgba(19,29,49,0.55);
+  --material-regular: rgba(19,29,49,0.72);
+  --material-thick: rgba(19,29,49,0.86);
+  --material-edge: rgba(255,255,255,0.08);
+  --scrim: rgba(5,9,18,0.6);
+  --on-media: #ffffff;
+  --media-scrim: rgba(0,0,0,0.6);
+  --media-scrim-strong: rgba(0,0,0,0.8);
+  --media-mask: #000000;
+  --highlight: #9db8ff;
+  --chart-1: #9db8ff;
+  --chart-2: #3dd6c4;
+  --chart-3: #f5a524;
+  --chart-4: #c79bff;
+  --chart-5: #ff7aa8;
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.40);
+  --elevation-2: 0 2px 6px rgba(0,0,0,0.45), 0 6px 16px rgba(0,0,0,0.35);
+  --elevation-3: 0 4px 10px rgba(0,0,0,0.5), 0 14px 32px rgba(0,0,0,0.45);
+  --elevation-4: 0 8px 20px rgba(0,0,0,0.55), 0 28px 64px rgba(0,0,0,0.55);
 }
 
 @media (prefers-reduced-transparency: reduce) {

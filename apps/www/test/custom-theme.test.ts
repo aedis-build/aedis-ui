@@ -30,6 +30,16 @@ describe("validateTheme", () => {
     expect(r).toMatchObject({ ok: true, theme: { name: "Acme", colors: { light: { primary: "#0b6e4f" }, dark: { primary: "oklch(0.55 0.12 160)" } }, shadow: 0.5 } });
   });
 
+  it("accepts the horizon palette as a dark theme: every pair passes the validator", () => {
+    const dark = Object.fromEntries(Object.entries(colors).filter(([, v]) => normalizeColor(v.horizon)).map(([k, v]) => [k, v.horizon]));
+    expect(validateTheme({ ...base, name: "Horizon", colors: { light: {}, dark } })).toMatchObject({ ok: true });
+  });
+
+  it("horizon keeps gold to the thread: no fill, text or control takes it", () => {
+    const gold = colors.thread.horizon;
+    expect(Object.entries(colors).filter(([k, v]) => k !== "thread" && v.horizon === gold).map(([k]) => k)).toEqual([]);
+  });
+
   it("refuses CSS smuggled into a color", () => {
     for (const value of ["red", "#fff; background: url(https://x)", "url(https://evil/x)", "oklch(0.5 0.1 10) } body { display: none", "var(--x)", "expression(alert(1))", "@import 'x'"]) {
       expect(errors({ ...base, colors: { light: { primary: value }, dark: {} } })).toContain("colors.light.primary must be a hex color or oklch()");

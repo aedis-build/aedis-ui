@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { applyTheme, normalizeColor, parseThemeJson, themeFonts, validateTheme, type CustomTheme, type FontName, type ThemeMode } from "@/registry/aedis/lib/custom-theme";
-import { colors, type ColorName } from "@/registry/aedis/lib/tokens";
+import { colors, type ColorName, type ThemeName } from "@/registry/aedis/lib/tokens";
 import { Badge } from "@/registry/aedis/ui/badge";
 import { Button } from "@/registry/aedis/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/registry/aedis/ui/card";
@@ -21,9 +21,10 @@ const editable: ColorName[] = ["background", "surface", "foreground", "muted-for
 
 const initial: CustomTheme = { version: 1, name: "My theme", colors: { light: {}, dark: {} }, radius: { sm: 8, md: 12 }, shadow: 1, font: "system" };
 
-// The brand palette as light colors; its translucent tokens (rgba) are not theme values, so they keep the default.
-const brand = Object.fromEntries(Object.entries(colors).filter(([, v]) => normalizeColor(v.brand)).map(([k, v]) => [k, v.brand]));
-const starts = { default: { light: {}, dark: {} }, brand: { light: brand, dark: {} } } satisfies Record<string, CustomTheme["colors"]>;
+// A built-in palette as theme colors; its translucent tokens (rgba) are not theme values, so they keep the default.
+const palette = (t: ThemeName) => Object.fromEntries(Object.entries(colors).filter(([, v]) => normalizeColor(v[t])).map(([k, v]) => [k, v[t]]));
+const starts = { default: { light: {}, dark: {} }, brand: { light: palette("brand"), dark: {} }, horizon: { light: {}, dark: palette("horizon") } } satisfies Record<string, CustomTheme["colors"]>;
+const startNames: Record<keyof typeof starts, string> = { default: "Light and dark", brand: "Brand", horizon: "Horizon" };
 
 /** Live, validated theme editing over real components. Only a theme that passes validation is ever applied or saved. */
 export function ThemeEditor() {
@@ -87,10 +88,14 @@ export function ThemeEditor() {
       <form className="space-y-4" onSubmit={(e) => e.preventDefault()} aria-label="Theme editor">
         <fieldset className="space-y-1.5">
           <legend className="text-callout font-medium">Start from</legend>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(Object.keys(starts) as (keyof typeof starts)[]).map((s) => (
-              <Button key={s} type="button" variant="secondary" size="sm" onClick={() => setDraft((d) => ({ ...d, colors: starts[s] }))}>
-                {s === "default" ? "Light and dark" : "Brand"}
+              <Button key={s} type="button" variant="secondary" size="sm" onClick={() => {
+                  setDraft((d) => ({ ...d, colors: starts[s] }));
+                  // Horizon is a dark palette: show the mode it changes.
+                  if (s === "horizon") setMode("dark");
+                }}>
+                {startNames[s]}
               </Button>
             ))}
           </div>

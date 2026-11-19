@@ -23,7 +23,7 @@
       "name": "theme",
       "type": "registry:file",
       "title": "Theme",
-      "description": "The Aedis UI default theme: light, dark and the extra brand theme as CSS variables, Tailwind tokens, accessibility fallbacks and motion utilities. Import it once in your global CSS after tailwindcss.",
+      "description": "The Aedis UI default theme: light, dark and the extra brand and horizon themes as CSS variables, Tailwind tokens, accessibility fallbacks and motion utilities. Import it once in your global CSS after tailwindcss.",
       "files": [
         {
           "path": "registry/aedis/styles/theme.css",
@@ -423,6 +423,26 @@
       ]
     },
     {
+      "name": "stat",
+      "type": "registry:ui",
+      "title": "Stat",
+      "description": "Big-number indicators in a row under an ink rule, with hairlines between them: label, value, and an optional delta, total bar or link.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale",
+        "@aedis/use-format",
+        "@aedis/link",
+        "@aedis/progress"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/stat.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "chart",
       "type": "registry:ui",
       "title": "Chart",
@@ -639,7 +659,7 @@
       "name": "use-event-stream",
       "type": "registry:hook",
       "title": "useEventStream",
-      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, aborts on unmount.",
+      "description": "React hook over event-stream: subscribes to a same-origin SSE endpoint, resumes and reconnects, pauses into a capped buffer, aborts on unmount.",
       "registryDependencies": [
         "@aedis/event-stream"
       ],
@@ -1848,6 +1868,23 @@
       "files": [
         {
           "path": "registry/aedis/ui/scroll-steps.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "steps",
+      "type": "registry:ui",
+      "title": "Steps",
+      "description": "A wizard's numbered steps in a column: done ones fold to a line with a summary, the current one is open, the next ones wait.",
+      "registryDependencies": [
+        "@aedis/theme",
+        "@aedis/utils",
+        "@aedis/locale"
+      ],
+      "files": [
+        {
+          "path": "registry/aedis/ui/steps.tsx",
           "type": "registry:ui"
         }
       ]

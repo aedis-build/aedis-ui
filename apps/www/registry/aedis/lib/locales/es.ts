@@ -207,4 +207,11 @@ export const es: Messages = {
     thanks: "Gracias por tu opinión.",
     error: "No se pudo enviar la opinión. Inténtalo de nuevo.",
   },
+  stat: {
+    of: "de {total}",
+  },
+  steps: {
+    done: "(completado)",
+    upcoming: "(sin empezar)",
+  },
 };

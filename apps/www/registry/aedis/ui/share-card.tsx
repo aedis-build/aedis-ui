@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { stripInvisible } from "@/lib/untrusted";
 import { parseColor } from "@/registry/aedis/lib/contrast";
 import { themeVariables, validateTheme, type CustomTheme, type ThemeMode } from "@/registry/aedis/lib/custom-theme";
-import { colors, fonts, themeNames, type ColorName, type ThemeName } from "@/registry/aedis/lib/tokens";
+import { colors, darkThemes, fonts, themeNames, type ColorName, type ThemeName } from "@/registry/aedis/lib/tokens";
 
 /** The Open Graph image size every chat app and network crops to. */
 export const SHARE_CARD_SIZE = { width: 1200, height: 630 } as const;
@@ -64,7 +64,7 @@ export function cardPalette(theme: ThemeName | CustomTheme = "light", mode: Them
   if (typeof theme === "string") {
     const name = themeNames.includes(theme) ? theme : "light";
     pick = (n) => colors[n][name];
-    dark = name === "dark";
+    dark = darkThemes.includes(name);
     if (name === "brand") glow = ["accent", 0.24];
   } else {
     const result = validateTheme(theme);
