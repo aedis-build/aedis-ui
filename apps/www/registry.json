@@ -203,7 +203,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "Small status label.",
+      "description": "Small status label, with a quiet status pill and dot.",
       "dependencies": [
         "class-variance-authority"
       ],
@@ -388,7 +388,7 @@
       "name": "radio-group",
       "type": "registry:ui",
       "title": "Radio Group",
-      "description": "Single choice among options.",
+      "description": "Single choice among options, as plain radios or as cards with an icon, a title and a description.",
       "dependencies": [
         "@base-ui/react@1.9.0"
       ],
@@ -574,13 +574,15 @@
       "name": "app-shell",
       "type": "registry:ui",
       "title": "App Shell",
-      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens.",
+      "description": "Sidebar + main layout that collapses behind a menu toggle on small screens; without a sidebar, an account bar with breadcrumb over one left-aligned grid.",
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",
         "@aedis/sidebar",
         "@aedis/locale",
-        "@aedis/sheet"
+        "@aedis/sheet",
+        "@aedis/dropdown-menu",
+        "@aedis/untrusted"
       ],
       "files": [
         {
@@ -1700,7 +1702,7 @@
       "name": "lightbox",
       "type": "registry:ui",
       "title": "Lightbox",
-      "description": "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption.",
+      "description": "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption; the item can grow out of its thumbnail and a drag down closes it.",
       "registryDependencies": [
         "@aedis/theme",
         "@aedis/utils",

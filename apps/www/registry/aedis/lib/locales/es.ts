@@ -40,7 +40,7 @@ export const es: Messages = {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     jumpToLatest: "Ir a lo más reciente",
   },
-  appShell: { menuLabel: "Menú" },
+  appShell: { menuLabel: "Menú", switchAccount: "Cambiar de cuenta, actual: {account}" },
   sidebar: { label: "Navegación principal" },
   localeSwitcher: { label: "Idioma" },
   codeBlock: {

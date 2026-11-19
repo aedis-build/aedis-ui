@@ -3,11 +3,14 @@ import type { ComponentType } from "react";
 import AccordionDemo from "@/examples/accordion/demo";
 import AlertDialogDemo from "@/examples/alert-dialog/demo";
 import AlertDemo from "@/examples/alert/demo";
+import AppShellAccountBreadcrumb from "@/examples/app-shell/account-breadcrumb";
+import AppShellAccount from "@/examples/app-shell/account";
 import AppShellDemo from "@/examples/app-shell/demo";
 import AreaChartDemo from "@/examples/area-chart/demo";
 import ApprovalCardDemo from "@/examples/approval-card/demo";
 import AvatarDemo from "@/examples/avatar/demo";
 import BadgeDemo from "@/examples/badge/demo";
+import BadgeStatus from "@/examples/badge/status";
 import BarChartDemo from "@/examples/bar-chart/demo";
 import BarChartMonth from "@/examples/bar-chart/month";
 import BreadcrumbDemo from "@/examples/breadcrumb/demo";
@@ -46,6 +49,7 @@ import PaginationDemo from "@/examples/pagination/demo";
 import PieChartDemo from "@/examples/pie-chart/demo";
 import ProgressDemo from "@/examples/progress/demo";
 import PromptInputDemo from "@/examples/prompt-input/demo";
+import RadioGroupCards from "@/examples/radio-group/cards";
 import RadioGroupDemo from "@/examples/radio-group/demo";
 import RadialChartDemo from "@/examples/radial-chart/demo";
 import ScrollAreaDemo from "@/examples/scroll-area/demo";
@@ -230,23 +234,56 @@ export const components: ComponentDoc[] = [
     name: "app-shell",
     title: "App Shell",
     category: "Navigation",
-    description: "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar.",
-    examples: [{ title: "App Shell", file: "app-shell/demo", component: AppShellDemo }],
-    usage: `import { AppShell } from "@/components/ui/app-shell";
+    description:
+      "Sidebar and main region. Below md, the sidebar hides behind a menu toggle in a top bar. Without a sidebar, account pages get a sticky account bar, an optional breadcrumb and one left-aligned grid.",
+    examples: [
+      { title: "App Shell", file: "app-shell/demo", component: AppShellDemo },
+      { title: "Account bar", description: "No sidebar: the mark, the account switcher and the plan badge, then the links and the avatar menu. Below md the secondary links hide.", file: "app-shell/account", component: AppShellAccount },
+      { title: "Account bar with breadcrumb", description: "A narrower page takes the first eight columns of the same grid, so its left edge does not move.", file: "app-shell/account-breadcrumb", component: AppShellAccountBreadcrumb },
+    ],
+    usage: `import { AppShell, AppShellAccountSwitcher } from "@/components/ui/app-shell";
 import { Sidebar } from "@/components/ui/sidebar";
 
 <AppShell title="Approvals" sidebar={<Sidebar groups={groups} />}>
   {children}
+</AppShell>
+
+// Account pages: no sidebar.
+<AppShell
+  start={<><Mark /><AppShellAccountSwitcher current={account.name}>{accountItems}</AppShellAccountSwitcher></>}
+  end={<><a className="hidden md:inline-flex" href="/docs">Documentation</a><ProfileMenu /></>}
+  breadcrumb={<Breadcrumb>…</Breadcrumb>}
+>
+  <section className="md:col-span-8">{children}</section>
 </AppShell>`,
     props: [
-      { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar." },
-      { name: "title", type: "ReactNode", description: "Shown in the top bar on small screens." },
-      { name: "menuLabel", type: "string", description: "Accessible name of the menu toggle. Defaults to the Locale provider." },
+      { name: "sidebar", type: "ReactNode", description: "The navigation, usually a Sidebar. Leave it out for account pages." },
+      { name: "title", type: "ReactNode", description: "With a sidebar: shown in the top bar on small screens. Not used by the account layout." },
+      { name: "menuLabel", type: "string", description: "With a sidebar: accessible name of the menu toggle. Defaults to the Locale provider. Not used by the account layout." },
+      { name: "start", type: "ReactNode", description: "Without a sidebar: the start of the account bar (mark, account switcher, plan badge)." },
+      { name: "end", type: "ReactNode", description: "Without a sidebar: the end of the account bar (links, avatar menu). Hide secondary links below md." },
+      { name: "breadcrumb", type: "ReactNode", description: "Without a sidebar: a Breadcrumb under the account bar; its links are 44 px tall." },
+      { name: "main", type: "boolean", default: "true", description: "The content is the page's <main>. Pass false inside a page that already has one." },
+      { name: "AppShellAccountSwitcher current", type: "string", description: "The current account, on the button and in its name (\"Switch account, current: …\"). Invisible code points are stripped." },
+      { name: "AppShellAccountSwitcher labels", type: "Partial<Messages[\"appShell\"]>", description: "Overrides switchAccount; {account} is the current account." },
     ],
-    security: { sinks: [], notes: ["The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark."] },
+    security: {
+      sinks: [],
+      notes: [
+        "The toggle exposes aria-expanded and aria-controls; the sidebar stays a navigation landmark.",
+        "The account name is rendered as text through stripInvisible, never as HTML.",
+      ],
+    },
     accessibility: {
-      keyboard: [["Enter / Space", "On small screens, the menu toggle opens and closes the sidebar."]],
-      notes: ["The toggle has aria-expanded and aria-controls pointing at the sidebar; its name comes from the Locale provider (\"Menu\")."],
+      keyboard: [
+        ["Enter / Space", "On small screens, the menu toggle opens and closes the sidebar."],
+        ["Enter / Space / ↓", "Opens the account switcher; arrows move between accounts."],
+      ],
+      notes: [
+        "The toggle has aria-expanded and aria-controls pointing at the sidebar; its name comes from the Locale provider (\"Menu\").",
+        "Without a sidebar the account bar is a header landmark, the breadcrumb a nav with aria-current=\"page\", and the content stays the main landmark a skip link points to.",
+        "The account switcher and the breadcrumb links are at least 44 px tall.",
+      ],
     },
   },
   {
@@ -2224,14 +2261,29 @@ import { Button } from "@/components/ui/button";
     title: "Badge",
     category: "Data display",
     description: "Small status label: level, channel, state.",
-    examples: [{ title: "Badge", file: "badge/demo", component: BadgeDemo }],
+    examples: [
+      { title: "Badge", file: "badge/demo", component: BadgeDemo },
+      {
+        title: "Status",
+        description: "A quiet outline pill with a dot: ok, attention and neutral. Colour lives only in the dot; the words say the state.",
+        file: "badge/status",
+        component: BadgeStatus,
+      },
+    ],
     usage: `import { Badge } from "@/components/ui/badge";
 
-<Badge variant="secondary">Draft</Badge>`,
-    props: [{ name: "variant", type: '"default" | "secondary" | "accent" | "outline" | "destructive"', default: '"default"', description: "Visual style." }],
+<Badge variant="secondary">Draft</Badge>
+<Badge variant="status" tone="ok">Up to date</Badge>`,
+    props: [
+      { name: "variant", type: '"default" | "secondary" | "accent" | "outline" | "destructive" | "status"', default: '"default"', description: "Visual style. status draws an outline pill with a 6 px dot." },
+      { name: "tone", type: '"ok" | "attention" | "neutral"', default: '"neutral"', description: "Dot colour for variant=\"status\": success, warning or muted. Ignored by the other variants." },
+    ],
     security: { sinks: [], notes: ["Text only; pass labels as children."] },
     accessibility: {
-      notes: ["Inline text. If a badge only carries a number, add the meaning in text (\"3 waiting\")."],
+      notes: [
+        "Inline text. If a badge only carries a number, add the meaning in text (\"3 waiting\").",
+        "Status: the dot is aria-hidden and colour never carries the meaning alone, so write the state in the label (\"Paid\", \"1 warning\"). Text is 4.5:1 and the dot 3:1 against the surface in every theme.",
+      ],
     },
   },
   {
@@ -2295,7 +2347,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
     </DialogHeader>
   </DialogContent>
 </Dialog>`,
-    props: baseProps("@base-ui/react Dialog"),
+    props: [
+      { name: "DialogContent overlay", type: "{ className?: string; ref?: Ref<HTMLDivElement> }", description: "The scrim behind the dialog: classes merged into it (a backdrop blur, say) and a ref to it." },
+      ...baseProps("@base-ui/react Dialog"),
+    ],
     security: { sinks: [], notes: ["Focus is trapped while open and returns to the trigger on close."] },
     accessibility: {
       keyboard: [["Tab / Shift+Tab", "Moves focus inside the dialog only."], ["Esc", "Closes it and returns focus to the trigger."]],
@@ -2419,21 +2474,50 @@ import { Label } from "@/components/ui/label";
     name: "radio-group",
     title: "Radio Group",
     category: "Forms",
-    description: "Single choice among options.",
-    examples: [{ title: "Radio Group", file: "radio-group/demo", component: RadioGroupDemo }],
-    usage: `import { Label } from "@/components/ui/label";
+    description: "Single choice among options, as plain radios or as cards with an icon, a title and a description.",
+    examples: [
+      { title: "Radio Group", file: "radio-group/demo", component: RadioGroupDemo },
+      {
+        title: "Cards",
+        description: "A product picker in a grid, with two contracted-only options disabled and the reason shown, and an application-type picker stacked.",
+        file: "radio-group/cards",
+        component: RadioGroupCards,
+      },
+    ],
+    usage: `import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 <RadioGroup defaultValue="case" aria-label="Scope">
   <RadioGroupItem value="case" id="case" />
   <Label htmlFor="case">Just this case</Label>
-</RadioGroup>`,
-    props: baseProps("@base-ui/react RadioGroup and Radio"),
-    security: { sinks: [], notes: ["Arrow keys move between options; the group needs an accessible name."] },
+</RadioGroup>
+
+<Fieldset render={<RadioGroup defaultValue="identity" />} className="grid gap-3 sm:grid-cols-2">
+  <FieldsetLegend>Product</FieldsetLegend>
+  <RadioGroupItem variant="card" value="identity" icon={<UserIcon />} title="Identity" description="Sign-in for your users." />
+  <RadioGroupItem variant="card" value="keys" title="Managed keys" description="Keys in your own vault." disabled>
+    Contracted with our team
+  </RadioGroupItem>
+</Fieldset>`,
+    props: [
+      { name: "variant", type: '"default" | "card"', description: "RadioGroupItem. \"card\" makes the whole card the radio; selected draws an accent border and an inset 1 px ring, with no layout shift." },
+      { name: "icon", type: "ReactNode", description: "Card only. Decorative: hidden from assistive technology." },
+      { name: "title", type: "ReactNode", description: "Card only. The option's name." },
+      { name: "description", type: "ReactNode", description: "Card only. One line under the title." },
+      { name: "children", type: "ReactNode", description: "Card only. A note under the description, such as why a disabled option is unavailable." },
+      ...baseProps("@base-ui/react RadioGroup and Radio"),
+    ],
+    security: { sinks: [], notes: ["Arrow keys move between options; the group needs an accessible name.", "Cards render their text as React children, never as HTML."] },
     accessibility: {
-      keyboard: [["Tab", "Moves into the group, to the checked option."], ["↑ ↓ / ← →", "Moves to the next option and checks it."]],
-      notes: ["role=\"radiogroup\" with one tab stop; name it with aria-label or aria-labelledby."],
-      motion: "The ring and dot change color in 200 ms.",
+      keyboard: [["Tab", "Moves into the group, to the checked option."], ["↑ ↓ / ← →", "Moves to the next enabled option and checks it."]],
+      notes: [
+        "role=\"radiogroup\" with one tab stop; name it with aria-label, aria-labelledby, or a Fieldset rendering the group with a FieldsetLegend.",
+        "A card's accessible name is its text in reading order: title, description, then the note.",
+        "Disabled cards are announced as unavailable (aria-disabled), skipped by the arrows, and keep their text readable instead of fading out.",
+        "The focus outline sits outside the card, so it never hides the selected ring. Dark themes set color-scheme: dark.",
+      ],
+      motion: "The ring and dot, and a card's border, change color in 200 ms.",
     },
   },
   {
@@ -2950,9 +3034,9 @@ import { Field, FieldLabel } from "@/components/ui/field";
     name: "lightbox",
     title: "Lightbox",
     category: "Overlays",
-    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption. Photos and films in the same group.",
+    description: "Thumbnails that open full screen on a Dialog, with previous, next, a counter and a caption. Photos and films in the same group. The open item can grow out of its thumbnail, and a drag down closes it.",
     examples: [
-      { title: "Lightbox", description: "Open a work, move with ← →, close with Esc: the focus goes back to its thumbnail. Here the image grows from the thumbnail.", file: "lightbox/demo", component: LightboxDemo },
+      { title: "Lightbox", description: "Open a work, move with ← →, close with Esc or drag it down: the focus goes back to its thumbnail. Here the image grows out of the thumbnail and shrinks back into it, over the page blurred.", file: "lightbox/demo", component: LightboxDemo },
       { title: "Photos and films", description: "A film opens in the video player and plays only when you press play; it stops when you move on or close.", file: "lightbox/mixed", component: LightboxMixed },
     ],
     usage: `import { Lightbox } from "@/components/ui/lightbox";
@@ -2971,24 +3055,27 @@ import { Field, FieldLabel } from "@/components/ui/field";
     { kind: "video", src: "/work/kitchen.webm", type: "video/webm", poster: "/work/kitchen.jpg", alt: "The kitchen at service", title: "Restaurant film" },
   ]}
   thumbSizes="(min-width: 640px) 25vw, 50vw"
+  zoomFromThumbnail
+  backdrop="blur"
 />`,
     props: [
       { name: "items", type: "LightboxItem[]", description: "The works; title names the open dialog. A photo is { src, alt, title, caption?, srcSet?, sizes?, width?, height? } (sizes is for the open image, \"100vw\" by default); a film is { kind: \"video\", src, poster, alt, title, caption?, type?, captions?, width?, height? }, where width and height give the player the film's shape (16:9 by default)." },
       { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each)." },
       { name: "thumbSizes", type: "string", default: "\"(min-width: 640px) 33vw, 50vw\"", description: "The sizes of the thumbnails of items with a srcSet, so a small grid takes small files. Say less when the grid is narrower than the screen." },
-      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The opened item grows from its thumbnail. Never with reduced motion." },
+      { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The open item grows out of its thumbnail and shrinks back into it on closing, with the View Transitions API. Where the browser has no document.startViewTransition, and with reduced motion, it simply appears." },
+      { name: "backdrop", type: "\"solid\" | \"blur\"", default: "\"solid\"", description: "Behind the open item: the scrim, or the page blurred under it (backdrop-filter; solid again with reduced transparency)." },
       { name: "className", type: "string", description: "Classes for the grid of thumbnails." },
       { name: "labels", type: "Partial<LightboxLabels>", description: "Overrides the locale's words (Previous, Next, Close, n of m, video)." },
     ],
     security: { sinks: [], notes: ["Images load from the origins the CSP img-src allows, films from those media-src allows; titles and captions are text.", "A film never plays on opening: only the person's press on play starts it, with sound."] },
     accessibility: {
-      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Tab", "Stays inside while it is open."]],
+      keyboard: [["Enter / Space", "On a thumbnail, opens it."], ["← →", "Previous and next item."], ["Esc", "Closes; the focus goes back to the thumbnail that opened it."], ["Drag down", "With a finger or the mouse, past 120 px, closes like Esc; shorter, the item springs back. Not on a film, whose controls keep their presses."], ["Tab", "Stays inside while it is open."]],
       notes: [
         "A dialog named by the item's title; the counter is a polite live region, so moving says \"2 of 4\".",
         "Each thumbnail is a button named by its image's alt; a film's adds \"video\".",
         "An open film is the Video player named by its alt, with the browser's controls and its caption tracks. In the player, ← → seek in the film instead of moving to another item.",
       ],
-      motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
+      motion: "The dialog materializes; with zoomFromThumbnail the item grows out of its thumbnail and shrinks back into it (a view transition). While dragged, the item follows the finger and the backdrop fades with the distance. With reduced motion there is no morph and nothing follows the drag: the item simply appears, and letting go past 120 px still closes it.",
     },
   },
   {

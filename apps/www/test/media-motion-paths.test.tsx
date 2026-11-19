@@ -76,16 +76,32 @@ describe("video in a browser", () => {
 describe("lightbox in a browser", () => {
   it("grows the opened image from its thumbnail", async () => {
     const user = userEvent.setup();
-    Element.prototype.getBoundingClientRect = function () {
-      return { left: 10, top: 20, width: this.tagName === "IMG" ? 400 : 100, height: this.tagName === "IMG" ? 500 : 125 } as DOMRect;
-    };
-    render(<Lightbox zoomFromThumbnail items={[{ src: "/a.svg", alt: "Sign", title: "Studio" }]} />);
-    await user.click(screen.getByRole("button", { name: "Sign" }));
-    await screen.findByRole("dialog", { name: "Studio" });
-    await waitFor(() => expect(animate).toHaveBeenCalled());
-    expect((animate.mock.calls[0] as unknown[])[0]).toEqual([expect.objectContaining({ transformOrigin: "top left" }), { transform: "none", transformOrigin: "top left" }]);
-    await user.keyboard("{Shift>}{Tab}{/Shift}");
-    expect(screen.getByRole("dialog").contains(document.activeElement)).toBe(true);
+    // jsdom has no View Transitions: the stand-in records which element shares the name before and after the change.
+    const named = () => [...document.querySelectorAll<HTMLElement>("*")].filter((el) => el.style.viewTransitionName === "lightbox-item");
+    const seen: { before: HTMLElement[]; after: HTMLElement[] }[] = [];
+    const start = vi.fn((update: () => void) => {
+      const before = named();
+      update();
+      seen.push({ before, after: named() });
+      return { finished: Promise.resolve() };
+    });
+    Object.defineProperty(document, "startViewTransition", { value: start, configurable: true });
+    try {
+      render(<Lightbox zoomFromThumbnail items={[{ src: "/a.svg", alt: "Sign", title: "Studio" }]} />);
+      const thumb = screen.getByRole("button", { name: "Sign" });
+      await user.click(thumb);
+      const dialog = await screen.findByRole("dialog", { name: "Studio" });
+      expect(start).toHaveBeenCalledTimes(1);
+      // The old state is the thumbnail, the new one the open image: the browser morphs one into the other.
+      expect(seen[0]!.before).toEqual([thumb]);
+      expect(seen[0]!.after).toEqual([dialog.querySelector('[data-slot="lightbox-media"]')]);
+      expect(seen[0]!.after[0]!.querySelector("img")).toHaveAttribute("src", "/a.svg");
+      await waitFor(() => expect(named()).toEqual([]));
+      await user.keyboard("{Shift>}{Tab}{/Shift}");
+      expect(screen.getByRole("dialog").contains(document.activeElement)).toBe(true);
+    } finally {
+      delete (document as { startViewTransition?: unknown }).startViewTransition;
+    }
   });
 });
 

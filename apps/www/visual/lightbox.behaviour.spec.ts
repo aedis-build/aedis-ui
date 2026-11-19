@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-// #195: opening a work full screen and moving through the group, with the mouse and the keyboard.
+// #195 and #270: opening a work full screen and moving through the group, with the mouse and the keyboard.
 
 test("a click opens the work as a dialog named by its title; arrows move; Esc returns to the thumbnail", async ({ page }) => {
   await page.goto("/docs/lightbox");
@@ -37,27 +37,90 @@ test("the keyboard opens it, Tab stays inside, and the buttons move and close", 
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("the image grows from its thumbnail, and not with reduced motion", async ({ page }) => {
-  // Counts the animations started on the open item, however fast they end on a slow machine.
+test("the image grows out of its thumbnail and back into it as a view transition, and not with reduced motion", async ({ page }) => {
+  // Records which element carries the shared name as each transition starts, however fast it ends on a slow machine.
   await page.addInitScript(() => {
-    const animate = Element.prototype.animate;
-    (window as unknown as { grows: number }).grows = 0;
-    Element.prototype.animate = function (...args) {
-      if ((this as HTMLElement).dataset?.slot === "lightbox-media") (window as unknown as { grows: number }).grows++;
-      return animate.apply(this, args);
-    };
+    const w = window as unknown as { morphs: string[] };
+    w.morphs = [];
+    const start = document.startViewTransition?.bind(document);
+    if (!start) return;
+    document.startViewTransition = ((update: () => void) => {
+      const named = document.querySelector<HTMLElement>("[style*='view-transition-name']");
+      w.morphs.push(named?.dataset.slot ?? named?.tagName.toLowerCase() ?? "none");
+      return start(update);
+    }) as typeof document.startViewTransition;
   });
-  const opened = async () => {
-    await page.getByRole("main").getByRole("button", { name: "Blue home page on a phone" }).first().click();
-    await expect(page.getByRole("dialog").getByRole("img", { name: "Blue home page on a phone" })).toBeVisible();
-    await page.waitForTimeout(500);
-    return page.evaluate(() => (window as unknown as { grows: number }).grows);
-  };
+  const morphs = () => page.evaluate(() => (window as unknown as { morphs: string[] }).morphs);
+  const thumb = () => page.getByRole("main").getByRole("button", { name: "Blue home page on a phone" }).first();
   await page.goto("/docs/lightbox");
-  expect(await opened()).toBe(1);
+  await thumb().click();
+  await expect(page.getByRole("dialog").getByRole("img", { name: "Blue home page on a phone" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(thumb()).toBeFocused();
+  expect(await morphs()).toEqual(["button", "lightbox-media"]);
+  // The name lives only for the transition: nothing keeps it afterwards.
+  await expect(page.locator("[style*='view-transition-name: lightbox-item']")).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/docs/lightbox");
-  expect(await opened()).toBe(0);
+  await thumb().click();
+  await expect(page.getByRole("dialog").getByRole("img", { name: "Blue home page on a phone" })).toBeVisible();
+  expect(await morphs()).toEqual([]);
+});
+
+test("at 390 px a short drag down springs back, a long one closes and the focus returns to the thumbnail", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs/lightbox");
+  const thumb = page.getByRole("main").getByRole("button", { name: "Shop sign in terracotta and cream" }).first();
+  await thumb.click();
+  const dialog = page.getByRole("dialog", { name: "Ceramics studio" });
+  const image = dialog.getByRole("img", { name: "Shop sign in terracotta and cream" });
+  await expect(image).toBeVisible();
+  // The rest position is measured once the morph and the dialog's entrance have finished; during the view
+  // transition the page takes no pointer input at all.
+  await expect.poll(() => dialog.evaluate((d) => Boolean(document.activeViewTransition) || d.getAnimations({ subtree: true }).length > 0)).toBe(false);
+  const start = (await image.boundingBox())!;
+  const x = start.x + start.width / 2;
+  const y = start.y + start.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + 60, { steps: 6 });
+  // The item follows the pointer and the blurred backdrop fades with the distance.
+  expect((await image.boundingBox())!.y).toBeGreaterThan(start.y + 40);
+  expect(Number(await page.locator('[data-slot="dialog-overlay"]').evaluate((o) => getComputedStyle(o).opacity))).toBeLessThan(1);
+  expect(await page.locator('[data-slot="dialog-overlay"]').evaluate((o) => getComputedStyle(o).backdropFilter)).toContain("blur");
+  const overlay = page.locator('[data-slot="dialog-overlay"]');
+  await page.mouse.up();
+  // The backdrop eases back with the item instead of snapping opaque.
+  expect(await overlay.evaluate((o) => o.getAnimations().some((a) => (a as CSSTransition).transitionProperty === "opacity"))).toBe(true);
+  await expect.poll(async () => Math.round((await image.boundingBox())!.y)).toBe(Math.round(start.y));
+  await expect(dialog).toBeVisible();
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + 200, { steps: 10 });
+  const dragged = Number(await overlay.evaluate((o) => getComputedStyle(o).opacity));
+  await page.mouse.up();
+  // Closing fades on from the dragged opacity: it never flashes back to opaque.
+  expect(Number(await overlay.evaluate((o) => getComputedStyle(o).opacity))).toBeLessThanOrEqual(dragged);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(thumb).toBeFocused();
+});
+
+test("with reduced motion a drag does not move the item, and past 120 px it still closes", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/docs/lightbox");
+  await page.getByRole("main").getByRole("button", { name: "Gold poster in a hotel lobby" }).first().click();
+  const image = page.getByRole("dialog").getByRole("img", { name: "Gold poster in a hotel lobby" });
+  await expect(image).toBeVisible();
+  const start = (await image.boundingBox())!;
+  const x = start.x + start.width / 2;
+  const y = start.y + start.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + 200, { steps: 10 });
+  expect((await image.boundingBox())!.y).toBe(start.y);
+  await page.mouse.up();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("full screen at 390 px in dark: the image, the caption and the buttons all fit", async ({ page }) => {
@@ -115,6 +178,18 @@ test("a film opens in the player without playing, and is paused before it leaves
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(await pausedInPage()).toBe(2);
   await expect(thumb).toBeFocused();
+});
+
+test("a drag on the film is left to its controls and does not close the lightbox", async ({ page }) => {
+  await page.goto("/docs/lightbox");
+  await page.getByRole("main").getByRole("button", { name: "Studio showreel video" }).click();
+  const dialog = page.getByRole("dialog", { name: "Studio film" });
+  const box = (await dialog.locator("video").boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + 10);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + 250, { steps: 10 });
+  await page.mouse.up();
+  await expect(dialog).toBeVisible();
 });
 
 test("in the player, the arrows stay with the film instead of moving to another item", async ({ page }) => {

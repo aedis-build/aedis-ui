@@ -17,12 +17,18 @@ function DialogClose(props: DialogPrimitive.Close.Props) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
-function DialogContent({ className, children, ...props }: WithClassName<DialogPrimitive.Popup.Props>) {
+type DialogContentProps = WithClassName<DialogPrimitive.Popup.Props> & {
+  /** Extra classes and a ref for the backdrop behind the dialog. */
+  overlay?: { className?: string; ref?: React.Ref<HTMLDivElement> };
+};
+
+function DialogContent({ className, children, overlay, ...props }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop
         data-slot="dialog-overlay"
-        className="fade fixed inset-0 z-50 bg-scrim"
+        ref={overlay?.ref}
+        className={cn("fade fixed inset-0 z-50 bg-scrim", overlay?.className)}
       />
       <DialogPrimitive.Popup
         data-slot="dialog-content"

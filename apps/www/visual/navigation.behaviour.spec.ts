@@ -92,6 +92,86 @@ test("a disabled sidebar item shows why, and header and footer links are at leas
   for (const link of await page.getByRole("main").locator("footer").first().getByRole("link").all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(24);
 });
 
+// #275: account pages without a sidebar.
+test("the account bar switches account by mouse and keyboard, with 44 px targets and one left edge", async ({ page }) => {
+  await page.goto("/docs/app-shell");
+  const shells = page.locator("[data-slot=app-shell][data-layout=account]");
+  const shell = shells.first();
+  await expect(shell.getByRole("navigation", { name: "Breadcrumb" })).toHaveCount(0);
+
+  const switcher = shell.getByRole("button", { name: "Switch account, current: RLFN Tech" });
+  await switcher.click();
+  await page.getByRole("menuitemradio", { name: "Acme Studio" }).click();
+  await expect(shell.getByRole("button", { name: "Switch account, current: Acme Studio" })).toBeVisible();
+
+  const next = shell.getByRole("button", { name: /Switch account/ });
+  await next.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menu")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("menu")).toBeHidden();
+  await expect(next).toBeFocused();
+
+  for (const target of [next, shell.getByRole("button", { name: /profile/ })]) expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+
+  // The breadcrumb variant: aria-current on the page, links 44 px, and the narrower page keeps the grid's left edge.
+  const crumbs = shells.nth(1);
+  const nav = crumbs.getByRole("navigation", { name: "Breadcrumb" });
+  await expect(nav.locator("[aria-current=page]")).toHaveText("Plan and billing");
+  for (const link of await nav.getByRole("link").all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  const main = (await crumbs.locator("[data-slot=app-shell-main]").boundingBox())!;
+  const section = (await crumbs.locator("[data-slot=app-shell-main] > section").boundingBox())!;
+  const bar = (await crumbs.locator("[data-slot=app-shell-header] > div").first().boundingBox())!;
+  expect(section.width).toBeLessThan(main.width);
+  const start = (await crumbs.locator("[data-slot=app-shell-header] > div > div").first().boundingBox())!;
+  expect(Math.abs(main.x - bar.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(section.x - start.x)).toBeLessThanOrEqual(1);
+  // The visible word "Aedis", not its tap area, starts on that same edge, with the breadcrumb.
+  const textLeft = (el: Element) => {
+    const r = document.createRange();
+    r.selectNodeContents(el);
+    return r.getBoundingClientRect().x;
+  };
+  const brand = await crumbs.getByRole("link", { name: "Aedis" }).evaluate(textLeft);
+  const crumb = await nav.getByRole("link").first().evaluate(textLeft);
+  expect(Math.abs(brand - section.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(crumb - section.x)).toBeLessThanOrEqual(1);
+});
+
+test("on a phone the account bar hides secondary links and keeps the switcher and the avatar", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs/app-shell");
+  const shell = page.locator("[data-slot=app-shell][data-layout=account]").first();
+  // The demo sits below the fold of the docs page: bring its bar on screen before asking what fits in it.
+  await shell.locator("[data-slot=app-shell-header]").scrollIntoViewIfNeeded();
+  await expect(shell.getByRole("link", { name: "Documentation" })).toBeHidden();
+  await expect(shell.getByRole("button", { name: /Switch account/ })).toBeInViewport();
+  const avatar = shell.getByRole("button", { name: /profile/ });
+  await expect(avatar).toBeInViewport({ ratio: 1 });
+  await avatar.click();
+  await expect(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(avatar).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  // The account name gets the room: the separator and the plan badge wait for md, and the name is not cut.
+  await expect(shell.getByText("Pro", { exact: true })).toBeHidden();
+  await expect(shell.getByText("/", { exact: true })).toBeHidden();
+  const name = shell.getByRole("button", { name: /Switch account/ }).locator("span").first();
+  expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+});
+
+test("on a phone the account breadcrumb is one line with the parent and the current page", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs/app-shell");
+  const nav = page.locator("[data-slot=app-shell][data-layout=account]").nth(1).getByRole("navigation", { name: "Breadcrumb" });
+  await nav.scrollIntoViewIfNeeded();
+  await expect(nav.getByRole("link", { name: "RLFN Tech" })).toBeHidden();
+  await expect(nav.getByRole("link", { name: "Production" })).toBeVisible();
+  await expect(nav.locator("[aria-current=page]")).toBeVisible();
+  const [list, link] = [(await nav.locator("ol").boundingBox())!, (await nav.getByRole("link", { name: "Production" }).boundingBox())!];
+  expect(list.height).toBeLessThanOrEqual(link.height + 1);
+});
+
 test("sidebar sections: only the one with the current page starts open, Enter and Space toggle, no turn with reduced motion", async ({ page }) => {
   await page.goto("/docs/sidebar");
   // The nested demo: the first example also has an Approvals link.

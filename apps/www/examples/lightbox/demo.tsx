@@ -8,5 +8,5 @@ const works = [
 ];
 
 export default function LightboxDemo() {
-  return <Lightbox items={works} zoomFromThumbnail className="w-full max-w-xl sm:grid-cols-4" />;
+  return <Lightbox items={works} zoomFromThumbnail backdrop="blur" className="w-full max-w-xl sm:grid-cols-4" />;
 }

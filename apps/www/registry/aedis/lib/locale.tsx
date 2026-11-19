@@ -45,7 +45,11 @@ export type Messages = {
     truncated: string;
     jumpToLatest: string;
   };
-  appShell: { menuLabel: string };
+  appShell: {
+    menuLabel: string;
+    /** Name of the account switcher; {account} is the current account. */
+    switchAccount: string;
+  };
   /** Sidebar stays a Server Component, so it does not read the provider: pass `label={messages.sidebar.label}`. */
   sidebar: { label: string };
   localeSwitcher: { label: string };
@@ -273,7 +277,7 @@ export const en: Messages = {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
     jumpToLatest: "Jump to latest",
   },
-  appShell: { menuLabel: "Menu" },
+  appShell: { menuLabel: "Menu", switchAccount: "Switch account, current: {account}" },
   sidebar: { label: "Main navigation" },
   localeSwitcher: { label: "Language" },
   codeBlock: {
