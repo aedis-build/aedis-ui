@@ -40,7 +40,7 @@ export const ptBR: Messages = {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",
     jumpToLatest: "Ir para o mais recente",
   },
-  appShell: { menuLabel: "Menu" },
+  appShell: { menuLabel: "Menu", switchAccount: "Trocar de conta, atual: {account}" },
   sidebar: { label: "Navegação principal" },
   localeSwitcher: { label: "Idioma" },
   codeBlock: {

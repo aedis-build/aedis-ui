@@ -13,14 +13,29 @@ const badgeVariants = cva(
         accent: "border-transparent bg-accent text-accent-foreground",
         outline: "border-border-control text-foreground",
         destructive: "border-transparent bg-destructive-solid text-destructive-foreground",
+        // A quiet pill: colour lives only in the dot, the text carries the meaning.
+        status: "gap-1.5 rounded-full border-border text-foreground",
       },
     },
     defaultVariants: { variant: "default" },
   },
 );
 
-function Badge({ className, variant, ...props }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
-  return <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />;
+const dotTones = { ok: "bg-success", attention: "bg-warning", neutral: "bg-muted-foreground" } as const;
+
+function Badge({
+  className,
+  variant,
+  tone = "neutral",
+  children,
+  ...props
+}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { tone?: keyof typeof dotTones }) {
+  return (
+    <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props}>
+      {variant === "status" && <span aria-hidden="true" data-slot="badge-dot" data-tone={tone} className={cn("size-1.5 shrink-0 rounded-full", dotTones[tone])} />}
+      {children}
+    </span>
+  );
 }
 
 export { Badge, badgeVariants };
