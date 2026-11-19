@@ -220,3 +220,23 @@ test("a film fits the screen at 390 px, letterboxed, with its controls in view",
   expect(await video.evaluate((v) => getComputedStyle(v).objectFit)).toBe("contain");
   await expect(dialog.getByRole("button", { name: "Next" })).toBeInViewport();
 });
+
+test("in masonry each thumbnail opens its own item and Esc returns the focus to it, at 390 px", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/docs/lightbox");
+  const thumb = page.getByRole("main").getByRole("button", { name: "Hotel key card" }).first();
+  await thumb.scrollIntoViewIfNeeded();
+  // The thumbnail keeps the shape of its item (800 x 1000), not the grid's.
+  const box = await thumb.locator("[data-slot=media-frame]").boundingBox();
+  expect(box!.width / box!.height).toBeCloseTo(0.8, 1);
+  await thumb.click();
+  const dialog = page.getByRole("dialog", { name: "Key card" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("6 of 6");
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("dialog", { name: "Ceramics studio" })).toContainText("1 of 6");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The focus goes back to the thumbnail that opened it.
+  await expect(thumb).toBeFocused();
+});

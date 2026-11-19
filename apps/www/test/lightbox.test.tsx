@@ -368,4 +368,39 @@ describe("lightbox shared element and drag to close (#270)", () => {
     expect(overlay()).toHaveClass("backdrop-blur-(--blur-regular)", "bg-scrim");
     expect(await violations(dialog)).toEqual([]);
   });
+
+  it("lays the thumbnails out in masonry, each with its own shape, and opens the right item", async () => {
+    const user = userEvent.setup();
+    const shaped = [
+      { ...items[0]!, width: 800, height: 1000, caption: "a" },
+      { ...items[1]!, width: 1200, height: 800, caption: "b" },
+      { ...items[2]!, caption: "a" },
+    ];
+    const { container } = render(<Lightbox items={shaped} layout="masonry" groupBy={(it) => it.caption!} />);
+    expect(await violations(container)).toEqual([]);
+    expect(container.querySelector("ul[data-slot=lightbox] > li[data-slot=masonry-item]")).toBeInTheDocument();
+    // Interleaved by group: a, b, a keeps items 0, 1, 2 here; the frame takes the item's width/height.
+    const frames = [...container.querySelectorAll("[data-slot=media-frame]")];
+    expect(frames[0]).toHaveStyle({ aspectRatio: "800 / 1000" });
+    expect(frames[1]).toHaveStyle({ aspectRatio: "1200 / 800" });
+    await user.click(screen.getByRole("button", { name: "Home page on a phone" }));
+    expect(await screen.findByRole("dialog", { name: "Bakery website" })).toHaveTextContent("3 of 3");
+  });
+
+  it("interleaving the masonry thumbnails does not change which item a thumbnail opens", async () => {
+    const user = userEvent.setup();
+    const grouped = [
+      { ...items[0]!, caption: "a" },
+      { ...items[1]!, caption: "a" },
+      { ...items[2]!, caption: "b" },
+    ];
+    const { container } = render(<Lightbox items={grouped} layout="masonry" groupBy={(it) => it.caption!} />);
+    // a, a, b becomes a, b, a on the page.
+    const names = [...container.querySelectorAll("button")].map((b) => b.querySelector("img")!.alt);
+    expect(names).toEqual(["Shop sign in terracotta", "Home page on a phone", "Signage by the greenhouse"]);
+    await user.click(screen.getByRole("button", { name: "Signage by the greenhouse" }));
+    expect(await screen.findByRole("dialog", { name: "Garden centre" })).toHaveTextContent("2 of 3");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Signage by the greenhouse" })).toHaveFocus());
+  });
 });
