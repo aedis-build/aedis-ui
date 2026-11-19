@@ -224,11 +224,23 @@ test("a film fits the screen at 390 px, letterboxed, with its controls in view",
 test("in masonry each thumbnail opens its own item and Esc returns the focus to it, at 390 px", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/docs/lightbox");
-  const thumb = page.getByRole("main").getByRole("button", { name: "Hotel key card" }).first();
+  const gallery = page.getByRole("main").locator("ul[data-slot=lightbox]").filter({ has: page.locator("li[data-slot=masonry-item]") });
+  // The items are kept by year; the thumbnails take one from each year in turn.
+  expect(await gallery.locator("img").evaluateAll((imgs) => imgs.map((i) => i.getAttribute("alt")))).toEqual([
+    "Terracotta shop sign",
+    "Greenhouse wayfinding sign",
+    "Bakery home page on a phone",
+    "Gold hotel lobby poster",
+    "Ceramics studio business card",
+    "Hotel key card",
+  ]);
+  // A wide item (1200 x 800) keeps its own shape, not the grid's 4:5.
+  const wide = gallery.getByRole("button", { name: "Bakery home page on a phone" });
+  await wide.scrollIntoViewIfNeeded();
+  const box = await wide.locator("[data-slot=media-frame]").boundingBox();
+  expect(box!.width / box!.height).toBeCloseTo(1.5, 1);
+  const thumb = gallery.getByRole("button", { name: "Hotel key card" });
   await thumb.scrollIntoViewIfNeeded();
-  // The thumbnail keeps the shape of its item (800 x 1000), not the grid's.
-  const box = await thumb.locator("[data-slot=media-frame]").boundingBox();
-  expect(box!.width / box!.height).toBeCloseTo(0.8, 1);
   await thumb.click();
   const dialog = page.getByRole("dialog", { name: "Key card" });
   await expect(dialog).toBeVisible();

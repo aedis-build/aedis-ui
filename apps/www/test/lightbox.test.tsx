@@ -369,20 +369,21 @@ describe("lightbox shared element and drag to close (#270)", () => {
     expect(await violations(dialog)).toEqual([]);
   });
 
-  it("lays the thumbnails out in masonry, each with its own shape, and opens the right item", async () => {
+  it("lays the thumbnails out in masonry, each with its own shape or the ratio as fallback", async () => {
     const user = userEvent.setup();
     const shaped = [
-      { ...items[0]!, width: 800, height: 1000, caption: "a" },
-      { ...items[1]!, width: 1200, height: 800, caption: "b" },
-      { ...items[2]!, caption: "a" },
+      { ...items[0]!, width: 800, height: 1000, group: "a" },
+      { ...items[1]!, width: 1200, height: 800, group: "b" },
+      { ...items[2]!, group: "a" },
     ];
-    const { container } = render(<Lightbox items={shaped} layout="masonry" groupBy={(it) => it.caption!} />);
+    const { container } = render(<Lightbox items={shaped} layout="masonry" />);
     expect(await violations(container)).toEqual([]);
     expect(container.querySelector("ul[data-slot=lightbox] > li[data-slot=masonry-item]")).toBeInTheDocument();
     // Interleaved by group: a, b, a keeps items 0, 1, 2 here; the frame takes the item's width/height.
     const frames = [...container.querySelectorAll("[data-slot=media-frame]")];
     expect(frames[0]).toHaveStyle({ aspectRatio: "800 / 1000" });
     expect(frames[1]).toHaveStyle({ aspectRatio: "1200 / 800" });
+    expect(frames[2]).toHaveAttribute("data-ratio", "4:5");
     await user.click(screen.getByRole("button", { name: "Home page on a phone" }));
     expect(await screen.findByRole("dialog", { name: "Bakery website" })).toHaveTextContent("3 of 3");
   });
@@ -390,11 +391,11 @@ describe("lightbox shared element and drag to close (#270)", () => {
   it("interleaving the masonry thumbnails does not change which item a thumbnail opens", async () => {
     const user = userEvent.setup();
     const grouped = [
-      { ...items[0]!, caption: "a" },
-      { ...items[1]!, caption: "a" },
-      { ...items[2]!, caption: "b" },
+      { ...items[0]!, group: "a" },
+      { ...items[1]!, group: "a" },
+      { ...items[2]!, group: "b" },
     ];
-    const { container } = render(<Lightbox items={grouped} layout="masonry" groupBy={(it) => it.caption!} />);
+    const { container } = render(<Lightbox items={grouped} layout="masonry" />);
     // a, a, b becomes a, b, a on the page.
     const names = [...container.querySelectorAll("button")].map((b) => b.querySelector("img")!.alt);
     expect(names).toEqual(["Shop sign in terracotta", "Home page on a phone", "Signage by the greenhouse"]);

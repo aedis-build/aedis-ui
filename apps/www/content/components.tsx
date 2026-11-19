@@ -3106,7 +3106,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
     examples: [
       { title: "Lightbox", description: "Open a work, move with ← →, close with Esc or drag it down: the focus goes back to its thumbnail. Here the image grows out of the thumbnail and shrinks back into it, over the page blurred.", file: "lightbox/demo", component: LightboxDemo },
       { title: "Photos and films", description: "A film opens in the video player and plays only when you press play; it stops when you move on or close.", file: "lightbox/mixed", component: LightboxMixed },
-      { title: "In masonry", description: "layout=\"masonry\": each thumbnail keeps its photo's own shape, in columns by CSS, interleaved by year. Each still opens the lightbox on its own item.", file: "lightbox/masonry", component: LightboxMasonry },
+      { title: "In masonry", description: "layout=\"masonry\": each thumbnail keeps its photo's own shape, in columns by CSS. The items are kept by year and each carries its `group`, so the thumbnails take one year after the other. Each still opens the lightbox on its own item.", file: "lightbox/masonry", component: LightboxMasonry },
     ],
     usage: `import { Lightbox } from "@/components/ui/lightbox";
 
@@ -3130,7 +3130,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
     props: [
       { name: "items", type: "LightboxItem[]", description: "The works; title names the open dialog. A photo is { src, alt, title, caption?, srcSet?, sizes?, width?, height? } (sizes is for the open image, \"100vw\" by default); a film is { kind: \"video\", src, poster, alt, title, caption?, type?, captions?, width?, height? }, where width and height give the player the film's shape (16:9 by default)." },
       { name: "layout", type: "\"grid\" | \"masonry\"", default: "\"grid\"", description: "\"masonry\" lays the thumbnails out with Masonry (2, 3 and 4 columns): each keeps its item's width and height, or `ratio` when it has none. The columns fill top to bottom, so Tab runs down a column, then the next." },
-      { name: "groupBy", type: "(item: LightboxItem) => string", description: "With layout=\"masonry\": one thumbnail from each group in turn, so a column is not one group. Only the thumbnails move: the open item still goes through `items` in order." },
+      { name: "items[].group", type: "string", description: "With layout=\"masonry\": one thumbnail from each group in turn, so a column is not one group. Only the thumbnails move: the open item still goes through `items` in order." },
       { name: "ratio", type: "MediaRatio", default: "\"4:5\"", description: "Shape of the thumbnails (a MediaFrame each); in the masonry layout, the shape of items without width and height." },
       { name: "thumbSizes", type: "string", default: "\"(min-width: 640px) 33vw, 50vw\"", description: "The sizes of the thumbnails of items with a srcSet, so a small grid takes small files. Say less when the grid is narrower than the screen." },
       { name: "zoomFromThumbnail", type: "boolean", default: "false", description: "The open item grows out of its thumbnail and shrinks back into it on closing, with the View Transitions API. Where the browser has no document.startViewTransition, and with reduced motion, it simply appears." },

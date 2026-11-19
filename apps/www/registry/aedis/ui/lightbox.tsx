@@ -12,7 +12,14 @@ import { Masonry } from "@/registry/aedis/ui/masonry";
 import { MediaFrame, type MediaRatio } from "@/registry/aedis/ui/media-frame";
 import { Video, type VideoCaptions } from "@/registry/aedis/ui/video";
 
-type LightboxBase = { src: string; alt: string; title: string; caption?: string };
+type LightboxBase = {
+  src: string;
+  alt: string;
+  title: string;
+  caption?: string;
+  /** With layout="masonry": the thumbnails show one item from each group in turn, so a column is not one group. */
+  group?: string;
+};
 
 /**
  * A photo. With srcSet the browser picks the file that fits, in the thumbnail (by the Lightbox's thumbSizes) and when
@@ -44,8 +51,6 @@ type LightboxProps = {
    * width/height (items without them use `ratio`), laid out by CSS like Masonry.
    */
   layout?: "grid" | "masonry";
-  /** With layout="masonry": show one item from each group in turn, so a column is not one group. The open item still moves through `items` in order. */
-  groupBy?: (item: LightboxItem) => string;
   /** Shape of the thumbnails; in the masonry layout, the fallback for items without width and height. */
   ratio?: MediaRatio;
   /** The `sizes` of the thumbnails, for items with a srcSet. The default fits the grid at full width; say less when it is narrower. */
@@ -67,7 +72,7 @@ type LightboxProps = {
  * and Esc to close; dragging the item down past 120 px closes it too. The focus stays inside while it is open and goes
  * back to the thumbnail that opened it.
  */
-function Lightbox({ items, layout = "grid", groupBy, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, backdrop = "solid", className, labels }: LightboxProps) {
+function Lightbox({ items, layout = "grid", ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, backdrop = "solid", className, labels }: LightboxProps) {
   const l = useMessages("lightbox", labels);
   const reduced = useReducedMotion();
   const [open, setOpen] = React.useState(false);
@@ -187,7 +192,7 @@ function Lightbox({ items, layout = "grid", groupBy, ratio = "4:5", thumbSizes =
           data-slot="lightbox"
           items={items.map((it, i) => ({ it, i }))}
           itemKey={({ it }) => it.src}
-          {...(groupBy ? { groupBy: ({ it }: { it: LightboxItem }) => groupBy(it) } : {})}
+          {...(items.some((it) => it.group) ? { groupBy: ({ it }: { it: LightboxItem }) => it.group ?? "" } : {})}
           {...(className ? { className } : {})}
         >
           {({ it, i }) => thumb(it, i)}
