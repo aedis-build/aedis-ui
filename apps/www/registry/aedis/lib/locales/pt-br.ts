@@ -167,6 +167,9 @@ export const ptBR: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "ou",
+  },
   plans: {
     current: "Plano atual",
   },

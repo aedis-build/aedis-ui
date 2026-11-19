@@ -181,6 +181,10 @@ export type Messages = {
     /** Names the list of clients when it has no visible title. */
     label: string;
   };
+  authSplit: {
+    /** Between the provider buttons and the email field. */
+    or: string;
+  };
   plans: {
     /** The tag beside the plan the account is on. */
     current: string;
@@ -389,6 +393,9 @@ export const en: Messages = {
   },
   logoCloud: {
     label: "Clients",
+  },
+  authSplit: {
+    or: "or",
   },
   plans: {
     current: "Current plan",

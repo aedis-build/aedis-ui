@@ -167,6 +167,9 @@ export const es: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "o",
+  },
   plans: {
     current: "Plan actual",
   },
