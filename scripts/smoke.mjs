@@ -90,6 +90,22 @@ try {
   if (Object.values(deps).some((v) => !/^\d+\.\d+\.\d+$/.test(v))) fail(`a dependency is not pinned to an exact version: ${JSON.stringify(deps)}`);
   console.log(`\nsmoke: @aedis/cli@${version} installs from its tarball; init, add and diff work against ${readdirSync(registry).length} registry items; dependencies: ${Object.entries(deps).map(([k, v]) => `${k}@${v}`).join(" ")}`);
 
+  // 3a. Install receipts (#287): every file add wrote has a receipt; adding again changes nothing; a file edited by
+  // hand is kept, the new version lands next to it as .aedis-new, and add exits non-zero.
+  const button = `${config.paths.ui}/button.tsx`;
+  const receipt = config.files?.[button];
+  if (!receipt || !/^[0-9a-f]{64}$/.test(receipt.sha256) || receipt.item !== "button") fail(`no receipt for ${button} in aedis.json: ${JSON.stringify(receipt)}`);
+  const before = readFileSync(path.join(scratch, "aedis.json"), "utf8");
+  await run(aedis, ["add", "button", "approval-card", ...from, "--yes"], scratch);
+  if (readFileSync(path.join(scratch, "aedis.json"), "utf8") !== before) fail("adding the same items again changed aedis.json");
+  const edited = `${readFileSync(path.join(scratch, button), "utf8")}\n// edited by hand\n`;
+  writeFileSync(path.join(scratch, button), edited);
+  if ((await run(aedis, ["add", "button", ...from, "--yes", "--overwrite"], scratch, { allowFailure: true })) === 0) fail("add exited 0 over a file edited by hand");
+  if (readFileSync(path.join(scratch, button), "utf8") !== edited) fail(`add overwrote ${button}, which was edited by hand`);
+  if (!existsSync(path.join(scratch, `${button}.aedis-new`))) fail(`add did not write ${button}.aedis-new`);
+  if ((await run(aedis, ["diff", "button", ...from], scratch, { allowFailure: true })) === 0) fail("diff exited 0 with a file edited by hand");
+  console.log("\nsmoke: add records receipts, adds again without changes, and keeps a hand-edited file (writing .aedis-new, exit non-zero)");
+
   // 3b. An app inside a pnpm workspace (#223): add, run from the app folder, installs with pnpm into the app, not npm.
   const workspace = mkdtempSync(path.join(tmpdir(), "aedis-smoke-ws-"));
   try {

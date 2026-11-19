@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 
 import { MediaFrame } from "@/registry/aedis/ui/media-frame";
 import { violations } from "./a11y";
@@ -11,6 +12,22 @@ describe("media frame (#194)", () => {
     const img = screen.getByRole("img", { name: "Shop sign" });
     expect(img).toHaveAttribute("loading", "lazy");
     expect(img.className).toContain("object-cover");
+    expect(await violations(container)).toEqual([]);
+  });
+
+  it("reserves the vertical presets and any ratio from width and height or a number (#272)", async () => {
+    const frame = (el: ReactElement) => render(el).container.querySelector<HTMLElement>("[data-slot=media-frame]")!;
+    expect(frame(<MediaFrame ratio="2:3" alt="Plate" />).className).toContain("aspect-[2/3]");
+    expect(frame(<MediaFrame ratio="9:16" alt="Reel" />).className).toContain("aspect-[9/16]");
+    const measured = frame(<MediaFrame ratio="16:9" width={1080} height={1350} src="/a.png" alt="Dish" />);
+    expect(measured.style.aspectRatio).toBe("1080 / 1350");
+    expect(measured.className).not.toContain("aspect-");
+    expect(frame(<MediaFrame ratio={0.8} alt="Menu" />).style.aspectRatio).toBe("0.8 / 1");
+    // Bad item data falls back to the preset instead of a frame with no height.
+    const bad = frame(<MediaFrame width={0} height={Number.NaN} ratio={-1} alt="Broken" />);
+    expect(bad.style.aspectRatio).toBe("");
+    expect(bad.className).toContain("aspect-[3/2]");
+    const { container } = render(<MediaFrame width={3} height={4} alt="Chef" caption="Photo coming soon" />);
     expect(await violations(container)).toEqual([]);
   });
 

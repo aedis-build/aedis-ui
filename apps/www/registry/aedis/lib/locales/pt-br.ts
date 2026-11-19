@@ -167,6 +167,12 @@ export const ptBR: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "ou",
+  },
+  plans: {
+    current: "Plano atual",
+  },
   sectionDock: {
     label: "Seções da página",
     ring: "Seções da página, agora: {section}",
@@ -180,6 +186,11 @@ export const ptBR: Messages = {
     close: "Fechar",
     counter: "{index} de {count}",
     video: "vídeo",
+  },
+  layoutGrid: {
+    photo: "Foto: {title}",
+    film: "Filme: {title}",
+    close: "Fechar",
   },
   field: {
     truncated: "Só cabem os primeiros {max} caracteres. O resto do que foi colado ficou de fora.",

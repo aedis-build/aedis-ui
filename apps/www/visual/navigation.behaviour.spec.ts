@@ -171,3 +171,42 @@ test("on a phone the account breadcrumb is one line with the parent and the curr
   const [list, link] = [(await nav.locator("ol").boundingBox())!, (await nav.getByRole("link", { name: "Production" }).boundingBox())!];
   expect(list.height).toBeLessThanOrEqual(link.height + 1);
 });
+
+test("sidebar sections: only the one with the current page starts open, Enter and Space toggle, no turn with reduced motion", async ({ page }) => {
+  await page.goto("/docs/sidebar");
+  // The nested demo: the first example also has an Approvals link.
+  const main = page.getByRole("main").locator("[data-slot=sidebar]", { has: page.locator("[data-slot=sidebar-section]") }).first();
+  const summary = (name: string) => main.locator("[data-slot=sidebar-section] > summary", { hasText: name }).first();
+
+  await expect(main.getByRole("link", { name: /Approvals/ })).toHaveAttribute("aria-current", "page");
+  await expect(main.getByRole("link", { name: /Approvals/ })).toBeVisible();
+  await expect(main.getByRole("link", { name: "People" })).toBeHidden();
+  await expect(main.getByRole("link", { name: "Controls" })).toBeHidden();
+
+  await summary("Compliance").focus();
+  await page.keyboard.press("Enter");
+  await expect(summary("Compliance").locator("..")).toHaveAttribute("open", "");
+  await expect(main.getByRole("link", { name: "Controls" })).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(main.getByRole("link", { name: "Controls" })).toBeHidden();
+
+  await summary("Users").click();
+  await expect(main.getByRole("link", { name: "People" })).toBeVisible();
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const chevron = summary("Users").locator("svg");
+  expect(await chevron.evaluate((el) => getComputedStyle(el).transitionProperty)).toBe("none");
+});
+
+test.describe("sidebar sections on a touch phone", () => {
+  // A coarse pointer exists only with touch emulation; the desktop context keeps the compact row.
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test("a section row is 44 px tall and the page does not scroll sideways", async ({ page }) => {
+    await page.goto("/docs/sidebar");
+    const main = page.getByRole("main").locator("[data-slot=sidebar]", { has: page.locator("[data-slot=sidebar-section]") }).first();
+    expect(await page.evaluate(() => matchMedia("(pointer: coarse)").matches)).toBe(true);
+    expect((await main.locator("[data-slot=sidebar-section] > summary", { hasText: "Compliance" }).first().boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+});

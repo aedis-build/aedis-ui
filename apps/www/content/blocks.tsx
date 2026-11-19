@@ -2,9 +2,11 @@ import type { ComponentType } from "react";
 
 import { components, type Accessibility, type Defense, type Security, type Sink } from "@/content/components";
 import AgentConsoleDemo from "@/examples/blocks/agent-console";
+import AuthSplitDemo from "@/examples/blocks/auth-split";
 import CtaSectionDemo from "@/examples/blocks/cta-section";
 import HeroDemo from "@/examples/blocks/hero";
 import LogoCloudDemo from "@/examples/blocks/logo-cloud";
+import PlansDemo from "@/examples/blocks/plans";
 import ProofListDemo from "@/examples/blocks/proof-list";
 import ApprovalInboxDemo from "@/examples/blocks/approval-inbox";
 import SecureShellDemo from "@/examples/blocks/secure-shell";
@@ -12,7 +14,7 @@ import UsageLimitsDemo from "@/examples/blocks/usage-limits";
 import registry from "@/registry.json";
 
 /** The tabs of the Blocks page, in the board's order; a category may have no block yet. */
-export const blockCategories = ["AI platform", "Approvals", "Usage and limits", "Secure shell", "Micro-frontends", "Marketing"] as const;
+export const blockCategories = ["AI platform", "Approvals", "Usage and limits", "Secure shell", "Micro-frontends", "Marketing", "Sign in"] as const;
 
 /**
  * A whole screen built only from registry items, installed with `aedis add <name>`. The Code tab shows the block's
@@ -119,6 +121,43 @@ export const blocks: BlockDoc[] = [
     accessibility: {
       notes: ["Paused agents are announced as an alert, agents near the limit as a status; each bar is a named progressbar.", "Amounts are formatted for the reader's locale."],
       motion: "Bars move to new values on a spring. With reduced motion they jump.",
+    },
+  },
+  {
+    name: "plans",
+    title: "Plans",
+    description: "Pricing columns with name, price, a short list and an action; the current plan is marked without shifting the grid.",
+    category: "Usage and limits",
+    height: 560,
+    demo: PlansDemo,
+    demoFile: "blocks/plans",
+    usage: `import { Plans } from "@/components/ui/plans";
+
+<Plans
+  currency="BRL"
+  locale="pt-BR"
+  current="start"
+  plans={[
+    { id: "free", name: "Free", price: 0, items: ["1 agent"] },
+    { id: "pro", name: "Pro", price: 299, period: "per month", items: ["10 agents"], action: { label: "Switch to Pro", onClick: () => switchTo("pro") } },
+    { id: "managed", name: "Managed", price: "Talk to us", action: { label: "Talk to us about Managed", href: "/contact" } },
+  ]}
+/>`,
+    defenses: [
+      {
+        title: "Actions only to safe URLs",
+        text: "A link action goes through safeUrl: a javascript: or malformed URL leaves the plan without an action, and external links get noopener noreferrer.",
+        evidence: [["plans.test.tsx", "names actions in full and leaves out an action whose URL is refused"]],
+        ids: ["CWE-79", "CWE-601"],
+      },
+    ],
+    backend: "change the plan on the server, after checking who asks; this block only calls back. Prices are data: send the amount, currency and locale the account is billed in.",
+    accessibility: {
+      notes: [
+        "Each plan is a section named by its heading; the current one says so in text (the Locale provider's \"Current plan\"), not only by the accent rule.",
+        "The rules are inset shadows and the title row has a fixed height, so marking another plan moves nothing.",
+        "Amounts are formatted with Intl.NumberFormat for the locale and currency you pass.",
+      ],
     },
   },
   {
@@ -257,6 +296,60 @@ import { Slideshow } from "@/components/ui/carousel";
     defenses: [],
     backend: "keep the numbers true: they are claims.",
     accessibility: { notes: ["A description list: each label is the term and its numeral and detail describe it, so a screen reader says \"Years in practice, 12\"."] },
+  },
+  {
+    name: "auth-split",
+    title: "Auth Split",
+    description: "Sign in and sign up as one split screen: a statement and numbered facts beside the form.",
+    category: "Sign in",
+    height: 760,
+    demo: AuthSplitDemo,
+    demoFile: "blocks/auth-split",
+    usage: `import { AuthSplit, AuthSplitDivider } from "@/components/ui/auth-split";
+
+<AuthSplit
+  mark={<Logo />}
+  statement="Every change to your systems, signed, reviewed and on record."
+  shortStatement="Every change, signed and on record."
+  facts={[{ title: "Signed by default" }, { title: "Reviewed by people" }, { title: "Kept on record" }]}
+  title="Sign in"
+  action={signIn}
+  csrfToken={csrfToken}
+  footer={<a href="/sign-up">Create an account</a>}
+>
+  <Button variant="outline" type="button">Continue with Google</Button>
+  <AuthSplitDivider />
+  <Field name="email">
+    <FieldLabel>Work email</FieldLabel>
+    <FieldControl type="email" required autoComplete="username webauthn" />
+  </Field>
+  <Button type="submit">Continue with email</Button>
+  <Button variant="ghost" type="button">Sign in with a passkey</Button>
+</AuthSplit>`,
+    defenses: [
+      {
+        title: "The email never goes in the URL",
+        text: "The form posts unless the app says otherwise, so a submit before hydration, or an action given as a path, keeps the address out of the query string, history, logs and Referer.",
+        evidence: [["auth-split.test.tsx", "names the form by its h1, numbers the facts as a list, and posts the form"]],
+        ids: ["CWE-598", "OWASP A04:2021"],
+      },
+      {
+        title: "The form carries an anti-forgery token",
+        text: "Give csrfToken the token your server issued for the session and the form sends it as the hidden field csrf_token, so the server can refuse a sign-in posted from another site.",
+        evidence: [["auth-split.test.tsx", "sends the anti-forgery token as a hidden field, and none when it is not given"]],
+        ids: ["CWE-352", "OWASP A01:2021"],
+      },
+    ],
+    backend:
+      "check csrf_token against the session before anything else, answer the same way and in the same time whether or not the address has an account, limit attempts per address and per IP, wrap the action in secureAction (rate limit, size limit, schema), and keep the identity provider, versions and infrastructure out of the page and its errors. Give the email field autocomplete=\"username webauthn\" so the browser can offer a passkey.",
+    accessibility: {
+      keyboard: [["Enter", "In the email field, submits the form."]],
+      notes: [
+        "The title is the page's h1 and names the form.",
+        "The facts are an ordered list; the visible numerals are hidden from assistive technology, which reads the list's own numbers.",
+        "Footer links and buttons are at least 44 px tall.",
+      ],
+    },
   },
 ];
 
