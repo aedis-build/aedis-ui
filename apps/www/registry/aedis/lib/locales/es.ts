@@ -187,6 +187,11 @@ export const es: Messages = {
     counter: "{index} de {count}",
     video: "vídeo",
   },
+  layoutGrid: {
+    photo: "Foto: {title}",
+    film: "Película: {title}",
+    close: "Cerrar",
+  },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",
     honeypot: "Deja este campo vacío",

@@ -207,6 +207,12 @@ export type Messages = {
     /** Read after a film's thumbnail, so it is not taken for a photo. */
     video: string;
   };
+  layoutGrid: {
+    /** Names a block; {title} is the piece's title. */
+    photo: string;
+    film: string;
+    close: string;
+  };
   /** Input and Textarea. */
   field: {
     /** A paste longer than the room left was cut; {max} is the limit. */
@@ -413,6 +419,11 @@ export const en: Messages = {
     close: "Close",
     counter: "{index} of {count}",
     video: "video",
+  },
+  layoutGrid: {
+    photo: "Photo: {title}",
+    film: "Film: {title}",
+    close: "Close",
   },
   field: {
     truncated: "Only the first {max} characters fit. The rest of the paste was cut.",
