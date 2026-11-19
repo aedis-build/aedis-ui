@@ -167,6 +167,12 @@ export const es: Messages = {
   logoCloud: {
     label: "Clientes",
   },
+  authSplit: {
+    or: "o",
+  },
+  plans: {
+    current: "Plan actual",
+  },
   sectionDock: {
     label: "Secciones de la página",
     ring: "Secciones de la página, ahora: {section}",
@@ -180,6 +186,11 @@ export const es: Messages = {
     close: "Cerrar",
     counter: "{index} de {count}",
     video: "vídeo",
+  },
+  layoutGrid: {
+    photo: "Foto: {title}",
+    film: "Película: {title}",
+    close: "Cerrar",
   },
   field: {
     truncated: "Solo caben los primeros {max} caracteres. El resto de lo pegado se cortó.",

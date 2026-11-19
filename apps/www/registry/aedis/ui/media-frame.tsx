@@ -4,7 +4,15 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const RATIOS = { "1:1": "aspect-square", "4:5": "aspect-[4/5]", "3:2": "aspect-[3/2]", "16:9": "aspect-video", "21:9": "aspect-[21/9]" } as const;
+const RATIOS = {
+  "1:1": "aspect-square",
+  "4:5": "aspect-[4/5]",
+  "2:3": "aspect-[2/3]",
+  "3:2": "aspect-[3/2]",
+  "9:16": "aspect-[9/16]",
+  "16:9": "aspect-video",
+  "21:9": "aspect-[21/9]",
+} as const;
 
 export type MediaRatio = keyof typeof RATIOS;
 
@@ -16,7 +24,10 @@ type Described = { alt: string; decorative?: false } | { alt?: never; decorative
 
 export type MediaFrameProps = Described & {
   /** The frame keeps this shape before the media loads, so nothing below it moves. */
-  ratio?: MediaRatio;
+  ratio?: MediaRatio | number;
+  /** The media's real size; together they set the ratio and win over `ratio`. */
+  width?: number;
+  height?: number;
   fit?: "cover" | "contain";
   /** Without it, or when it fails to load, the frame shows its placeholder. Same-origin or an origin the CSP img-src allows. */
   src?: string;
@@ -28,7 +39,7 @@ export type MediaFrameProps = Described & {
 };
 
 /** A frame with a fixed aspect ratio for an image, with a labelled placeholder while the media is missing. */
-function MediaFrame({ ratio = "3:2", fit = "cover", src, alt, decorative, caption, image, className }: MediaFrameProps) {
+function MediaFrame({ ratio = "3:2", width, height, fit = "cover", src, alt, decorative, caption, image, className }: MediaFrameProps) {
   const [failed, setFailed] = React.useState(false);
   const root = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -37,8 +48,18 @@ function MediaFrame({ ratio = "3:2", fit = "cover", src, alt, decorative, captio
     setFailed(!!img && img.complete && img.naturalWidth === 0);
   }, [src]);
   const label = decorative ? "" : alt;
+  // Item data may carry 0 or NaN; a ratio that is not a positive number falls back to the 3:2 preset.
+  const ok = (n?: number): n is number => Number.isFinite(n) && n! > 0;
+  const custom = ok(width) && ok(height) ? `${width} / ${height}` : typeof ratio === "number" && ok(ratio) ? String(ratio) : undefined;
+  const preset = typeof ratio === "string" ? ratio : "3:2";
   return (
-    <div ref={root} data-slot="media-frame" data-ratio={ratio} className={cn("relative w-full overflow-hidden rounded-md bg-muted", RATIOS[ratio], className)}>
+    <div
+      ref={root}
+      data-slot="media-frame"
+      data-ratio={custom ?? preset}
+      style={custom ? { aspectRatio: custom } : undefined}
+      className={cn("relative w-full overflow-hidden rounded-md bg-muted", !custom && RATIOS[preset], className)}
+    >
       {src && !failed ? (
         (image ?? ((p) => <img {...p} />))({
           src,

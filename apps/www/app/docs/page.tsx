@@ -93,6 +93,17 @@ export default function Introduction() {
           <p className="text-callout text-muted-foreground">Then add components; their registry dependencies come with them:</p>
           <InstallCommand name="button" />
           <p className="text-callout text-muted-foreground">
+            Every file the CLI writes gets a receipt under <code className="font-mono">files</code> in <code className="font-mono">aedis.json</code>: its path in
+            the project, the sha256 of the bytes written, the item and the release. Adding an item again replaces a file that still matches its receipt and never
+            one edited since: the new version goes next to it as <code className="font-mono">&lt;file&gt;.aedis-new</code>, the command lists every conflict and
+            exits non-zero, even with <code className="font-mono">--overwrite</code> (which only replaces files installed before receipts existed, or any file
+            when the registry is not verified). The CLI never deletes the <code className="font-mono">.aedis-new</code>: to settle the conflict, make the file
+            equal to the new version (merging your edit by hand), run <code className="font-mono">add</code> again, which sees it unchanged and records a new
+            receipt, then delete the <code className="font-mono">.aedis-new</code>.{" "}
+            <code className="font-mono">diff</code> reports each tracked file as unchanged, edited locally, missing or untracked. The receipt is a local file anyone
+            can edit: it detects drift, it does not authenticate anything. Trust comes from the verified release, not from it.
+          </p>
+          <p className="text-callout text-muted-foreground">
             Never run <code className="font-mono">npx aedis</code>: the unscoped package belongs to someone else. The CLI is{" "}
             <code className="font-mono">{CLI.replace(/@[\d.]+$/, "")}</code>.
           </p>

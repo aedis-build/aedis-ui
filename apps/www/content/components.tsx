@@ -53,6 +53,7 @@ import SeparatorDemo from "@/examples/separator/demo";
 import ShareCardDemo from "@/examples/share-card/demo";
 import SheetDemo from "@/examples/sheet/demo";
 import SidebarDemo from "@/examples/sidebar/demo";
+import SidebarNested from "@/examples/sidebar/nested";
 import SiteFooterDemo from "@/examples/site-footer/demo";
 import SiteFooterReveal from "@/examples/site-footer/reveal";
 import SiteHeaderDemo from "@/examples/site-header/demo";
@@ -87,6 +88,7 @@ import VideoDemo from "@/examples/video/demo";
 import VideoBackground from "@/examples/video/background";
 import LightboxDemo from "@/examples/lightbox/demo";
 import LightboxMixed from "@/examples/lightbox/mixed";
+import LayoutGridDemo from "@/examples/layout-grid/demo";
 import ScrollMotionDemo from "@/examples/scroll-motion/demo";
 import ScrollMotionPin from "@/examples/scroll-motion/pin";
 import ScrollMotionEffects from "@/examples/scroll-motion/effects";
@@ -127,6 +129,7 @@ import SectionDockDemo from "@/examples/section-dock/demo";
 import TextMaskDemo from "@/examples/text-mask/demo";
 import TextMaskFly from "@/examples/text-mask/fly";
 import ImageStreamDemo from "@/examples/image-stream/demo";
+import MasonryDemo from "@/examples/masonry/demo";
 
 export type Prop = { name: string; type: string; default?: string; description: string };
 
@@ -728,7 +731,7 @@ f.date(invoice.dueAt);         // "18 de out. de 2026"`,
     ],
     usage: `import { CodeBlock } from "@/components/ui/code-block";
 
-<CodeBlock lang="bash" code="npx @aedis/cli@0.10.0 add button" />`,
+<CodeBlock lang="bash" code="npx @aedis/cli@0.12.0 add button" />`,
     props: [
       { name: "lineNumbers", type: "boolean", default: "false", description: "A gutter of line numbers, kept with each line through the reveal and while a long line scrolls. aria-hidden and unselectable: never copied." },
       { name: "chrome", type: '"none" | "window"', default: '"none"', description: "window: a small editor window, three decorative dots (aria-hidden) and the title as the file name." },
@@ -2119,17 +2122,28 @@ export const metadata = shareMetadata({
     name: "sidebar",
     title: "Sidebar",
     category: "Navigation",
-    description: "Grouped navigation with counters for items waiting on a person, and areas that open later.",
-    examples: [{ title: "Sidebar", file: "sidebar/demo", component: SidebarDemo }],
+    description: "Grouped navigation with counters for items waiting on a person, areas that open later, and collapsible nested sections.",
+    examples: [
+      { title: "Sidebar", file: "sidebar/demo", component: SidebarDemo },
+      { title: "Nested sections", description: "Three levels: the workspace, Identity with three sections, and Compliance. Only the section that holds the current page starts open.", file: "sidebar/nested", component: SidebarNested },
+    ],
     usage: `import Link from "next/link";
 import { Sidebar } from "@/components/ui/sidebar";
 
 <Sidebar
   linkComponent={Link}
-  groups={[{ label: "Work", items: [{ href: "/approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }] }]}
+  groups={[
+    { label: "Work", items: [{ href: "/approvals", label: "Approvals", count: 3, countLabel: "3 waiting" }] },
+    { label: "Products", items: [
+      { label: "Identity", items: [
+        { label: "Access", items: [{ href: "/identity/agents", label: "Agents", active: true }] },
+      ] },
+    ] },
+  ]}
 />`,
     props: [
-      { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason." },
+      { name: "groups", type: "{ label; items: SidebarItem[] }[]", description: "Groups of items: href, label, count, countLabel, active, icon, disabled, disabledReason. An item with items instead of href is a collapsible section (up to two levels below a group); its open defaults to whether it holds the active item." },
+      { name: "onOpenChange", type: "(section: SidebarItem, open: boolean) => void", description: "Called when a person opens or closes a section. Pass open on the section with it to control the state." },
       { name: "header / footer", type: "ReactNode", description: "Organization switcher at the top, signed-in user at the bottom." },
       { name: "linkComponent", type: "ComponentType", default: "<a>", description: "Your router link, e.g. Next.js Link." },
       { name: "label", type: "string", default: '"Main navigation"', description: "Accessible name of the nav landmark." },
@@ -2137,11 +2151,18 @@ import { Sidebar } from "@/components/ui/sidebar";
     security: { sinks: [], notes: [
       "Disabled items stay visible with their reason instead of disappearing, so people know an area exists.",
       "Counters have accessible text (countLabel), not just a number.",
+      "The section that holds the current page opens by default, so a collapsed section never hides where the person is.",
     ] },
     accessibility: {
-      keyboard: [["Tab", "Moves through the links; disabled items are skipped."]],
-      notes: ["A nav landmark named \"Main navigation\" by default; the current item has aria-current=\"page\".", "Counters are read from countLabel, not the bare number.", "A disabled item stays visible with aria-disabled and its reason."],
-      motion: "Items sink slightly when pressed. With reduced motion there is no scale.",
+      keyboard: [["Tab", "Moves through the links and section titles; disabled items are skipped."], ["Enter / Space", "Opens or closes the focused section."]],
+      notes: [
+        "A nav landmark named \"Main navigation\" by default; the current item has aria-current=\"page\".",
+        "Counters are read from countLabel, not the bare number.",
+        "A disabled item stays visible with aria-disabled and its reason.",
+        "Sections are native details and summary, so screen readers announce them as expanded or collapsed; the chevron is decorative.",
+        "Rows are at least 44 px tall on touch screens.",
+      ],
+      motion: "Items sink slightly when pressed and the chevron turns when a section opens; sections never animate their height. With reduced motion there is no scale and no turn.",
     },
   },
   {
@@ -2878,13 +2899,23 @@ import { Field, FieldLabel } from "@/components/ui/field";
     title: "Media Frame",
     category: "Data display",
     description: "A frame with a fixed aspect ratio for work thumbnails, with a labelled placeholder while media is missing.",
-    examples: [{ title: "Media Frame", description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder.", file: "media-frame/demo", component: MediaFrameDemo }],
+    examples: [
+      {
+        title: "Media Frame",
+        description: "The third frame has no media yet; a frame whose image fails to load shows the same placeholder. The second row is 2:3, 9:16, and a frame sized by the image's own width and height.",
+        file: "media-frame/demo",
+        component: MediaFrameDemo,
+      },
+    ],
     usage: `import { MediaFrame } from "@/components/ui/media-frame";
 
 <MediaFrame ratio="4:5" src="/work/shop-sign.jpg" alt="Ceramics studio identity, the shop sign" />
-<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />`,
+<MediaFrame ratio="16:9" alt="Hotel campaign" caption="Photos coming soon" />
+<MediaFrame ratio="9:16" src="/work/reel-cover.jpg" alt="Hotel campaign reel, cover" />
+<MediaFrame width={photo.width} height={photo.height} src={photo.src} alt={photo.alt} />`,
     props: [
-      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"3:2\" | \"16:9\" | \"21:9\"", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves." },
+      { name: "ratio", type: "\"1:1\" | \"4:5\" | \"2:3\" | \"3:2\" | \"9:16\" | \"16:9\" | \"21:9\" | number", default: "\"3:2\"", description: "The shape kept before the media loads, so nothing below it moves. A number is width over height, e.g. 0.8." },
+      { name: "width / height", type: "number", description: "The media's real size. Together they set any ratio through aspect-ratio and win over ratio. A value that is not a positive number is ignored." },
       { name: "fit", type: "\"cover\" | \"contain\"", default: "\"cover\"", description: "How the media fills the frame." },
       { name: "alt", type: "string", description: "Required, unless decorative is set; then the image gets an empty alt." },
       { name: "decorative", type: "true", description: "Marks the media as decoration: empty alt, placeholder hidden from assistive technology." },
@@ -3025,6 +3056,51 @@ import { Field, FieldLabel } from "@/components/ui/field";
         "An open film is the Video player named by its alt, with the browser's controls and its caption tracks. In the player, ← → seek in the film instead of moving to another item.",
       ],
       motion: "The dialog materializes; with zoomFromThumbnail the image grows from its thumbnail in 380 ms. With reduced motion neither moves.",
+    },
+  },
+  {
+    name: "layout-grid",
+    title: "Layout Grid",
+    category: "Overlays",
+    description: "Photos and films in blocks of their own shape, alternating wide and narrow, that grow into a centered card with a title and a description.",
+    examples: [{ title: "Layout Grid", description: "A chapter of hotels: pairs alternate 2+1 and 1+2, three vertical films make a group. Open a block, close with Esc or a click outside. The demo reuses the site's sample media.", file: "layout-grid/demo", component: LayoutGridDemo, align: "start" }],
+    usage: `import { LayoutGrid } from "@/components/ui/layout-grid";
+
+<LayoutGrid
+  chapter={{ number: "01", name: "Coast and city", label: "Hotels" }}
+  items={[
+    { kind: "photo", src: "/hotels/lobby.jpg", ratio: 3 / 2, alt: "Gold light across the lobby", title: "Casa do Largo", label: "Lisbon", description: "A lobby that opens onto the square." },
+    { kind: "film", src: "/hotels/arrival.webm", type: "video/webm", poster: "/hotels/arrival.jpg", ratio: 9 / 16, alt: "Walking in to the front desk", title: "Arrival" },
+  ]}
+/>`,
+    props: [
+      { name: "items", type: "{ kind, src, ratio, alt, title, description?, label?, type?, poster?, captions? }[]", description: "The pieces in order. ratio is width over height; below 1 the piece is vertical. src is the file each block links to." },
+      { name: "chapter", type: "{ number?, name, label? }", description: "A header that names the grid, to group several on one page." },
+      { name: "className", type: "string", description: "Classes for the section." },
+      { name: "labels", type: "Partial<LayoutGridLabels>", description: "Overrides the locale's words (Photo: {title}, Film: {title}, Close)." },
+      { name: "layoutSlots(ratios)", type: "function", description: "The placement on three columns, exported to test or reuse: pairs alternate wide and narrow with the horizontal piece wide; three vertical pieces in a row make a feature beside two stacked blocks, switching sides each group." },
+    ],
+    security: {
+      sinks: ["DOM"],
+      defenses: [
+        {
+          title: "Only safe protocols become links",
+          text: "Each block's href goes through safeUrl and carries rel=\"noopener noreferrer\"; a refused URL leaves the block without a link.",
+          evidence: [["layout-grid.test.tsx", "links a block through safeUrl with noopener noreferrer, and leaves a refused URL without a link"]],
+          ids: ["CWE-79", "CWE-601"],
+        },
+      ],
+      notes: ["Images and films load from the origins the CSP img-src and media-src allow; titles, labels and descriptions are text.", "Each block is a plain link to its file, so the grid works without JavaScript."],
+    },
+    accessibility: {
+      keyboard: [["Tab", "Moves through the blocks, and the pause button of each film."], ["Enter", "On a block, opens its card; the focus moves to Close."], ["Esc", "Closes; the focus goes back to the block."]],
+      notes: [
+        "Each block is a link named by its kind and title (\"Photo: Casa do Largo\"); its picture is decorative inside it, so it is read once.",
+        "The card is a native modal dialog named by the title; Esc, Close and a click outside close it.",
+        "Close sits on an opaque button, so it keeps its contrast over bright media.",
+        "Films loop muted in the grid with a pause button (WCAG 2.2.2) and never move with reduced motion; in the card they have controls, sound and captions.",
+      ],
+      motion: "The card grows from its block with a View Transition; where the browser has none, or with reduced motion, it opens at once. The copy over a film fades aside 1.2 s after it starts, without the fade under reduced motion.",
     },
   },
   {
@@ -3593,6 +3669,45 @@ if (!problem) await uploadAttachment("/api/attachments", file, { onProgress: set
         "Every card starts mid-flight; that same mid-flight still is what the page shows without JavaScript and under reduced motion. It never collapses onto the axis.",
       ],
       motion: "Each card takes cards × speed seconds to fly from the vanishing point out of the frame, its height growing geometrically. Linear, endless, and paused while the stream is off screen.",
+    },
+  },
+  {
+    name: "masonry",
+    title: "Masonry",
+    category: "Data display",
+    description: "Media in mixed ratios laid out in columns by CSS, optionally interleaved by group.",
+    examples: [
+      {
+        title: "Masonry",
+        description: "Nine works from four clients in their own ratios, each a link to its file. Turn interleaving off to see them in the order they are stored, one client after another.",
+        file: "masonry/demo",
+        component: MasonryDemo,
+      },
+    ],
+    usage: `import { Masonry } from "@/components/ui/masonry";
+import { MediaFrame } from "@/components/ui/media-frame";
+
+<Masonry aria-label="Work" items={works} itemKey={(w) => w.src} groupBy={(w) => w.client}>
+  {(w) => (
+    <a href={w.src} className="block rounded-md focus-ring">
+      <MediaFrame ratio={w.ratio} src={w.src} alt={w.alt} />
+    </a>
+  )}
+</Masonry>`,
+    props: [
+      { name: "items", type: "T[]", description: "The works, in the order they are stored." },
+      { name: "itemKey", type: "(item: T) => string", description: "A stable, unique key for each item, e.g. its file." },
+      { name: "groupBy", type: "(item: T) => string", description: "Interleaves the items by this key: one from each group in turn, groups in the order they first appear, each keeping its own order. Without it, the order of items." },
+      { name: "children", type: "(item: T) => ReactNode", description: "The tile. A link to the file around a MediaFrame keeps the gallery working without JavaScript." },
+      { name: "className", type: "string", description: "Classes for the list, e.g. other column counts." },
+    ],
+    security: { sinks: [], notes: ["Layout only: no script lays it out and nothing is injected. The tiles are what children renders and belong to the consumer; for a link to another origin use the house Link, which applies safeUrl and rel=\"noopener noreferrer\"."] },
+    accessibility: {
+      notes: [
+        "A list of list items; name it with aria-label. Each tile is a link named by its image's alt, so it opens without JavaScript.",
+        "CSS columns fill top to bottom, so the DOM, reading and focus order runs down the first column, then the next: it follows the visible order by column, not by row. Interleaving keeps each column from being one client.",
+        "Keep controls out of a link tile: a background Video with its pause button goes beside the link, not inside it.",
+      ],
     },
   },
 ];
