@@ -245,6 +245,8 @@ test("in masonry each thumbnail opens its own item and Esc returns the focus to 
   const dialog = page.getByRole("dialog", { name: "Key card" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("6 of 6");
+  // The demo zooms from the thumbnail: an arrow pressed during the view transition or the entrance is lost.
+  await expect.poll(() => dialog.evaluate((d) => Boolean(document.activeViewTransition) || d.getAnimations({ subtree: true }).length > 0)).toBe(false);
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("dialog", { name: "Ceramics studio" })).toContainText("1 of 6");
   await page.keyboard.press("Escape");
