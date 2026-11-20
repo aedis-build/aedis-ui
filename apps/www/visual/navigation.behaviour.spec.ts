@@ -223,8 +223,7 @@ test("the sidebar's current page wears a thin thread marker at the inline start,
     probe.style.color = "var(--thread)";
     const thread = getComputedStyle(probe).color;
     probe.remove();
-    const box = el.getBoundingClientRect();
-    return { content: before.content, color: before.backgroundColor, thread, width: parseFloat(before.width), left: parseFloat(before.left), fill: getComputedStyle(el).backgroundColor, linkWidth: box.width };
+    return { content: before.content, color: before.backgroundColor, thread, width: parseFloat(before.width), left: parseFloat(before.left), right: parseFloat(before.right), fill: getComputedStyle(el).backgroundColor };
   };
   const m = await current.evaluate(marker);
   expect(m.content).not.toBe("none");
@@ -232,7 +231,11 @@ test("the sidebar's current page wears a thin thread marker at the inline start,
   expect(m.width).toBe(2);
   expect(m.left).toBe(0);
   expect(m.fill).not.toBe("rgba(0, 0, 0, 0)");
-  expect(m.width).toBeLessThan(m.linkWidth / 10);
+
+  // Inline start, not left: in a right-to-left page the marker moves to the right edge.
+  await nav.evaluate((el) => el.setAttribute("dir", "rtl"));
+  expect((await current.evaluate(marker)).right).toBe(0);
+  await nav.evaluate((el) => el.removeAttribute("dir"));
 
   for (const other of await nav.locator("a:not([aria-current])").all()) {
     if (await other.isVisible()) expect(await other.evaluate((el) => getComputedStyle(el, "::before").content)).toBe("none");
