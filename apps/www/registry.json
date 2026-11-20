@@ -1730,6 +1730,7 @@
         "@aedis/use-reduced-motion",
         "@aedis/button",
         "@aedis/dialog",
+        "@aedis/masonry",
         "@aedis/media-frame",
         "@aedis/video"
       ],

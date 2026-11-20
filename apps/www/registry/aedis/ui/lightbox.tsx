@@ -8,10 +8,18 @@ import { useReducedMotion } from "@/registry/aedis/hooks/use-reduced-motion";
 import { useMessages, type Messages } from "@/registry/aedis/lib/locale";
 import { Button } from "@/registry/aedis/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/registry/aedis/ui/dialog";
+import { Masonry } from "@/registry/aedis/ui/masonry";
 import { MediaFrame, type MediaRatio } from "@/registry/aedis/ui/media-frame";
 import { Video, type VideoCaptions } from "@/registry/aedis/ui/video";
 
-type LightboxBase = { src: string; alt: string; title: string; caption?: string };
+type LightboxBase = {
+  src: string;
+  alt: string;
+  title: string;
+  caption?: string;
+  /** With layout="masonry": the thumbnails show one item from each group in turn, so a column is not one group. */
+  group?: string;
+};
 
 /**
  * A photo. With srcSet the browser picks the file that fits, in the thumbnail (by the Lightbox's thumbSizes) and when
@@ -38,7 +46,12 @@ const DISMISS = 120;
 
 type LightboxProps = {
   items: LightboxItem[];
-  /** Shape of the thumbnails. */
+  /**
+   * "grid" (default): equal thumbnails in rows. "masonry": columns where each thumbnail keeps its item's own
+   * width/height (items without them use `ratio`), laid out by CSS like Masonry.
+   */
+  layout?: "grid" | "masonry";
+  /** Shape of the thumbnails; in the masonry layout, the fallback for items without width and height. */
   ratio?: MediaRatio;
   /** The `sizes` of the thumbnails, for items with a srcSet. The default fits the grid at full width; say less when it is narrower. */
   thumbSizes?: string;
@@ -59,7 +72,7 @@ type LightboxProps = {
  * and Esc to close; dragging the item down past 120 px closes it too. The focus stays inside while it is open and goes
  * back to the thumbnail that opened it.
  */
-function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, backdrop = "solid", className, labels }: LightboxProps) {
+function Lightbox({ items, layout = "grid", ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw, 50vw", zoomFromThumbnail = false, backdrop = "solid", className, labels }: LightboxProps) {
   const l = useMessages("lightbox", labels);
   const reduced = useReducedMotion();
   const [open, setOpen] = React.useState(false);
@@ -141,42 +154,56 @@ function Lightbox({ items, ratio = "4:5", thumbSizes = "(min-width: 640px) 33vw,
     }
   };
 
+  const thumb = (it: LightboxItem, i: number) => {
+    // In the masonry layout the frame takes the item's own shape.
+    const size = layout === "masonry" && it.width && it.height ? { width: it.width, height: it.height } : {};
+    return (
+      <button type="button" ref={(el) => void (thumbs.current[i] = el)} onClick={() => show(i)} className="relative block w-full rounded-md focus-ring">
+        {it.kind === "video" ? (
+          <>
+            <MediaFrame ratio={ratio} {...size} src={it.poster} alt={it.alt} />
+            <span className="sr-only">{l.video}</span>
+            <span aria-hidden="true" className="absolute inset-0 grid place-items-center">
+              {/* The media tokens stay the same in both themes: the poster is any picture, light or dark. */}
+              <span className="grid size-10 place-items-center rounded-full bg-media-scrim text-on-media shadow-elevation-1 ring-1 ring-on-media/40">
+                <svg viewBox="0 0 16 16" className="size-4" fill="currentColor">
+                  <path d="M5 3.5v9l7.5-4.5z" />
+                </svg>
+              </span>
+            </span>
+          </>
+        ) : (
+          <MediaFrame
+            ratio={ratio}
+            {...size}
+            src={it.src}
+            alt={it.alt}
+            image={(p) => <img {...p} srcSet={it.srcSet} sizes={it.srcSet ? thumbSizes : undefined} />}
+          />
+        )}
+      </button>
+    );
+  };
+
   return (
     <>
-      <ul data-slot="lightbox" className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3", className)}>
-        {items.map((it, i) => (
-          <li key={it.src}>
-            <button
-              type="button"
-              ref={(el) => void (thumbs.current[i] = el)}
-              onClick={() => show(i)}
-              className="relative block w-full rounded-md focus-ring"
-            >
-              {it.kind === "video" ? (
-                <>
-                  <MediaFrame ratio={ratio} src={it.poster} alt={it.alt} />
-                  <span className="sr-only">{l.video}</span>
-                  <span aria-hidden="true" className="absolute inset-0 grid place-items-center">
-                    {/* The media tokens stay the same in both themes: the poster is any picture, light or dark. */}
-                    <span className="grid size-10 place-items-center rounded-full bg-media-scrim text-on-media shadow-elevation-1 ring-1 ring-on-media/40">
-                      <svg viewBox="0 0 16 16" className="size-4" fill="currentColor">
-                        <path d="M5 3.5v9l7.5-4.5z" />
-                      </svg>
-                    </span>
-                  </span>
-                </>
-              ) : (
-                <MediaFrame
-                  ratio={ratio}
-                  src={it.src}
-                  alt={it.alt}
-                  image={(p) => <img {...p} srcSet={it.srcSet} sizes={it.srcSet ? thumbSizes : undefined} />}
-                />
-              )}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {layout === "masonry" ? (
+        <Masonry
+          data-slot="lightbox"
+          items={items.map((it, i) => ({ it, i }))}
+          itemKey={({ it }) => it.src}
+          {...(items.some((it) => it.group) ? { groupBy: ({ it }: { it: LightboxItem }) => it.group ?? "" } : {})}
+          {...(className ? { className } : {})}
+        >
+          {({ it, i }) => thumb(it, i)}
+        </Masonry>
+      ) : (
+        <ul data-slot="lightbox" className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3", className)}>
+          {items.map((it, i) => (
+            <li key={it.src}>{thumb(it, i)}</li>
+          ))}
+        </ul>
+      )}
       <Dialog open={open} onOpenChange={toggle}>
         {item ? (
           <DialogContent
