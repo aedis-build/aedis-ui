@@ -127,7 +127,11 @@ function Items({ items, Link, onOpenChange, nested }: ItemsProps) {
             <Link
               href={item.href!}
               aria-current={item.active ? "page" : undefined}
-              className={cn(row, "press focus-ring hover:bg-muted aria-[current=page]:bg-accent-soft aria-[current=page]:font-medium")}
+              // The current page keeps its background and gains a 2 px line in thread at the inline start: a marker, never a fill.
+              className={cn(
+                row,
+                "press focus-ring relative hover:bg-muted aria-[current=page]:bg-accent-soft aria-[current=page]:font-medium aria-[current=page]:before:absolute aria-[current=page]:before:inset-y-1.5 aria-[current=page]:before:start-0 aria-[current=page]:before:w-0.5 aria-[current=page]:before:rounded-full aria-[current=page]:before:bg-thread",
+              )}
             >
               {item.icon}
               <span className="flex-1">{item.label}</span>

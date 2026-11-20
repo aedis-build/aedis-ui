@@ -16,7 +16,6 @@ const EXEMPT: Record<string, string> = {
   "chart-4": "Chart offers five series colours; the chart demos use up to three.",
   "chart-5": "Chart offers five series colours; the chart demos use up to three.",
   "material-thin": "Offered to apps for chips and floating controls; no component of the registry uses the material-thin utility yet.",
-  thread: "Horizon's active-navigation marker and title rule (#278); no registry component paints it yet (#308).",
 };
 
 const names = Object.keys(colors);
